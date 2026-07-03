@@ -1,0 +1,126 @@
+:root {
+  color-scheme: light dark;
+  --border: #d6d6da;
+  --bg-soft: #f6f6f8;
+  --accent: #3a5ccc;
+  --danger: #c0392b;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; color: #1c1c1f; }
+
+.layout { display: flex; flex-direction: column; height: 100vh; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.topbar h1 { font-size: 1.05rem; margin: 0; }
+.list-switcher { display: flex; align-items: center; gap: 0.4rem; }
+.viewer-link { margin-left: auto; font-size: 0.85rem; }
+
+.main { flex: 1; display: flex; min-height: 0; }
+
+.word-table-pane {
+  flex: 1 1 45%;
+  min-width: 320px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.edit-pane {
+  flex: 1 1 55%;
+  overflow: auto;
+  padding: 0 1rem 2rem;
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem 0.4rem;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
+.pane-header h2 { font-size: 1rem; margin: 0; }
+.edit-actions { display: flex; gap: 0.4rem; }
+
+.word-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.word-table th, .word-table td { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--border); text-align: left; }
+.word-table .col-no { width: 4rem; color: #777; }
+.word-table tbody tr { cursor: pointer; }
+.word-table tbody tr:hover { background: var(--bg-soft); }
+.word-table tbody tr.selected { background: #e8edfc; }
+
+.empty-msg { padding: 1rem; color: #888; }
+
+button {
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 5px;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+button:hover { background: var(--bg-soft); }
+button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+button.danger { color: var(--danger); border-color: var(--danger); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+fieldset { border: 1px solid var(--border); border-radius: 6px; margin: 0.8rem 0; padding: 0.7rem 0.9rem; }
+legend { font-size: 0.85rem; font-weight: 600; padding: 0 0.3rem; }
+legend .hint { font-weight: 400; color: #777; font-size: 0.78rem; margin-left: 0.4rem; }
+
+.field-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.field-row label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.82rem; color: #555; flex: 1; min-width: 160px; }
+input[type="text"], input[type="number"], select, textarea {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.92rem;
+  font-family: inherit;
+}
+
+.repeat-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.repeat-row { display: grid; grid-template-columns: 6rem 1fr auto; gap: 0.4rem; align-items: center; }
+.repeat-row.example-row { grid-template-columns: 1fr 1fr 1fr auto; }
+.remove-row-btn { color: var(--danger); border-color: transparent; }
+.add-row-btn { margin-top: 0.5rem; }
+
+textarea { width: 100%; resize: vertical; }
+
+.preview {
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-height: 1.4em;
+}
+.preview a.ref { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+.preview .ref-missing { color: var(--danger); border-bottom: 1px dotted var(--danger); }
+.preview mark { background: #ffe58a; padding: 0 0.1em; }
+
+.tags-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.custom-tags-label { display: block; margin-top: 0.5rem; font-size: 0.82rem; color: #555; }
+.custom-tags-label input { width: 100%; margin-top: 0.2rem; }
+
+@media (prefers-color-scheme: dark) {
+  :root { --border: #3a3a3f; --bg-soft: #202024; }
+  body { background: #17171a; color: #eaeaec; }
+  .pane-header { background: #17171a; }
+  button, input, select, textarea { background: #232327; color: #eaeaec; }
+  .word-table tbody tr.selected { background: #26304f; }
+  .preview { background: #202024; }
+}

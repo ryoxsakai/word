@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>単語帳 設定</title>
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+<div class="layout">
+  <header class="topbar">
+    <h1>単語帳 設定</h1>
+    <div class="list-switcher">
+      <label for="listSelect">リスト</label>
+      <select id="listSelect"></select>
+      <button id="newListBtn" type="button">＋ 新規リスト</button>
+    </div>
+    <a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧ページを開く ↗</a>
+  </header>
+
+  <main class="main">
+    <section class="word-table-pane">
+      <div class="pane-header">
+        <h2 id="listTitle">リスト未選択</h2>
+        <button id="newWordBtn" type="button" disabled>＋ 単語を追加</button>
+      </div>
+      <table class="word-table">
+        <thead>
+          <tr><th class="col-no">no.</th><th>スペル</th><th>発音記号</th><th></th></tr>
+        </thead>
+        <tbody id="wordTableBody"></tbody>
+      </table>
+      <p id="wordTableEmpty" class="empty-msg" hidden>このリストにはまだ単語がありません。</p>
+    </section>
+
+    <section class="edit-pane" id="editPane" hidden>
+      <div class="pane-header">
+        <h2 id="editTitle">単語を編集</h2>
+        <div class="edit-actions">
+          <button id="saveBtn" type="button" class="primary">保存</button>
+          <button id="deleteBtn" type="button" class="danger">削除</button>
+          <button id="closeBtn" type="button">閉じる</button>
+        </div>
+      </div>
+
+      <form id="wordForm">
+        <div class="field-row">
+          <label>このリストでの no.
+            <input type="number" id="fieldNo" min="1" />
+          </label>
+          <label>スペル
+            <input type="text" id="fieldSpelling" required />
+          </label>
+          <label>発音記号 (IPA)
+            <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+          </label>
+        </div>
+
+        <fieldset>
+          <legend>意味（品詞ごと）</legend>
+          <div id="sensesList" class="repeat-list"></div>
+          <button type="button" class="add-row-btn" data-add="senses">＋ 意味を追加</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>派生語</legend>
+          <div id="derivativesList" class="repeat-list"></div>
+          <button type="button" class="add-row-btn" data-add="derivatives">＋ 派生語を追加</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>例文</legend>
+          <div id="examplesList" class="repeat-list"></div>
+          <button type="button" class="add-row-btn" data-add="examples">＋ 例文を追加</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>語源メモ <span class="hint">記法: ##見出し語## で相互参照 / *語根* でイタリック / ==語==でハイライト</span></legend>
+          <textarea id="fieldEtymology" rows="3" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
+          <div class="preview" id="etymologyPreview"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>関連語彙メモ <span class="hint">記法: ##headword## / ##headword|表示文言##</span></legend>
+          <textarea id="fieldNotes" rows="3" placeholder="##import## も参照。"></textarea>
+          <div class="preview" id="notesPreview"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>レベルタグ</legend>
+          <div class="tags-row">
+            <label><input type="checkbox" id="tagOxford5000" /> Oxford 5000</label>
+            <label><input type="checkbox" id="tagAwl" /> AWL</label>
+            <label>英検
+              <select id="tagEiken">
+                <option value="">―</option>
+                <option value="5級">5級</option>
+                <option value="4級">4級</option>
+                <option value="3級">3級</option>
+                <option value="準2級">準2級</option>
+                <option value="2級">2級</option>
+                <option value="準1級">準1級</option>
+                <option value="1級">1級</option>
+              </select>
+            </label>
+          </div>
+          <label class="custom-tags-label">カスタムタグ（カンマ区切り。例: 医学部頻出, 語法注意）
+            <input type="text" id="tagCustom" />
+          </label>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+</div>
+
+<template id="senseRowTpl">
+  <div class="repeat-row" data-kind="senses">
+    <input type="text" class="pos" placeholder="品詞 (v./n./adj.)" />
+    <input type="text" class="meaning" placeholder="意味" />
+    <button type="button" class="remove-row-btn">×</button>
+  </div>
+</template>
+
+<template id="derivativeRowTpl">
+  <div class="repeat-row" data-kind="derivatives">
+    <input type="text" class="pos" placeholder="品詞" />
+    <input type="text" class="word" placeholder="派生語" />
+    <button type="button" class="remove-row-btn">×</button>
+  </div>
+</template>
+
+<template id="exampleRowTpl">
+  <div class="repeat-row example-row" data-kind="examples">
+    <input type="text" class="sentence" placeholder="例文（空所は ＿＿＿ で表す）" />
+    <input type="text" class="answer" placeholder="解答" />
+    <input type="text" class="translation" placeholder="和訳" />
+    <button type="button" class="remove-row-btn">×</button>
+  </div>
+</template>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

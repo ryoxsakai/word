@@ -1,0 +1,14 @@
+name = "vocab-app"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[assets]
+directory = "../public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vocab-db"
+# `npx wrangler d1 create vocab-db` を実行し、出力された database_id をここに入れてください。
+# ローカル開発（--local）ではこの値がプレースホルダのままでも動作します。
+database_id = "00000000-0000-0000-0000-000000000000"

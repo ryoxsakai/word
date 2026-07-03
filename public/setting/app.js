@@ -1,0 +1,339 @@
+import { renderMarkup } from "../shared/markup.js";
+
+const API = "/api";
+
+const state = {
+  lists: [],
+  currentListId: null,
+  listWordIndex: new Map(), // spelling(lower) -> { id, no }
+  words: [], // 現在のリストの一覧（テーブル表示用）
+  currentWord: null, // 編集中の単語詳細（新規時はnull）
+  isNew: false,
+};
+
+const el = {
+  listSelect: document.getElementById("listSelect"),
+  newListBtn: document.getElementById("newListBtn"),
+  listTitle: document.getElementById("listTitle"),
+  newWordBtn: document.getElementById("newWordBtn"),
+  wordTableBody: document.getElementById("wordTableBody"),
+  wordTableEmpty: document.getElementById("wordTableEmpty"),
+  editPane: document.getElementById("editPane"),
+  editTitle: document.getElementById("editTitle"),
+  saveBtn: document.getElementById("saveBtn"),
+  deleteBtn: document.getElementById("deleteBtn"),
+  closeBtn: document.getElementById("closeBtn"),
+  fieldNo: document.getElementById("fieldNo"),
+  fieldSpelling: document.getElementById("fieldSpelling"),
+  fieldPronunciation: document.getElementById("fieldPronunciation"),
+  sensesList: document.getElementById("sensesList"),
+  derivativesList: document.getElementById("derivativesList"),
+  examplesList: document.getElementById("examplesList"),
+  fieldEtymology: document.getElementById("fieldEtymology"),
+  etymologyPreview: document.getElementById("etymologyPreview"),
+  fieldNotes: document.getElementById("fieldNotes"),
+  notesPreview: document.getElementById("notesPreview"),
+  tagOxford5000: document.getElementById("tagOxford5000"),
+  tagAwl: document.getElementById("tagAwl"),
+  tagEiken: document.getElementById("tagEiken"),
+  tagCustom: document.getElementById("tagCustom"),
+};
+
+const templates = {
+  senses: document.getElementById("senseRowTpl"),
+  derivatives: document.getElementById("derivativeRowTpl"),
+  examples: document.getElementById("exampleRowTpl"),
+};
+
+async function api(path, opts) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { "content-type": "application/json" },
+    ...opts,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `HTTP ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+function resolveRef(headword) {
+  const hit = state.listWordIndex.get(headword.toLowerCase());
+  if (!hit) return { found: false };
+  return { found: true, id: hit.id, no: hit.no };
+}
+
+function updatePreview(textarea, previewEl) {
+  previewEl.innerHTML = renderMarkup(textarea.value, { resolve: resolveRef }) || '<span style="color:#999">（プレビュー）</span>';
+}
+
+// ---- リスト読み込み ----
+
+async function loadLists() {
+  state.lists = await api("/lists");
+  el.listSelect.innerHTML = "";
+  for (const list of state.lists) {
+    const opt = document.createElement("option");
+    opt.value = list.id;
+    opt.textContent = list.name;
+    el.listSelect.appendChild(opt);
+  }
+  if (state.lists.length > 0) {
+    state.currentListId = state.lists[0].id;
+    el.listSelect.value = state.currentListId;
+    await selectList(state.currentListId);
+  } else {
+    state.currentListId = null;
+    el.listTitle.textContent = "リストがありません。「＋ 新規リスト」から作成してください";
+    el.newWordBtn.disabled = true;
+  }
+}
+
+async function selectList(listId) {
+  state.currentListId = listId;
+  const list = state.lists.find((l) => l.id === listId);
+  el.listTitle.textContent = list ? list.name : "";
+  el.newWordBtn.disabled = !listId;
+  closeEditor();
+  await loadWordsForList(listId);
+}
+
+async function loadWordsForList(listId) {
+  state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
+  state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.no }]));
+  renderWordTable();
+}
+
+function renderWordTable() {
+  el.wordTableBody.innerHTML = "";
+  el.wordTableEmpty.hidden = state.words.length > 0;
+  for (const w of state.words) {
+    const tr = document.createElement("tr");
+    tr.dataset.wordId = w.id;
+    if (state.currentWord && state.currentWord.id === w.id) tr.classList.add("selected");
+    tr.innerHTML = `<td class="col-no">${w.no}</td><td>${escapeHtml(w.spelling)}</td><td>${escapeHtml(w.pronunciation || "")}</td><td></td>`;
+    tr.addEventListener("click", () => openWordEditor(w.id));
+    el.wordTableBody.appendChild(tr);
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// ---- 編集フォーム ----
+
+function clearRepeatList(container) {
+  container.innerHTML = "";
+}
+
+function addRow(kind, data = {}) {
+  const container = document.getElementById(`${kind}List`);
+  const tpl = templates[kind];
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  if (kind === "senses") {
+    node.querySelector(".pos").value = data.pos || "";
+    node.querySelector(".meaning").value = data.meaning || "";
+  } else if (kind === "derivatives") {
+    node.querySelector(".pos").value = data.pos || "";
+    node.querySelector(".word").value = data.word || "";
+  } else if (kind === "examples") {
+    node.querySelector(".sentence").value = data.sentence || "";
+    node.querySelector(".answer").value = data.answer || "";
+    node.querySelector(".translation").value = data.translation || "";
+  }
+  node.querySelector(".remove-row-btn").addEventListener("click", () => node.remove());
+  container.appendChild(node);
+}
+
+function collectRows(kind) {
+  const container = document.getElementById(`${kind}List`);
+  const rows = [...container.querySelectorAll(".repeat-row")];
+  if (kind === "senses") {
+    return rows
+      .map((r) => ({ pos: r.querySelector(".pos").value.trim(), meaning: r.querySelector(".meaning").value.trim() }))
+      .filter((r) => r.meaning);
+  }
+  if (kind === "derivatives") {
+    return rows
+      .map((r) => ({ pos: r.querySelector(".pos").value.trim(), word: r.querySelector(".word").value.trim() }))
+      .filter((r) => r.word);
+  }
+  if (kind === "examples") {
+    return rows
+      .map((r) => ({
+        sentence: r.querySelector(".sentence").value.trim(),
+        answer: r.querySelector(".answer").value.trim(),
+        translation: r.querySelector(".translation").value.trim(),
+      }))
+      .filter((r) => r.sentence);
+  }
+  return [];
+}
+
+function openNewWordForm() {
+  state.currentWord = null;
+  state.isNew = true;
+  el.editTitle.textContent = "単語を追加";
+  el.deleteBtn.hidden = true;
+  el.fieldNo.value = nextSuggestedNo();
+  el.fieldSpelling.value = "";
+  el.fieldPronunciation.value = "";
+  clearRepeatList(el.sensesList);
+  clearRepeatList(el.derivativesList);
+  clearRepeatList(el.examplesList);
+  addRow("senses");
+  addRow("derivatives");
+  addRow("examples");
+  el.fieldEtymology.value = "";
+  el.fieldNotes.value = "";
+  el.tagOxford5000.checked = false;
+  el.tagAwl.checked = false;
+  el.tagEiken.value = "";
+  el.tagCustom.value = "";
+  updatePreview(el.fieldEtymology, el.etymologyPreview);
+  updatePreview(el.fieldNotes, el.notesPreview);
+  el.editPane.hidden = false;
+  renderWordTable();
+}
+
+function nextSuggestedNo() {
+  const max = state.words.reduce((m, w) => Math.max(m, w.no), 0);
+  return max + 1;
+}
+
+async function openWordEditor(wordId) {
+  const detail = await api(`/words/${encodeURIComponent(wordId)}`);
+  state.currentWord = detail;
+  state.isNew = false;
+  el.editTitle.textContent = `単語を編集: ${detail.spelling}`;
+  el.deleteBtn.hidden = false;
+
+  const membership = detail.lists.find((l) => l.listId === state.currentListId);
+  el.fieldNo.value = membership ? membership.no : "";
+  el.fieldSpelling.value = detail.spelling;
+  el.fieldPronunciation.value = detail.pronunciation || "";
+
+  clearRepeatList(el.sensesList);
+  (detail.senses.length ? detail.senses : [{}]).forEach((s) => addRow("senses", s));
+  clearRepeatList(el.derivativesList);
+  (detail.derivatives.length ? detail.derivatives : [{}]).forEach((d) => addRow("derivatives", d));
+  clearRepeatList(el.examplesList);
+  (detail.examples.length ? detail.examples : [{}]).forEach((ex) => addRow("examples", ex));
+
+  el.fieldEtymology.value = detail.etymology || "";
+  el.fieldNotes.value = detail.notes || "";
+  el.tagOxford5000.checked = "oxford5000" in detail.tags;
+  el.tagAwl.checked = "awl" in detail.tags;
+  el.tagEiken.value = detail.tags.eiken || "";
+  el.tagCustom.value = Object.entries(detail.tags)
+    .filter(([k]) => k.startsWith("custom:"))
+    .map(([k]) => k.slice("custom:".length))
+    .join(", ");
+
+  updatePreview(el.fieldEtymology, el.etymologyPreview);
+  updatePreview(el.fieldNotes, el.notesPreview);
+  el.editPane.hidden = false;
+  renderWordTable();
+}
+
+function closeEditor() {
+  state.currentWord = null;
+  el.editPane.hidden = true;
+  renderWordTable();
+}
+
+function collectTags() {
+  const tags = {};
+  if (el.tagOxford5000.checked) tags.oxford5000 = true;
+  if (el.tagAwl.checked) tags.awl = true;
+  if (el.tagEiken.value) tags.eiken = el.tagEiken.value;
+  for (const raw of el.tagCustom.value.split(",")) {
+    const v = raw.trim();
+    if (v) tags[`custom:${v}`] = true;
+  }
+  return tags;
+}
+
+async function saveWord() {
+  if (!el.fieldSpelling.value.trim()) {
+    alert("スペルを入力してください");
+    return;
+  }
+  const body = {
+    spelling: el.fieldSpelling.value.trim(),
+    pronunciation: el.fieldPronunciation.value.trim() || null,
+    senses: collectRows("senses"),
+    derivatives: collectRows("derivatives"),
+    examples: collectRows("examples"),
+    etymology: el.fieldEtymology.value.trim() || null,
+    notes: el.fieldNotes.value.trim() || null,
+    tags: collectTags(),
+  };
+
+  try {
+    let word;
+    if (state.isNew) {
+      body.listId = state.currentListId;
+      body.no = el.fieldNo.value ? Number(el.fieldNo.value) : nextSuggestedNo();
+      word = await api("/words", { method: "POST", body: JSON.stringify(body) });
+    } else {
+      word = await api(`/words/${state.currentWord.id}`, { method: "PUT", body: JSON.stringify(body) });
+      if (el.fieldNo.value) {
+        await api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(word.id)}`, {
+          method: "PUT",
+          body: JSON.stringify({ no: Number(el.fieldNo.value) }),
+        });
+      }
+    }
+    await loadWordsForList(state.currentListId);
+    await openWordEditor(word.id);
+  } catch (err) {
+    alert(`保存に失敗しました: ${err.message}`);
+  }
+}
+
+async function deleteCurrentWord() {
+  if (!state.currentWord) return;
+  if (!confirm(`「${state.currentWord.spelling}」を削除しますか？（全リストから削除されます）`)) return;
+  try {
+    await api(`/words/${state.currentWord.id}`, { method: "DELETE" });
+    closeEditor();
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
+  }
+}
+
+async function createNewList() {
+  const name = prompt("新規リスト名を入力してください（例: 英検2級オリジナル）");
+  if (!name) return;
+  try {
+    const { id } = await api("/lists", { method: "POST", body: JSON.stringify({ name }) });
+    await loadLists();
+    el.listSelect.value = id;
+    await selectList(id);
+  } catch (err) {
+    alert(`リスト作成に失敗しました: ${err.message}`);
+  }
+}
+
+// ---- イベント登録 ----
+
+el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
+el.newListBtn.addEventListener("click", createNewList);
+el.newWordBtn.addEventListener("click", openNewWordForm);
+el.saveBtn.addEventListener("click", saveWord);
+el.deleteBtn.addEventListener("click", deleteCurrentWord);
+el.closeBtn.addEventListener("click", closeEditor);
+el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
+el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
+
+document.querySelectorAll(".add-row-btn").forEach((btn) => {
+  btn.addEventListener("click", () => addRow(btn.dataset.add));
+});
+
+loadLists().catch((err) => {
+  console.error(err);
+  el.listTitle.textContent = `読み込みエラー: ${err.message}`;
+});

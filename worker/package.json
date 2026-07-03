@@ -1,0 +1,14 @@
+{
+  "name": "vocab-app-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "db:init:local": "wrangler d1 execute vocab-db --local --file=./schema.sql",
+    "db:init:remote": "wrangler d1 execute vocab-db --remote --file=./schema.sql",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
