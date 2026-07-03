@@ -263,6 +263,79 @@ async function renderText(db, body) {
   return json({ html });
 }
 
+// フロントエンド(GitHub Pages)とAPI(Cloudflare Workers)が別オリジンになる構成のためのCORS制御。
+// env.ALLOWED_ORIGINS はカンマ区切りの許可オリジン一覧（wrangler.toml の [vars] で設定）。
+// 未設定時はローカル開発用に localhost / 127.0.0.1 のみ許可する。
+function resolveAllowedOrigin(request, env) {
+  const origin = request.headers.get("Origin");
+  if (!origin) return null;
+  const configured = (env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  if (isLocalhost || configured.includes(origin)) return origin;
+  return null;
+}
+
+function corsHeaders(allowedOrigin) {
+  if (!allowedOrigin) return {};
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+}
+
+function withCors(response, allowedOrigin) {
+  const headers = new Headers(response.headers);
+  for (const [k, v] of Object.entries(corsHeaders(allowedOrigin))) headers.set(k, v);
+  return new Response(response.body, { status: response.status, headers });
+}
+
+async function handleApi(request, env, parts, method) {
+  const db = env.DB;
+
+  // /api/lists
+  if (parts.length === 2 && parts[1] === "lists") {
+    if (method === "GET") return await listLists(db);
+    if (method === "POST") return await createList(db, await request.json());
+  }
+
+  // /api/lists/:listId/words
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "words" && method === "GET") {
+    return await listWordsInList(db, parts[2]);
+  }
+
+  // /api/lists/:listId/items/:wordId
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "items") {
+    const [, , listId, , wordId] = parts;
+    if (method === "PUT") return await upsertListItem(db, listId, wordId, await request.json());
+    if (method === "DELETE") return await removeListItem(db, listId, wordId);
+  }
+
+  // /api/words
+  if (parts.length === 2 && parts[1] === "words" && method === "POST") {
+    return await createWord(db, await request.json());
+  }
+
+  // /api/words/:id
+  if (parts.length === 3 && parts[1] === "words") {
+    const id = parts[2];
+    if (method === "GET") return await getWord(db, id);
+    if (method === "PUT") return await updateWord(db, id, await request.json());
+    if (method === "DELETE") return await deleteWord(db, id);
+  }
+
+  // /api/render
+  if (parts.length === 2 && parts[1] === "render" && method === "POST") {
+    return await renderText(db, await request.json());
+  }
+
+  return notFound("no such route");
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -272,50 +345,22 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    const db = env.DB;
+    const allowedOrigin = resolveAllowedOrigin(request, env);
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders(allowedOrigin) });
+    }
+
     const parts = pathname.split("/").filter(Boolean).map(decodeURIComponent); // ["api", ...]
-    const method = request.method;
 
     try {
-      // /api/lists
-      if (parts.length === 2 && parts[1] === "lists") {
-        if (method === "GET") return await listLists(db);
-        if (method === "POST") return await createList(db, await request.json());
-      }
-
-      // /api/lists/:listId/words
-      if (parts.length === 4 && parts[1] === "lists" && parts[3] === "words" && method === "GET") {
-        return await listWordsInList(db, parts[2]);
-      }
-
-      // /api/lists/:listId/items/:wordId
-      if (parts.length === 5 && parts[1] === "lists" && parts[3] === "items") {
-        const [, , listId, , wordId] = parts;
-        if (method === "PUT") return await upsertListItem(db, listId, wordId, await request.json());
-        if (method === "DELETE") return await removeListItem(db, listId, wordId);
-      }
-
-      // /api/words
-      if (parts.length === 2 && parts[1] === "words" && method === "POST") {
-        return await createWord(db, await request.json());
-      }
-
-      // /api/words/:id
-      if (parts.length === 3 && parts[1] === "words") {
-        const id = parts[2];
-        if (method === "GET") return await getWord(db, id);
-        if (method === "PUT") return await updateWord(db, id, await request.json());
-        if (method === "DELETE") return await deleteWord(db, id);
-      }
-
-      // /api/render
-      if (parts.length === 2 && parts[1] === "render" && method === "POST") {
-        return await renderText(db, await request.json());
-      }
-
-      return notFound("no such route");
+      const response = await handleApi(request, env, parts, request.method);
+      return withCors(response, allowedOrigin);
     } catch (err) {
-      return json({ error: String(err && err.message ? err.message : err) }, { status: 500 });
+      return withCors(
+        json({ error: String(err && err.message ? err.message : err) }, { status: 500 }),
+        allowedOrigin
+      );
     }
   },
 };

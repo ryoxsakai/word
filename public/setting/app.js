@@ -1,6 +1,7 @@
 import { renderMarkup } from "../shared/markup.js";
+import { API_BASE } from "../shared/config.js";
 
-const API = "/api";
+const API = `${API_BASE}/api`;
 
 const state = {
   lists: [],

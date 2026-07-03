@@ -6,6 +6,11 @@ compatibility_date = "2024-11-01"
 directory = "../public"
 binding = "ASSETS"
 
+[vars]
+# GitHub PagesなどAPIと別オリジンからアクセスするフロントエンドのURLをカンマ区切りで指定。
+# 例: "https://ryoxsakai.github.io"
+ALLOWED_ORIGINS = ""
+
 [[d1_databases]]
 binding = "DB"
 database_name = "vocab-db"
