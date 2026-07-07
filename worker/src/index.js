@@ -549,7 +549,7 @@ async function importAwl(db) {
   }
   await runBatched(db, tagInserts);
 
-  return json({ created, tagged, alreadyTagged });
+  return { created, tagged, alreadyTagged };
 }
 
 // ---- Oxford 5000 一括取り込み ----
@@ -589,7 +589,95 @@ async function importOxford5000(db) {
   }
   await runBatched(db, tagInserts);
 
-  return json({ created, tagged, alreadyTagged });
+  return { created, tagged, alreadyTagged };
+}
+
+// ---- プリセットリスト（AWL / Oxford 5000）の作成と単語投入 ----
+// マスター単語＋タグを整えたうえで、レベル別リストを自動作成して list_items へ一括登録する。
+// 何度実行しても安全（リストは INSERT OR IGNORE、単語は既存分をスキップ）。
+
+const PRESET_LISTS = [
+  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({
+    id: `awl-sublist-${n}`,
+    name: `AWL Sublist ${n}`,
+    description: `Academic Word List Sublist ${n}`,
+    sortOrder: n,
+    tagKey: "awl",
+    tagValue: String(n),
+  })),
+  ...["A1", "A2", "B1", "B2", "C1"].map((level, i) => ({
+    id: `oxford5000-${level.toLowerCase()}`,
+    name: `Oxford 5000 ${level}`,
+    description: `Oxford 5000 word list (${level})`,
+    sortOrder: 100 + i,
+    tagKey: "oxford5000",
+    tagValue: level,
+  })),
+];
+
+async function ensurePresetList(db, preset) {
+  const exists = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(preset.id).first();
+  if (exists) return false;
+  await db
+    .prepare("INSERT INTO lists (id, name, description, sort_order) VALUES (?, ?, ?, ?)")
+    .bind(preset.id, preset.name, preset.description, preset.sortOrder)
+    .run();
+  return true;
+}
+
+async function importByTagBatched(db, targetListId, tagKey, tagValue) {
+  const stmt = tagValue
+    ? db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ? AND tag_value = ?").bind(tagKey, tagValue)
+    : db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ?").bind(tagKey);
+  const { results: tagRows } = await stmt.all();
+
+  const { results: existingRows } = await db
+    .prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ?")
+    .bind(targetListId)
+    .all();
+  const existingSet = new Set(existingRows.map((r) => r.wordId));
+
+  const row = await db.prepare("SELECT COALESCE(MAX(no), 0) AS maxNo FROM list_items WHERE list_id = ?").bind(targetListId).first();
+  let nextNo = (row?.maxNo || 0) + 1;
+
+  const inserts = [];
+  let added = 0;
+  let skipped = 0;
+  for (const { wordId } of tagRows) {
+    if (existingSet.has(wordId)) {
+      skipped += 1;
+      continue;
+    }
+    inserts.push(
+      db.prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, 0, NULL)").bind(targetListId, wordId, nextNo)
+    );
+    nextNo += 1;
+    added += 1;
+  }
+  await runBatched(db, inserts);
+  return { added, skipped, total: tagRows.length };
+}
+
+async function seedPresetLists(db) {
+  const awl = await importAwl(db);
+  const oxford = await importOxford5000(db);
+
+  const lists = [];
+  for (const preset of PRESET_LISTS) {
+    const listCreated = await ensurePresetList(db, preset);
+    const membership = await importByTagBatched(db, preset.id, preset.tagKey, preset.tagValue);
+    lists.push({
+      id: preset.id,
+      name: preset.name,
+      listCreated,
+      ...membership,
+    });
+  }
+
+  return {
+    master: { awl, oxford },
+    lists,
+  };
 }
 
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
@@ -736,14 +824,9 @@ async function handleApi(request, env, parts, method) {
     return await listDistinctTags(db);
   }
 
-  // /api/import-awl
-  if (parts.length === 2 && parts[1] === "import-awl" && method === "POST") {
-    return await importAwl(db);
-  }
-
-  // /api/import-oxford5000
-  if (parts.length === 2 && parts[1] === "import-oxford5000" && method === "POST") {
-    return await importOxford5000(db);
+  // /api/seed-preset-lists
+  if (parts.length === 2 && parts[1] === "seed-preset-lists" && method === "POST") {
+    return json(await seedPresetLists(db));
   }
 
   // /api/words

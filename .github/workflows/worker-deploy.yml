@@ -40,3 +40,9 @@ jobs:
 
       - name: Deploy Worker
         run: npx wrangler deploy
+
+      - name: Seed AWL / Oxford 5000 preset lists
+        run: |
+          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/seed-preset-lists" \
+            -H "Content-Type: application/json" \
+            --retry 5 --retry-delay 10 --retry-all-errors
