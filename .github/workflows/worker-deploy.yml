@@ -1,6 +1,7 @@
 name: Deploy Cloudflare Worker
 
 on:
+  # main への push で自動デプロイする。worker/ 配下 or このファイル自体の変更が対象。
   push:
     branches: [main]
     paths:
