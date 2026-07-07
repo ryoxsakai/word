@@ -454,6 +454,35 @@ async function renderText(db, body) {
   return json({ html });
 }
 
+// ---- 発音記号の自動入力（無料辞書API経由）----
+// 品詞ごとに発音が変わる単語（record等）は1つの発音しか取れないため、
+// 参考値として埋めるだけにとどめ、必要なら手動で調整してもらう想定。
+async function lookupPronunciation(spelling) {
+  if (!spelling) return null;
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(spelling)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data)) return null;
+    for (const entry of data) {
+      if (entry.phonetic) return entry.phonetic;
+      for (const p of entry.phonetics || []) {
+        if (p.text) return p.text;
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function handleLookup(request) {
+  const spelling = new URL(request.url).searchParams.get("spelling");
+  if (!spelling) return badRequest("spelling query param is required");
+  const pronunciation = await lookupPronunciation(spelling);
+  return json({ pronunciation });
+}
+
 // フロントエンド(GitHub Pages)とAPI(Cloudflare Workers)が別オリジンになる構成のためのCORS制御。
 // env.ALLOWED_ORIGINS はカンマ区切りの許可オリジン一覧（wrangler.toml の [vars] で設定）。
 // 未設定時はローカル開発用に localhost / 127.0.0.1 のみ許可する。
@@ -548,6 +577,11 @@ async function handleApi(request, env, parts, method) {
   // /api/render
   if (parts.length === 2 && parts[1] === "render" && method === "POST") {
     return await renderText(db, await request.json());
+  }
+
+  // /api/lookup?spelling=...
+  if (parts.length === 2 && parts[1] === "lookup" && method === "GET") {
+    return await handleLookup(request);
   }
 
   return notFound("no such route");

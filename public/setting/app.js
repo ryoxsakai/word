@@ -31,6 +31,7 @@ const el = {
   fieldNo: document.getElementById("fieldNo"),
   fieldSpelling: document.getElementById("fieldSpelling"),
   fieldPronunciation: document.getElementById("fieldPronunciation"),
+  lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
   sensesList: document.getElementById("sensesList"),
@@ -72,6 +73,46 @@ function resolveRef(headword) {
 
 function updatePreview(textarea, previewEl) {
   previewEl.innerHTML = renderMarkup(textarea.value, { resolve: resolveRef }) || '<span style="color:#999">（プレビュー）</span>';
+}
+
+// ---- 発音記号の自動取得 ----
+
+async function fetchPronunciation(spelling) {
+  if (!spelling) return null;
+  try {
+    const { pronunciation } = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`);
+    return pronunciation;
+  } catch {
+    return null;
+  }
+}
+
+// スペルを入力し終えたタイミングで、発音記号が未入力なら自動で埋める。
+async function autoFillPronunciationOnBlur() {
+  const spelling = el.fieldSpelling.value.trim();
+  if (!spelling || el.fieldPronunciation.value.trim()) return;
+  const pronunciation = await fetchPronunciation(spelling);
+  if (pronunciation) el.fieldPronunciation.value = pronunciation;
+}
+
+// 🔍ボタン: 現在の値を問わず辞書から取り直す。
+async function lookupPronunciationManually() {
+  const spelling = el.fieldSpelling.value.trim();
+  if (!spelling) {
+    alert("先にスペルを入力してください");
+    return;
+  }
+  el.lookupPronunciationBtn.disabled = true;
+  try {
+    const pronunciation = await fetchPronunciation(spelling);
+    if (pronunciation) {
+      el.fieldPronunciation.value = pronunciation;
+    } else {
+      alert(`「${spelling}」の発音記号が辞書から見つかりませんでした。手動で入力してください。`);
+    }
+  } finally {
+    el.lookupPronunciationBtn.disabled = false;
+  }
 }
 
 // ---- リスト読み込み ----
@@ -468,6 +509,8 @@ el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
 el.fieldSection.addEventListener("change", handleSectionSelectChange);
+el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
+el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
 el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 

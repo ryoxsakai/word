@@ -55,8 +55,11 @@
           <label>スペル
             <input type="text" id="fieldSpelling" required />
           </label>
-          <label>発音記号 (IPA)
-            <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+          <label>発音記号 (IPA) <span class="hint">スペル入力時に自動取得（辞書になければ空欄）</span>
+            <span class="input-with-btn">
+              <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+              <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す">🔍</button>
+            </span>
           </label>
         </div>
         <div class="field-row">

@@ -88,6 +88,10 @@ legend .hint { font-weight: 400; color: #777; font-size: 0.78rem; margin-left: 0
 
 .field-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.5rem; }
 .field-row label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.82rem; color: #555; flex: 1; min-width: 160px; }
+.field-row label .hint { font-weight: 400; color: #999; font-size: 0.72rem; }
+.input-with-btn { display: flex; gap: 0.3rem; }
+.input-with-btn input { flex: 1; min-width: 0; }
+.input-with-btn button { flex: 0 0 auto; padding: 0.35rem 0.5rem; }
 input[type="text"], input[type="number"], select, textarea {
   border: 1px solid var(--border);
   border-radius: 4px;
