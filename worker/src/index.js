@@ -205,8 +205,8 @@ async function loadWordDetail(db, id) {
   if (!word) return null;
 
   const [senses, derivatives, examples, tags, memberships, children, parent] = await Promise.all([
-    db.prepare("SELECT id, pos, meaning, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
-    db.prepare("SELECT id, pos, word, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, pos, meaning, pronunciation, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, pos, word, meaning, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, sentence, answer, translation, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT tag_key, tag_value FROM tags WHERE word_id = ?").bind(id).all(),
     db
@@ -270,8 +270,8 @@ async function replaceTags(db, wordId, tags) {
 }
 
 async function saveWordChildren(db, id, body) {
-  await replaceChildRows(db, "senses", ["pos", "meaning", "sort_order"], id, body.senses);
-  await replaceChildRows(db, "derivatives", ["pos", "word", "sort_order"], id, body.derivatives);
+  await replaceChildRows(db, "senses", ["pos", "meaning", "pronunciation", "sort_order"], id, body.senses);
+  await replaceChildRows(db, "derivatives", ["pos", "word", "meaning", "sort_order"], id, body.derivatives);
   await replaceChildRows(db, "examples", ["sentence", "answer", "translation", "sort_order"], id, body.examples);
   await replaceTags(db, id, body.tags);
 }

@@ -126,17 +126,19 @@
 </div>
 
 <template id="senseRowTpl">
-  <div class="repeat-row" data-kind="senses">
+  <div class="repeat-row sense-row" data-kind="senses">
     <input type="text" class="pos" placeholder="品詞 (v./n./adj.)" />
     <input type="text" class="meaning" placeholder="意味" />
+    <input type="text" class="pronunciation" placeholder="発音（この品詞だけ違う場合のみ）" />
     <button type="button" class="remove-row-btn">×</button>
   </div>
 </template>
 
 <template id="derivativeRowTpl">
-  <div class="repeat-row" data-kind="derivatives">
+  <div class="repeat-row derivative-row" data-kind="derivatives">
     <input type="text" class="pos" placeholder="品詞" />
     <input type="text" class="word" placeholder="派生語" />
+    <input type="text" class="meaning" placeholder="意味" />
     <button type="button" class="remove-row-btn">×</button>
   </div>
 </template>

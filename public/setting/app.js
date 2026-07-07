@@ -195,9 +195,11 @@ function addRow(kind, data = {}) {
   if (kind === "senses") {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".meaning").value = data.meaning || "";
+    node.querySelector(".pronunciation").value = data.pronunciation || "";
   } else if (kind === "derivatives") {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".word").value = data.word || "";
+    node.querySelector(".meaning").value = data.meaning || "";
   } else if (kind === "examples") {
     node.querySelector(".sentence").value = data.sentence || "";
     node.querySelector(".answer").value = data.answer || "";
@@ -212,12 +214,20 @@ function collectRows(kind) {
   const rows = [...container.querySelectorAll(".repeat-row")];
   if (kind === "senses") {
     return rows
-      .map((r) => ({ pos: r.querySelector(".pos").value.trim(), meaning: r.querySelector(".meaning").value.trim() }))
+      .map((r) => ({
+        pos: r.querySelector(".pos").value.trim(),
+        meaning: r.querySelector(".meaning").value.trim(),
+        pronunciation: r.querySelector(".pronunciation").value.trim() || null,
+      }))
       .filter((r) => r.meaning);
   }
   if (kind === "derivatives") {
     return rows
-      .map((r) => ({ pos: r.querySelector(".pos").value.trim(), word: r.querySelector(".word").value.trim() }))
+      .map((r) => ({
+        pos: r.querySelector(".pos").value.trim(),
+        word: r.querySelector(".word").value.trim(),
+        meaning: r.querySelector(".meaning").value.trim() || null,
+      }))
       .filter((r) => r.word);
   }
   if (kind === "examples") {

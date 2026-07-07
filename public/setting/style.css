@@ -99,6 +99,8 @@ input[type="text"], input[type="number"], select, textarea {
 .repeat-list { display: flex; flex-direction: column; gap: 0.4rem; }
 .repeat-row { display: grid; grid-template-columns: 6rem 1fr auto; gap: 0.4rem; align-items: center; }
 .repeat-row.example-row { grid-template-columns: 1fr 1fr 1fr auto; }
+.repeat-row.sense-row { grid-template-columns: 6rem 1fr 10rem auto; }
+.repeat-row.derivative-row { grid-template-columns: 6rem 1fr 1fr auto; }
 .remove-row-btn { color: var(--danger); border-color: transparent; }
 .add-row-btn { margin-top: 0.5rem; }
 
