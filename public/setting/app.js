@@ -23,6 +23,7 @@ const el = {
   copyRangeBtn: document.getElementById("copyRangeBtn"),
   importByTagBtn: document.getElementById("importByTagBtn"),
   importAwlBtn: document.getElementById("importAwlBtn"),
+  importOxford5000Btn: document.getElementById("importOxford5000Btn"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
   editPane: document.getElementById("editPane"),
@@ -605,6 +606,27 @@ async function importAwl() {
   }
 }
 
+async function importOxford5000() {
+  if (!confirm("Oxford 5000の全4953見出し語をマスター単語に取り込み、oxford5000タグ(CEFRレベル)を付与します。\n既存の単語は内容を上書きせず、タグが未設定の場合のみ追加します。実行しますか？")) {
+    return;
+  }
+  el.importOxford5000Btn.disabled = true;
+  const originalLabel = el.importOxford5000Btn.textContent;
+  el.importOxford5000Btn.textContent = "取り込み中...";
+  try {
+    const result = await api("/import-oxford5000", { method: "POST" });
+    alert(
+      `Oxford 5000取り込み完了\n新規作成: ${result.created}件\nタグ追加: ${result.tagged}件\n変更なし(既にタグ済み): ${result.alreadyTagged}件\n\n各リストへは「タグから一括追加」で oxford5000:A1〜oxford5000:C1 を指定して取り込めます。`
+    );
+    if (state.currentListId) await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`Oxford 5000取り込みに失敗しました: ${err.message}`);
+  } finally {
+    el.importOxford5000Btn.disabled = false;
+    el.importOxford5000Btn.textContent = originalLabel;
+  }
+}
+
 // ---- イベント登録 ----
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
@@ -613,6 +635,7 @@ el.newWordBtn.addEventListener("click", openNewWordForm);
 el.copyRangeBtn.addEventListener("click", copyRangeFromAnotherList);
 el.importByTagBtn.addEventListener("click", importByTagPrompt);
 el.importAwlBtn.addEventListener("click", importAwl);
+el.importOxford5000Btn.addEventListener("click", importOxford5000);
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);

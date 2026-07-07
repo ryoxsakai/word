@@ -1,5 +1,6 @@
 import { renderMarkup } from "../../public/shared/markup.js";
 import awlData from "./data/awl.json";
+import oxford5000Data from "./data/oxford5000.json";
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -486,6 +487,34 @@ async function importAwl(db) {
   return json({ created, tagged, alreadyTagged });
 }
 
+// ---- Oxford 5000 一括取り込み ----
+// 公式PDFから抽出した見出し語(worker/src/data/oxford5000.json)をマスター単語として登録し、
+// tag_key="oxford5000", tag_value=<CEFRレベル> を付与する。1語に複数レベルの記載がある場合は
+// 最も易しいレベルを採用する。既存の単語は内容を上書きせず、タグが未設定の場合のみ追加する。
+async function importOxford5000(db) {
+  let created = 0;
+  let tagged = 0;
+  let alreadyTagged = 0;
+
+  for (const [spelling, level] of Object.entries(oxford5000Data)) {
+    let wordId = await resolveWordIdBySpelling(db, spelling);
+    if (!wordId) {
+      wordId = await uniqueWordId(db, spelling);
+      await db.prepare("INSERT INTO words (id, spelling) VALUES (?, ?)").bind(wordId, spelling).run();
+      created += 1;
+    }
+
+    const existingTag = await db.prepare("SELECT 1 FROM tags WHERE word_id = ? AND tag_key = 'oxford5000'").bind(wordId).first();
+    if (existingTag) {
+      alreadyTagged += 1;
+    } else {
+      await db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'oxford5000', ?)").bind(wordId, level).run();
+      tagged += 1;
+    }
+  }
+  return json({ created, tagged, alreadyTagged });
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -633,6 +662,11 @@ async function handleApi(request, env, parts, method) {
   // /api/import-awl
   if (parts.length === 2 && parts[1] === "import-awl" && method === "POST") {
     return await importAwl(db);
+  }
+
+  // /api/import-oxford5000
+  if (parts.length === 2 && parts[1] === "import-oxford5000" && method === "POST") {
+    return await importOxford5000(db);
   }
 
   // /api/words
