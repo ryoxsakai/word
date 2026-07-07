@@ -13,9 +13,6 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -32,11 +29,10 @@ jobs:
           node-version: 22
       - run: npm ci
 
-      - name: Create D1 database and record its id in wrangler.toml (bootstrap only)
+      - name: Create D1 database if it doesn't exist yet (bootstrap only)
         if: ${{ inputs.bootstrap_d1 == true }}
         run: |
-          npx wrangler d1 create vocab-db --update-config
-          cat wrangler.toml
+          npx wrangler d1 create vocab-db || echo "vocab-db already exists (or create failed) — continuing, assuming wrangler.toml already has the correct database_id"
 
       - name: Apply schema to remote D1 (bootstrap only)
         if: ${{ inputs.bootstrap_d1 == true }}
@@ -44,12 +40,3 @@ jobs:
 
       - name: Deploy Worker
         run: npx wrangler deploy
-
-      - name: Commit updated wrangler.toml (bootstrap only)
-        if: ${{ inputs.bootstrap_d1 == true }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add wrangler.toml
-          git diff --cached --quiet || git commit -m "chore: record D1 database_id from bootstrap run"
-          git push origin HEAD:${{ github.ref_name }}

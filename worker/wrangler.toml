@@ -14,6 +14,4 @@ ALLOWED_ORIGINS = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "vocab-db"
-# `npx wrangler d1 create vocab-db` を実行し、出力された database_id をここに入れてください。
-# ローカル開発（--local）ではこの値がプレースホルダのままでも動作します。
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "5bb1bc51-a169-4686-bc34-97e181d536f6"
