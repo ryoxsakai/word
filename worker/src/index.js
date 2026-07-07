@@ -2,6 +2,15 @@ import { renderMarkup } from "../../public/shared/markup.js";
 import awlData from "./data/awl.json";
 import oxford5000Data from "./data/oxford5000.json";
 
+/** 仮想の親リスト（全単語マスター）の ID */
+export const MASTER_LIST_ID = "__master__";
+
+const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
+
+function isNotebookListId(id) {
+  return id && id !== MASTER_LIST_ID && !LEGACY_PRESET_LIST_PREFIXES.some((p) => id.startsWith(p));
+}
+
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
     ...init,
@@ -132,31 +141,64 @@ async function listLists(db) {
   const { results } = await db
     .prepare("SELECT id, name, description, sort_order FROM lists ORDER BY sort_order, name")
     .all();
-  return json(results);
+  const notebooks = results
+    .filter((l) => isNotebookListId(l.id))
+    .map((l) => ({ ...l, isMaster: false, isNotebook: true }));
+  return json([
+    {
+      id: MASTER_LIST_ID,
+      name: "単語マスター（全語）",
+      description: "登録済みの全単語。ここからチェックして単語帳へ追加します",
+      sort_order: -1,
+      isMaster: true,
+      isNotebook: false,
+    },
+    ...notebooks,
+  ]);
 }
 
 async function createList(db, body) {
   if (!body.name) return badRequest("name is required");
   const id = body.id || slugifyUnicode(body.name);
+  if (!isNotebookListId(id)) return badRequest(`list id "${id}" is reserved`);
   const exists = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(id).first();
   if (exists) return badRequest(`list id "${id}" already exists`);
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM lists WHERE id NOT LIKE 'awl-sublist-%' AND id NOT LIKE 'oxford5000-%' AND id != ?").bind(MASTER_LIST_ID).first();
+  const sortOrder = body.sortOrder ?? (row?.m || 0) + 1;
   await db
     .prepare("INSERT INTO lists (id, name, description, sort_order) VALUES (?, ?, ?, ?)")
-    .bind(id, body.name, body.description || null, body.sortOrder || 0)
+    .bind(id, body.name, body.description || null, sortOrder)
     .run();
   return json({ id }, { status: 201 });
 }
 
+const WORD_TAG_SELECT = `
+  ta.tag_value AS awlSublist,
+  to5.tag_value AS oxfordLevel,
+  te.tag_value AS eiken
+`;
+
+const WORD_TAG_JOINS = `
+  LEFT JOIN tags ta ON ta.word_id = w.id AND ta.tag_key = 'awl'
+  LEFT JOIN tags to5 ON to5.word_id = w.id AND to5.tag_key = 'oxford5000'
+  LEFT JOIN tags te ON te.word_id = w.id AND te.tag_key = 'eiken'
+`;
+
 async function listWordsInList(db, listId) {
+  if (listId === MASTER_LIST_ID) {
+    return listMasterWords(db, "");
+  }
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   const { results } = await db
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
-              w.derived_from_id AS derivedFromId
+              w.derived_from_id AS derivedFromId,
+              ${WORD_TAG_SELECT}
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
+       ${WORD_TAG_JOINS}
        WHERE li.list_id = ?
        ORDER BY li.no, li.branch`
     )
@@ -166,9 +208,44 @@ async function listWordsInList(db, listId) {
   return json(rows);
 }
 
+async function listMasterWords(db, searchUrl) {
+  const params = searchUrl ? new URL(searchUrl, "http://local").searchParams : new URLSearchParams();
+  const awl = params.get("awl");
+  const oxford = params.get("oxford");
+  const q = params.get("q")?.trim();
+
+  let sql = `
+    SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
+           NULL AS no, 0 AS branch, NULL AS sectionId, NULL AS sectionName,
+           w.derived_from_id AS derivedFromId,
+           ${WORD_TAG_SELECT}
+    FROM words w
+    ${WORD_TAG_JOINS}
+    WHERE 1=1`;
+  const binds = [];
+  if (awl) {
+    sql += " AND ta.tag_value = ?";
+    binds.push(awl);
+  }
+  if (oxford) {
+    sql += " AND to5.tag_value = ?";
+    binds.push(oxford);
+  }
+  if (q) {
+    sql += " AND w.spelling LIKE ? ESCAPE '\\\\'";
+    binds.push(`%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
+  }
+  sql += " ORDER BY w.spelling COLLATE NOCASE";
+
+  const { results } = await db.prepare(sql).bind(...binds).all();
+  const rows = results.map((r) => ({ ...r, displayNo: null }));
+  return json(rows);
+}
+
 // ---- sections ----
 
 async function listSections(db, listId) {
+  if (listId === MASTER_LIST_ID) return json([]);
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   const { results } = await db
@@ -301,7 +378,7 @@ async function createWord(db, body) {
     .run();
   await saveWordChildren(db, id, body);
 
-  if (body.listId) {
+  if (body.listId && isNotebookListId(body.listId)) {
     const parsed = parseBranchNo(body.no);
     const { no, branch } = parsed || (await computeNoForNewMembership(db, body.listId, id));
     await db
@@ -377,6 +454,44 @@ async function upsertListItem(db, listId, wordId, body) {
 async function removeListItem(db, listId, wordId) {
   await db.prepare("DELETE FROM list_items WHERE list_id = ? AND word_id = ?").bind(listId, wordId).run();
   return json({ ok: true });
+}
+
+// 親リストからチェックした単語を単語帳へ一括追加する。
+async function addWordsToList(db, listId, body) {
+  if (!isNotebookListId(listId)) return badRequest("cannot add words to this list");
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const wordIds = body.wordIds;
+  if (!Array.isArray(wordIds) || wordIds.length === 0) return badRequest("wordIds array is required");
+
+  const sectionId = body.sectionId || null;
+  const uniqueIds = [...new Set(wordIds.map(String))];
+
+  const { results: existingRows } = await db
+    .prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ?")
+    .bind(listId)
+    .all();
+  const existingSet = new Set(existingRows.map((r) => r.wordId));
+
+  const row = await db.prepare("SELECT COALESCE(MAX(no), 0) AS maxNo FROM list_items WHERE list_id = ?").bind(listId).first();
+  let nextNo = (row?.maxNo || 0) + 1;
+
+  const inserts = [];
+  let added = 0;
+  let skipped = 0;
+  for (const wordId of uniqueIds) {
+    if (existingSet.has(wordId)) {
+      skipped += 1;
+      continue;
+    }
+    inserts.push(
+      db.prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, 0, ?)").bind(listId, wordId, nextNo, sectionId)
+    );
+    nextNo += 1;
+    added += 1;
+  }
+  await runBatched(db, inserts);
+  return json({ added, skipped });
 }
 
 // ---- 単語帳(リスト)の作成方法: 範囲コピー / タグ一括抽出 ----
@@ -592,92 +707,14 @@ async function importOxford5000(db) {
   return { created, tagged, alreadyTagged };
 }
 
-// ---- プリセットリスト（AWL / Oxford 5000）の作成と単語投入 ----
-// マスター単語＋タグを整えたうえで、レベル別リストを自動作成して list_items へ一括登録する。
-// 何度実行しても安全（リストは INSERT OR IGNORE、単語は既存分をスキップ）。
-
-const PRESET_LISTS = [
-  ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => ({
-    id: `awl-sublist-${n}`,
-    name: `AWL Sublist ${n}`,
-    description: `Academic Word List Sublist ${n}`,
-    sortOrder: n,
-    tagKey: "awl",
-    tagValue: String(n),
-  })),
-  ...["A1", "A2", "B1", "B2", "C1"].map((level, i) => ({
-    id: `oxford5000-${level.toLowerCase()}`,
-    name: `Oxford 5000 ${level}`,
-    description: `Oxford 5000 word list (${level})`,
-    sortOrder: 100 + i,
-    tagKey: "oxford5000",
-    tagValue: level,
-  })),
-];
-
-async function ensurePresetList(db, preset) {
-  const exists = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(preset.id).first();
-  if (exists) return false;
-  await db
-    .prepare("INSERT INTO lists (id, name, description, sort_order) VALUES (?, ?, ?, ?)")
-    .bind(preset.id, preset.name, preset.description, preset.sortOrder)
-    .run();
-  return true;
-}
-
-async function importByTagBatched(db, targetListId, tagKey, tagValue) {
-  const stmt = tagValue
-    ? db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ? AND tag_value = ?").bind(tagKey, tagValue)
-    : db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ?").bind(tagKey);
-  const { results: tagRows } = await stmt.all();
-
-  const { results: existingRows } = await db
-    .prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ?")
-    .bind(targetListId)
-    .all();
-  const existingSet = new Set(existingRows.map((r) => r.wordId));
-
-  const row = await db.prepare("SELECT COALESCE(MAX(no), 0) AS maxNo FROM list_items WHERE list_id = ?").bind(targetListId).first();
-  let nextNo = (row?.maxNo || 0) + 1;
-
-  const inserts = [];
-  let added = 0;
-  let skipped = 0;
-  for (const { wordId } of tagRows) {
-    if (existingSet.has(wordId)) {
-      skipped += 1;
-      continue;
-    }
-    inserts.push(
-      db.prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, 0, NULL)").bind(targetListId, wordId, nextNo)
-    );
-    nextNo += 1;
-    added += 1;
-  }
-  await runBatched(db, inserts);
-  return { added, skipped, total: tagRows.length };
-}
+// ---- マスター単語（AWL / Oxford 5000）のシード ----
+// 親リスト（全語マスター）に AWL / Oxford 5000 の見出し語とタグを登録する。
+// 単語帳への振り分けはUIでチェック選択して行う。
 
 async function seedPresetLists(db) {
   const awl = await importAwl(db);
   const oxford = await importOxford5000(db);
-
-  const lists = [];
-  for (const preset of PRESET_LISTS) {
-    const listCreated = await ensurePresetList(db, preset);
-    const membership = await importByTagBatched(db, preset.id, preset.tagKey, preset.tagValue);
-    lists.push({
-      id: preset.id,
-      name: preset.name,
-      listCreated,
-      ...membership,
-    });
-  }
-
-  return {
-    master: { awl, oxford },
-    lists,
-  };
+  return { master: { awl, oxford } };
 }
 
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
@@ -780,6 +817,11 @@ function withCors(response, allowedOrigin) {
 async function handleApi(request, env, parts, method) {
   const db = env.DB;
 
+  // /api/master/words?awl=&oxford=&q=
+  if (parts.length === 3 && parts[1] === "master" && parts[2] === "words" && method === "GET") {
+    return await listMasterWords(db, request.url);
+  }
+
   // /api/lists
   if (parts.length === 2 && parts[1] === "lists") {
     if (method === "GET") return await listLists(db);
@@ -810,6 +852,11 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/import-by-tag
   if (parts.length === 4 && parts[1] === "lists" && parts[3] === "import-by-tag" && method === "POST") {
     return await importByTag(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/add-words
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "add-words" && method === "POST") {
+    return await addWordsToList(db, parts[2], await request.json());
   }
 
   // /api/lists/:listId/items/:wordId

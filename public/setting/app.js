@@ -3,19 +3,23 @@ import { API_BASE } from "../shared/config.js";
 
 const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
+const MASTER_LIST_ID = "__master__";
 
 const state = {
   lists: [],
   currentListId: null,
-  listWordIndex: new Map(), // spelling(lower) -> { id, no: displayNo }
-  words: [], // 現在のリストの一覧（テーブル表示用）
-  sections: [], // 現在のリストのセクション一覧
-  currentWord: null, // 編集中の単語詳細（新規時はnull）
+  listWordIndex: new Map(),
+  words: [],
+  sections: [],
+  currentWord: null,
   isNew: false,
-  currentAudioUrl: null, // 編集中の単語の発音音声URL（辞書取得 or 保存済みの値）
+  currentAudioUrl: null,
+  selectedWordIds: new Set(),
+  masterFilter: { q: "", awl: "", oxford: "" },
 };
 
 const MOBILE_BREAKPOINT = 768;
+let masterSearchTimer = null;
 
 const el = {
   layout: document.getElementById("layout"),
@@ -27,8 +31,16 @@ const el = {
   newListBtn: document.getElementById("newListBtn"),
   listTitle: document.getElementById("listTitle"),
   newWordBtn: document.getElementById("newWordBtn"),
-  copyRangeBtn: document.getElementById("copyRangeBtn"),
-  importByTagBtn: document.getElementById("importByTagBtn"),
+  newSectionBtn: document.getElementById("newSectionBtn"),
+  masterToolbar: document.getElementById("masterToolbar"),
+  masterSearch: document.getElementById("masterSearch"),
+  filterAwl: document.getElementById("filterAwl"),
+  filterOxford: document.getElementById("filterOxford"),
+  selectionCount: document.getElementById("selectionCount"),
+  selectAllMasterBtn: document.getElementById("selectAllMasterBtn"),
+  clearSelectionBtn: document.getElementById("clearSelectionBtn"),
+  addToNotebookBtn: document.getElementById("addToNotebookBtn"),
+  wordTableHead: document.getElementById("wordTableHead"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
   editPane: document.getElementById("editPane"),
@@ -36,6 +48,7 @@ const el = {
   saveBtn: document.getElementById("saveBtn"),
   deleteBtn: document.getElementById("deleteBtn"),
   closeBtn: document.getElementById("closeBtn"),
+  notebookFields: document.getElementById("notebookFields"),
   fieldNo: document.getElementById("fieldNo"),
   fieldSpelling: document.getElementById("fieldSpelling"),
   fieldPronunciation: document.getElementById("fieldPronunciation"),
@@ -62,6 +75,18 @@ const templates = {
   derivatives: document.getElementById("derivativeRowTpl"),
   examples: document.getElementById("exampleRowTpl"),
 };
+
+function isMasterView() {
+  return state.currentListId === MASTER_LIST_ID;
+}
+
+function isNotebookView() {
+  return state.currentListId && !isMasterView();
+}
+
+function notebookLists() {
+  return state.lists.filter((l) => l.isNotebook);
+}
 
 function isMobileLayout() {
   return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches;
@@ -110,18 +135,56 @@ function updatePreview(textarea, previewEl) {
   previewEl.innerHTML = renderMarkup(textarea.value, { resolve: resolveRef }) || '<span style="color:#999">（プレビュー）</span>';
 }
 
-// ---- 辞書からの自動取得（発音記号・音声・例文・類義語/対義語）----
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function formatLevelBadges(w) {
+  const badges = [];
+  if (w.awlSublist) badges.push({ cls: "badge-awl", text: `AWL ${w.awlSublist}` });
+  if (w.oxfordLevel) badges.push({ cls: "badge-oxford", text: w.oxfordLevel });
+  if (w.eiken) badges.push({ cls: "badge-eiken", text: `英検${w.eiken}` });
+  if (badges.length === 0) return '<span class="level-empty">―</span>';
+  return badges.map((b) => `<span class="level-badge ${b.cls}">${escapeHtml(b.text)}</span>`).join("");
+}
+
+function updateSelectionUi() {
+  const n = state.selectedWordIds.size;
+  el.selectionCount.textContent = `${n}語選択`;
+  el.addToNotebookBtn.disabled = n === 0;
+}
+
+function updateListModeUi() {
+  const master = isMasterView();
+  const notebook = isNotebookView();
+  el.masterToolbar.hidden = !master;
+  el.newSectionBtn.hidden = !notebook;
+  el.newSectionBtn.disabled = !notebook;
+  document.body.classList.toggle("view-master", master);
+  document.body.classList.toggle("view-notebook", notebook);
+  updateEditorListFields();
+}
+
+function updateEditorListFields() {
+  const showNotebookFields = isNotebookView() && !el.editPane.hidden;
+  el.notebookFields.hidden = !showNotebookFields;
+  if (isMasterView()) {
+    el.deleteBtn.textContent = "マスターから削除";
+  } else if (isNotebookView()) {
+    el.deleteBtn.textContent = "単語帳から除外";
+  }
+}
+
+// ---- 辞書からの自動取得 ----
 
 async function fetchWordInfo(spelling) {
   if (!spelling) return null;
   try {
     const info = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`);
-    if (info && info.error) {
-      console.error("辞書取得エラー:", info.error);
-    }
+    if (info && info.error) console.error("辞書取得エラー:", info.error);
     return info;
   } catch (err) {
-    console.error("辞書取得に失敗しました（/api/lookup）:", err);
+    console.error("辞書取得に失敗しました:", err);
     return null;
   }
 }
@@ -135,19 +198,17 @@ function playCurrentAudio() {
   new Audio(state.currentAudioUrl).play().catch((err) => console.error("音声再生に失敗しました:", err));
 }
 
-// スペルを入力し終えたタイミングで、発音記号が未入力なら自動で埋める。
 async function autoFillPronunciationOnBlur() {
   const spelling = el.fieldSpelling.value.trim();
   if (!spelling || el.fieldPronunciation.value.trim()) return;
   const info = await fetchWordInfo(spelling);
-  if (info && info.pronunciation) el.fieldPronunciation.value = info.pronunciation;
-  if (info && info.audio) {
+  if (info?.pronunciation) el.fieldPronunciation.value = info.pronunciation;
+  if (info?.audio) {
     state.currentAudioUrl = info.audio;
     updatePlayAudioButton();
   }
 }
 
-// 🔍ボタン: 現在の値を問わず辞書から取り直す。
 async function lookupPronunciationManually() {
   const spelling = el.fieldSpelling.value.trim();
   if (!spelling) {
@@ -157,24 +218,20 @@ async function lookupPronunciationManually() {
   el.lookupPronunciationBtn.disabled = true;
   try {
     const info = await fetchWordInfo(spelling);
-    if (info && info.pronunciation) {
-      el.fieldPronunciation.value = info.pronunciation;
-    }
-    if (info && info.audio) {
+    if (info?.pronunciation) el.fieldPronunciation.value = info.pronunciation;
+    if (info?.audio) {
       state.currentAudioUrl = info.audio;
       updatePlayAudioButton();
     }
     if (!info || (!info.pronunciation && !info.audio)) {
-      const reason = info && info.error ? `（エラー: ${info.error}）` : "";
-      alert(`「${spelling}」の発音記号が辞書から見つかりませんでした${reason}。手動で入力してください。`);
+      const reason = info?.error ? `（エラー: ${info.error}）` : "";
+      alert(`「${spelling}」の発音記号が辞書から見つかりませんでした${reason}。`);
     }
   } finally {
     el.lookupPronunciationBtn.disabled = false;
   }
 }
 
-// 📖ボタン: 発音・音声に加え、例文（英語）と類義語/対義語もまとめて下書き取得する。
-// 定義は英語のみで日本語訳が取れないため、意味欄には自動で入れない。
 async function draftFromDictionary() {
   const spelling = el.fieldSpelling.value.trim();
   if (!spelling) {
@@ -185,12 +242,10 @@ async function draftFromDictionary() {
   try {
     const info = await fetchWordInfo(spelling);
     if (!info || info.error) {
-      alert(`「${spelling}」の情報が辞書から見つかりませんでした${info && info.error ? `（エラー: ${info.error}）` : ""}。`);
+      alert(`「${spelling}」の情報が辞書から見つかりませんでした。`);
       return;
     }
-
     let filledAnything = false;
-
     if (info.pronunciation && !el.fieldPronunciation.value.trim()) {
       el.fieldPronunciation.value = info.pronunciation;
       filledAnything = true;
@@ -200,28 +255,22 @@ async function draftFromDictionary() {
       updatePlayAudioButton();
       filledAnything = true;
     }
-
     const hasExample = collectRows("examples").length > 0;
-    if (!hasExample && info.examples && info.examples.length > 0) {
+    if (!hasExample && info.examples?.length > 0) {
       const rows = [...el.examplesList.querySelectorAll(".repeat-row")];
       if (rows.length === 1 && !rows[0].querySelector(".sentence").value.trim()) rows[0].remove();
       addRow("examples", { sentence: info.examples[0] });
       filledAnything = true;
     }
-
-    const refWords = [...info.synonyms, ...info.antonyms.map((w) => `${w}(対義語)`)];
+    const refWords = [...(info.synonyms || []), ...(info.antonyms || []).map((w) => `${w}(対義語)`)];
     if (refWords.length > 0 && !el.fieldNotes.value.includes("辞書取得の下書き")) {
       const line = `類義語・対義語（辞書取得の下書き）: ${refWords.join(", ")}`;
       el.fieldNotes.value = el.fieldNotes.value ? `${el.fieldNotes.value}\n${line}` : line;
       updatePreview(el.fieldNotes, el.notesPreview);
       filledAnything = true;
     }
-
-    if (filledAnything) {
-      alert("辞書から下書きを取得しました。内容を確認して、必要に応じて手直ししてください。");
-    } else {
-      alert(`「${spelling}」は辞書に見つからなかったか、追加できる情報がありませんでした。`);
-    }
+    if (filledAnything) alert("辞書から下書きを取得しました。");
+    else alert(`「${spelling}」は追加できる情報がありませんでした。`);
   } finally {
     el.draftFromDictionaryBtn.disabled = false;
   }
@@ -232,43 +281,79 @@ async function draftFromDictionary() {
 async function loadLists() {
   state.lists = await api("/lists");
   el.listSelect.innerHTML = "";
-  for (const list of state.lists) {
-    const opt = document.createElement("option");
-    opt.value = list.id;
-    opt.textContent = list.name;
-    el.listSelect.appendChild(opt);
+
+  const masterLists = state.lists.filter((l) => l.isMaster);
+  const notebooks = state.lists.filter((l) => l.isNotebook);
+
+  if (masterLists.length > 0) {
+    const og = document.createElement("optgroup");
+    og.label = "親リスト";
+    for (const list of masterLists) {
+      const opt = document.createElement("option");
+      opt.value = list.id;
+      opt.textContent = list.name;
+      og.appendChild(opt);
+    }
+    el.listSelect.appendChild(og);
   }
+
+  if (notebooks.length > 0) {
+    const og = document.createElement("optgroup");
+    og.label = "単語帳";
+    for (const list of notebooks) {
+      const opt = document.createElement("option");
+      opt.value = list.id;
+      opt.textContent = list.name;
+      og.appendChild(opt);
+    }
+    el.listSelect.appendChild(og);
+  }
+
   if (state.lists.length > 0) {
     state.currentListId = state.lists[0].id;
     el.listSelect.value = state.currentListId;
     await selectList(state.currentListId);
   } else {
     state.currentListId = null;
-    el.listTitle.textContent = "リストがありません。「＋ 新規リスト」から作成してください";
+    el.listTitle.textContent = "リストがありません";
     el.newWordBtn.disabled = true;
-    el.copyRangeBtn.disabled = true;
-    el.importByTagBtn.disabled = true;
   }
 }
 
 async function selectList(listId) {
   state.currentListId = listId;
+  state.selectedWordIds.clear();
+  updateSelectionUi();
   const list = state.lists.find((l) => l.id === listId);
   el.listTitle.textContent = list ? list.name : "";
   el.newWordBtn.disabled = !listId;
-  el.copyRangeBtn.disabled = !listId;
-  el.importByTagBtn.disabled = !listId;
+  updateListModeUi();
   closeEditor();
   await Promise.all([loadWordsForList(listId), loadSectionsForList(listId)]);
 }
 
 async function loadWordsForList(listId) {
-  state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
-  state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
+  if (isMasterView()) {
+    const qs = new URLSearchParams();
+    if (state.masterFilter.q) qs.set("q", state.masterFilter.q);
+    if (state.masterFilter.awl) qs.set("awl", state.masterFilter.awl);
+    if (state.masterFilter.oxford) qs.set("oxford", state.masterFilter.oxford);
+    const query = qs.toString();
+    state.words = await api(`/master/words${query ? `?${query}` : ""}`);
+    state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: null }]));
+  } else {
+    state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
+    state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
+  }
+  renderWordTableHead();
   renderWordTable();
 }
 
 async function loadSectionsForList(listId) {
+  if (isMasterView()) {
+    state.sections = [];
+    return;
+  }
   state.sections = await api(`/lists/${encodeURIComponent(listId)}/sections`);
   renderSectionOptions();
 }
@@ -309,30 +394,156 @@ async function handleSectionSelectChange() {
   }
 }
 
+async function createSectionForCurrentList() {
+  if (!isNotebookView()) return;
+  const name = prompt("新規セクション名を入力してください（例: Week 1）");
+  if (!name) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections`, {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+    await loadSectionsForList(state.currentListId);
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`セクション作成に失敗しました: ${err.message}`);
+  }
+}
+
+function renderWordTableHead() {
+  if (isMasterView()) {
+    el.wordTableHead.innerHTML =
+      '<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
+    const checkAll = document.getElementById("checkAllMaster");
+    checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
+    checkAll.indeterminate =
+      state.selectedWordIds.size > 0 && !state.words.every((w) => state.selectedWordIds.has(w.id));
+    checkAll.addEventListener("change", () => {
+      if (checkAll.checked) state.words.forEach((w) => state.selectedWordIds.add(w.id));
+      else state.words.forEach((w) => state.selectedWordIds.delete(w.id));
+      updateSelectionUi();
+      renderWordTable();
+    });
+  } else {
+    el.wordTableHead.innerHTML =
+      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
+  }
+}
+
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
   el.wordTableEmpty.hidden = state.words.length > 0;
+  el.wordTableEmpty.textContent = isMasterView()
+    ? "条件に一致する単語がありません。"
+    : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
+
   let lastSectionId = undefined;
+  const colspan = isMasterView() ? 4 : 4;
+
   for (const w of state.words) {
-    if (w.sectionId !== lastSectionId) {
+    if (!isMasterView() && w.sectionId !== lastSectionId) {
       lastSectionId = w.sectionId;
       const sectionTr = document.createElement("tr");
       sectionTr.className = "section-header-row";
-      sectionTr.innerHTML = `<td colspan="3">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
+      sectionTr.innerHTML = `<td colspan="${colspan}">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
       el.wordTableBody.appendChild(sectionTr);
     }
+
     const tr = document.createElement("tr");
     tr.dataset.wordId = w.id;
     if (w.branch) tr.classList.add("branch-row");
-    if (state.currentWord && state.currentWord.id === w.id) tr.classList.add("selected");
-    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td>${escapeHtml(w.spelling)}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
-    tr.addEventListener("click", () => openWordEditor(w.id));
+    if (state.currentWord?.id === w.id) tr.classList.add("selected");
+    if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
+
+    const levels = formatLevelBadges(w);
+
+    if (isMasterView()) {
+      const checked = state.selectedWordIds.has(w.id);
+      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
+      const cb = tr.querySelector(".word-check");
+      cb.addEventListener("click", (e) => e.stopPropagation());
+      cb.addEventListener("change", () => {
+        if (cb.checked) state.selectedWordIds.add(w.id);
+        else state.selectedWordIds.delete(w.id);
+        updateSelectionUi();
+        tr.classList.toggle("checked-row", cb.checked);
+      });
+      tr.addEventListener("click", (e) => {
+        if (e.target.closest(".col-check")) return;
+        openWordEditor(w.id);
+      });
+    } else {
+      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
+      tr.addEventListener("click", () => openWordEditor(w.id));
+    }
     el.wordTableBody.appendChild(tr);
   }
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function selectAllMasterWords() {
+  state.words.forEach((w) => state.selectedWordIds.add(w.id));
+  updateSelectionUi();
+  renderWordTableHead();
+  renderWordTable();
+}
+
+function clearWordSelection() {
+  state.selectedWordIds.clear();
+  updateSelectionUi();
+  renderWordTableHead();
+  renderWordTable();
+}
+
+async function applyMasterFilters() {
+  state.masterFilter.q = el.masterSearch.value.trim();
+  state.masterFilter.awl = el.filterAwl.value;
+  state.masterFilter.oxford = el.filterOxford.value;
+  await loadWordsForList(state.currentListId);
+}
+
+async function addSelectedToNotebook() {
+  const ids = [...state.selectedWordIds];
+  if (ids.length === 0) return;
+
+  const notebooks = notebookLists();
+  if (notebooks.length === 0) {
+    alert("先に「＋ 新規」から単語帳を作成してください。");
+    return;
+  }
+
+  const listing = notebooks.map((l) => `${l.id}（${l.name}）`).join("\n");
+  const targetId = prompt(`追加先の単語帳IDを入力してください:\n${listing}`);
+  if (!targetId) return;
+  const target = notebooks.find((l) => l.id === targetId);
+  if (!target) {
+    alert("その単語帳が見つかりませんでした。");
+    return;
+  }
+
+  let sectionId = null;
+  try {
+    const sections = await api(`/lists/${encodeURIComponent(targetId)}/sections`);
+    if (sections.length > 0) {
+      const sectionListing = ["（セクションなし）", ...sections.map((s) => `${s.id}: ${s.name}`)].join("\n");
+      const sectionInput = prompt(`セクションIDを入力（省略可）:\n${sectionListing}`);
+      if (sectionInput && sectionInput.trim()) sectionId = Number(sectionInput.trim());
+    }
+  } catch {
+    /* sections optional */
+  }
+
+  try {
+    const result = await api(`/lists/${encodeURIComponent(targetId)}/add-words`, {
+      method: "POST",
+      body: JSON.stringify({ wordIds: ids, sectionId }),
+    });
+    alert(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
+    state.selectedWordIds.clear();
+    updateSelectionUi();
+    renderWordTable();
+  } catch (err) {
+    alert(`単語帳への追加に失敗しました: ${err.message}`);
+  }
 }
 
 // ---- 編集フォーム ----
@@ -398,9 +609,9 @@ function collectRows(kind) {
 function openNewWordForm() {
   state.currentWord = null;
   state.isNew = true;
-  el.editTitle.textContent = "単語を追加";
+  el.editTitle.textContent = "単語を追加（マスター）";
   el.deleteBtn.hidden = true;
-  el.fieldNo.value = nextSuggestedNo();
+  if (isNotebookView()) el.fieldNo.value = nextSuggestedNo();
   el.fieldSpelling.value = "";
   el.fieldPronunciation.value = "";
   state.currentAudioUrl = null;
@@ -423,11 +634,12 @@ function openNewWordForm() {
   updatePreview(el.fieldNotes, el.notesPreview);
   el.editPane.hidden = false;
   setEditorOpen(true);
+  updateEditorListFields();
   renderWordTable();
 }
 
 function nextSuggestedNo() {
-  const max = state.words.reduce((m, w) => Math.max(m, w.no), 0);
+  const max = state.words.reduce((m, w) => Math.max(m, w.no || 0), 0);
   return max + 1;
 }
 
@@ -438,14 +650,14 @@ async function openWordEditor(wordId) {
   el.editTitle.textContent = `単語を編集: ${detail.spelling}`;
   el.deleteBtn.hidden = false;
 
-  const membership = detail.lists.find((l) => l.listId === state.currentListId);
+  const membership = isNotebookView() ? detail.lists.find((l) => l.listId === state.currentListId) : null;
   el.fieldNo.value = membership ? membership.displayNo : "";
   el.fieldSpelling.value = detail.spelling;
   el.fieldPronunciation.value = detail.pronunciation || "";
   state.currentAudioUrl = detail.audioUrl || null;
   updatePlayAudioButton();
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
-  el.fieldSection.value = membership && membership.sectionId != null ? String(membership.sectionId) : "";
+  el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
 
   clearRepeatList(el.sensesList);
   (detail.senses.length ? detail.senses : [{}]).forEach((s) => addRow("senses", s));
@@ -468,6 +680,7 @@ async function openWordEditor(wordId) {
   updatePreview(el.fieldNotes, el.notesPreview);
   el.editPane.hidden = false;
   setEditorOpen(true);
+  updateEditorListFields();
   renderWordTable();
 }
 
@@ -475,6 +688,7 @@ function closeEditor() {
   state.currentWord = null;
   el.editPane.hidden = true;
   setEditorOpen(false);
+  updateEditorListFields();
   renderWordTable();
 }
 
@@ -512,13 +726,15 @@ async function saveWord() {
   try {
     let word;
     if (state.isNew) {
-      body.listId = state.currentListId;
-      body.no = el.fieldNo.value.trim() || null;
-      body.sectionId = sectionId;
+      if (isNotebookView()) {
+        body.listId = state.currentListId;
+        body.no = el.fieldNo.value.trim() || null;
+        body.sectionId = sectionId;
+      }
       word = await api("/words", { method: "POST", body: JSON.stringify(body) });
     } else {
       word = await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "PUT", body: JSON.stringify(body) });
-      if (el.fieldNo.value.trim()) {
+      if (isNotebookView() && el.fieldNo.value.trim()) {
         await api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(word.id)}`, {
           method: "PUT",
           body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId }),
@@ -534,18 +750,31 @@ async function saveWord() {
 
 async function deleteCurrentWord() {
   if (!state.currentWord) return;
-  if (!confirm(`「${state.currentWord.spelling}」を削除しますか？（全リストから削除されます）`)) return;
+  if (isMasterView()) {
+    if (!confirm(`「${state.currentWord.spelling}」をマスターから完全に削除しますか？（全単語帳からも消えます）`)) return;
+    try {
+      await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "DELETE" });
+      closeEditor();
+      await loadWordsForList(state.currentListId);
+    } catch (err) {
+      alert(`削除に失敗しました: ${err.message}`);
+    }
+    return;
+  }
+  if (!confirm(`「${state.currentWord.spelling}」をこの単語帳から除外しますか？（マスターの単語データは残ります）`)) return;
   try {
-    await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "DELETE" });
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(state.currentWord.id)}`, {
+      method: "DELETE",
+    });
     closeEditor();
     await loadWordsForList(state.currentListId);
   } catch (err) {
-    alert(`削除に失敗しました: ${err.message}`);
+    alert(`除外に失敗しました: ${err.message}`);
   }
 }
 
 async function createNewList() {
-  const name = prompt("新規リスト名を入力してください（例: 英検2級オリジナル）");
+  const name = prompt("新規単語帳名を入力してください（例: 英検2級オリジナル）");
   if (!name) return;
   try {
     const { id } = await api("/lists", { method: "POST", body: JSON.stringify({ name }) });
@@ -553,68 +782,7 @@ async function createNewList() {
     el.listSelect.value = id;
     await selectList(id);
   } catch (err) {
-    alert(`リスト作成に失敗しました: ${err.message}`);
-  }
-}
-
-// ---- 単語帳の作成方法: 範囲コピー / タグ一括追加 ----
-
-async function copyRangeFromAnotherList() {
-  const others = state.lists.filter((l) => l.id !== state.currentListId);
-  if (others.length === 0) {
-    alert("コピー元にできる他のリストがありません。");
-    return;
-  }
-  const listing = others.map((l) => `${l.id}  (${l.name})`).join("\n");
-  const sourceListId = prompt(`コピー元のリストIDを入力してください:\n${listing}`);
-  if (!sourceListId) return;
-  if (!others.some((l) => l.id === sourceListId)) {
-    alert("そのリストIDは見つかりませんでした。");
-    return;
-  }
-  const fromNo = prompt("開始番号（コピー元リスト内のno.）");
-  if (!fromNo) return;
-  const toNo = prompt("終了番号（コピー元リスト内のno.）");
-  if (!toNo) return;
-
-  try {
-    const result = await api(`/lists/${encodeURIComponent(state.currentListId)}/copy-range`, {
-      method: "POST",
-      body: JSON.stringify({ sourceListId, fromNo: Number(fromNo), toNo: Number(toNo) }),
-    });
-    alert(`追加: ${result.added}件 / 既に存在してスキップ: ${result.skipped}件`);
-    await loadWordsForList(state.currentListId);
-  } catch (err) {
-    alert(`範囲コピーに失敗しました: ${err.message}`);
-  }
-}
-
-async function importByTagPrompt() {
-  let tags;
-  try {
-    tags = await api("/tags");
-  } catch (err) {
-    alert(`タグ一覧の取得に失敗しました: ${err.message}`);
-    return;
-  }
-  if (tags.length === 0) {
-    alert("登録されているタグがありません。");
-    return;
-  }
-  const listing = tags.map((t) => (t.tagValue ? `${t.tagKey}:${t.tagValue}` : t.tagKey)).join("\n");
-  const input = prompt(`一括追加したいタグを入力してください（一覧からコピペしてください）:\n${listing}`);
-  if (!input) return;
-  const [tagKey, tagValue] = input.includes(":") ? input.split(/:(.+)/) : [input, undefined];
-
-  try {
-    const result = await api(`/lists/${encodeURIComponent(state.currentListId)}/import-by-tag`, {
-      method: "POST",
-      body: JSON.stringify({ tagKey: tagKey.trim(), tagValue: tagValue ? tagValue.trim() : undefined }),
-    });
-    alert(`追加: ${result.added}件 / 既に存在してスキップ: ${result.skipped}件`);
-    await loadWordsForList(state.currentListId);
-  } catch (err) {
-    alert(`タグからの一括追加に失敗しました: ${err.message}`);
+    alert(`単語帳作成に失敗しました: ${err.message}`);
   }
 }
 
@@ -633,8 +801,16 @@ document.addEventListener("keydown", (e) => {
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 el.newListBtn.addEventListener("click", createNewList);
 el.newWordBtn.addEventListener("click", openNewWordForm);
-el.copyRangeBtn.addEventListener("click", copyRangeFromAnotherList);
-el.importByTagBtn.addEventListener("click", importByTagPrompt);
+el.newSectionBtn.addEventListener("click", createSectionForCurrentList);
+el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
+el.clearSelectionBtn.addEventListener("click", clearWordSelection);
+el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);
+el.masterSearch.addEventListener("input", () => {
+  clearTimeout(masterSearchTimer);
+  masterSearchTimer = setTimeout(() => applyMasterFilters(), 300);
+});
+el.filterAwl.addEventListener("change", () => applyMasterFilters());
+el.filterOxford.addEventListener("change", () => applyMasterFilters());
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
@@ -642,7 +818,7 @@ el.fieldSection.addEventListener("change", handleSectionSelectChange);
 el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
 el.fieldSpelling.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
-  e.preventDefault(); // フォーム内でEnterによる意図しない送信/リロードを防ぐ
+  e.preventDefault();
   autoFillPronunciationOnBlur();
 });
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
