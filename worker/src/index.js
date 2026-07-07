@@ -728,8 +728,19 @@ async function renderText(db, body) {
 // ---- 辞書情報の自動取得（無料辞書API https://dictionaryapi.dev/ 経由）----
 // 品詞ごとに発音が変わる単語（record等）は1つの発音しか取れないため、
 // 参考値として埋めるだけにとどめ、必要なら手動で調整してもらう想定。
-// 定義・例文は英語のみで日本語訳は取れないため、意味欄には自動で入れず、
-// 例文（英語部分）・類義語・対義語・音声URLのみ活用する。
+// 日本語訳は取れないため、意味欄には英語定義を「（辞書・英）…」として下書きする。
+function isBlankText(value) {
+  return value == null || String(value).trim() === "";
+}
+
+function hasDictionaryDraftNotes(notes) {
+  return String(notes || "").includes("辞書取得の下書き");
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function lookupWordInfo(spelling) {
   if (!spelling) return null;
   try {
@@ -743,6 +754,7 @@ async function lookupWordInfo(spelling) {
     const synonyms = new Set();
     const antonyms = new Set();
     const examples = [];
+    const senses = [];
 
     for (const entry of data) {
       if (!pronunciation && entry.phonetic) pronunciation = entry.phonetic;
@@ -751,11 +763,18 @@ async function lookupWordInfo(spelling) {
         if (!audio && p.audio) audio = p.audio;
       }
       for (const meaning of entry.meanings || []) {
+        const pos = meaning.partOfSpeech || null;
         for (const syn of meaning.synonyms || []) synonyms.add(syn);
         for (const ant of meaning.antonyms || []) antonyms.add(ant);
         for (const def of meaning.definitions || []) {
           for (const syn of def.synonyms || []) synonyms.add(syn);
           for (const ant of def.antonyms || []) antonyms.add(ant);
+          if (def.definition && senses.length < 5) {
+            senses.push({
+              pos,
+              meaning: `（辞書・英）${def.definition}`,
+            });
+          }
           if (def.example && examples.length < 3) examples.push(def.example);
         }
       }
@@ -764,6 +783,7 @@ async function lookupWordInfo(spelling) {
     return {
       pronunciation,
       audio,
+      senses,
       synonyms: [...synonyms].slice(0, 8),
       antonyms: [...antonyms].slice(0, 8),
       examples,
@@ -773,14 +793,156 @@ async function lookupWordInfo(spelling) {
   }
 }
 
+function buildDictionaryNotesDraft(info) {
+  const refWords = [...(info.synonyms || []), ...(info.antonyms || []).map((w) => `${w}(対義語)`)];
+  if (refWords.length === 0) return null;
+  return `類義語・対義語（辞書取得の下書き）: ${refWords.join(", ")}`;
+}
+
+function wordNeedsEnrichment(detail) {
+  if (isBlankText(detail.pronunciation)) return true;
+  if (isBlankText(detail.audioUrl)) return true;
+  if (!detail.senses?.length) return true;
+  if (!detail.examples?.length) return true;
+  if (!hasDictionaryDraftNotes(detail.notes)) return true;
+  return false;
+}
+
+// 登録済み単語の空欄のみ辞書情報で補完する（既存データは上書きしない）。
+async function enrichSingleWord(db, id) {
+  const detail = await loadWordDetail(db, id);
+  if (!detail) return { id, status: "missing" };
+
+  if (!wordNeedsEnrichment(detail)) {
+    return { id, spelling: detail.spelling, status: "skipped" };
+  }
+
+  const info = await lookupWordInfo(detail.spelling);
+  if (!info || info.error) {
+    return { id, spelling: detail.spelling, status: "notFound", error: info?.error || null };
+  }
+
+  const fields = [];
+  const updates = [];
+  const binds = [];
+
+  if (isBlankText(detail.pronunciation) && info.pronunciation) {
+    updates.push("pronunciation = ?");
+    binds.push(info.pronunciation);
+    fields.push("pronunciation");
+  }
+  if (isBlankText(detail.audioUrl) && info.audio) {
+    updates.push("audio_url = ?");
+    binds.push(info.audio);
+    fields.push("audioUrl");
+  }
+  if (!hasDictionaryDraftNotes(detail.notes)) {
+    const notesDraft = buildDictionaryNotesDraft(info);
+    if (notesDraft) {
+      const nextNotes = isBlankText(detail.notes) ? notesDraft : `${detail.notes}\n${notesDraft}`;
+      updates.push("notes = ?");
+      binds.push(nextNotes);
+      fields.push("notes");
+    }
+  }
+
+  if (updates.length > 0) {
+    updates.push("updated_at = datetime('now')");
+    await db
+      .prepare(`UPDATE words SET ${updates.join(", ")} WHERE id = ?`)
+      .bind(...binds, id)
+      .run();
+  }
+
+  if (!detail.senses?.length && info.senses?.length > 0) {
+    let i = 0;
+    for (const sense of info.senses) {
+      await db
+        .prepare("INSERT INTO senses (word_id, pos, meaning, pronunciation, sort_order) VALUES (?, ?, ?, ?, ?)")
+        .bind(id, sense.pos, sense.meaning, null, i)
+        .run();
+      i += 1;
+    }
+    fields.push("senses");
+  }
+
+  if (!detail.examples?.length && info.examples?.length > 0) {
+    let i = 0;
+    for (const sentence of info.examples) {
+      await db
+        .prepare("INSERT INTO examples (word_id, sentence, answer, translation, sort_order) VALUES (?, ?, ?, ?, ?)")
+        .bind(id, sentence, null, null, i)
+        .run();
+      i += 1;
+    }
+    fields.push("examples");
+  }
+
+  if (fields.length === 0) {
+    return { id, spelling: detail.spelling, status: "notFound" };
+  }
+
+  return { id, spelling: detail.spelling, status: "enriched", fields };
+}
+
+async function enrichWordsBatch(db, body = {}) {
+  const batchSize = Math.min(Math.max(parseInt(body.batchSize, 10) || 25, 1), 50);
+  const delayMs = Math.min(Math.max(parseInt(body.delayMs, 10) || 120, 0), 1000);
+  const cursor = body.cursor ? String(body.cursor) : "";
+
+  const { results } = await db
+    .prepare("SELECT id FROM words WHERE id > ? ORDER BY id LIMIT ?")
+    .bind(cursor, batchSize)
+    .all();
+
+  let processed = 0;
+  let enriched = 0;
+  let skipped = 0;
+  let notFound = 0;
+  const items = [];
+
+  for (const row of results) {
+    if (processed > 0 && delayMs > 0) await sleep(delayMs);
+    const result = await enrichSingleWord(db, row.id);
+    processed += 1;
+    items.push(result);
+    if (result.status === "enriched") enriched += 1;
+    else if (result.status === "skipped") skipped += 1;
+    else if (result.status === "notFound") notFound += 1;
+  }
+
+  const nextCursor = results.length > 0 ? results[results.length - 1].id : cursor;
+  const done = results.length < batchSize;
+
+  return {
+    processed,
+    enriched,
+    skipped,
+    notFound,
+    nextCursor: done ? null : nextCursor,
+    done,
+    items,
+  };
+}
+
 async function handleLookup(request) {
   const spelling = new URL(request.url).searchParams.get("spelling");
   if (!spelling) return badRequest("spelling query param is required");
   const info = await lookupWordInfo(spelling);
   if (info && info.error) {
-    return json({ pronunciation: null, audio: null, synonyms: [], antonyms: [], examples: [], error: info.error });
+    return json({
+      pronunciation: null,
+      audio: null,
+      senses: [],
+      synonyms: [],
+      antonyms: [],
+      examples: [],
+      error: info.error,
+    });
   }
-  return json(info || { pronunciation: null, audio: null, synonyms: [], antonyms: [], examples: [] });
+  return json(
+    info || { pronunciation: null, audio: null, senses: [], synonyms: [], antonyms: [], examples: [] }
+  );
 }
 
 // フロントエンド(GitHub Pages)とAPI(Cloudflare Workers)が別オリジンになる構成のためのCORS制御。
@@ -897,6 +1059,12 @@ async function handleApi(request, env, parts, method) {
   // /api/lookup?spelling=...
   if (parts.length === 2 && parts[1] === "lookup" && method === "GET") {
     return await handleLookup(request);
+  }
+
+  // /api/enrich-words — 登録済み単語の空欄を辞書APIで一括補完（バッチ）
+  if (parts.length === 2 && parts[1] === "enrich-words" && method === "POST") {
+    const body = await request.json().catch(() => ({}));
+    return json(await enrichWordsBatch(db, body));
   }
 
   return notFound("no such route");
