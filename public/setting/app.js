@@ -15,7 +15,14 @@ const state = {
   currentAudioUrl: null, // 編集中の単語の発音音声URL（辞書取得 or 保存済みの値）
 };
 
+const MOBILE_BREAKPOINT = 768;
+
 const el = {
+  layout: document.getElementById("layout"),
+  menuToggle: document.getElementById("menuToggle"),
+  topbarMenu: document.getElementById("topbarMenu"),
+  backBtn: document.getElementById("backBtn"),
+  mobileSaveBtn: document.getElementById("mobileSaveBtn"),
   listSelect: document.getElementById("listSelect"),
   newListBtn: document.getElementById("newListBtn"),
   listTitle: document.getElementById("listTitle"),
@@ -57,6 +64,31 @@ const templates = {
   derivatives: document.getElementById("derivativeRowTpl"),
   examples: document.getElementById("exampleRowTpl"),
 };
+
+function isMobileLayout() {
+  return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches;
+}
+
+function setEditorOpen(open) {
+  el.layout.classList.toggle("layout--editor", open);
+  if (open && isMobileLayout()) {
+    el.editPane.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+function closeTopbarMenu() {
+  el.topbarMenu.classList.remove("is-open");
+  el.menuToggle.setAttribute("aria-expanded", "false");
+  el.menuToggle.setAttribute("aria-label", "メニューを開く");
+}
+
+function toggleTopbarMenu() {
+  const open = !el.topbarMenu.classList.contains("is-open");
+  el.topbarMenu.classList.toggle("is-open", open);
+  el.menuToggle.setAttribute("aria-expanded", String(open));
+  el.menuToggle.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
+}
 
 async function api(path, opts) {
   const res = await fetch(`${API}${path}`, {
@@ -288,14 +320,14 @@ function renderWordTable() {
       lastSectionId = w.sectionId;
       const sectionTr = document.createElement("tr");
       sectionTr.className = "section-header-row";
-      sectionTr.innerHTML = `<td colspan="4">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
+      sectionTr.innerHTML = `<td colspan="3">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
       el.wordTableBody.appendChild(sectionTr);
     }
     const tr = document.createElement("tr");
     tr.dataset.wordId = w.id;
     if (w.branch) tr.classList.add("branch-row");
     if (state.currentWord && state.currentWord.id === w.id) tr.classList.add("selected");
-    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td>${escapeHtml(w.spelling)}</td><td>${escapeHtml(w.pronunciation || "")}</td><td></td>`;
+    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td>${escapeHtml(w.spelling)}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
     tr.addEventListener("click", () => openWordEditor(w.id));
     el.wordTableBody.appendChild(tr);
   }
@@ -392,6 +424,7 @@ function openNewWordForm() {
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
   el.editPane.hidden = false;
+  setEditorOpen(true);
   renderWordTable();
 }
 
@@ -436,12 +469,14 @@ async function openWordEditor(wordId) {
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
   el.editPane.hidden = false;
+  setEditorOpen(true);
   renderWordTable();
 }
 
 function closeEditor() {
   state.currentWord = null;
   el.editPane.hidden = true;
+  setEditorOpen(false);
   renderWordTable();
 }
 
@@ -628,6 +663,16 @@ async function importOxford5000() {
 }
 
 // ---- イベント登録 ----
+
+el.menuToggle.addEventListener("click", toggleTopbarMenu);
+el.backBtn.addEventListener("click", closeEditor);
+el.mobileSaveBtn.addEventListener("click", saveWord);
+window.addEventListener("resize", () => {
+  if (!isMobileLayout()) closeTopbarMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !el.editPane.hidden) closeEditor();
+});
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 el.newListBtn.addEventListener("click", createNewList);

@@ -2,14 +2,91 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
 <title>単語帳</title>
 <style>
-  body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #333; }
-  a { color: #3a5ccc; }
+  :root {
+    color-scheme: light dark;
+    --bg: #f8f9fc;
+    --text: #1a1d26;
+    --text-secondary: #5c6370;
+    --accent: #3d5afe;
+    --border: #e2e6ef;
+    --bg-elevated: #ffffff;
+    --shadow-md: 0 4px 16px rgba(20, 28, 50, 0.08);
+    --radius-lg: 14px;
+    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12141a;
+      --text: #eceef3;
+      --text-secondary: #a8afbd;
+      --accent: #6b8aff;
+      --border: #2e3340;
+      --bg-elevated: #1a1d26;
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 1.5rem;
+    padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    max-width: 22rem;
+    text-align: center;
+    padding: 2rem 1.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+  h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  p {
+    margin: 0 0 1.25rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.25rem;
+    color: #fff;
+    background: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    transition: opacity 0.15s;
+  }
+  a:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
-  <p>閲覧ページは準備中です。<a href="./setting/index.html">設定ページ</a>から単語を登録できます。</p>
+  <div class="card">
+    <h1>単語帳</h1>
+    <p>閲覧ページは準備中です。設定ページから単語を登録・管理できます。</p>
+    <a href="./setting/index.html">設定ページを開く</a>
+  </div>
 </body>
 </html>
