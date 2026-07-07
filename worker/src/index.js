@@ -49,6 +49,57 @@ async function uniqueWordId(db, spelling) {
   }
 }
 
+async function resolveWordIdBySpelling(db, spelling) {
+  if (!spelling) return null;
+  const row = await db.prepare("SELECT id FROM words WHERE spelling = ? COLLATE NOCASE").bind(spelling).first();
+  return row ? row.id : null;
+}
+
+// "42" または "42-1" 形式の文字列を {no, branch} にパースする。branch省略時は0（枝番なし）。
+function parseBranchNo(raw) {
+  if (raw == null || raw === "") return null;
+  const m = String(raw).trim().match(/^(\d+)(?:-(\d+))?$/);
+  if (!m) return null;
+  return { no: parseInt(m[1], 10), branch: m[2] ? parseInt(m[2], 10) : 0 };
+}
+
+function formatNo(no, branch) {
+  if (no == null) return null;
+  return branch ? `${no}-${branch}` : String(no);
+}
+
+async function nextTopLevelNo(db, listId) {
+  const row = await db.prepare("SELECT COALESCE(MAX(no), 0) AS maxNo FROM list_items WHERE list_id = ?").bind(listId).first();
+  return (row?.maxNo || 0) + 1;
+}
+
+async function parentNoInList(db, listId, derivedFromId) {
+  if (!derivedFromId) return null;
+  const row = await db.prepare("SELECT no FROM list_items WHERE list_id = ? AND word_id = ?").bind(listId, derivedFromId).first();
+  return row ? row.no : null;
+}
+
+async function nextBranchForNo(db, listId, no) {
+  const row = await db.prepare("SELECT COALESCE(MAX(branch), 0) AS maxBranch FROM list_items WHERE list_id = ? AND no = ?").bind(listId, no).first();
+  return (row?.maxBranch || 0) + 1;
+}
+
+// 新規に単語をリストへ追加する際の no/branch を決める。
+// 派生元(derived_from_id)がすでに同じリストに入っていれば、その no を共有した枝番号を振る。
+// そうでなければ通常どおり末尾に新しい no を振る。
+async function computeNoForNewMembership(db, listId, wordId) {
+  const word = await db.prepare("SELECT derived_from_id FROM words WHERE id = ?").bind(wordId).first();
+  if (word?.derived_from_id) {
+    const parentNo = await parentNoInList(db, listId, word.derived_from_id);
+    if (parentNo != null) {
+      const branch = await nextBranchForNo(db, listId, parentNo);
+      return { no: parentNo, branch };
+    }
+  }
+  const no = await nextTopLevelNo(db, listId);
+  return { no, branch: 0 };
+}
+
 /** リスト内の見出し語 -> {id, no} の対応表を作り、renderMarkup の resolve として使う */
 function makeResolver(listWordsBySpelling) {
   return (headword) => {
@@ -63,13 +114,13 @@ async function loadListWordIndex(db, listId) {
   if (!listId) return map;
   const { results } = await db
     .prepare(
-      `SELECT w.id AS id, w.spelling AS spelling, li.no AS no
+      `SELECT w.id AS id, w.spelling AS spelling, li.no AS no, li.branch AS branch
        FROM list_items li JOIN words w ON w.id = li.word_id
        WHERE li.list_id = ?`
     )
     .bind(listId)
     .all();
-  for (const r of results) map.set(r.spelling.toLowerCase(), { id: r.id, no: r.no });
+  for (const r of results) map.set(r.spelling.toLowerCase(), { id: r.id, no: formatNo(r.no, r.branch) });
   return map;
 }
 
@@ -99,38 +150,77 @@ async function listWordsInList(db, listId) {
   if (!list) return notFound("list not found");
   const { results } = await db
     .prepare(
-      `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, li.no AS no
+      `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
+              w.derived_from_id AS derivedFromId
        FROM list_items li JOIN words w ON w.id = li.word_id
+       LEFT JOIN sections s ON s.id = li.section_id
        WHERE li.list_id = ?
-       ORDER BY li.no`
+       ORDER BY li.no, li.branch`
     )
     .bind(listId)
     .all();
+  const rows = results.map((r) => ({ ...r, displayNo: formatNo(r.no, r.branch) }));
+  return json(rows);
+}
+
+// ---- sections ----
+
+async function listSections(db, listId) {
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const { results } = await db
+    .prepare("SELECT id, name, sort_order AS sortOrder FROM sections WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
   return json(results);
+}
+
+async function createSection(db, listId, body) {
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  if (!body.name) return badRequest("name is required");
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM sections WHERE list_id = ?").bind(listId).first();
+  const sortOrder = (row?.m || 0) + 1;
+  const result = await db
+    .prepare("INSERT INTO sections (list_id, name, sort_order) VALUES (?, ?, ?)")
+    .bind(listId, body.name, sortOrder)
+    .run();
+  return json({ id: result.meta.last_row_id, name: body.name, sortOrder }, { status: 201 });
+}
+
+async function deleteSection(db, listId, sectionId) {
+  await db.prepare("UPDATE list_items SET section_id = NULL WHERE list_id = ? AND section_id = ?").bind(listId, sectionId).run();
+  await db.prepare("DELETE FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).run();
+  return json({ ok: true });
 }
 
 // ---- words ----
 
 async function loadWordDetail(db, id) {
   const word = await db
-    .prepare("SELECT id, spelling, pronunciation, etymology, notes, created_at, updated_at FROM words WHERE id = ?")
+    .prepare("SELECT id, spelling, pronunciation, etymology, notes, derived_from_id AS derivedFromId, created_at, updated_at FROM words WHERE id = ?")
     .bind(id)
     .first();
   if (!word) return null;
 
-  const [senses, derivatives, examples, tags, memberships] = await Promise.all([
+  const [senses, derivatives, examples, tags, memberships, children, parent] = await Promise.all([
     db.prepare("SELECT id, pos, meaning, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, pos, word, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, sentence, answer, translation, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT tag_key, tag_value FROM tags WHERE word_id = ?").bind(id).all(),
     db
       .prepare(
-        `SELECT li.list_id AS listId, l.name AS listName, li.no AS no
+        `SELECT li.list_id AS listId, l.name AS listName, li.no AS no, li.branch AS branch, li.section_id AS sectionId
          FROM list_items li JOIN lists l ON l.id = li.list_id
          WHERE li.word_id = ? ORDER BY l.sort_order, l.name`
       )
       .bind(id)
       .all(),
+    db.prepare("SELECT id, spelling FROM words WHERE derived_from_id = ? ORDER BY spelling").bind(id).all(),
+    word.derivedFromId
+      ? db.prepare("SELECT id, spelling FROM words WHERE id = ?").bind(word.derivedFromId).first()
+      : Promise.resolve(null),
   ]);
 
   const tagMap = {};
@@ -142,7 +232,9 @@ async function loadWordDetail(db, id) {
     derivatives: derivatives.results,
     examples: examples.results,
     tags: tagMap,
-    lists: memberships.results,
+    lists: memberships.results.map((m) => ({ ...m, displayNo: formatNo(m.no, m.branch) })),
+    derivedFrom: parent,
+    derivedWords: children.results,
   };
 }
 
@@ -184,21 +276,35 @@ async function saveWordChildren(db, id, body) {
   await replaceTags(db, id, body.tags);
 }
 
+async function resolveDerivedFrom(db, body) {
+  if (body.derivedFrom === undefined) return { ok: true, id: undefined };
+  if (!body.derivedFrom) return { ok: true, id: null };
+  const id = await resolveWordIdBySpelling(db, body.derivedFrom);
+  if (!id) return { ok: false };
+  return { ok: true, id };
+}
+
 async function createWord(db, body) {
   if (!body.spelling) return badRequest("spelling is required");
+  const derivedFromResolved = await resolveDerivedFrom(db, body);
+  if (!derivedFromResolved.ok) return badRequest(`derivedFrom word "${body.derivedFrom}" not found`);
+  const derivedFromId = derivedFromResolved.id || null;
+
   const id = await uniqueWordId(db, body.spelling);
   await db
     .prepare(
-      "INSERT INTO words (id, spelling, pronunciation, etymology, notes) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO words (id, spelling, pronunciation, etymology, notes, derived_from_id) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .bind(id, body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null)
+    .bind(id, body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, derivedFromId)
     .run();
   await saveWordChildren(db, id, body);
 
-  if (body.listId && body.no != null) {
+  if (body.listId) {
+    const parsed = parseBranchNo(body.no);
+    const { no, branch } = parsed || (await computeNoForNewMembership(db, body.listId, id));
     await db
-      .prepare("INSERT INTO list_items (list_id, word_id, no) VALUES (?, ?, ?)")
-      .bind(body.listId, id, body.no)
+      .prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)")
+      .bind(body.listId, id, no, branch, body.sectionId || null)
       .run();
   }
   return json(await loadWordDetail(db, id), { status: 201 });
@@ -207,12 +313,25 @@ async function createWord(db, body) {
 async function updateWord(db, id, body) {
   const existing = await db.prepare("SELECT id FROM words WHERE id = ?").bind(id).first();
   if (!existing) return notFound("word not found");
-  await db
-    .prepare(
-      "UPDATE words SET spelling = ?, pronunciation = ?, etymology = ?, notes = ?, updated_at = datetime('now') WHERE id = ?"
-    )
-    .bind(body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, id)
-    .run();
+  const derivedFromResolved = await resolveDerivedFrom(db, body);
+  if (!derivedFromResolved.ok) return badRequest(`derivedFrom word "${body.derivedFrom}" not found`);
+
+  if (derivedFromResolved.id !== undefined) {
+    if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
+    await db
+      .prepare(
+        "UPDATE words SET spelling = ?, pronunciation = ?, etymology = ?, notes = ?, derived_from_id = ?, updated_at = datetime('now') WHERE id = ?"
+      )
+      .bind(body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, derivedFromResolved.id, id)
+      .run();
+  } else {
+    await db
+      .prepare(
+        "UPDATE words SET spelling = ?, pronunciation = ?, etymology = ?, notes = ?, updated_at = datetime('now') WHERE id = ?"
+      )
+      .bind(body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, id)
+      .run();
+  }
   await saveWordChildren(db, id, body);
   return json(await loadWordDetail(db, id));
 }
@@ -221,6 +340,7 @@ async function deleteWord(db, id) {
   const existing = await db.prepare("SELECT id FROM words WHERE id = ?").bind(id).first();
   if (!existing) return notFound("word not found");
   await db.batch([
+    db.prepare("UPDATE words SET derived_from_id = NULL WHERE derived_from_id = ?").bind(id),
     db.prepare("DELETE FROM senses WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM derivatives WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM examples WHERE word_id = ?").bind(id),
@@ -238,14 +358,16 @@ async function upsertListItem(db, listId, wordId, body) {
   if (!list) return notFound("list not found");
   const word = await db.prepare("SELECT 1 FROM words WHERE id = ?").bind(wordId).first();
   if (!word) return notFound("word not found");
-  if (body.no == null) return badRequest("no is required");
+
+  const parsed = parseBranchNo(body.no);
+  if (!parsed) return badRequest('no is required (e.g. "42" or "42-1")');
 
   await db
     .prepare(
-      `INSERT INTO list_items (list_id, word_id, no) VALUES (?, ?, ?)
-       ON CONFLICT(list_id, word_id) DO UPDATE SET no = excluded.no`
+      `INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(list_id, word_id) DO UPDATE SET no = excluded.no, branch = excluded.branch, section_id = excluded.section_id`
     )
-    .bind(listId, wordId, body.no)
+    .bind(listId, wordId, parsed.no, parsed.branch, body.sectionId || null)
     .run();
   return json({ ok: true });
 }
@@ -253,6 +375,75 @@ async function upsertListItem(db, listId, wordId, body) {
 async function removeListItem(db, listId, wordId) {
   await db.prepare("DELETE FROM list_items WHERE list_id = ? AND word_id = ?").bind(listId, wordId).run();
   return json({ ok: true });
+}
+
+// ---- 単語帳(リスト)の作成方法: 範囲コピー / タグ一括抽出 ----
+
+async function copyRange(db, targetListId, body) {
+  const { sourceListId, fromNo, toNo, sectionId } = body;
+  if (!sourceListId || fromNo == null || toNo == null) {
+    return badRequest("sourceListId, fromNo, toNo are required");
+  }
+  const targetList = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(targetListId).first();
+  if (!targetList) return notFound("target list not found");
+  const sourceList = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(sourceListId).first();
+  if (!sourceList) return notFound("source list not found");
+
+  const { results: sourceItems } = await db
+    .prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ? AND no BETWEEN ? AND ? ORDER BY no, branch")
+    .bind(sourceListId, fromNo, toNo)
+    .all();
+
+  let added = 0;
+  let skipped = 0;
+  for (const item of sourceItems) {
+    const exists = await db.prepare("SELECT 1 FROM list_items WHERE list_id = ? AND word_id = ?").bind(targetListId, item.wordId).first();
+    if (exists) {
+      skipped += 1;
+      continue;
+    }
+    const { no, branch } = await computeNoForNewMembership(db, targetListId, item.wordId);
+    await db
+      .prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)")
+      .bind(targetListId, item.wordId, no, branch, sectionId || null)
+      .run();
+    added += 1;
+  }
+  return json({ added, skipped });
+}
+
+async function importByTag(db, targetListId, body) {
+  const { tagKey, tagValue, sectionId } = body;
+  if (!tagKey) return badRequest("tagKey is required");
+  const targetList = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(targetListId).first();
+  if (!targetList) return notFound("target list not found");
+
+  const stmt = tagValue
+    ? db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ? AND tag_value = ?").bind(tagKey, tagValue)
+    : db.prepare("SELECT word_id AS wordId FROM tags WHERE tag_key = ?").bind(tagKey);
+  const { results: tagRows } = await stmt.all();
+
+  let added = 0;
+  let skipped = 0;
+  for (const row of tagRows) {
+    const exists = await db.prepare("SELECT 1 FROM list_items WHERE list_id = ? AND word_id = ?").bind(targetListId, row.wordId).first();
+    if (exists) {
+      skipped += 1;
+      continue;
+    }
+    const { no, branch } = await computeNoForNewMembership(db, targetListId, row.wordId);
+    await db
+      .prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)")
+      .bind(targetListId, row.wordId, no, branch, sectionId || null)
+      .run();
+    added += 1;
+  }
+  return json({ added, skipped });
+}
+
+async function listDistinctTags(db) {
+  const { results } = await db.prepare("SELECT DISTINCT tag_key AS tagKey, tag_value AS tagValue FROM tags ORDER BY tag_key, tag_value").all();
+  return json(results);
 }
 
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
@@ -308,11 +499,37 @@ async function handleApi(request, env, parts, method) {
     return await listWordsInList(db, parts[2]);
   }
 
+  // /api/lists/:listId/sections
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "sections") {
+    if (method === "GET") return await listSections(db, parts[2]);
+    if (method === "POST") return await createSection(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/sections/:sectionId
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "sections" && method === "DELETE") {
+    return await deleteSection(db, parts[2], parts[4]);
+  }
+
+  // /api/lists/:listId/copy-range
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "copy-range" && method === "POST") {
+    return await copyRange(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/import-by-tag
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "import-by-tag" && method === "POST") {
+    return await importByTag(db, parts[2], await request.json());
+  }
+
   // /api/lists/:listId/items/:wordId
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "items") {
     const [, , listId, , wordId] = parts;
     if (method === "PUT") return await upsertListItem(db, listId, wordId, await request.json());
     if (method === "DELETE") return await removeListItem(db, listId, wordId);
+  }
+
+  // /api/tags
+  if (parts.length === 2 && parts[1] === "tags" && method === "GET") {
+    return await listDistinctTags(db);
   }
 
   // /api/words

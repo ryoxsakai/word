@@ -34,9 +34,8 @@ jobs:
         run: |
           npx wrangler d1 create vocab-db || echo "vocab-db already exists (or create failed) — continuing, assuming wrangler.toml already has the correct database_id"
 
-      - name: Apply schema to remote D1 (bootstrap only)
-        if: ${{ inputs.bootstrap_d1 == true }}
-        run: npx wrangler d1 execute vocab-db --remote --file=./schema.sql
+      - name: Apply D1 migrations
+        run: npx wrangler d1 migrations apply vocab-db --remote
 
       - name: Deploy Worker
         run: npx wrangler deploy

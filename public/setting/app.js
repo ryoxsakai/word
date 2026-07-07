@@ -2,12 +2,14 @@ import { renderMarkup } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
 
 const API = `${API_BASE}/api`;
+const NEW_SECTION_VALUE = "__new__";
 
 const state = {
   lists: [],
   currentListId: null,
-  listWordIndex: new Map(), // spelling(lower) -> { id, no }
+  listWordIndex: new Map(), // spelling(lower) -> { id, no: displayNo }
   words: [], // 現在のリストの一覧（テーブル表示用）
+  sections: [], // 現在のリストのセクション一覧
   currentWord: null, // 編集中の単語詳細（新規時はnull）
   isNew: false,
 };
@@ -17,6 +19,8 @@ const el = {
   newListBtn: document.getElementById("newListBtn"),
   listTitle: document.getElementById("listTitle"),
   newWordBtn: document.getElementById("newWordBtn"),
+  copyRangeBtn: document.getElementById("copyRangeBtn"),
+  importByTagBtn: document.getElementById("importByTagBtn"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
   editPane: document.getElementById("editPane"),
@@ -27,6 +31,8 @@ const el = {
   fieldNo: document.getElementById("fieldNo"),
   fieldSpelling: document.getElementById("fieldSpelling"),
   fieldPronunciation: document.getElementById("fieldPronunciation"),
+  fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
+  fieldSection: document.getElementById("fieldSection"),
   sensesList: document.getElementById("sensesList"),
   derivativesList: document.getElementById("derivativesList"),
   examplesList: document.getElementById("examplesList"),
@@ -87,6 +93,8 @@ async function loadLists() {
     state.currentListId = null;
     el.listTitle.textContent = "リストがありません。「＋ 新規リスト」から作成してください";
     el.newWordBtn.disabled = true;
+    el.copyRangeBtn.disabled = true;
+    el.importByTagBtn.disabled = true;
   }
 }
 
@@ -95,24 +103,76 @@ async function selectList(listId) {
   const list = state.lists.find((l) => l.id === listId);
   el.listTitle.textContent = list ? list.name : "";
   el.newWordBtn.disabled = !listId;
+  el.copyRangeBtn.disabled = !listId;
+  el.importByTagBtn.disabled = !listId;
   closeEditor();
-  await loadWordsForList(listId);
+  await Promise.all([loadWordsForList(listId), loadSectionsForList(listId)]);
 }
 
 async function loadWordsForList(listId) {
   state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
-  state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.no }]));
+  state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
   renderWordTable();
+}
+
+async function loadSectionsForList(listId) {
+  state.sections = await api(`/lists/${encodeURIComponent(listId)}/sections`);
+  renderSectionOptions();
+}
+
+function renderSectionOptions() {
+  const current = el.fieldSection.value;
+  el.fieldSection.innerHTML = '<option value="">なし</option>';
+  for (const s of state.sections) {
+    const opt = document.createElement("option");
+    opt.value = String(s.id);
+    opt.textContent = s.name;
+    el.fieldSection.appendChild(opt);
+  }
+  const newOpt = document.createElement("option");
+  newOpt.value = NEW_SECTION_VALUE;
+  newOpt.textContent = "＋ 新規セクション...";
+  el.fieldSection.appendChild(newOpt);
+  if ([...el.fieldSection.options].some((o) => o.value === current)) el.fieldSection.value = current;
+}
+
+async function handleSectionSelectChange() {
+  if (el.fieldSection.value !== NEW_SECTION_VALUE) return;
+  const name = prompt("新規セクション名を入力してください（例: Section 1）");
+  if (!name) {
+    el.fieldSection.value = "";
+    return;
+  }
+  try {
+    const section = await api(`/lists/${encodeURIComponent(state.currentListId)}/sections`, {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+    await loadSectionsForList(state.currentListId);
+    el.fieldSection.value = String(section.id);
+  } catch (err) {
+    alert(`セクション作成に失敗しました: ${err.message}`);
+    el.fieldSection.value = "";
+  }
 }
 
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
   el.wordTableEmpty.hidden = state.words.length > 0;
+  let lastSectionId = undefined;
   for (const w of state.words) {
+    if (w.sectionId !== lastSectionId) {
+      lastSectionId = w.sectionId;
+      const sectionTr = document.createElement("tr");
+      sectionTr.className = "section-header-row";
+      sectionTr.innerHTML = `<td colspan="4">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
+      el.wordTableBody.appendChild(sectionTr);
+    }
     const tr = document.createElement("tr");
     tr.dataset.wordId = w.id;
+    if (w.branch) tr.classList.add("branch-row");
     if (state.currentWord && state.currentWord.id === w.id) tr.classList.add("selected");
-    tr.innerHTML = `<td class="col-no">${w.no}</td><td>${escapeHtml(w.spelling)}</td><td>${escapeHtml(w.pronunciation || "")}</td><td></td>`;
+    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td>${escapeHtml(w.spelling)}</td><td>${escapeHtml(w.pronunciation || "")}</td><td></td>`;
     tr.addEventListener("click", () => openWordEditor(w.id));
     el.wordTableBody.appendChild(tr);
   }
@@ -180,6 +240,8 @@ function openNewWordForm() {
   el.fieldNo.value = nextSuggestedNo();
   el.fieldSpelling.value = "";
   el.fieldPronunciation.value = "";
+  el.fieldDerivedFrom.value = "";
+  el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
   clearRepeatList(el.derivativesList);
   clearRepeatList(el.examplesList);
@@ -211,9 +273,11 @@ async function openWordEditor(wordId) {
   el.deleteBtn.hidden = false;
 
   const membership = detail.lists.find((l) => l.listId === state.currentListId);
-  el.fieldNo.value = membership ? membership.no : "";
+  el.fieldNo.value = membership ? membership.displayNo : "";
   el.fieldSpelling.value = detail.spelling;
   el.fieldPronunciation.value = detail.pronunciation || "";
+  el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
+  el.fieldSection.value = membership && membership.sectionId != null ? String(membership.sectionId) : "";
 
   clearRepeatList(el.sensesList);
   (detail.senses.length ? detail.senses : [{}]).forEach((s) => addRow("senses", s));
@@ -261,9 +325,11 @@ async function saveWord() {
     alert("スペルを入力してください");
     return;
   }
+  const sectionId = el.fieldSection.value && el.fieldSection.value !== NEW_SECTION_VALUE ? Number(el.fieldSection.value) : null;
   const body = {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
+    derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
     examples: collectRows("examples"),
@@ -276,14 +342,15 @@ async function saveWord() {
     let word;
     if (state.isNew) {
       body.listId = state.currentListId;
-      body.no = el.fieldNo.value ? Number(el.fieldNo.value) : nextSuggestedNo();
+      body.no = el.fieldNo.value.trim() || null;
+      body.sectionId = sectionId;
       word = await api("/words", { method: "POST", body: JSON.stringify(body) });
     } else {
-      word = await api(`/words/${state.currentWord.id}`, { method: "PUT", body: JSON.stringify(body) });
-      if (el.fieldNo.value) {
+      word = await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "PUT", body: JSON.stringify(body) });
+      if (el.fieldNo.value.trim()) {
         await api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(word.id)}`, {
           method: "PUT",
-          body: JSON.stringify({ no: Number(el.fieldNo.value) }),
+          body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId }),
         });
       }
     }
@@ -298,7 +365,7 @@ async function deleteCurrentWord() {
   if (!state.currentWord) return;
   if (!confirm(`「${state.currentWord.spelling}」を削除しますか？（全リストから削除されます）`)) return;
   try {
-    await api(`/words/${state.currentWord.id}`, { method: "DELETE" });
+    await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "DELETE" });
     closeEditor();
     await loadWordsForList(state.currentListId);
   } catch (err) {
@@ -319,14 +386,78 @@ async function createNewList() {
   }
 }
 
+// ---- 単語帳の作成方法: 範囲コピー / タグ一括追加 ----
+
+async function copyRangeFromAnotherList() {
+  const others = state.lists.filter((l) => l.id !== state.currentListId);
+  if (others.length === 0) {
+    alert("コピー元にできる他のリストがありません。");
+    return;
+  }
+  const listing = others.map((l) => `${l.id}  (${l.name})`).join("\n");
+  const sourceListId = prompt(`コピー元のリストIDを入力してください:\n${listing}`);
+  if (!sourceListId) return;
+  if (!others.some((l) => l.id === sourceListId)) {
+    alert("そのリストIDは見つかりませんでした。");
+    return;
+  }
+  const fromNo = prompt("開始番号（コピー元リスト内のno.）");
+  if (!fromNo) return;
+  const toNo = prompt("終了番号（コピー元リスト内のno.）");
+  if (!toNo) return;
+
+  try {
+    const result = await api(`/lists/${encodeURIComponent(state.currentListId)}/copy-range`, {
+      method: "POST",
+      body: JSON.stringify({ sourceListId, fromNo: Number(fromNo), toNo: Number(toNo) }),
+    });
+    alert(`追加: ${result.added}件 / 既に存在してスキップ: ${result.skipped}件`);
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`範囲コピーに失敗しました: ${err.message}`);
+  }
+}
+
+async function importByTagPrompt() {
+  let tags;
+  try {
+    tags = await api("/tags");
+  } catch (err) {
+    alert(`タグ一覧の取得に失敗しました: ${err.message}`);
+    return;
+  }
+  if (tags.length === 0) {
+    alert("登録されているタグがありません。");
+    return;
+  }
+  const listing = tags.map((t) => (t.tagValue ? `${t.tagKey}:${t.tagValue}` : t.tagKey)).join("\n");
+  const input = prompt(`一括追加したいタグを入力してください（一覧からコピペしてください）:\n${listing}`);
+  if (!input) return;
+  const [tagKey, tagValue] = input.includes(":") ? input.split(/:(.+)/) : [input, undefined];
+
+  try {
+    const result = await api(`/lists/${encodeURIComponent(state.currentListId)}/import-by-tag`, {
+      method: "POST",
+      body: JSON.stringify({ tagKey: tagKey.trim(), tagValue: tagValue ? tagValue.trim() : undefined }),
+    });
+    alert(`追加: ${result.added}件 / 既に存在してスキップ: ${result.skipped}件`);
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`タグからの一括追加に失敗しました: ${err.message}`);
+  }
+}
+
 // ---- イベント登録 ----
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 el.newListBtn.addEventListener("click", createNewList);
 el.newWordBtn.addEventListener("click", openNewWordForm);
+el.copyRangeBtn.addEventListener("click", copyRangeFromAnotherList);
+el.importByTagBtn.addEventListener("click", importByTagPrompt);
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
+el.fieldSection.addEventListener("change", handleSectionSelectChange);
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
 el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 

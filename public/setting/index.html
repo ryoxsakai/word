@@ -22,7 +22,11 @@
     <section class="word-table-pane">
       <div class="pane-header">
         <h2 id="listTitle">リスト未選択</h2>
-        <button id="newWordBtn" type="button" disabled>＋ 単語を追加</button>
+        <div class="pane-header-actions">
+          <button id="newWordBtn" type="button" disabled>＋ 単語を追加</button>
+          <button id="copyRangeBtn" type="button" disabled>範囲コピー</button>
+          <button id="importByTagBtn" type="button" disabled>タグから一括追加</button>
+        </div>
       </div>
       <table class="word-table">
         <thead>
@@ -45,14 +49,22 @@
 
       <form id="wordForm">
         <div class="field-row">
-          <label>このリストでの no.
-            <input type="number" id="fieldNo" min="1" />
+          <label>このリストでの no. <span class="hint">例: 42 / 42-1（派生語の枝番）</span>
+            <input type="text" id="fieldNo" placeholder="42" />
           </label>
           <label>スペル
             <input type="text" id="fieldSpelling" required />
           </label>
           <label>発音記号 (IPA)
             <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+          </label>
+        </div>
+        <div class="field-row">
+          <label>派生元の見出し語 <span class="hint">例: ability なら able。同じnoを共有する枝番になる</span>
+            <input type="text" id="fieldDerivedFrom" placeholder="（なし）" />
+          </label>
+          <label>セクション
+            <select id="fieldSection"><option value="">なし</option></select>
           </label>
         </div>
 

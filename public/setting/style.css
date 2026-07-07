@@ -55,6 +55,7 @@ body { margin: 0; color: #1c1c1f; }
 }
 .pane-header h2 { font-size: 1rem; margin: 0; }
 .edit-actions { display: flex; gap: 0.4rem; }
+.pane-header-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 
 .word-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 .word-table th, .word-table td { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--border); text-align: left; }
@@ -62,6 +63,9 @@ body { margin: 0; color: #1c1c1f; }
 .word-table tbody tr { cursor: pointer; }
 .word-table tbody tr:hover { background: var(--bg-soft); }
 .word-table tbody tr.selected { background: #e8edfc; }
+.word-table tbody tr.branch-row td:nth-child(2) { padding-left: 1.4rem; color: #555; }
+.word-table tbody tr.section-header-row { cursor: default; background: var(--bg-soft); }
+.word-table tbody tr.section-header-row td { font-weight: 600; font-size: 0.82rem; color: #666; padding: 0.3rem 0.7rem; }
 
 .empty-msg { padding: 1rem; color: #888; }
 
@@ -122,5 +126,7 @@ textarea { width: 100%; resize: vertical; }
   .pane-header { background: #17171a; }
   button, input, select, textarea { background: #232327; color: #eaeaec; }
   .word-table tbody tr.selected { background: #26304f; }
+  .word-table tbody tr.branch-row td:nth-child(2) { color: #aaa; }
+  .word-table tbody tr.section-header-row td { color: #999; }
   .preview { background: #202024; }
 }
