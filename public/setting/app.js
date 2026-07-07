@@ -22,6 +22,7 @@ const el = {
   newWordBtn: document.getElementById("newWordBtn"),
   copyRangeBtn: document.getElementById("copyRangeBtn"),
   importByTagBtn: document.getElementById("importByTagBtn"),
+  importAwlBtn: document.getElementById("importAwlBtn"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
   editPane: document.getElementById("editPane"),
@@ -583,6 +584,27 @@ async function importByTagPrompt() {
   }
 }
 
+async function importAwl() {
+  if (!confirm("AWL(Academic Word List)の全570見出し語をマスター単語に取り込み、awlタグ(sublist番号)を付与します。\n既存の単語は内容を上書きせず、タグが未設定の場合のみ追加します。実行しますか？")) {
+    return;
+  }
+  el.importAwlBtn.disabled = true;
+  const originalLabel = el.importAwlBtn.textContent;
+  el.importAwlBtn.textContent = "取り込み中...";
+  try {
+    const result = await api("/import-awl", { method: "POST" });
+    alert(
+      `AWL取り込み完了\n新規作成: ${result.created}件\nタグ追加: ${result.tagged}件\n変更なし(既にタグ済み): ${result.alreadyTagged}件\n\n各リストへは「タグから一括追加」で awl:1〜awl:10 を指定して取り込めます。`
+    );
+    if (state.currentListId) await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`AWL取り込みに失敗しました: ${err.message}`);
+  } finally {
+    el.importAwlBtn.disabled = false;
+    el.importAwlBtn.textContent = originalLabel;
+  }
+}
+
 // ---- イベント登録 ----
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
@@ -590,6 +612,7 @@ el.newListBtn.addEventListener("click", createNewList);
 el.newWordBtn.addEventListener("click", openNewWordForm);
 el.copyRangeBtn.addEventListener("click", copyRangeFromAnotherList);
 el.importByTagBtn.addEventListener("click", importByTagPrompt);
+el.importAwlBtn.addEventListener("click", importAwl);
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);

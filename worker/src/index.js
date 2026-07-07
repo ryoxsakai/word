@@ -1,4 +1,5 @@
 import { renderMarkup } from "../../public/shared/markup.js";
+import awlData from "./data/awl.json";
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -446,6 +447,45 @@ async function listDistinctTags(db) {
   return json(results);
 }
 
+// ---- AWL(Academic Word List)一括取り込み ----
+// 公式PDFから抽出した見出し語(worker/src/data/awl.json)をマスター単語として登録し、
+// tag_key="awl", tag_value=<sublist番号> を付与する。既存の単語は内容を上書きせず、
+// タグが未設定の場合のみ追加する。取り込み後は既存の「タグから一括追加」機能で
+// 任意のリストへ awl:1〜awl:10 を取り込める。
+async function importAwl(db) {
+  let created = 0;
+  let tagged = 0;
+  let alreadyTagged = 0;
+
+  for (const [sublist, families] of Object.entries(awlData)) {
+    for (const fam of families) {
+      let wordId = await resolveWordIdBySpelling(db, fam.head);
+      if (!wordId) {
+        wordId = await uniqueWordId(db, fam.head);
+        await db.prepare("INSERT INTO words (id, spelling) VALUES (?, ?)").bind(wordId, fam.head).run();
+        let i = 0;
+        for (const variant of fam.variants || []) {
+          await db
+            .prepare("INSERT INTO derivatives (word_id, word, sort_order) VALUES (?, ?, ?)")
+            .bind(wordId, variant, i)
+            .run();
+          i += 1;
+        }
+        created += 1;
+      }
+
+      const existingTag = await db.prepare("SELECT 1 FROM tags WHERE word_id = ? AND tag_key = 'awl'").bind(wordId).first();
+      if (existingTag) {
+        alreadyTagged += 1;
+      } else {
+        await db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'awl', ?)").bind(wordId, sublist).run();
+        tagged += 1;
+      }
+    }
+  }
+  return json({ created, tagged, alreadyTagged });
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -588,6 +628,11 @@ async function handleApi(request, env, parts, method) {
   // /api/tags
   if (parts.length === 2 && parts[1] === "tags" && method === "GET") {
     return await listDistinctTags(db);
+  }
+
+  // /api/import-awl
+  if (parts.length === 2 && parts[1] === "import-awl" && method === "POST") {
+    return await importAwl(db);
   }
 
   // /api/words
