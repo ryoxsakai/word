@@ -12,6 +12,7 @@ const state = {
   sections: [], // 現在のリストのセクション一覧
   currentWord: null, // 編集中の単語詳細（新規時はnull）
   isNew: false,
+  currentAudioUrl: null, // 編集中の単語の発音音声URL（辞書取得 or 保存済みの値）
 };
 
 const el = {
@@ -32,6 +33,8 @@ const el = {
   fieldSpelling: document.getElementById("fieldSpelling"),
   fieldPronunciation: document.getElementById("fieldPronunciation"),
   lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
+  playAudioBtn: document.getElementById("playAudioBtn"),
+  draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
   sensesList: document.getElementById("sensesList"),
@@ -75,24 +78,41 @@ function updatePreview(textarea, previewEl) {
   previewEl.innerHTML = renderMarkup(textarea.value, { resolve: resolveRef }) || '<span style="color:#999">（プレビュー）</span>';
 }
 
-// ---- 発音記号の自動取得 ----
+// ---- 辞書からの自動取得（発音記号・音声・例文・類義語/対義語）----
 
-async function fetchPronunciation(spelling) {
+async function fetchWordInfo(spelling) {
   if (!spelling) return null;
   try {
-    const { pronunciation } = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`);
-    return pronunciation;
-  } catch {
+    const info = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`);
+    if (info && info.error) {
+      console.error("辞書取得エラー:", info.error);
+    }
+    return info;
+  } catch (err) {
+    console.error("辞書取得に失敗しました（/api/lookup）:", err);
     return null;
   }
+}
+
+function updatePlayAudioButton() {
+  el.playAudioBtn.disabled = !state.currentAudioUrl;
+}
+
+function playCurrentAudio() {
+  if (!state.currentAudioUrl) return;
+  new Audio(state.currentAudioUrl).play().catch((err) => console.error("音声再生に失敗しました:", err));
 }
 
 // スペルを入力し終えたタイミングで、発音記号が未入力なら自動で埋める。
 async function autoFillPronunciationOnBlur() {
   const spelling = el.fieldSpelling.value.trim();
   if (!spelling || el.fieldPronunciation.value.trim()) return;
-  const pronunciation = await fetchPronunciation(spelling);
-  if (pronunciation) el.fieldPronunciation.value = pronunciation;
+  const info = await fetchWordInfo(spelling);
+  if (info && info.pronunciation) el.fieldPronunciation.value = info.pronunciation;
+  if (info && info.audio) {
+    state.currentAudioUrl = info.audio;
+    updatePlayAudioButton();
+  }
 }
 
 // 🔍ボタン: 現在の値を問わず辞書から取り直す。
@@ -104,14 +124,74 @@ async function lookupPronunciationManually() {
   }
   el.lookupPronunciationBtn.disabled = true;
   try {
-    const pronunciation = await fetchPronunciation(spelling);
-    if (pronunciation) {
-      el.fieldPronunciation.value = pronunciation;
-    } else {
-      alert(`「${spelling}」の発音記号が辞書から見つかりませんでした。手動で入力してください。`);
+    const info = await fetchWordInfo(spelling);
+    if (info && info.pronunciation) {
+      el.fieldPronunciation.value = info.pronunciation;
+    }
+    if (info && info.audio) {
+      state.currentAudioUrl = info.audio;
+      updatePlayAudioButton();
+    }
+    if (!info || (!info.pronunciation && !info.audio)) {
+      const reason = info && info.error ? `（エラー: ${info.error}）` : "";
+      alert(`「${spelling}」の発音記号が辞書から見つかりませんでした${reason}。手動で入力してください。`);
     }
   } finally {
     el.lookupPronunciationBtn.disabled = false;
+  }
+}
+
+// 📖ボタン: 発音・音声に加え、例文（英語）と類義語/対義語もまとめて下書き取得する。
+// 定義は英語のみで日本語訳が取れないため、意味欄には自動で入れない。
+async function draftFromDictionary() {
+  const spelling = el.fieldSpelling.value.trim();
+  if (!spelling) {
+    alert("先にスペルを入力してください");
+    return;
+  }
+  el.draftFromDictionaryBtn.disabled = true;
+  try {
+    const info = await fetchWordInfo(spelling);
+    if (!info || info.error) {
+      alert(`「${spelling}」の情報が辞書から見つかりませんでした${info && info.error ? `（エラー: ${info.error}）` : ""}。`);
+      return;
+    }
+
+    let filledAnything = false;
+
+    if (info.pronunciation && !el.fieldPronunciation.value.trim()) {
+      el.fieldPronunciation.value = info.pronunciation;
+      filledAnything = true;
+    }
+    if (info.audio) {
+      state.currentAudioUrl = info.audio;
+      updatePlayAudioButton();
+      filledAnything = true;
+    }
+
+    const hasExample = collectRows("examples").length > 0;
+    if (!hasExample && info.examples && info.examples.length > 0) {
+      const rows = [...el.examplesList.querySelectorAll(".repeat-row")];
+      if (rows.length === 1 && !rows[0].querySelector(".sentence").value.trim()) rows[0].remove();
+      addRow("examples", { sentence: info.examples[0] });
+      filledAnything = true;
+    }
+
+    const refWords = [...info.synonyms, ...info.antonyms.map((w) => `${w}(対義語)`)];
+    if (refWords.length > 0 && !el.fieldNotes.value.includes("辞書取得の下書き")) {
+      const line = `類義語・対義語（辞書取得の下書き）: ${refWords.join(", ")}`;
+      el.fieldNotes.value = el.fieldNotes.value ? `${el.fieldNotes.value}\n${line}` : line;
+      updatePreview(el.fieldNotes, el.notesPreview);
+      filledAnything = true;
+    }
+
+    if (filledAnything) {
+      alert("辞書から下書きを取得しました。内容を確認して、必要に応じて手直ししてください。");
+    } else {
+      alert(`「${spelling}」は辞書に見つからなかったか、追加できる情報がありませんでした。`);
+    }
+  } finally {
+    el.draftFromDictionaryBtn.disabled = false;
   }
 }
 
@@ -291,6 +371,8 @@ function openNewWordForm() {
   el.fieldNo.value = nextSuggestedNo();
   el.fieldSpelling.value = "";
   el.fieldPronunciation.value = "";
+  state.currentAudioUrl = null;
+  updatePlayAudioButton();
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
@@ -327,6 +409,8 @@ async function openWordEditor(wordId) {
   el.fieldNo.value = membership ? membership.displayNo : "";
   el.fieldSpelling.value = detail.spelling;
   el.fieldPronunciation.value = detail.pronunciation || "";
+  state.currentAudioUrl = detail.audioUrl || null;
+  updatePlayAudioButton();
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership && membership.sectionId != null ? String(membership.sectionId) : "";
 
@@ -380,6 +464,7 @@ async function saveWord() {
   const body = {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
+    audioUrl: state.currentAudioUrl || null,
     derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
@@ -510,7 +595,14 @@ el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
 el.fieldSection.addEventListener("change", handleSectionSelectChange);
 el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
+el.fieldSpelling.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault(); // フォーム内でEnterによる意図しない送信/リロードを防ぐ
+  autoFillPronunciationOnBlur();
+});
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
+el.playAudioBtn.addEventListener("click", playCurrentAudio);
+el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
 el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 

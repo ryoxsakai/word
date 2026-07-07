@@ -41,6 +41,7 @@
       <div class="pane-header">
         <h2 id="editTitle">単語を編集</h2>
         <div class="edit-actions">
+          <button id="draftFromDictionaryBtn" type="button" title="辞書から発音・例文・類義語/対義語の下書きを取得">📖 辞書から下書き取得</button>
           <button id="saveBtn" type="button" class="primary">保存</button>
           <button id="deleteBtn" type="button" class="danger">削除</button>
           <button id="closeBtn" type="button">閉じる</button>
@@ -59,6 +60,7 @@
             <span class="input-with-btn">
               <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
               <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す">🔍</button>
+              <button type="button" id="playAudioBtn" title="発音を再生" disabled>▶</button>
             </span>
           </label>
         </div>

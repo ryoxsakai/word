@@ -199,7 +199,7 @@ async function deleteSection(db, listId, sectionId) {
 
 async function loadWordDetail(db, id) {
   const word = await db
-    .prepare("SELECT id, spelling, pronunciation, etymology, notes, derived_from_id AS derivedFromId, created_at, updated_at FROM words WHERE id = ?")
+    .prepare("SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, derived_from_id AS derivedFromId, created_at, updated_at FROM words WHERE id = ?")
     .bind(id)
     .first();
   if (!word) return null;
@@ -293,9 +293,9 @@ async function createWord(db, body) {
   const id = await uniqueWordId(db, body.spelling);
   await db
     .prepare(
-      "INSERT INTO words (id, spelling, pronunciation, etymology, notes, derived_from_id) VALUES (?, ?, ?, ?, ?, ?)"
+      "INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, derived_from_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
     )
-    .bind(id, body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, derivedFromId)
+    .bind(id, body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, derivedFromId)
     .run();
   await saveWordChildren(db, id, body);
 
@@ -320,16 +320,16 @@ async function updateWord(db, id, body) {
     if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
     await db
       .prepare(
-        "UPDATE words SET spelling = ?, pronunciation = ?, etymology = ?, notes = ?, derived_from_id = ?, updated_at = datetime('now') WHERE id = ?"
+        "UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, derived_from_id = ?, updated_at = datetime('now') WHERE id = ?"
       )
-      .bind(body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, derivedFromResolved.id, id)
+      .bind(body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, derivedFromResolved.id, id)
       .run();
   } else {
     await db
       .prepare(
-        "UPDATE words SET spelling = ?, pronunciation = ?, etymology = ?, notes = ?, updated_at = datetime('now') WHERE id = ?"
+        "UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, updated_at = datetime('now') WHERE id = ?"
       )
-      .bind(body.spelling, body.pronunciation || null, body.etymology || null, body.notes || null, id)
+      .bind(body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, id)
       .run();
   }
   await saveWordChildren(db, id, body);
@@ -454,33 +454,62 @@ async function renderText(db, body) {
   return json({ html });
 }
 
-// ---- 発音記号の自動入力（無料辞書API経由）----
+// ---- 辞書情報の自動取得（無料辞書API https://dictionaryapi.dev/ 経由）----
 // 品詞ごとに発音が変わる単語（record等）は1つの発音しか取れないため、
 // 参考値として埋めるだけにとどめ、必要なら手動で調整してもらう想定。
-async function lookupPronunciation(spelling) {
+// 定義・例文は英語のみで日本語訳は取れないため、意味欄には自動で入れず、
+// 例文（英語部分）・類義語・対義語・音声URLのみ活用する。
+async function lookupWordInfo(spelling) {
   if (!spelling) return null;
   try {
     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(spelling)}`);
     if (!res.ok) return null;
     const data = await res.json();
     if (!Array.isArray(data)) return null;
+
+    let pronunciation = null;
+    let audio = null;
+    const synonyms = new Set();
+    const antonyms = new Set();
+    const examples = [];
+
     for (const entry of data) {
-      if (entry.phonetic) return entry.phonetic;
+      if (!pronunciation && entry.phonetic) pronunciation = entry.phonetic;
       for (const p of entry.phonetics || []) {
-        if (p.text) return p.text;
+        if (!pronunciation && p.text) pronunciation = p.text;
+        if (!audio && p.audio) audio = p.audio;
+      }
+      for (const meaning of entry.meanings || []) {
+        for (const syn of meaning.synonyms || []) synonyms.add(syn);
+        for (const ant of meaning.antonyms || []) antonyms.add(ant);
+        for (const def of meaning.definitions || []) {
+          for (const syn of def.synonyms || []) synonyms.add(syn);
+          for (const ant of def.antonyms || []) antonyms.add(ant);
+          if (def.example && examples.length < 3) examples.push(def.example);
+        }
       }
     }
-    return null;
-  } catch {
-    return null;
+
+    return {
+      pronunciation,
+      audio,
+      synonyms: [...synonyms].slice(0, 8),
+      antonyms: [...antonyms].slice(0, 8),
+      examples,
+    };
+  } catch (err) {
+    return { error: String(err && err.message ? err.message : err) };
   }
 }
 
 async function handleLookup(request) {
   const spelling = new URL(request.url).searchParams.get("spelling");
   if (!spelling) return badRequest("spelling query param is required");
-  const pronunciation = await lookupPronunciation(spelling);
-  return json({ pronunciation });
+  const info = await lookupWordInfo(spelling);
+  if (info && info.error) {
+    return json({ pronunciation: null, audio: null, synonyms: [], antonyms: [], examples: [], error: info.error });
+  }
+  return json(info || { pronunciation: null, audio: null, synonyms: [], antonyms: [], examples: [] });
 }
 
 // フロントエンド(GitHub Pages)とAPI(Cloudflare Workers)が別オリジンになる構成のためのCORS制御。
