@@ -448,42 +448,107 @@ async function listDistinctTags(db) {
   return json(results);
 }
 
+// ---- 一括取り込み共通ヘルパー ----
+// Cloudflare Workersは1回のリクエストで発行できるサブリクエスト(D1呼び出し含む)数に上限があるため、
+// 単語ごとに逐次クエリを投げるのではなく、まとめ読み・db.batch()によるまとめ書きで件数を大幅に減らす。
+
+function chunkArray(arr, size) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+// spellingの配列から、既存のwords行を { 小文字spelling -> id } のMapとしてまとめて引く。
+async function fetchExistingWordIdsBySpelling(db, spellings) {
+  const map = new Map();
+  for (const part of chunkArray(spellings, 90)) {
+    const placeholders = part.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(`SELECT id, spelling FROM words WHERE spelling COLLATE NOCASE IN (${placeholders})`)
+      .bind(...part)
+      .all();
+    for (const row of results) map.set(row.spelling.toLowerCase(), row.id);
+  }
+  return map;
+}
+
+// word_idの配列のうち、指定tag_keyのタグが既についているものをまとめて引く。
+async function fetchTaggedWordIds(db, tagKey, wordIds) {
+  const set = new Set();
+  for (const part of chunkArray(wordIds, 90)) {
+    const placeholders = part.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(`SELECT word_id FROM tags WHERE tag_key = ? AND word_id IN (${placeholders})`)
+      .bind(tagKey, ...part)
+      .all();
+    for (const row of results) set.add(row.word_id);
+  }
+  return set;
+}
+
+// 準備済みstatementの配列をdb.batch()でチャンクごとにまとめて実行する。
+async function runBatched(db, statements, size = 400) {
+  for (const part of chunkArray(statements, size)) {
+    if (part.length > 0) await db.batch(part);
+  }
+}
+
 // ---- AWL(Academic Word List)一括取り込み ----
 // 公式PDFから抽出した見出し語(worker/src/data/awl.json)をマスター単語として登録し、
 // tag_key="awl", tag_value=<sublist番号> を付与する。既存の単語は内容を上書きせず、
 // タグが未設定の場合のみ追加する。取り込み後は既存の「タグから一括追加」機能で
 // 任意のリストへ awl:1〜awl:10 を取り込める。
 async function importAwl(db) {
+  const families = [];
+  for (const [sublist, famList] of Object.entries(awlData)) {
+    for (const fam of famList) families.push({ sublist, head: fam.head, variants: fam.variants || [] });
+  }
+  // 同じ見出し語が複数sublistに現れる場合、最初に登場したsublistのタグを優先する。
+  const bySpelling = new Map();
+  for (const fam of families) {
+    const key = fam.head.toLowerCase();
+    if (!bySpelling.has(key)) bySpelling.set(key, fam);
+  }
+  const heads = [...bySpelling.values()];
+
+  const idBySpelling = await fetchExistingWordIdsBySpelling(db, heads.map((f) => f.head));
+
+  const wordInserts = [];
+  const derivativeInserts = [];
   let created = 0;
+  for (const fam of heads) {
+    const key = fam.head.toLowerCase();
+    if (idBySpelling.has(key)) continue;
+    const id = slugify(fam.head);
+    idBySpelling.set(key, id);
+    wordInserts.push(db.prepare("INSERT OR IGNORE INTO words (id, spelling) VALUES (?, ?)").bind(id, fam.head));
+    fam.variants.forEach((variant, i) => {
+      derivativeInserts.push(
+        db.prepare("INSERT INTO derivatives (word_id, word, sort_order) VALUES (?, ?, ?)").bind(id, variant, i)
+      );
+    });
+    created += 1;
+  }
+  await runBatched(db, wordInserts);
+  await runBatched(db, derivativeInserts);
+
+  const allWordIds = heads.map((f) => idBySpelling.get(f.head.toLowerCase()));
+  const alreadyTaggedSet = await fetchTaggedWordIds(db, "awl", allWordIds);
+
+  const tagInserts = [];
   let tagged = 0;
   let alreadyTagged = 0;
-
-  for (const [sublist, families] of Object.entries(awlData)) {
-    for (const fam of families) {
-      let wordId = await resolveWordIdBySpelling(db, fam.head);
-      if (!wordId) {
-        wordId = await uniqueWordId(db, fam.head);
-        await db.prepare("INSERT INTO words (id, spelling) VALUES (?, ?)").bind(wordId, fam.head).run();
-        let i = 0;
-        for (const variant of fam.variants || []) {
-          await db
-            .prepare("INSERT INTO derivatives (word_id, word, sort_order) VALUES (?, ?, ?)")
-            .bind(wordId, variant, i)
-            .run();
-          i += 1;
-        }
-        created += 1;
-      }
-
-      const existingTag = await db.prepare("SELECT 1 FROM tags WHERE word_id = ? AND tag_key = 'awl'").bind(wordId).first();
-      if (existingTag) {
-        alreadyTagged += 1;
-      } else {
-        await db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'awl', ?)").bind(wordId, sublist).run();
-        tagged += 1;
-      }
+  for (const fam of heads) {
+    const wordId = idBySpelling.get(fam.head.toLowerCase());
+    if (alreadyTaggedSet.has(wordId)) {
+      alreadyTagged += 1;
+      continue;
     }
+    tagInserts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'awl', ?)").bind(wordId, fam.sublist));
+    tagged += 1;
   }
+  await runBatched(db, tagInserts);
+
   return json({ created, tagged, alreadyTagged });
 }
 
@@ -492,26 +557,38 @@ async function importAwl(db) {
 // tag_key="oxford5000", tag_value=<CEFRレベル> を付与する。1語に複数レベルの記載がある場合は
 // 最も易しいレベルを採用する。既存の単語は内容を上書きせず、タグが未設定の場合のみ追加する。
 async function importOxford5000(db) {
+  const entries = Object.entries(oxford5000Data);
+  const idBySpelling = await fetchExistingWordIdsBySpelling(db, entries.map(([spelling]) => spelling));
+
+  const wordInserts = [];
   let created = 0;
+  for (const [spelling] of entries) {
+    const key = spelling.toLowerCase();
+    if (idBySpelling.has(key)) continue;
+    const id = slugify(spelling);
+    idBySpelling.set(key, id);
+    wordInserts.push(db.prepare("INSERT OR IGNORE INTO words (id, spelling) VALUES (?, ?)").bind(id, spelling));
+    created += 1;
+  }
+  await runBatched(db, wordInserts);
+
+  const allWordIds = entries.map(([spelling]) => idBySpelling.get(spelling.toLowerCase()));
+  const alreadyTaggedSet = await fetchTaggedWordIds(db, "oxford5000", allWordIds);
+
+  const tagInserts = [];
   let tagged = 0;
   let alreadyTagged = 0;
-
-  for (const [spelling, level] of Object.entries(oxford5000Data)) {
-    let wordId = await resolveWordIdBySpelling(db, spelling);
-    if (!wordId) {
-      wordId = await uniqueWordId(db, spelling);
-      await db.prepare("INSERT INTO words (id, spelling) VALUES (?, ?)").bind(wordId, spelling).run();
-      created += 1;
-    }
-
-    const existingTag = await db.prepare("SELECT 1 FROM tags WHERE word_id = ? AND tag_key = 'oxford5000'").bind(wordId).first();
-    if (existingTag) {
+  for (const [spelling, level] of entries) {
+    const wordId = idBySpelling.get(spelling.toLowerCase());
+    if (alreadyTaggedSet.has(wordId)) {
       alreadyTagged += 1;
-    } else {
-      await db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'oxford5000', ?)").bind(wordId, level).run();
-      tagged += 1;
+      continue;
     }
+    tagInserts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, 'oxford5000', ?)").bind(wordId, level));
+    tagged += 1;
   }
+  await runBatched(db, tagInserts);
+
   return json({ created, tagged, alreadyTagged });
 }
 
