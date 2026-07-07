@@ -1,9 +1,11 @@
 import { renderMarkup } from "../../public/shared/markup.js";
 import awlData from "./data/awl.json";
 import oxford5000Data from "./data/oxford5000.json";
+import target1900Data from "./data/target1900.json";
+import target1400Data from "./data/target1400.json";
 
 /** 仮想の親リスト（全単語マスター）の ID */
-export const MASTER_LIST_ID = "__master__";
+const MASTER_LIST_ID = "__master__";
 
 const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
 
@@ -175,13 +177,17 @@ async function createList(db, body) {
 const WORD_TAG_SELECT = `
   ta.tag_value AS awlSublist,
   to5.tag_value AS oxfordLevel,
-  te.tag_value AS eiken
+  te.tag_value AS eiken,
+  t19.tag_value AS target1900No,
+  t14.tag_value AS target1400No
 `;
 
 const WORD_TAG_JOINS = `
   LEFT JOIN tags ta ON ta.word_id = w.id AND ta.tag_key = 'awl'
   LEFT JOIN tags to5 ON to5.word_id = w.id AND to5.tag_key = 'oxford5000'
   LEFT JOIN tags te ON te.word_id = w.id AND te.tag_key = 'eiken'
+  LEFT JOIN tags t19 ON t19.word_id = w.id AND t19.tag_key = 'target1900'
+  LEFT JOIN tags t14 ON t14.word_id = w.id AND t14.tag_key = 'target1400'
 `;
 
 async function listWordsInList(db, listId) {
@@ -212,6 +218,8 @@ async function listMasterWords(db, searchUrl) {
   const params = searchUrl ? new URL(searchUrl, "http://local").searchParams : new URLSearchParams();
   const awl = params.get("awl");
   const oxford = params.get("oxford");
+  const target1900 = params.get("target1900");
+  const target1400 = params.get("target1400");
   const q = params.get("q")?.trim();
 
   let sql = `
@@ -231,8 +239,14 @@ async function listMasterWords(db, searchUrl) {
     sql += " AND to5.tag_value = ?";
     binds.push(oxford);
   }
+  if (target1900) {
+    sql += " AND t19.tag_value IS NOT NULL";
+  }
+  if (target1400) {
+    sql += " AND t14.tag_value IS NOT NULL";
+  }
   if (q) {
-    sql += " AND w.spelling LIKE ? ESCAPE '\\\\'";
+    sql += " AND w.spelling LIKE ? ESCAPE '\\'";
     binds.push(`%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
   }
   sql += " ORDER BY w.spelling COLLATE NOCASE";
@@ -707,14 +721,111 @@ async function importOxford5000(db) {
   return { created, tagged, alreadyTagged };
 }
 
-// ---- マスター単語（AWL / Oxford 5000）のシード ----
-// 親リスト（全語マスター）に AWL / Oxford 5000 の見出し語とタグを登録する。
+// word_idの配列のうち、指定テーブルに行が既にあるものをまとめて引く(senses/examplesの既存有無チェック用)。
+async function fetchWordIdsWithRows(db, table, wordIds) {
+  const set = new Set();
+  for (const part of chunkArray(wordIds, 90)) {
+    const placeholders = part.map(() => "?").join(",");
+    const { results } = await db
+      .prepare(`SELECT DISTINCT word_id FROM ${table} WHERE word_id IN (${placeholders})`)
+      .bind(...part)
+      .all();
+    for (const row of results) set.add(row.word_id);
+  }
+  return set;
+}
+
+// ---- Target1900 / Target1400 一括取り込み ----
+// xlsxから抽出した見出し語・意味・例文(worker/src/data/target1900.json, target1400.json)を
+// マスター単語として登録し、tag_key="target1900"/"target1400"(tag_value=通し番号)を付与する。
+// AWL/Oxford5000と同様、単語帳への振り分けはUIでチェック選択して行うため、専用リストは作らない。
+// 既存の単語・意味・例文・タグは上書きせず、未設定の場合のみ追加する。
+async function importTargetList(db, { tagKey, entries }) {
+  const idBySpelling = await fetchExistingWordIdsBySpelling(db, entries.map((e) => e.word));
+
+  const wordInserts = [];
+  let created = 0;
+  for (const entry of entries) {
+    const key = entry.word.toLowerCase();
+    if (idBySpelling.has(key)) continue;
+    const id = slugify(entry.word);
+    idBySpelling.set(key, id);
+    wordInserts.push(db.prepare("INSERT OR IGNORE INTO words (id, spelling) VALUES (?, ?)").bind(id, entry.word));
+    created += 1;
+  }
+  await runBatched(db, wordInserts);
+
+  const allWordIds = entries.map((e) => idBySpelling.get(e.word.toLowerCase()));
+
+  const withSenses = await fetchWordIdsWithRows(db, "senses", allWordIds);
+  const senseInserts = [];
+  let sensesAdded = 0;
+  for (const entry of entries) {
+    const wordId = idBySpelling.get(entry.word.toLowerCase());
+    if (withSenses.has(wordId) || !entry.meaning) continue;
+    senseInserts.push(
+      db.prepare("INSERT INTO senses (word_id, pos, meaning, sort_order) VALUES (?, NULL, ?, 0)").bind(wordId, entry.meaning)
+    );
+    withSenses.add(wordId);
+    sensesAdded += 1;
+  }
+  await runBatched(db, senseInserts);
+
+  const withExamples = await fetchWordIdsWithRows(db, "examples", allWordIds);
+  const exampleInserts = [];
+  let examplesAdded = 0;
+  for (const entry of entries) {
+    if (!entry.exampleBlank) continue;
+    const wordId = idBySpelling.get(entry.word.toLowerCase());
+    if (withExamples.has(wordId)) continue;
+    exampleInserts.push(
+      db
+        .prepare("INSERT INTO examples (word_id, sentence, answer, translation, sort_order) VALUES (?, ?, ?, ?, 0)")
+        .bind(wordId, entry.exampleBlank, entry.answer || null, entry.translation || null)
+    );
+    withExamples.add(wordId);
+    examplesAdded += 1;
+  }
+  await runBatched(db, exampleInserts);
+
+  const alreadyTaggedSet = await fetchTaggedWordIds(db, tagKey, allWordIds);
+  const tagInserts = [];
+  let tagged = 0;
+  let alreadyTagged = 0;
+  for (const entry of entries) {
+    const wordId = idBySpelling.get(entry.word.toLowerCase());
+    if (alreadyTaggedSet.has(wordId)) {
+      alreadyTagged += 1;
+      continue;
+    }
+    tagInserts.push(
+      db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)").bind(wordId, tagKey, String(entry.no))
+    );
+    tagged += 1;
+  }
+  await runBatched(db, tagInserts);
+
+  return { created, sensesAdded, examplesAdded, tagged, alreadyTagged };
+}
+
+async function importTarget1900(db) {
+  return importTargetList(db, { tagKey: "target1900", entries: target1900Data });
+}
+
+async function importTarget1400(db) {
+  return importTargetList(db, { tagKey: "target1400", entries: target1400Data });
+}
+
+// ---- マスター単語（AWL / Oxford 5000 / Target1900 / Target1400）のシード ----
+// 親リスト（全語マスター）に各ソースの見出し語とタグを登録する。
 // 単語帳への振り分けはUIでチェック選択して行う。
 
 async function seedPresetLists(db) {
   const awl = await importAwl(db);
   const oxford = await importOxford5000(db);
-  return { master: { awl, oxford } };
+  const target1900 = await importTarget1900(db);
+  const target1400 = await importTarget1400(db);
+  return { master: { awl, oxford, target1900, target1400 } };
 }
 
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----

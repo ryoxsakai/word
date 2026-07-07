@@ -214,6 +214,15 @@ body {
   min-width: 8.5rem;
 }
 
+.filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
 .master-actions {
   display: flex;
   flex-wrap: wrap;
@@ -247,6 +256,8 @@ body {
 .badge-awl { background: #e8f0fe; color: #1a4fb8; }
 .badge-oxford { background: #e6f4ea; color: #137333; }
 .badge-eiken { background: #fce8e6; color: #c5221f; }
+.badge-target1900 { background: #fff4e0; color: #a15c00; }
+.badge-target1400 { background: #f3e8fd; color: #7327a8; }
 .level-empty { color: var(--text-muted); font-size: 0.85rem; }
 
 .word-table tbody tr.checked-row { background: var(--accent-soft); }
@@ -260,6 +271,8 @@ body {
   .badge-awl { background: #1e3a5f; color: #a8c7fa; }
   .badge-oxford { background: #1e3d2e; color: #81c995; }
   .badge-eiken { background: #4a1e1c; color: #f6aea9; }
+  .badge-target1900 { background: #4a3400; color: #ffcf7a; }
+  .badge-target1400 { background: #34194a; color: #d9aef8; }
 }
 
 /* ---- panes ---- */

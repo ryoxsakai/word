@@ -15,7 +15,7 @@ const state = {
   isNew: false,
   currentAudioUrl: null,
   selectedWordIds: new Set(),
-  masterFilter: { q: "", awl: "", oxford: "" },
+  masterFilter: { q: "", awl: "", oxford: "", target1900: "", target1400: "" },
 };
 
 const MOBILE_BREAKPOINT = 768;
@@ -36,6 +36,8 @@ const el = {
   masterSearch: document.getElementById("masterSearch"),
   filterAwl: document.getElementById("filterAwl"),
   filterOxford: document.getElementById("filterOxford"),
+  filterTarget1900: document.getElementById("filterTarget1900"),
+  filterTarget1400: document.getElementById("filterTarget1400"),
   selectionCount: document.getElementById("selectionCount"),
   selectAllMasterBtn: document.getElementById("selectAllMasterBtn"),
   clearSelectionBtn: document.getElementById("clearSelectionBtn"),
@@ -144,6 +146,8 @@ function formatLevelBadges(w) {
   if (w.awlSublist) badges.push({ cls: "badge-awl", text: `AWL ${w.awlSublist}` });
   if (w.oxfordLevel) badges.push({ cls: "badge-oxford", text: w.oxfordLevel });
   if (w.eiken) badges.push({ cls: "badge-eiken", text: `英検${w.eiken}` });
+  if (w.target1900No) badges.push({ cls: "badge-target1900", text: `1900-${w.target1900No}` });
+  if (w.target1400No) badges.push({ cls: "badge-target1400", text: `1400-${w.target1400No}` });
   if (badges.length === 0) return '<span class="level-empty">―</span>';
   return badges.map((b) => `<span class="level-badge ${b.cls}">${escapeHtml(b.text)}</span>`).join("");
 }
@@ -338,6 +342,8 @@ async function loadWordsForList(listId) {
     if (state.masterFilter.q) qs.set("q", state.masterFilter.q);
     if (state.masterFilter.awl) qs.set("awl", state.masterFilter.awl);
     if (state.masterFilter.oxford) qs.set("oxford", state.masterFilter.oxford);
+    if (state.masterFilter.target1900) qs.set("target1900", "1");
+    if (state.masterFilter.target1400) qs.set("target1400", "1");
     const query = qs.toString();
     state.words = await api(`/master/words${query ? `?${query}` : ""}`);
     state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: null }]));
@@ -498,6 +504,8 @@ async function applyMasterFilters() {
   state.masterFilter.q = el.masterSearch.value.trim();
   state.masterFilter.awl = el.filterAwl.value;
   state.masterFilter.oxford = el.filterOxford.value;
+  state.masterFilter.target1900 = el.filterTarget1900.checked;
+  state.masterFilter.target1400 = el.filterTarget1400.checked;
   await loadWordsForList(state.currentListId);
 }
 
@@ -811,6 +819,8 @@ el.masterSearch.addEventListener("input", () => {
 });
 el.filterAwl.addEventListener("change", () => applyMasterFilters());
 el.filterOxford.addEventListener("change", () => applyMasterFilters());
+el.filterTarget1900.addEventListener("change", () => applyMasterFilters());
+el.filterTarget1400.addEventListener("change", () => applyMasterFilters());
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
