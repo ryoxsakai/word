@@ -9,7 +9,7 @@ binding = "ASSETS"
 [vars]
 # GitHub PagesなどAPIと別オリジンからアクセスするフロントエンドのURLをカンマ区切りで指定。
 # 例: "https://ryoxsakai.github.io"
-ALLOWED_ORIGINS = "https://ryoxsakai.github.io"
+ALLOWED_ORIGINS = "https://ryoxsakai.github.io,https://vocab.lrnr.jp"
 
 [[d1_databases]]
 binding = "DB"
