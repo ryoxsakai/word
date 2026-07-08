@@ -610,6 +610,12 @@ legend .hint {
   background: var(--bg-elevated);
 }
 
+#fieldPronunciation,
+.repeat-row .pronunciation,
+.col-pron {
+  font-family: "Charis SIL", "Times New Roman", serif;
+}
+
 .remove-row-btn {
   color: var(--danger);
   border-color: transparent;

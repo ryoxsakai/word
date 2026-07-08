@@ -249,7 +249,7 @@ button { font-family: inherit; }
 }
 .speak-btn:hover { filter: brightness(1.08); }
 .speak-btn.speaking { background: var(--accent-strong); }
-.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Times New Roman", serif; }
+.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; }
 
 .tag-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.15rem; }
 .tag-badge {
