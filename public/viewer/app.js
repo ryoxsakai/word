@@ -222,18 +222,10 @@ function renderEntry(w) {
     ? `<div class="notes-block"><span class="notes-label">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
     : "";
 
-  const pronCautionClasses = [
-    w.pronunciationCaution ? "caution-pronunciation" : "",
-    w.accentCaution ? "caution-accent" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const pronCautionTitle = [
-    w.pronunciationCaution ? "発音に注意" : "",
-    w.accentCaution ? "アクセント位置に注意" : "",
-  ]
-    .filter(Boolean)
-    .join(" / ");
+  const cautionHtml = [
+    w.pronunciationCaution ? '<span class="caution-badge caution-pronunciation" title="発音に注意">発音</span>' : "",
+    w.accentCaution ? '<span class="caution-badge caution-accent" title="アクセント位置に注意">アクセント</span>' : "",
+  ].join("");
 
   return `
   <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.displayNo)}" data-haystack="${escapeHtml(haystack)}">
@@ -242,7 +234,8 @@ function renderEntry(w) {
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
         <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
-        ${w.pronunciation ? `<span class="pron${pronCautionClasses ? ` ${pronCautionClasses}` : ""}"${pronCautionTitle ? ` title="${escapeHtml(pronCautionTitle)}"` : ""}>[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
+        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
+        ${cautionHtml}
       </div>
       ${familyLine}
       <div class="entry-card">

@@ -251,19 +251,19 @@ button { font-family: inherit; }
 .speak-btn.speaking { background: var(--accent-strong); }
 .pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; }
 
-.pron.caution-pronunciation { color: #a15c00; }
-.pron.caution-pronunciation::before { content: "⚠"; margin-right: 0.2em; }
-.pron.caution-accent {
-  text-decoration: underline;
-  text-decoration-style: wavy;
-  text-decoration-color: #a15c00;
-  text-underline-offset: 0.2em;
+.caution-badge {
+  font-size: 0.68rem;
+  font-weight: 650;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
 }
-:root[data-theme="dark"] .pron.caution-pronunciation { color: #ffcf7a; }
-:root[data-theme="dark"] .pron.caution-accent { text-decoration-color: #ffcf7a; }
+.caution-badge.caution-pronunciation { background: #fff4e0; color: #8a5a00; }
+.caution-badge.caution-accent { background: #fde3e3; color: #b3261e; }
+:root[data-theme="dark"] .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
+:root[data-theme="dark"] .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .pron.caution-pronunciation { color: #ffcf7a; }
-  :root:not([data-theme="light"]) .pron.caution-accent { text-decoration-color: #ffcf7a; }
+  :root:not([data-theme="light"]) .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
+  :root:not([data-theme="light"]) .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
 }
 
 .entry-card {
@@ -278,7 +278,6 @@ button { font-family: inherit; }
 
 .sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
 .sense-line.sense-primary { font-weight: 700; }
-.sense-line.sense-primary .sense-meaning { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 0.15em; }
 .sense-line:not(.sense-primary) { font-size: 0.85rem; }
 .sense-line:not(.sense-primary) .sense-meaning { color: var(--text-muted); font-weight: 400; }
 .sense-line:not(.sense-primary) .pos-badge { opacity: 0.7; }
