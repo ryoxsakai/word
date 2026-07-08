@@ -161,8 +161,8 @@ function formatLevelBadges(w) {
 
 function formatCautionIcons(w) {
   const marks = [];
-  if (w.pronunciationCaution) marks.push('<span class="caution-icon" title="発音注意">⚠発</span>');
-  if (w.accentCaution) marks.push('<span class="caution-icon" title="アクセント注意">⚠ア</span>');
+  if (w.pronunciationCaution) marks.push('<span class="caution-icon caution-pronunciation" title="発音注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>発</span>');
+  if (w.accentCaution) marks.push('<span class="caution-icon caution-accent" title="アクセント注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>ア</span>');
   return marks.join("");
 }
 
@@ -666,8 +666,8 @@ function renderWordTable() {
       const moveButtons =
         w.sectionId != null
           ? `<span class="section-move-btns">
-              <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="セクションを上へ">▲</button>
-              <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ">▼</button>
+              <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="セクションを上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+              <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
             </span>`
           : "";
       sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-name">${escapeHtml(w.sectionName || "（セクションなし）")}</span>${moveButtons}</span></td>`;
@@ -714,7 +714,7 @@ function renderWordTable() {
     } else {
       const moveCell = w.branch
         ? `<td class="col-move"></td>`
-        : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ">▲</button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ">▼</button></td>`;
+        : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></td>`;
       tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}<td class="col-levels">${levels}</td>${pronCell}${moveCell}`;
       tr.addEventListener("click", () => openWordEditor(w.id));
       if (!w.branch) {

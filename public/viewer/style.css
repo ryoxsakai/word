@@ -13,7 +13,7 @@
   --mark-bg: #ffe58a;
   --danger: #c0392b;
   --pos-border: #2f8fae;
-  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-family: "Roboto Condensed", "M PLUS 2", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
 }
 
 :root[data-theme="dark"] {

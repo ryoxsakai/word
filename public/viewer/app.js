@@ -233,7 +233,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
+        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
         ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
         ${cautionHtml}
       </div>
@@ -548,7 +548,8 @@ function currentEffectiveTheme() {
 function applyTheme(theme) {
   if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
   else delete document.documentElement.dataset.theme;
-  el.themeToggleBtn.textContent = currentEffectiveTheme() === "dark" ? "☀" : "🌙";
+  const icon = currentEffectiveTheme() === "dark" ? "fa-sun" : "fa-moon";
+  el.themeToggleBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>`;
 }
 
 el.themeToggleBtn.addEventListener("click", () => {

@@ -6,19 +6,23 @@
 <meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
 <title>単語帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,400;0,500;0,700;1,400&family=M+PLUS+2:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="./shared/fonts/charis-sil.css" />
 <link rel="stylesheet" href="./viewer/style.css" />
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
-    <span class="brand-icon" aria-hidden="true">📘</span>
+    <i class="fa-solid fa-book-open brand-icon" aria-hidden="true"></i>
     <span class="brand-name">単語帳</span>
   </div>
   <div class="toolbar-controls">
     <select id="listSelect" aria-label="リストを選択"></select>
-    <button id="themeToggleBtn" type="button" class="icon-btn" title="ダーク/ライト切り替え">🌙</button>
-    <a class="icon-btn" href="./setting/index.html" title="単語を編集">✎</a>
+    <button id="themeToggleBtn" type="button" class="icon-btn" title="ダーク/ライト切り替え"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+    <a class="icon-btn" href="./setting/index.html" title="単語を編集"><i class="fa-solid fa-gear" aria-hidden="true"></i></a>
   </div>
 </header>
 
@@ -44,7 +48,7 @@
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
 <p id="loadingMsg" class="loading-msg">読み込み中...</p>
 
-<button id="backToTopBtn" type="button" class="back-to-top" hidden title="先頭に戻る">↑</button>
+<button id="backToTopBtn" type="button" class="back-to-top" hidden title="先頭に戻る"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
 <div id="toast" class="toast" hidden></div>
 
 <script type="module" src="./viewer/app.js"></script>

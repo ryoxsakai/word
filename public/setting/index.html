@@ -6,6 +6,10 @@
 <meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
 <title>単語帳 設定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,400;0,500;0,700;1,400&family=M+PLUS+2:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="../shared/fonts/charis-sil.css" />
 <link rel="stylesheet" href="./style.css" />
 </head>
@@ -15,7 +19,7 @@
     <div class="topbar-row topbar-row--primary">
       <h1 class="app-title">単語帳</h1>
       <span class="app-subtitle">設定</span>
-      <a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧 ↗</a>
+      <a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧 <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
       <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
         <span class="menu-toggle-bar"></span>
         <span class="menu-toggle-bar"></span>
@@ -26,7 +30,7 @@
       <div class="list-switcher">
         <label for="listSelect">表示</label>
         <select id="listSelect"></select>
-        <button id="newListBtn" type="button" class="btn-compact">＋ 新規</button>
+        <button id="newListBtn" type="button" class="btn-compact"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>新規</span></button>
       </div>
 
       <div class="master-toolbar" id="masterToolbar" hidden>
@@ -58,9 +62,9 @@
         </div>
         <div class="master-actions">
           <span id="selectionCount" class="selection-count">0語選択</span>
-          <button id="selectAllMasterBtn" type="button" class="btn-ghost" title="現在読み込み済みの単語のみ選択されます">表示中を全選択</button>
-          <button id="clearSelectionBtn" type="button" class="btn-ghost">解除</button>
-          <button id="addToNotebookBtn" type="button" class="primary" disabled>単語帳に追加</button>
+          <button id="selectAllMasterBtn" type="button" class="btn-ghost" title="現在読み込み済みの単語のみ選択されます"><i class="fa-solid fa-square-check" aria-hidden="true"></i><span>表示中を全選択</span></button>
+          <button id="clearSelectionBtn" type="button" class="btn-ghost"><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>解除</span></button>
+          <button id="addToNotebookBtn" type="button" class="primary" disabled><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳に追加</span></button>
         </div>
       </div>
     </div>
@@ -71,8 +75,8 @@
       <div class="pane-header">
         <h2 id="listTitle">リスト未選択</h2>
         <div class="pane-header-actions">
-          <button id="newWordBtn" type="button" disabled>＋ 単語を追加</button>
-          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden>＋ セクション</button>
+          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語を追加</span></button>
+          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
         </div>
       </div>
 
@@ -96,10 +100,10 @@
     <div class="pane-header pane-header--edit">
       <h2 id="editTitle">単語を編集</h2>
       <div class="edit-actions">
-        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost" title="辞書から発音・例文・類義語/対義語の下書きを取得">辞書下書き</button>
-        <button id="saveBtn" type="button" class="primary">保存</button>
-        <button id="deleteBtn" type="button" class="danger btn-ghost">削除</button>
-        <button id="closeBtn" type="button" class="btn-ghost" aria-label="閉じる">×</button>
+        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost" title="辞書から発音・例文・類義語/対義語の下書きを取得"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>辞書下書き</span></button>
+        <button id="saveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+        <button id="deleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
+        <button id="closeBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       </div>
     </div>
 
@@ -111,10 +115,10 @@
         <label class="field-pronunciation">発音記号 (IPA) <span class="hint">入力時に自動取得</span>
           <span class="input-with-btn">
             <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
-            <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得">🔍</button>
-            <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled>▶</button>
-            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします">発音注意</button>
-            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします">アクセント注意</button>
+            <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+            <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>発音注意</span></button>
+            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>アクセント注意</span></button>
           </span>
         </label>
       </div>
@@ -133,19 +137,19 @@
       <fieldset>
         <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞。「見出し」は単語一覧に表示する代表の意味</span></legend>
         <div id="sensesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="senses">＋ 意味を追加</button>
+        <button type="button" class="add-row-btn" data-add="senses"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>意味を追加</span></button>
       </fieldset>
 
       <fieldset>
         <legend>例文・フレーズ <span class="hint">◆例文 / ◇フレーズ。空所は ＿＿＿</span></legend>
         <div id="examplesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="examples">＋ 例文・フレーズを追加</button>
+        <button type="button" class="add-row-btn" data-add="examples"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>例文・フレーズを追加</span></button>
       </fieldset>
 
       <fieldset>
         <legend>派生語</legend>
         <div id="derivativesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="derivatives">＋ 派生語を追加</button>
+        <button type="button" class="add-row-btn" data-add="derivatives"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>派生語を追加</span></button>
       </fieldset>
 
       <fieldset>
@@ -218,7 +222,7 @@
     <label class="primary-radio" title="単語一覧に表示する見出しの意味にする">
       <input type="radio" name="isPrimarySense" class="is-primary" /> 見出し
     </label>
-    <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>
 
@@ -239,7 +243,7 @@
     </select>
     <input type="text" class="word" placeholder="派生語" autocapitalize="none" />
     <input type="text" class="meaning" placeholder="意味" />
-    <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>
 
@@ -252,7 +256,7 @@
     <input type="text" class="sentence" placeholder="例文・フレーズ（空所は ＿＿＿）" />
     <input type="text" class="translation" placeholder="和訳" />
     <input type="hidden" class="answer" />
-    <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>
 
