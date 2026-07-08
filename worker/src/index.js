@@ -553,8 +553,16 @@ async function replaceChildRows(db, table, columns, wordId, rows) {
   }
 }
 
+// 単語編集フォームが管理するtag_keyのみを対象にする。
+// target1900/target1400など一括インポートでのみ設定されるタグは対象外にし、
+// 保存のたびに消えてしまわないようにする。
 async function replaceTags(db, wordId, tags) {
-  await db.prepare("DELETE FROM tags WHERE word_id = ?").bind(wordId).run();
+  await db
+    .prepare(
+      "DELETE FROM tags WHERE word_id = ? AND (tag_key IN ('oxford5000', 'awl', 'eiken') OR tag_key LIKE 'custom:%')"
+    )
+    .bind(wordId)
+    .run();
   for (const [key, value] of Object.entries(tags || {})) {
     if (value === false || value === null || value === undefined) continue;
     await db
