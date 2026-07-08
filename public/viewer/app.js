@@ -269,8 +269,12 @@ function renderWords() {
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     if (withSections && key !== lastKey) {
       lastKey = key;
+      const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
+        w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
+      }`;
+      const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
       parts.push(
-        `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}">${escapeHtml(w.sectionName || "その他")}</div>`
+        `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
       );
     }
     parts.push(renderEntry(w));
@@ -581,8 +585,8 @@ function currentEffectiveTheme() {
 function applyTheme(theme) {
   if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
   else delete document.documentElement.dataset.theme;
-  const icon = currentEffectiveTheme() === "dark" ? "fa-sun" : "fa-moon";
-  el.themeToggleBtn.innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>`;
+  // ボタンのラベルはクリック後の切り替え先を示す
+  el.themeToggleBtn.textContent = currentEffectiveTheme() === "dark" ? "ライト" : "ダーク";
 }
 
 el.themeToggleBtn.addEventListener("click", () => {

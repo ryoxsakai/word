@@ -302,7 +302,8 @@ async function listWordsInListFull(db, listId) {
               w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.derived_from_id AS derivedFromId,
-              li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName, s.sort_order AS sectionSortOrder
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
+              s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
        WHERE li.list_id = ?
@@ -364,6 +365,8 @@ async function listWordsInListFull(db, listId) {
     displayNo: formatNo(r.no, r.branch),
     sectionId: r.sectionId,
     sectionName: r.sectionName,
+    sectionSubtitle: r.sectionSubtitle,
+    sectionDescription: r.sectionDescription,
     sectionSortOrder: r.sectionSortOrder,
     derivedFromId: r.derivedFromId,
     derivedFromSpelling: r.derivedFromId ? spellingById.get(r.derivedFromId) || null : null,
@@ -383,7 +386,9 @@ async function listSections(db, listId) {
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   const { results } = await db
-    .prepare("SELECT id, name, sort_order AS sortOrder FROM sections WHERE list_id = ? ORDER BY sort_order, id")
+    .prepare(
+      "SELECT id, name, subtitle, description, sort_order AS sortOrder FROM sections WHERE list_id = ? ORDER BY sort_order, id"
+    )
     .bind(listId)
     .all();
   return json(results);
@@ -400,6 +405,17 @@ async function createSection(db, listId, body) {
     .bind(listId, body.name, sortOrder)
     .run();
   return json({ id: result.meta.last_row_id, name: body.name, sortOrder }, { status: 201 });
+}
+
+async function updateSection(db, listId, sectionId, body) {
+  const section = await db.prepare("SELECT id FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+  if (!section) return notFound("section not found");
+  if (!body.name) return badRequest("name is required");
+  await db
+    .prepare("UPDATE sections SET name = ?, subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
+    .bind(body.name, body.subtitle || null, body.description || null, sectionId, listId)
+    .run();
+  return json({ id: Number(sectionId), name: body.name, subtitle: body.subtitle || null, description: body.description || null });
 }
 
 async function deleteSection(db, listId, sectionId) {
@@ -1469,8 +1485,9 @@ async function handleApi(request, env, parts, method) {
   }
 
   // /api/lists/:listId/sections/:sectionId
-  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "sections" && method === "DELETE") {
-    return await deleteSection(db, parts[2], parts[4]);
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "sections" && parts[4] !== "reorder") {
+    if (method === "DELETE") return await deleteSection(db, parts[2], parts[4]);
+    if (method === "PUT") return await updateSection(db, parts[2], parts[4], await request.json());
   }
 
   // /api/lists/:listId/sections/reorder

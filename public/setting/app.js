@@ -5,6 +5,7 @@ import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
 const MASTER_LIST_ID = "__master__";
+const LAST_LIST_KEY = "vocab-setting-last-list";
 
 const state = {
   lists: [],
@@ -12,6 +13,7 @@ const state = {
   listWordIndex: new Map(),
   words: [],
   sections: [],
+  currentSectionId: null,
   currentWord: null,
   isNew: false,
   currentAudioUrl: null,
@@ -31,6 +33,16 @@ const el = {
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
   editModalOverlay: document.getElementById("editModalOverlay"),
+  sectionModalOverlay: document.getElementById("sectionModalOverlay"),
+  sectionEditPane: document.getElementById("sectionEditPane"),
+  sectionEditTitle: document.getElementById("sectionEditTitle"),
+  sectionSaveBtn: document.getElementById("sectionSaveBtn"),
+  sectionDeleteBtn: document.getElementById("sectionDeleteBtn"),
+  sectionCloseBtn: document.getElementById("sectionCloseBtn"),
+  sectionForm: document.getElementById("sectionForm"),
+  sectionFieldName: document.getElementById("sectionFieldName"),
+  sectionFieldSubtitle: document.getElementById("sectionFieldSubtitle"),
+  sectionFieldDescription: document.getElementById("sectionFieldDescription"),
   listSelect: document.getElementById("listSelect"),
   newListBtn: document.getElementById("newListBtn"),
   listTitle: document.getElementById("listTitle"),
@@ -331,7 +343,9 @@ async function loadLists() {
   }
 
   if (state.lists.length > 0) {
-    state.currentListId = state.lists[0].id;
+    const saved = localStorage.getItem(LAST_LIST_KEY);
+    const initial = state.lists.some((l) => l.id === saved) ? saved : state.lists[0].id;
+    state.currentListId = initial;
     el.listSelect.value = state.currentListId;
     await selectList(state.currentListId);
   } else {
@@ -343,6 +357,7 @@ async function loadLists() {
 
 async function selectList(listId) {
   state.currentListId = listId;
+  localStorage.setItem(LAST_LIST_KEY, listId);
   state.selectedWordIds.clear();
   updateSelectionUi();
   const list = state.lists.find((l) => l.id === listId);
@@ -673,6 +688,9 @@ function renderWordTable() {
       sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-name">${escapeHtml(w.sectionName || "（セクションなし）")}</span>${moveButtons}</span></td>`;
       if (w.sectionId != null) {
         sectionTr.draggable = true;
+        sectionTr.classList.add("section-band-clickable");
+        sectionTr.title = "クリックしてサブタイトル・説明を編集";
+        sectionTr.addEventListener("click", () => openSectionEditor(w.sectionId));
         sectionTr.querySelector('[data-action="section-up"]').addEventListener("click", (e) => {
           e.stopPropagation();
           moveSectionBy(w.sectionId, -1);
@@ -1056,6 +1074,67 @@ async function deleteCurrentWord() {
   }
 }
 
+// ---- セクション編集(サブタイトル・説明) ----
+
+function setSectionEditorOpen(open) {
+  el.sectionModalOverlay.hidden = !open;
+  if (open) el.sectionEditPane.scrollTop = 0;
+}
+
+function openSectionEditor(sectionId) {
+  const section = state.sections.find((s) => s.id === sectionId);
+  if (!section) return;
+  state.currentSectionId = sectionId;
+  el.sectionEditTitle.textContent = `セクションを編集: ${section.name}`;
+  el.sectionFieldName.value = section.name || "";
+  el.sectionFieldSubtitle.value = section.subtitle || "";
+  el.sectionFieldDescription.value = section.description || "";
+  setSectionEditorOpen(true);
+}
+
+function closeSectionEditor() {
+  setSectionEditorOpen(false);
+  state.currentSectionId = null;
+}
+
+async function saveSectionEdit() {
+  if (!state.currentSectionId) return;
+  const name = el.sectionFieldName.value.trim();
+  if (!name) {
+    alert("セクション名を入力してください。");
+    return;
+  }
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/${encodeURIComponent(state.currentSectionId)}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name,
+        subtitle: el.sectionFieldSubtitle.value.trim() || null,
+        description: el.sectionFieldDescription.value.trim() || null,
+      }),
+    });
+    closeSectionEditor();
+    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`保存に失敗しました: ${err.message}`);
+  }
+}
+
+async function deleteSectionFromEditor() {
+  if (!state.currentSectionId) return;
+  const section = state.sections.find((s) => s.id === state.currentSectionId);
+  if (!confirm(`セクション「${section?.name || ""}」を削除しますか？（所属する単語はセクションなしになります）`)) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/${encodeURIComponent(state.currentSectionId)}`, {
+      method: "DELETE",
+    });
+    closeSectionEditor();
+    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
+  }
+}
+
 async function createNewList() {
   const name = prompt("新規単語帳名を入力してください（例: 英検2級オリジナル）");
   if (!name) return;
@@ -1083,11 +1162,18 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
+  if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
 });
 el.editModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.editModalOverlay) closeEditor();
 });
+el.sectionModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.sectionModalOverlay) closeSectionEditor();
+});
+el.sectionSaveBtn.addEventListener("click", saveSectionEdit);
+el.sectionDeleteBtn.addEventListener("click", deleteSectionFromEditor);
+el.sectionCloseBtn.addEventListener("click", closeSectionEditor);
 el.pronunciationCautionBtn.addEventListener("click", () =>
   setCautionButton(el.pronunciationCautionBtn, !isCautionButtonActive(el.pronunciationCautionBtn))
 );

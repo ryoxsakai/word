@@ -479,6 +479,7 @@ body {
   cursor: grab;
   background: var(--bg-soft);
 }
+.word-table tbody tr.section-band-clickable:hover { background: var(--bg-muted); }
 .word-table tbody tr.section-header-row td {
   font-weight: 650;
   font-size: 0.78rem;
