@@ -21,6 +21,7 @@ const state = {
 
 const MOBILE_BREAKPOINT = 768;
 let masterSearchTimer = null;
+let dragState = null; // { type: "word" | "section", id }
 
 const el = {
   layout: document.getElementById("layout"),
@@ -433,8 +434,163 @@ function renderWordTableHead() {
     });
   } else {
     el.wordTableHead.innerHTML =
-      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
+      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th><th class="col-move">並び替え</th></tr>';
   }
+}
+
+// state.wordsは既にサーバー側で(セクションの並び順, no, branch)順に並んでいる。
+// branch=0(派生語ファミリーの見出し)のみを取り出し、現在の並び順+所属セクションを返す。
+function getHeadWordOrder() {
+  return state.words.filter((w) => !w.branch).map((w) => ({ wordId: w.id, sectionId: w.sectionId ?? null }));
+}
+
+async function submitReorder(order) {
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/reorder`, {
+      method: "POST",
+      body: JSON.stringify({ items: order.map((it) => ({ wordId: it.wordId, sectionId: it.sectionId })) }),
+    });
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`並び替えに失敗しました: ${err.message}`);
+  }
+}
+
+// direction: -1(上へ) / +1(下へ)。同じセクション内なら隣と単純に入れ替え、
+// セクションの端で隣が別セクションの場合は、位置はそのままに所属セクションだけ切り替える
+// (=セクション境界をまたいで前後のセクションへ移動する)。
+async function moveWordBy(wordId, direction) {
+  const order = getHeadWordOrder();
+  const idx = order.findIndex((it) => it.wordId === wordId);
+  if (idx === -1) return;
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= order.length) return;
+  const current = order[idx];
+  const neighbor = order[targetIdx];
+  if (current.sectionId === neighbor.sectionId) {
+    order[idx] = neighbor;
+    order[targetIdx] = current;
+  } else {
+    current.sectionId = neighbor.sectionId;
+  }
+  await submitReorder(order);
+}
+
+// targetWordIdの直前にwordIdを挿入する(targetの所属セクションに移る)。
+async function moveWordBeforeTarget(wordId, targetWordId) {
+  if (wordId === targetWordId) return;
+  const order = getHeadWordOrder();
+  const fromIdx = order.findIndex((it) => it.wordId === wordId);
+  const toIdx = order.findIndex((it) => it.wordId === targetWordId);
+  if (fromIdx === -1 || toIdx === -1) return;
+  const [moved] = order.splice(fromIdx, 1);
+  const insertAt = order.findIndex((it) => it.wordId === targetWordId);
+  moved.sectionId = order[insertAt].sectionId;
+  order.splice(insertAt, 0, moved);
+  await submitReorder(order);
+}
+
+// wordIdを指定セクションの先頭へ移動する(sectionIdはnull=セクションなしも可)。
+async function moveWordToSectionStart(wordId, sectionId) {
+  const order = getHeadWordOrder();
+  const fromIdx = order.findIndex((it) => it.wordId === wordId);
+  if (fromIdx === -1) return;
+  const [moved] = order.splice(fromIdx, 1);
+  moved.sectionId = sectionId;
+  const insertAt = order.findIndex((it) => it.sectionId === sectionId);
+  order.splice(insertAt === -1 ? order.length : insertAt, 0, moved);
+  await submitReorder(order);
+}
+
+async function moveSectionBy(sectionId, direction) {
+  const idx = state.sections.findIndex((s) => s.id === sectionId);
+  if (idx === -1) return;
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= state.sections.length) return;
+  const newSections = [...state.sections];
+  [newSections[idx], newSections[targetIdx]] = [newSections[targetIdx], newSections[idx]];
+  await submitSectionOrder(newSections);
+}
+
+async function moveSectionBeforeTarget(sectionId, targetSectionId) {
+  if (sectionId === targetSectionId) return;
+  const order = [...state.sections];
+  const fromIdx = order.findIndex((s) => s.id === sectionId);
+  const toIdx = order.findIndex((s) => s.id === targetSectionId);
+  if (fromIdx === -1 || toIdx === -1) return;
+  const [moved] = order.splice(fromIdx, 1);
+  const insertAt = order.findIndex((s) => s.id === targetSectionId);
+  order.splice(insertAt, 0, moved);
+  await submitSectionOrder(order);
+}
+
+async function submitSectionOrder(orderedSections) {
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/reorder`, {
+      method: "POST",
+      body: JSON.stringify({ sectionIds: orderedSections.map((s) => s.id) }),
+    });
+    await loadSectionsForList(state.currentListId);
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`セクションの並び替えに失敗しました: ${err.message}`);
+  }
+}
+
+function attachWordDragHandlers(tr, wordId) {
+  tr.addEventListener("dragstart", (e) => {
+    dragState = { type: "word", id: wordId };
+    e.dataTransfer.effectAllowed = "move";
+    tr.classList.add("dragging");
+  });
+  tr.addEventListener("dragend", () => {
+    tr.classList.remove("dragging");
+    document.querySelectorAll(".drag-over").forEach((el2) => el2.classList.remove("drag-over"));
+  });
+  tr.addEventListener("dragover", (e) => {
+    if (dragState?.type !== "word") return;
+    e.preventDefault();
+    tr.classList.add("drag-over");
+  });
+  tr.addEventListener("dragleave", () => tr.classList.remove("drag-over"));
+  tr.addEventListener("drop", (e) => {
+    e.preventDefault();
+    tr.classList.remove("drag-over");
+    if (dragState?.type !== "word") return;
+    const draggedId = dragState.id;
+    dragState = null;
+    if (draggedId !== wordId) moveWordBeforeTarget(draggedId, wordId);
+  });
+}
+
+function attachSectionDragHandlers(sectionTr, sectionId) {
+  sectionTr.addEventListener("dragstart", (e) => {
+    dragState = { type: "section", id: sectionId };
+    e.dataTransfer.effectAllowed = "move";
+    sectionTr.classList.add("dragging");
+  });
+  sectionTr.addEventListener("dragend", () => {
+    sectionTr.classList.remove("dragging");
+    document.querySelectorAll(".drag-over").forEach((el2) => el2.classList.remove("drag-over"));
+  });
+  sectionTr.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    sectionTr.classList.add("drag-over");
+  });
+  sectionTr.addEventListener("dragleave", () => sectionTr.classList.remove("drag-over"));
+  sectionTr.addEventListener("drop", (e) => {
+    e.preventDefault();
+    sectionTr.classList.remove("drag-over");
+    if (dragState?.type === "section") {
+      const draggedId = dragState.id;
+      dragState = null;
+      if (draggedId !== sectionId) moveSectionBeforeTarget(draggedId, sectionId);
+    } else if (dragState?.type === "word") {
+      const draggedId = dragState.id;
+      dragState = null;
+      moveWordToSectionStart(draggedId, sectionId);
+    }
+  });
 }
 
 function renderWordTable() {
@@ -445,14 +601,36 @@ function renderWordTable() {
     : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
 
   let lastSectionId = undefined;
-  const colspan = isMasterView() ? 4 : 4;
+  const colspan = isMasterView() ? 4 : 5;
 
   for (const w of state.words) {
     if (!isMasterView() && w.sectionId !== lastSectionId) {
       lastSectionId = w.sectionId;
       const sectionTr = document.createElement("tr");
       sectionTr.className = "section-header-row";
-      sectionTr.innerHTML = `<td colspan="${colspan}">${escapeHtml(w.sectionName || "（セクションなし）")}</td>`;
+      const sectionIndex = w.sectionId != null ? state.sections.findIndex((s) => s.id === w.sectionId) : -1;
+      const isFirst = sectionIndex <= 0;
+      const isLast = sectionIndex === -1 || sectionIndex === state.sections.length - 1;
+      const moveButtons =
+        w.sectionId != null
+          ? `<span class="section-move-btns">
+              <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="セクションを上へ">▲</button>
+              <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ">▼</button>
+            </span>`
+          : "";
+      sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-name">${escapeHtml(w.sectionName || "（セクションなし）")}</span>${moveButtons}</span></td>`;
+      if (w.sectionId != null) {
+        sectionTr.draggable = true;
+        sectionTr.querySelector('[data-action="section-up"]').addEventListener("click", (e) => {
+          e.stopPropagation();
+          moveSectionBy(w.sectionId, -1);
+        });
+        sectionTr.querySelector('[data-action="section-down"]').addEventListener("click", (e) => {
+          e.stopPropagation();
+          moveSectionBy(w.sectionId, 1);
+        });
+        attachSectionDragHandlers(sectionTr, w.sectionId);
+      }
       el.wordTableBody.appendChild(sectionTr);
     }
 
@@ -480,8 +658,23 @@ function renderWordTable() {
         openWordEditor(w.id);
       });
     } else {
-      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
+      const moveCell = w.branch
+        ? `<td class="col-move"></td>`
+        : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ">▲</button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ">▼</button></td>`;
+      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>${moveCell}`;
       tr.addEventListener("click", () => openWordEditor(w.id));
+      if (!w.branch) {
+        tr.draggable = true;
+        tr.querySelector('[data-action="word-up"]').addEventListener("click", (e) => {
+          e.stopPropagation();
+          moveWordBy(w.id, -1);
+        });
+        tr.querySelector('[data-action="word-down"]').addEventListener("click", (e) => {
+          e.stopPropagation();
+          moveWordBy(w.id, 1);
+        });
+        attachWordDragHandlers(tr, w.id);
+      }
     }
     el.wordTableBody.appendChild(tr);
   }
