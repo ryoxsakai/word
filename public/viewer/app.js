@@ -62,7 +62,9 @@ function renderRef(spelling) {
 // ---- リスト読み込み ----
 
 async function loadLists() {
-  state.lists = await api("/lists");
+  const allLists = await api("/lists");
+  // 「単語マスター（全語）」は単語帳を組み立てるための管理用リストなので、閲覧ページの対象からは除外する。
+  state.lists = allLists.filter((l) => l.isNotebook !== false);
   el.listSelect.innerHTML = "";
   for (const l of state.lists) {
     const opt = document.createElement("option");
@@ -159,7 +161,7 @@ function wordHaystack(w) {
     w.spelling,
     w.pronunciation,
     ...(w.senses || []).map((s) => s.meaning),
-    ...(w.derivatives || []).map((d) => d.word),
+    ...(w.derivatives || []).map((d) => `${d.word || ""} ${d.meaning || ""}`),
     ...(w.examples || []).map((e) => `${e.sentence || ""} ${e.translation || ""}`),
     w.etymology,
     w.notes,
@@ -184,6 +186,7 @@ function renderEntry(w) {
     <div class="sense-line">
       ${s.pos ? `<span class="pos-badge">${escapeHtml(s.pos)}</span>` : ""}
       <span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span>
+      ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(s.pronunciation)}]</span>` : ""}
     </div>`
     )
     .join("");
@@ -213,6 +216,7 @@ function renderEntry(w) {
           <span class="bullet hollow">◇</span>
           <span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>
           ${d.pos ? `<span class="pos-badge">${escapeHtml(d.pos)}</span>` : ""}
+          ${d.meaning ? `<span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}
         </div>`
         )
         .join("")}</div>`
@@ -241,7 +245,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" title="発音を聞く">🔊</button>
+        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
         ${w.pronunciation ? `<span class="pron">[${escapeHtml(w.pronunciation)}]</span>` : ""}
       </div>
       ${renderTagBadges(w.tags)}
@@ -371,7 +375,7 @@ function toggleLearned(id) {
 
 // ---- 発音 / リンクコピー / 空所トグル ----
 
-function speak(text, btn) {
+function speakWithTts(text, btn) {
   if (!("speechSynthesis" in window)) {
     showToast("この端末は音声読み上げに対応していません");
     return;
@@ -386,6 +390,26 @@ function speak(text, btn) {
     utter.onerror = clear;
   }
   window.speechSynthesis.speak(utter);
+}
+
+// 辞書APIから取得した実音声(audioUrl)があればそれを再生し、なければブラウザのTTSにフォールバックする。
+function speak(text, btn, audioUrl) {
+  if (audioUrl) {
+    if (btn) btn.classList.add("speaking");
+    const audio = new Audio(audioUrl);
+    const clear = () => btn && btn.classList.remove("speaking");
+    audio.addEventListener("ended", clear);
+    audio.addEventListener("error", () => {
+      clear();
+      speakWithTts(text, btn);
+    });
+    audio.play().catch(() => {
+      clear();
+      speakWithTts(text, btn);
+    });
+    return;
+  }
+  speakWithTts(text, btn);
 }
 
 async function copyLink(id) {
@@ -463,7 +487,7 @@ el.wordList.addEventListener("click", (e) => {
   const actionEl = e.target.closest("[data-action]");
   if (!actionEl) return;
   const action = actionEl.dataset.action;
-  if (action === "speak") speak(actionEl.dataset.text, actionEl);
+  if (action === "speak") speak(actionEl.dataset.text, actionEl, actionEl.dataset.audioUrl || null);
   else if (action === "copy-link") copyLink(actionEl.dataset.wordId);
   else if (action === "toggle-blank") toggleBlank(actionEl);
 });

@@ -282,13 +282,14 @@ button { font-family: inherit; }
   line-height: 1.4;
 }
 .sense-meaning { color: var(--accent-strong); font-weight: 600; }
+.sense-pron { font-size: 0.78rem; }
 
 .collocation-list, .derivative-list { display: flex; flex-direction: column; gap: 0.3rem; }
 .collocation-line, .derivative-line { display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.9rem; flex-wrap: wrap; }
 .bullet { flex: none; color: var(--accent); font-size: 0.75rem; }
 .bullet.hollow { color: var(--text-muted); }
 .collocation-phrase, .derivative-word { color: var(--text); }
-.collocation-translation { color: var(--text-muted); }
+.collocation-translation, .derivative-meaning { color: var(--text-muted); }
 
 .example-block { font-size: 0.92rem; line-height: 1.55; }
 .example-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 0.3rem; }
