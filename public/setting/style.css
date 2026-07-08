@@ -94,11 +94,24 @@ body {
 }
 
 .topbar-row--secondary {
-  flex-wrap: wrap;
-  padding-top: 0;
-  padding-bottom: 0.75rem;
-  border-top: 1px solid transparent;
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+  padding: 0.75rem clamp(0.85rem, 3vw, 1.25rem) 1rem;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  max-height: calc(100vh - 3.5rem);
+  max-height: calc(100dvh - 3.5rem);
+  overflow-y: auto;
 }
+.topbar-row--secondary.is-open { display: flex; }
 
 .app-title {
   font-size: 1.05rem;
@@ -129,7 +142,7 @@ body {
 .viewer-link:hover { background: var(--accent-soft); }
 
 .menu-toggle {
-  display: none;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
@@ -190,9 +203,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  padding: 0.65rem clamp(0.85rem, 3vw, 1.25rem);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-soft);
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
 }
 .master-toolbar[hidden] { display: none; }
 
@@ -829,18 +841,6 @@ legend .hint {
 /* ---- mobile: collapsible topbar menu ---- */
 
 @media (max-width: 768px) {
-  .menu-toggle { display: flex; }
-
-  .topbar-row--secondary {
-    display: none;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-    padding-top: 0;
-    border-top-color: var(--border);
-  }
-  .topbar-row--secondary.is-open { display: flex; }
-
   .list-switcher {
     flex-wrap: wrap;
   }

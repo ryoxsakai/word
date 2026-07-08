@@ -22,7 +22,6 @@ const state = {
   masterLoading: false,
 };
 
-const MOBILE_BREAKPOINT = 768;
 const MASTER_PAGE_SIZE = 150;
 let masterSearchTimer = null;
 let dragState = null; // { type: "word" | "section", id }
@@ -101,10 +100,6 @@ function isNotebookView() {
 
 function notebookLists() {
   return state.lists.filter((l) => l.isNotebook);
-}
-
-function isMobileLayout() {
-  return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches;
 }
 
 function setEditorOpen(open) {
@@ -1076,12 +1071,19 @@ async function createNewList() {
 
 // ---- イベント登録 ----
 
-el.menuToggle.addEventListener("click", toggleTopbarMenu);
-window.addEventListener("resize", () => {
-  if (!isMobileLayout()) closeTopbarMenu();
+el.menuToggle.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleTopbarMenu();
+});
+document.addEventListener("click", (e) => {
+  if (!el.topbarMenu.classList.contains("is-open")) return;
+  if (el.topbarMenu.contains(e.target) || el.menuToggle.contains(e.target)) return;
+  closeTopbarMenu();
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !el.editModalOverlay.hidden) closeEditor();
+  if (e.key !== "Escape") return;
+  if (!el.editModalOverlay.hidden) { closeEditor(); return; }
+  if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
 });
 el.editModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.editModalOverlay) closeEditor();
@@ -1093,7 +1095,10 @@ el.accentCautionBtn.addEventListener("click", () =>
   setCautionButton(el.accentCautionBtn, !isCautionButtonActive(el.accentCautionBtn))
 );
 
-el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
+el.listSelect.addEventListener("change", (e) => {
+  selectList(e.target.value);
+  closeTopbarMenu();
+});
 el.newListBtn.addEventListener("click", createNewList);
 el.newWordBtn.addEventListener("click", openNewWordForm);
 el.newSectionBtn.addEventListener("click", createSectionForCurrentList);
