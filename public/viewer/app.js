@@ -9,8 +9,6 @@ const learnedKey = (listId) => `vocab-learned:${listId}`;
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
 
-const TAG_LABELS = { oxford5000: "Oxford 5000", awl: "AWL" };
-
 const state = {
   lists: [],
   currentListId: null,
@@ -141,17 +139,6 @@ function renderExampleHtml(ex) {
   return html;
 }
 
-function renderTagBadges(tags) {
-  const items = [];
-  for (const [k, v] of Object.entries(tags || {})) {
-    if (k === "eiken") { items.push(`英検${v}`); continue; }
-    if (k.startsWith("custom:")) { items.push(k.slice("custom:".length)); continue; }
-    items.push(TAG_LABELS[k] || k);
-  }
-  if (!items.length) return "";
-  return `<div class="tag-badges">${items.map((t) => `<span class="tag-badge">${escapeHtml(t)}</span>`).join("")}</div>`;
-}
-
 function wordHaystack(w) {
   const parts = [
     w.spelling,
@@ -178,15 +165,19 @@ function renderEntry(w) {
       ? `<div class="family-block">▸ ${renderRef(w.derivedFromSpelling)} の派生語</div>`
       : "";
 
+  // 見出しの意味(is_primary)が1つもない単語では、最初の意味を仮の見出しとして扱い
+  // 一覧が全て同じ薄さになってしまわないようにする。
+  const hasPrimarySense = (w.senses || []).some((s) => s.isPrimary);
   const sensesHtml = (w.senses || [])
-    .map(
-      (s) => `
-    <div class="sense-line${s.isPrimary ? " sense-primary" : ""}">
+    .map((s, i) => {
+      const isPrimary = s.isPrimary || (!hasPrimarySense && i === 0);
+      return `
+    <div class="sense-line${isPrimary ? " sense-primary" : ""}">
       ${s.pos ? `<span class="pos-badge">${escapeHtml(s.pos)}</span>` : ""}
       <span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span>
       ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(s.pronunciation))}]</span>` : ""}
-    </div>`
-    )
+    </div>`;
+    })
     .join("");
 
   const examplesHtml = (w.examples || []).length
@@ -208,8 +199,10 @@ function renderEntry(w) {
           (d) => `
         <div class="derivative-line">
           <span class="bullet hollow">◇</span>
-          <span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>
-          ${d.pos ? `<span class="pos-badge">${escapeHtml(d.pos)}</span>` : ""}
+          <span class="derivative-head">
+            <span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>
+            ${d.pos ? `<span class="pos-badge">${escapeHtml(d.pos)}</span>` : ""}
+          </span>
           ${d.meaning ? `<span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}
         </div>`
         )
@@ -229,10 +222,18 @@ function renderEntry(w) {
     ? `<div class="notes-block"><span class="notes-label">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
     : "";
 
-  const cautionHtml = [
-    w.pronunciationCaution ? '<span class="caution-badge" title="発音に注意">⚠発音注意</span>' : "",
-    w.accentCaution ? '<span class="caution-badge" title="アクセント位置に注意">⚠アクセント注意</span>' : "",
-  ].join("");
+  const pronCautionClasses = [
+    w.pronunciationCaution ? "caution-pronunciation" : "",
+    w.accentCaution ? "caution-accent" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const pronCautionTitle = [
+    w.pronunciationCaution ? "発音に注意" : "",
+    w.accentCaution ? "アクセント位置に注意" : "",
+  ]
+    .filter(Boolean)
+    .join(" / ");
 
   return `
   <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.displayNo)}" data-haystack="${escapeHtml(haystack)}">
@@ -241,10 +242,8 @@ function renderEntry(w) {
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
         <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
-        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
-        ${cautionHtml}
+        ${w.pronunciation ? `<span class="pron${pronCautionClasses ? ` ${pronCautionClasses}` : ""}"${pronCautionTitle ? ` title="${escapeHtml(pronCautionTitle)}"` : ""}>[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
       </div>
-      ${renderTagBadges(w.tags)}
       ${familyLine}
       <div class="entry-card">
         ${sensesHtml}
