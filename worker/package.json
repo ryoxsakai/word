@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocab-db --remote",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "translate:meanings": "node scripts/translate-meanings.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
