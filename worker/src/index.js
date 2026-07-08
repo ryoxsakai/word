@@ -256,6 +256,95 @@ async function listMasterWords(db, searchUrl) {
   return json(rows);
 }
 
+function groupByWordId(rows) {
+  const map = new Map();
+  for (const { wordId, ...rest } of rows) {
+    if (!map.has(wordId)) map.set(wordId, []);
+    map.get(wordId).push(rest);
+  }
+  return map;
+}
+
+// 閲覧ページ用: リスト内の全単語を、意味・派生語・例文・タグまで含めて1回のリクエストで返す。
+// (単語詳細を1件ずつ取得すると N+1 になってしまうため、子テーブルは word_id IN (...) でまとめて取得する)
+async function listWordsInListFull(db, listId) {
+  const list = await db.prepare("SELECT id, name, description FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+
+  const { results: items } = await db
+    .prepare(
+      `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
+              w.etymology AS etymology, w.notes AS notes, w.derived_from_id AS derivedFromId,
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName, s.sort_order AS sectionSortOrder
+       FROM list_items li JOIN words w ON w.id = li.word_id
+       LEFT JOIN sections s ON s.id = li.section_id
+       WHERE li.list_id = ?
+       ORDER BY li.no, li.branch`
+    )
+    .bind(listId)
+    .all();
+
+  if (items.length === 0) return json({ list, words: [] });
+
+  const ids = items.map((r) => r.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const [sensesRes, derivativesRes, examplesRes, tagsRes] = await Promise.all([
+    db
+      .prepare(`SELECT word_id AS wordId, pos, meaning, pronunciation, sort_order AS sortOrder FROM senses WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
+      .bind(...ids)
+      .all(),
+    db
+      .prepare(`SELECT word_id AS wordId, pos, word, meaning, sort_order AS sortOrder FROM derivatives WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
+      .bind(...ids)
+      .all(),
+    db
+      .prepare(`SELECT word_id AS wordId, sentence, answer, translation, sort_order AS sortOrder FROM examples WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
+      .bind(...ids)
+      .all(),
+    db.prepare(`SELECT word_id AS wordId, tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id IN (${placeholders})`).bind(...ids).all(),
+  ]);
+
+  const sensesByWord = groupByWordId(sensesRes.results);
+  const derivativesByWord = groupByWordId(derivativesRes.results);
+  const examplesByWord = groupByWordId(examplesRes.results);
+  const tagsByWord = new Map();
+  for (const t of tagsRes.results) {
+    if (!tagsByWord.has(t.wordId)) tagsByWord.set(t.wordId, {});
+    tagsByWord.get(t.wordId)[t.tagKey] = t.tagValue;
+  }
+
+  const spellingById = new Map(items.map((i) => [i.id, i.spelling]));
+  const missingDerivedFromIds = [...new Set(items.map((i) => i.derivedFromId).filter((id) => id && !spellingById.has(id)))];
+  if (missingDerivedFromIds.length) {
+    const ph2 = missingDerivedFromIds.map(() => "?").join(", ");
+    const { results } = await db.prepare(`SELECT id, spelling FROM words WHERE id IN (${ph2})`).bind(...missingDerivedFromIds).all();
+    for (const r of results) spellingById.set(r.id, r.spelling);
+  }
+
+  const words = items.map((r) => ({
+    id: r.id,
+    spelling: r.spelling,
+    pronunciation: r.pronunciation,
+    audioUrl: r.audioUrl,
+    etymology: r.etymology,
+    notes: r.notes,
+    no: r.no,
+    branch: r.branch,
+    displayNo: formatNo(r.no, r.branch),
+    sectionId: r.sectionId,
+    sectionName: r.sectionName,
+    sectionSortOrder: r.sectionSortOrder,
+    derivedFromId: r.derivedFromId,
+    derivedFromSpelling: r.derivedFromId ? spellingById.get(r.derivedFromId) || null : null,
+    senses: sensesByWord.get(r.id) || [],
+    derivatives: derivativesByWord.get(r.id) || [],
+    examples: examplesByWord.get(r.id) || [],
+    tags: tagsByWord.get(r.id) || {},
+  }));
+
+  return json({ list, words });
+}
+
 // ---- sections ----
 
 async function listSections(db, listId) {
@@ -1104,6 +1193,11 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/words
   if (parts.length === 4 && parts[1] === "lists" && parts[3] === "words" && method === "GET") {
     return await listWordsInList(db, parts[2]);
+  }
+
+  // /api/lists/:listId/words/full （閲覧ページ用: 意味・例文・タグまで含めた一括取得）
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "words" && parts[4] === "full" && method === "GET") {
+    return await listWordsInListFull(db, parts[2]);
   }
 
   // /api/lists/:listId/sections
