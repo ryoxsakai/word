@@ -917,6 +917,123 @@ async function seedPresetLists(db) {
   return { master: { awl, oxford, target1900, target1400 } };
 }
 
+// ---- 品詞タグの正規化 ----
+// 品詞は英語表記(dictionaryapi.devの返り値。noun/verb/adjective等)や中略表記(n./v./adj.)、
+// 日本語の正式名称(名詞/動詞等)などバラバラな形で登録されうるため、
+// 設定ページのプルダウン(名/動/形/副/代/冠/前/接/間/助)に合わせた1字漢字へ正規化する。
+// 対応表にない値は不確かな分類を残さないため空欄にする。
+const POS_KANJI_MAP = {
+  noun: "名",
+  n: "名",
+  "n.": "名",
+  名詞: "名",
+  名: "名",
+  verb: "動",
+  v: "動",
+  "v.": "動",
+  "transitive verb": "動",
+  "intransitive verb": "動",
+  "phrasal verb": "動",
+  動詞: "動",
+  動: "動",
+  adjective: "形",
+  adj: "形",
+  "adj.": "形",
+  形容詞: "形",
+  形: "形",
+  adverb: "副",
+  adv: "副",
+  "adv.": "副",
+  副詞: "副",
+  副: "副",
+  pronoun: "代",
+  pron: "代",
+  "pron.": "代",
+  代名詞: "代",
+  代: "代",
+  article: "冠",
+  determiner: "冠",
+  det: "冠",
+  "det.": "冠",
+  art: "冠",
+  "art.": "冠",
+  "indefinite article": "冠",
+  "definite article": "冠",
+  冠詞: "冠",
+  限定詞: "冠",
+  冠: "冠",
+  preposition: "前",
+  prep: "前",
+  "prep.": "前",
+  前置詞: "前",
+  前: "前",
+  conjunction: "接",
+  conj: "接",
+  "conj.": "接",
+  接続詞: "接",
+  接: "接",
+  interjection: "間",
+  interj: "間",
+  "interj.": "間",
+  exclamation: "間",
+  exclam: "間",
+  "exclam.": "間",
+  間投詞: "間",
+  感嘆詞: "間",
+  間: "間",
+  "auxiliary verb": "助",
+  "modal verb": "助",
+  modal: "助",
+  aux: "助",
+  "aux.": "助",
+  助動詞: "助",
+  助: "助",
+};
+
+function normalizePos(raw) {
+  if (!raw) return "";
+  const trimmed = String(raw).trim();
+  return POS_KANJI_MAP[trimmed] || POS_KANJI_MAP[trimmed.toLowerCase()] || "";
+}
+
+// 既存のsenses/derivativesのposを一括で正規化する。冪等(既に正規化済みなら変更なし)。
+async function normalizePosTags(db) {
+  const [senses, derivatives] = await Promise.all([
+    db.prepare("SELECT id, pos FROM senses WHERE pos IS NOT NULL AND pos != ''").all(),
+    db.prepare("SELECT id, pos FROM derivatives WHERE pos IS NOT NULL AND pos != ''").all(),
+  ]);
+
+  const updates = [];
+  let sensesUpdated = 0;
+  let sensesUnmapped = 0;
+  for (const row of senses.results) {
+    const normalized = normalizePos(row.pos);
+    if (normalized === row.pos) continue;
+    if (!normalized) sensesUnmapped += 1;
+    updates.push(db.prepare("UPDATE senses SET pos = ? WHERE id = ?").bind(normalized || null, row.id));
+    sensesUpdated += 1;
+  }
+  let derivativesUpdated = 0;
+  let derivativesUnmapped = 0;
+  for (const row of derivatives.results) {
+    const normalized = normalizePos(row.pos);
+    if (normalized === row.pos) continue;
+    if (!normalized) derivativesUnmapped += 1;
+    updates.push(db.prepare("UPDATE derivatives SET pos = ? WHERE id = ?").bind(normalized || null, row.id));
+    derivativesUpdated += 1;
+  }
+  await runBatched(db, updates);
+
+  return {
+    sensesTotal: senses.results.length,
+    sensesUpdated,
+    sensesUnmapped,
+    derivativesTotal: derivatives.results.length,
+    derivativesUpdated,
+    derivativesUnmapped,
+  };
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -963,7 +1080,7 @@ async function lookupWordInfo(spelling) {
         if (!audio && p.audio) audio = p.audio;
       }
       for (const meaning of entry.meanings || []) {
-        const pos = meaning.partOfSpeech || null;
+        const pos = normalizePos(meaning.partOfSpeech) || null;
         for (const syn of meaning.synonyms || []) synonyms.add(syn);
         for (const ant of meaning.antonyms || []) antonyms.add(ant);
         for (const def of meaning.definitions || []) {
@@ -1241,6 +1358,11 @@ async function handleApi(request, env, parts, method) {
   // /api/seed-preset-lists
   if (parts.length === 2 && parts[1] === "seed-preset-lists" && method === "POST") {
     return json(await seedPresetLists(db));
+  }
+
+  // /api/normalize-pos
+  if (parts.length === 2 && parts[1] === "normalize-pos" && method === "POST") {
+    return json(await normalizePosTags(db));
   }
 
   // /api/words

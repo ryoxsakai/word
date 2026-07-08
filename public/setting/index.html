@@ -124,7 +124,7 @@
         </div>
 
         <fieldset>
-          <legend>意味（品詞ごと）</legend>
+          <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞</span></legend>
           <div id="sensesList" class="repeat-list"></div>
           <button type="button" class="add-row-btn" data-add="senses">＋ 意味を追加</button>
         </fieldset>
@@ -186,7 +186,19 @@
 
 <template id="senseRowTpl">
   <div class="repeat-row sense-row" data-kind="senses">
-    <input type="text" class="pos" placeholder="品詞 (v./n./adj.)" />
+    <select class="pos" aria-label="品詞" title="名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞">
+      <option value="">―</option>
+      <option value="名">名</option>
+      <option value="動">動</option>
+      <option value="形">形</option>
+      <option value="副">副</option>
+      <option value="代">代</option>
+      <option value="冠">冠</option>
+      <option value="前">前</option>
+      <option value="接">接</option>
+      <option value="間">間</option>
+      <option value="助">助</option>
+    </select>
     <input type="text" class="meaning" placeholder="意味" />
     <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" />
     <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
@@ -195,7 +207,19 @@
 
 <template id="derivativeRowTpl">
   <div class="repeat-row derivative-row" data-kind="derivatives">
-    <input type="text" class="pos" placeholder="品詞" />
+    <select class="pos" aria-label="品詞" title="名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞">
+      <option value="">―</option>
+      <option value="名">名</option>
+      <option value="動">動</option>
+      <option value="形">形</option>
+      <option value="副">副</option>
+      <option value="代">代</option>
+      <option value="冠">冠</option>
+      <option value="前">前</option>
+      <option value="接">接</option>
+      <option value="間">間</option>
+      <option value="助">助</option>
+    </select>
     <input type="text" class="word" placeholder="派生語" autocapitalize="none" />
     <input type="text" class="meaning" placeholder="意味" />
     <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
