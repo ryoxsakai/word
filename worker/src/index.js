@@ -182,6 +182,11 @@ const WORD_TAG_SELECT = `
   t14.tag_value AS target1400No
 `;
 
+// 単語一覧に表示する「見出しの意味」(senses.is_primary=1の1件)。
+const PRIMARY_MEANING_SELECT = `
+  (SELECT se.meaning FROM senses se WHERE se.word_id = w.id AND se.is_primary = 1 ORDER BY se.sort_order, se.id LIMIT 1) AS primaryMeaning
+`;
+
 const WORD_TAG_JOINS = `
   LEFT JOIN tags ta ON ta.word_id = w.id AND ta.tag_key = 'awl'
   LEFT JOIN tags to5 ON to5.word_id = w.id AND to5.tag_key = 'oxford5000'
@@ -202,7 +207,9 @@ async function listWordsInList(db, listId) {
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
               s.sort_order AS sectionSortOrder,
               w.derived_from_id AS derivedFromId,
-              ${WORD_TAG_SELECT}
+              w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+              ${WORD_TAG_SELECT},
+              ${PRIMARY_MEANING_SELECT}
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
        ${WORD_TAG_JOINS}
@@ -211,7 +218,12 @@ async function listWordsInList(db, listId) {
     )
     .bind(listId)
     .all();
-  const rows = results.map((r) => ({ ...r, displayNo: formatNo(r.no, r.branch) }));
+  const rows = results.map((r) => ({
+    ...r,
+    displayNo: formatNo(r.no, r.branch),
+    pronunciationCaution: !!r.pronunciationCaution,
+    accentCaution: !!r.accentCaution,
+  }));
   return json(rows);
 }
 
@@ -227,7 +239,9 @@ async function listMasterWords(db, searchUrl) {
     SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
            NULL AS no, 0 AS branch, NULL AS sectionId, NULL AS sectionName,
            w.derived_from_id AS derivedFromId,
-           ${WORD_TAG_SELECT}
+           w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+           ${WORD_TAG_SELECT},
+           ${PRIMARY_MEANING_SELECT}
     FROM words w
     ${WORD_TAG_JOINS}
     WHERE 1=1`;
@@ -253,7 +267,12 @@ async function listMasterWords(db, searchUrl) {
   sql += " ORDER BY w.spelling COLLATE NOCASE";
 
   const { results } = await db.prepare(sql).bind(...binds).all();
-  const rows = results.map((r) => ({ ...r, displayNo: null }));
+  const rows = results.map((r) => ({
+    ...r,
+    displayNo: null,
+    pronunciationCaution: !!r.pronunciationCaution,
+    accentCaution: !!r.accentCaution,
+  }));
   return json(rows);
 }
 
@@ -275,7 +294,9 @@ async function listWordsInListFull(db, listId) {
   const { results: items } = await db
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
-              w.etymology AS etymology, w.notes AS notes, w.derived_from_id AS derivedFromId,
+              w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
+              w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+              w.derived_from_id AS derivedFromId,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName, s.sort_order AS sectionSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
@@ -291,7 +312,7 @@ async function listWordsInListFull(db, listId) {
   const placeholders = ids.map(() => "?").join(", ");
   const [sensesRes, derivativesRes, examplesRes, tagsRes] = await Promise.all([
     db
-      .prepare(`SELECT word_id AS wordId, pos, meaning, pronunciation, sort_order AS sortOrder FROM senses WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
+      .prepare(`SELECT word_id AS wordId, pos, meaning, pronunciation, is_primary AS isPrimary, sort_order AS sortOrder FROM senses WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
       .bind(...ids)
       .all(),
     db
@@ -299,7 +320,7 @@ async function listWordsInListFull(db, listId) {
       .bind(...ids)
       .all(),
     db
-      .prepare(`SELECT word_id AS wordId, sentence, answer, translation, sort_order AS sortOrder FROM examples WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
+      .prepare(`SELECT word_id AS wordId, sentence, answer, translation, type, sort_order AS sortOrder FROM examples WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
       .bind(...ids)
       .all(),
     db.prepare(`SELECT word_id AS wordId, tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id IN (${placeholders})`).bind(...ids).all(),
@@ -329,6 +350,10 @@ async function listWordsInListFull(db, listId) {
     audioUrl: r.audioUrl,
     etymology: r.etymology,
     notes: r.notes,
+    synonyms: r.synonyms,
+    antonyms: r.antonyms,
+    pronunciationCaution: !!r.pronunciationCaution,
+    accentCaution: !!r.accentCaution,
     no: r.no,
     branch: r.branch,
     displayNo: formatNo(r.no, r.branch),
@@ -457,15 +482,20 @@ async function reorderListItems(db, listId, body) {
 
 async function loadWordDetail(db, id) {
   const word = await db
-    .prepare("SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, derived_from_id AS derivedFromId, created_at, updated_at FROM words WHERE id = ?")
+    .prepare(
+      `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms,
+              pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
+              derived_from_id AS derivedFromId, created_at, updated_at
+       FROM words WHERE id = ?`
+    )
     .bind(id)
     .first();
   if (!word) return null;
 
   const [senses, derivatives, examples, tags, memberships, children, parent] = await Promise.all([
-    db.prepare("SELECT id, pos, meaning, pronunciation, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, pos, meaning, pronunciation, is_primary, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, pos, word, meaning, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
-    db.prepare("SELECT id, sentence, answer, translation, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, sentence, answer, translation, type, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT tag_key, tag_value FROM tags WHERE word_id = ?").bind(id).all(),
     db
       .prepare(
@@ -486,7 +516,9 @@ async function loadWordDetail(db, id) {
 
   return {
     ...word,
-    senses: senses.results,
+    pronunciationCaution: !!word.pronunciationCaution,
+    accentCaution: !!word.accentCaution,
+    senses: senses.results.map((s) => ({ ...s, is_primary: !!s.is_primary })),
     derivatives: derivatives.results,
     examples: examples.results,
     tags: tagMap,
@@ -528,9 +560,9 @@ async function replaceTags(db, wordId, tags) {
 }
 
 async function saveWordChildren(db, id, body) {
-  await replaceChildRows(db, "senses", ["pos", "meaning", "pronunciation", "sort_order"], id, body.senses);
+  await replaceChildRows(db, "senses", ["pos", "meaning", "pronunciation", "is_primary", "sort_order"], id, body.senses);
   await replaceChildRows(db, "derivatives", ["pos", "word", "meaning", "sort_order"], id, body.derivatives);
-  await replaceChildRows(db, "examples", ["sentence", "answer", "translation", "sort_order"], id, body.examples);
+  await replaceChildRows(db, "examples", ["sentence", "answer", "translation", "type", "sort_order"], id, body.examples);
   await replaceTags(db, id, body.tags);
 }
 
@@ -551,9 +583,23 @@ async function createWord(db, body) {
   const id = await uniqueWordId(db, body.spelling);
   await db
     .prepare(
-      "INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, derived_from_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms,
+                           pronunciation_caution, accent_caution, derived_from_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-    .bind(id, body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, derivedFromId)
+    .bind(
+      id,
+      body.spelling,
+      body.pronunciation || null,
+      body.audioUrl || null,
+      body.etymology || null,
+      body.notes || null,
+      body.synonyms || null,
+      body.antonyms || null,
+      body.pronunciationCaution ? 1 : 0,
+      body.accentCaution ? 1 : 0,
+      derivedFromId
+    )
     .run();
   await saveWordChildren(db, id, body);
 
@@ -574,20 +620,35 @@ async function updateWord(db, id, body) {
   const derivedFromResolved = await resolveDerivedFrom(db, body);
   if (!derivedFromResolved.ok) return badRequest(`derivedFrom word "${body.derivedFrom}" not found`);
 
+  const commonBinds = [
+    body.spelling,
+    body.pronunciation || null,
+    body.audioUrl || null,
+    body.etymology || null,
+    body.notes || null,
+    body.synonyms || null,
+    body.antonyms || null,
+    body.pronunciationCaution ? 1 : 0,
+    body.accentCaution ? 1 : 0,
+  ];
   if (derivedFromResolved.id !== undefined) {
     if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
     await db
       .prepare(
-        "UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, derived_from_id = ?, updated_at = datetime('now') WHERE id = ?"
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
+                           pronunciation_caution = ?, accent_caution = ?, derived_from_id = ?, updated_at = datetime('now')
+         WHERE id = ?`
       )
-      .bind(body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, derivedFromResolved.id, id)
+      .bind(...commonBinds, derivedFromResolved.id, id)
       .run();
   } else {
     await db
       .prepare(
-        "UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, updated_at = datetime('now') WHERE id = ?"
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
+                           pronunciation_caution = ?, accent_caution = ?, updated_at = datetime('now')
+         WHERE id = ?`
       )
-      .bind(body.spelling, body.pronunciation || null, body.audioUrl || null, body.etymology || null, body.notes || null, id)
+      .bind(...commonBinds, id)
       .run();
   }
   await saveWordChildren(db, id, body);
@@ -1126,10 +1187,6 @@ function isBlankText(value) {
   return value == null || String(value).trim() === "";
 }
 
-function hasDictionaryDraftNotes(notes) {
-  return String(notes || "").includes("辞書取得の下書き");
-}
-
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -1186,10 +1243,8 @@ async function lookupWordInfo(spelling) {
   }
 }
 
-function buildDictionaryNotesDraft(info) {
-  const refWords = [...(info.synonyms || []), ...(info.antonyms || []).map((w) => `${w}(対義語)`)];
-  if (refWords.length === 0) return null;
-  return `類義語・対義語（辞書取得の下書き）: ${refWords.join(", ")}`;
+function joinWords(words) {
+  return words && words.length ? words.join(", ") : null;
 }
 
 function wordNeedsEnrichment(detail) {
@@ -1197,7 +1252,7 @@ function wordNeedsEnrichment(detail) {
   if (isBlankText(detail.audioUrl)) return true;
   if (!detail.senses?.length) return true;
   if (!detail.examples?.length) return true;
-  if (!hasDictionaryDraftNotes(detail.notes)) return true;
+  if (isBlankText(detail.synonyms) && isBlankText(detail.antonyms)) return true;
   return false;
 }
 
@@ -1229,14 +1284,15 @@ async function enrichSingleWord(db, id) {
     binds.push(info.audio);
     fields.push("audioUrl");
   }
-  if (!hasDictionaryDraftNotes(detail.notes)) {
-    const notesDraft = buildDictionaryNotesDraft(info);
-    if (notesDraft) {
-      const nextNotes = isBlankText(detail.notes) ? notesDraft : `${detail.notes}\n${notesDraft}`;
-      updates.push("notes = ?");
-      binds.push(nextNotes);
-      fields.push("notes");
-    }
+  if (isBlankText(detail.synonyms) && info.synonyms?.length) {
+    updates.push("synonyms = ?");
+    binds.push(joinWords(info.synonyms));
+    fields.push("synonyms");
+  }
+  if (isBlankText(detail.antonyms) && info.antonyms?.length) {
+    updates.push("antonyms = ?");
+    binds.push(joinWords(info.antonyms));
+    fields.push("antonyms");
   }
 
   if (updates.length > 0) {

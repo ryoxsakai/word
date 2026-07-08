@@ -27,8 +27,7 @@ const el = {
   layout: document.getElementById("layout"),
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
-  backBtn: document.getElementById("backBtn"),
-  mobileSaveBtn: document.getElementById("mobileSaveBtn"),
+  editModalOverlay: document.getElementById("editModalOverlay"),
   listSelect: document.getElementById("listSelect"),
   newListBtn: document.getElementById("newListBtn"),
   listTitle: document.getElementById("listTitle"),
@@ -58,6 +57,8 @@ const el = {
   fieldPronunciation: document.getElementById("fieldPronunciation"),
   lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
   playAudioBtn: document.getElementById("playAudioBtn"),
+  pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
+  accentCautionBtn: document.getElementById("accentCautionBtn"),
   draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
@@ -66,6 +67,10 @@ const el = {
   examplesList: document.getElementById("examplesList"),
   fieldEtymology: document.getElementById("fieldEtymology"),
   etymologyPreview: document.getElementById("etymologyPreview"),
+  fieldSynonyms: document.getElementById("fieldSynonyms"),
+  synonymsPreview: document.getElementById("synonymsPreview"),
+  fieldAntonyms: document.getElementById("fieldAntonyms"),
+  antonymsPreview: document.getElementById("antonymsPreview"),
   fieldNotes: document.getElementById("fieldNotes"),
   notesPreview: document.getElementById("notesPreview"),
   tagOxford5000: document.getElementById("tagOxford5000"),
@@ -97,10 +102,9 @@ function isMobileLayout() {
 }
 
 function setEditorOpen(open) {
-  el.layout.classList.toggle("layout--editor", open);
-  if (open && isMobileLayout()) {
+  el.editModalOverlay.hidden = !open;
+  if (open) {
     el.editPane.scrollTop = 0;
-    window.scrollTo(0, 0);
   }
 }
 
@@ -154,6 +158,13 @@ function formatLevelBadges(w) {
   return badges.map((b) => `<span class="level-badge ${b.cls}">${escapeHtml(b.text)}</span>`).join("");
 }
 
+function formatCautionIcons(w) {
+  const marks = [];
+  if (w.pronunciationCaution) marks.push('<span class="caution-icon" title="発音注意">⚠発</span>');
+  if (w.accentCaution) marks.push('<span class="caution-icon" title="アクセント注意">⚠ア</span>');
+  return marks.join("");
+}
+
 function updateSelectionUi() {
   const n = state.selectedWordIds.size;
   el.selectionCount.textContent = `${n}語選択`;
@@ -172,7 +183,7 @@ function updateListModeUi() {
 }
 
 function updateEditorListFields() {
-  const showNotebookFields = isNotebookView() && !el.editPane.hidden;
+  const showNotebookFields = isNotebookView() && !el.editModalOverlay.hidden;
   el.notebookFields.hidden = !showNotebookFields;
   if (isMasterView()) {
     el.deleteBtn.textContent = "マスターから削除";
@@ -268,11 +279,14 @@ async function draftFromDictionary() {
       addRow("examples", { sentence: info.examples[0] });
       filledAnything = true;
     }
-    const refWords = [...(info.synonyms || []), ...(info.antonyms || []).map((w) => `${w}(対義語)`)];
-    if (refWords.length > 0 && !el.fieldNotes.value.includes("辞書取得の下書き")) {
-      const line = `類義語・対義語（辞書取得の下書き）: ${refWords.join(", ")}`;
-      el.fieldNotes.value = el.fieldNotes.value ? `${el.fieldNotes.value}\n${line}` : line;
-      updatePreview(el.fieldNotes, el.notesPreview);
+    if (info.synonyms?.length > 0 && !el.fieldSynonyms.value.trim()) {
+      el.fieldSynonyms.value = info.synonyms.join(", ");
+      updatePreview(el.fieldSynonyms, el.synonymsPreview);
+      filledAnything = true;
+    }
+    if (info.antonyms?.length > 0 && !el.fieldAntonyms.value.trim()) {
+      el.fieldAntonyms.value = info.antonyms.join(", ");
+      updatePreview(el.fieldAntonyms, el.antonymsPreview);
       filledAnything = true;
     }
     if (filledAnything) alert("辞書から下書きを取得しました。");
@@ -421,7 +435,7 @@ async function createSectionForCurrentList() {
 function renderWordTableHead() {
   if (isMasterView()) {
     el.wordTableHead.innerHTML =
-      '<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
+      '<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
     const checkAll = document.getElementById("checkAllMaster");
     checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
     checkAll.indeterminate =
@@ -434,7 +448,7 @@ function renderWordTableHead() {
     });
   } else {
     el.wordTableHead.innerHTML =
-      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th><th class="col-move">並び替え</th></tr>';
+      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-levels">レベル</th><th class="col-pron">発音</th><th class="col-move">並び替え</th></tr>';
   }
 }
 
@@ -601,7 +615,7 @@ function renderWordTable() {
     : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
 
   let lastSectionId = undefined;
-  const colspan = isMasterView() ? 4 : 5;
+  const colspan = isMasterView() ? 5 : 6;
 
   for (const w of state.words) {
     if (!isMasterView() && w.sectionId !== lastSectionId) {
@@ -641,10 +655,12 @@ function renderWordTable() {
     if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
 
     const levels = formatLevelBadges(w);
+    const meaningCell = `<td class="col-meaning">${escapeHtml(w.primaryMeaning || "")}</td>`;
+    const pronCell = `<td class="col-pron">${formatCautionIcons(w)}${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
 
     if (isMasterView()) {
       const checked = state.selectedWordIds.has(w.id);
-      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
+      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}<td class="col-levels">${levels}</td>${pronCell}`;
       const cb = tr.querySelector(".word-check");
       cb.addEventListener("click", (e) => e.stopPropagation());
       cb.addEventListener("change", () => {
@@ -661,7 +677,7 @@ function renderWordTable() {
       const moveCell = w.branch
         ? `<td class="col-move"></td>`
         : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ">▲</button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ">▼</button></td>`;
-      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>${moveCell}`;
+      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}<td class="col-levels">${levels}</td>${pronCell}${moveCell}`;
       tr.addEventListener("click", () => openWordEditor(w.id));
       if (!w.branch) {
         tr.draggable = true;
@@ -762,14 +778,16 @@ function addRow(kind, data = {}) {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".meaning").value = data.meaning || "";
     node.querySelector(".pronunciation").value = data.pronunciation || "";
+    node.querySelector(".is-primary").checked = !!data.is_primary;
   } else if (kind === "derivatives") {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".word").value = data.word || "";
     node.querySelector(".meaning").value = data.meaning || "";
   } else if (kind === "examples") {
+    node.querySelector(".type").value = data.type || "example";
     node.querySelector(".sentence").value = data.sentence || "";
-    node.querySelector(".answer").value = data.answer || "";
     node.querySelector(".translation").value = data.translation || "";
+    node.querySelector(".answer").value = data.answer || "";
   }
   node.querySelector(".remove-row-btn").addEventListener("click", () => node.remove());
   container.appendChild(node);
@@ -784,6 +802,7 @@ function collectRows(kind) {
         pos: r.querySelector(".pos").value.trim(),
         meaning: r.querySelector(".meaning").value.trim(),
         pronunciation: r.querySelector(".pronunciation").value.trim() || null,
+        is_primary: r.querySelector(".is-primary").checked ? 1 : 0,
       }))
       .filter((r) => r.meaning);
   }
@@ -799,13 +818,24 @@ function collectRows(kind) {
   if (kind === "examples") {
     return rows
       .map((r) => ({
+        type: r.querySelector(".type").value === "phrase" ? "phrase" : "example",
         sentence: r.querySelector(".sentence").value.trim(),
-        answer: r.querySelector(".answer").value.trim(),
         translation: r.querySelector(".translation").value.trim(),
+        // 「解答」欄はUIから廃止。既存データは非表示のhidden inputでラウンドトリップだけ保持する。
+        answer: r.querySelector(".answer").value.trim(),
       }))
       .filter((r) => r.sentence);
   }
   return [];
+}
+
+function setCautionButton(btn, active) {
+  btn.setAttribute("aria-pressed", String(!!active));
+  btn.classList.toggle("is-active", !!active);
+}
+
+function isCautionButtonActive(btn) {
+  return btn.getAttribute("aria-pressed") === "true";
 }
 
 function openNewWordForm() {
@@ -818,6 +848,8 @@ function openNewWordForm() {
   el.fieldPronunciation.value = "";
   state.currentAudioUrl = null;
   updatePlayAudioButton();
+  setCautionButton(el.pronunciationCautionBtn, false);
+  setCautionButton(el.accentCautionBtn, false);
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
@@ -827,14 +859,17 @@ function openNewWordForm() {
   addRow("derivatives");
   addRow("examples");
   el.fieldEtymology.value = "";
+  el.fieldSynonyms.value = "";
+  el.fieldAntonyms.value = "";
   el.fieldNotes.value = "";
   el.tagOxford5000.checked = false;
   el.tagAwl.checked = false;
   el.tagEiken.value = "";
   el.tagCustom.value = "";
   updatePreview(el.fieldEtymology, el.etymologyPreview);
+  updatePreview(el.fieldSynonyms, el.synonymsPreview);
+  updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
-  el.editPane.hidden = false;
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -858,6 +893,8 @@ async function openWordEditor(wordId) {
   el.fieldPronunciation.value = detail.pronunciation || "";
   state.currentAudioUrl = detail.audioUrl || null;
   updatePlayAudioButton();
+  setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
+  setCautionButton(el.accentCautionBtn, detail.accentCaution);
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
 
@@ -869,6 +906,8 @@ async function openWordEditor(wordId) {
   (detail.examples.length ? detail.examples : [{}]).forEach((ex) => addRow("examples", ex));
 
   el.fieldEtymology.value = detail.etymology || "";
+  el.fieldSynonyms.value = detail.synonyms || "";
+  el.fieldAntonyms.value = detail.antonyms || "";
   el.fieldNotes.value = detail.notes || "";
   el.tagOxford5000.checked = "oxford5000" in detail.tags;
   el.tagAwl.checked = "awl" in detail.tags;
@@ -879,8 +918,9 @@ async function openWordEditor(wordId) {
     .join(", ");
 
   updatePreview(el.fieldEtymology, el.etymologyPreview);
+  updatePreview(el.fieldSynonyms, el.synonymsPreview);
+  updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
-  el.editPane.hidden = false;
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -888,7 +928,6 @@ async function openWordEditor(wordId) {
 
 function closeEditor() {
   state.currentWord = null;
-  el.editPane.hidden = true;
   setEditorOpen(false);
   updateEditorListFields();
   renderWordTable();
@@ -916,11 +955,15 @@ async function saveWord() {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
     audioUrl: state.currentAudioUrl || null,
+    pronunciationCaution: isCautionButtonActive(el.pronunciationCautionBtn),
+    accentCaution: isCautionButtonActive(el.accentCautionBtn),
     derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
     examples: collectRows("examples"),
     etymology: el.fieldEtymology.value.trim() || null,
+    synonyms: el.fieldSynonyms.value.trim() || null,
+    antonyms: el.fieldAntonyms.value.trim() || null,
     notes: el.fieldNotes.value.trim() || null,
     tags: collectTags(),
   };
@@ -991,14 +1034,21 @@ async function createNewList() {
 // ---- イベント登録 ----
 
 el.menuToggle.addEventListener("click", toggleTopbarMenu);
-el.backBtn.addEventListener("click", closeEditor);
-el.mobileSaveBtn.addEventListener("click", saveWord);
 window.addEventListener("resize", () => {
   if (!isMobileLayout()) closeTopbarMenu();
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !el.editPane.hidden) closeEditor();
+  if (e.key === "Escape" && !el.editModalOverlay.hidden) closeEditor();
 });
+el.editModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.editModalOverlay) closeEditor();
+});
+el.pronunciationCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.pronunciationCautionBtn, !isCautionButtonActive(el.pronunciationCautionBtn))
+);
+el.accentCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.accentCautionBtn, !isCautionButtonActive(el.accentCautionBtn))
+);
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 el.newListBtn.addEventListener("click", createNewList);
@@ -1029,6 +1079,8 @@ el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually)
 el.playAudioBtn.addEventListener("click", playCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
+el.fieldSynonyms.addEventListener("input", () => updatePreview(el.fieldSynonyms, el.synonymsPreview));
+el.fieldAntonyms.addEventListener("input", () => updatePreview(el.fieldAntonyms, el.antonymsPreview));
 el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 
 document.querySelectorAll(".add-row-btn").forEach((btn) => {

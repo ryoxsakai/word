@@ -251,6 +251,18 @@ button { font-family: inherit; }
 .speak-btn.speaking { background: var(--accent-strong); }
 .pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; }
 
+.caution-badge {
+  font-size: 0.68rem;
+  font-weight: 650;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #fff4e0;
+  color: #8a5a00;
+}
+@media (prefers-color-scheme: dark) {
+  .caution-badge { background: #4a3400; color: #ffcf7a; }
+}
+
 .tag-badges { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.15rem; }
 .tag-badge {
   font-size: 0.68rem;
@@ -272,6 +284,8 @@ button { font-family: inherit; }
 }
 
 .sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
+.sense-line.sense-primary { font-weight: 700; }
+.sense-line.sense-primary .sense-meaning { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 0.15em; }
 .pos-badge {
   flex: none;
   font-size: 0.72rem;
@@ -284,16 +298,12 @@ button { font-family: inherit; }
 .sense-meaning { color: var(--accent-strong); font-weight: 600; }
 .sense-pron { font-size: 0.78rem; }
 
-.collocation-list, .derivative-list { display: flex; flex-direction: column; gap: 0.3rem; }
-.collocation-line, .derivative-line { display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.9rem; flex-wrap: wrap; }
+.example-list, .derivative-list { display: flex; flex-direction: column; gap: 0.3rem; }
+.example-line, .derivative-line { display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.9rem; flex-wrap: wrap; }
 .bullet { flex: none; color: var(--accent); font-size: 0.75rem; }
 .bullet.hollow { color: var(--text-muted); }
-.collocation-phrase, .derivative-word { color: var(--text); }
-.collocation-translation, .derivative-meaning { color: var(--text-muted); }
-
-.example-block { font-size: 0.92rem; line-height: 1.55; }
-.example-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 0.3rem; }
-.example-translation { color: var(--text-muted); margin-top: 0.1rem; }
+.example-phrase, .derivative-word { color: var(--text); }
+.example-translation, .derivative-meaning { color: var(--text-muted); }
 
 .blank-toggle {
   border: none;

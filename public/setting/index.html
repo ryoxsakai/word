@@ -87,102 +87,114 @@
       <p id="wordTableEmpty" class="empty-msg" hidden>このリストにはまだ単語がありません。</p>
     </section>
 
-    <section class="edit-pane" id="editPane" hidden>
-      <div class="pane-header pane-header--edit">
-        <button type="button" class="back-btn" id="backBtn" aria-label="リストに戻る">← リスト</button>
-        <h2 id="editTitle">単語を編集</h2>
-        <div class="edit-actions">
-          <button id="draftFromDictionaryBtn" type="button" class="btn-ghost" title="辞書から発音・例文・類義語/対義語の下書きを取得">辞書下書き</button>
-          <button id="saveBtn" type="button" class="primary">保存</button>
-          <button id="deleteBtn" type="button" class="danger btn-ghost">削除</button>
-          <button id="closeBtn" type="button" class="btn-ghost desktop-only">閉じる</button>
-        </div>
-      </div>
-
-      <form id="wordForm" class="word-form">
-        <div class="field-row">
-          <label>スペル
-            <input type="text" id="fieldSpelling" required autocapitalize="none" spellcheck="false" />
-          </label>
-          <label class="field-pronunciation">発音記号 (IPA) <span class="hint">入力時に自動取得</span>
-            <span class="input-with-btn">
-              <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
-              <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得">🔍</button>
-              <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled>▶</button>
-            </span>
-          </label>
-        </div>
-        <div class="field-row notebook-only" id="notebookFields">
-          <label>このリストでの no. <span class="hint">例: 42 / 42-1</span>
-            <input type="text" id="fieldNo" placeholder="42" inputmode="numeric" />
-          </label>
-          <label>派生元 <span class="hint">同じ no の枝番になる</span>
-            <input type="text" id="fieldDerivedFrom" placeholder="（なし）" autocapitalize="none" />
-          </label>
-          <label>セクション
-            <select id="fieldSection"><option value="">なし</option></select>
-          </label>
-        </div>
-
-        <fieldset>
-          <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞</span></legend>
-          <div id="sensesList" class="repeat-list"></div>
-          <button type="button" class="add-row-btn" data-add="senses">＋ 意味を追加</button>
-        </fieldset>
-
-        <fieldset>
-          <legend>派生語</legend>
-          <div id="derivativesList" class="repeat-list"></div>
-          <button type="button" class="add-row-btn" data-add="derivatives">＋ 派生語を追加</button>
-        </fieldset>
-
-        <fieldset>
-          <legend>例文</legend>
-          <div id="examplesList" class="repeat-list"></div>
-          <button type="button" class="add-row-btn" data-add="examples">＋ 例文を追加</button>
-        </fieldset>
-
-        <fieldset>
-          <legend>語源メモ <span class="hint">##見出し語## / *語根* / ==語==</span></legend>
-          <textarea id="fieldEtymology" rows="3" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
-          <div class="preview" id="etymologyPreview"></div>
-        </fieldset>
-
-        <fieldset>
-          <legend>関連語彙メモ <span class="hint">##headword## / ##headword|表示##</span></legend>
-          <textarea id="fieldNotes" rows="3" placeholder="##import## も参照。"></textarea>
-          <div class="preview" id="notesPreview"></div>
-        </fieldset>
-
-        <fieldset>
-          <legend>レベルタグ</legend>
-          <div class="tags-row">
-            <label class="tag-chip"><input type="checkbox" id="tagOxford5000" /> Oxford 5000</label>
-            <label class="tag-chip"><input type="checkbox" id="tagAwl" /> AWL</label>
-            <label class="tag-select">英検
-              <select id="tagEiken">
-                <option value="">―</option>
-                <option value="5級">5級</option>
-                <option value="4級">4級</option>
-                <option value="3級">3級</option>
-                <option value="準2級">準2級</option>
-                <option value="2級">2級</option>
-                <option value="準1級">準1級</option>
-                <option value="1級">1級</option>
-              </select>
-            </label>
-          </div>
-          <label class="custom-tags-label">カスタムタグ（カンマ区切り）
-            <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
-          </label>
-        </fieldset>
-      </form>
-
-      <div class="mobile-save-bar" aria-hidden="true">
-        <button type="button" class="primary mobile-save-btn" id="mobileSaveBtn">保存</button>
-      </div>
-    </section>
   </main>
+</div>
+
+<div class="modal-overlay" id="editModalOverlay" hidden>
+  <section class="edit-pane" id="editPane" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="editTitle">単語を編集</h2>
+      <div class="edit-actions">
+        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost" title="辞書から発音・例文・類義語/対義語の下書きを取得">辞書下書き</button>
+        <button id="saveBtn" type="button" class="primary">保存</button>
+        <button id="deleteBtn" type="button" class="danger btn-ghost">削除</button>
+        <button id="closeBtn" type="button" class="btn-ghost" aria-label="閉じる">×</button>
+      </div>
+    </div>
+
+    <form id="wordForm" class="word-form">
+      <div class="field-row">
+        <label>スペル
+          <input type="text" id="fieldSpelling" required autocapitalize="none" spellcheck="false" />
+        </label>
+        <label class="field-pronunciation">発音記号 (IPA) <span class="hint">入力時に自動取得</span>
+          <span class="input-with-btn">
+            <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+            <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得">🔍</button>
+            <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled>▶</button>
+            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします">発音注意</button>
+            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします">アクセント注意</button>
+          </span>
+        </label>
+      </div>
+      <div class="field-row notebook-only" id="notebookFields">
+        <label>このリストでの no. <span class="hint">例: 42 / 42-1</span>
+          <input type="text" id="fieldNo" placeholder="42" inputmode="numeric" />
+        </label>
+        <label>派生元 <span class="hint">同じ no の枝番になる</span>
+          <input type="text" id="fieldDerivedFrom" placeholder="（なし）" autocapitalize="none" />
+        </label>
+        <label>セクション
+          <select id="fieldSection"><option value="">なし</option></select>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 動=動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞。「見出し」は単語一覧に表示する代表の意味</span></legend>
+        <div id="sensesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="senses">＋ 意味を追加</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>例文・フレーズ <span class="hint">◆例文 / ◇フレーズ。空所は ＿＿＿</span></legend>
+        <div id="examplesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="examples">＋ 例文・フレーズを追加</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>派生語</legend>
+        <div id="derivativesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="derivatives">＋ 派生語を追加</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>語源メモ <span class="hint">##見出し語## / *語根* / ==語==</span></legend>
+        <textarea id="fieldEtymology" rows="3" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
+        <div class="preview" id="etymologyPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>類義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldSynonyms" rows="2" placeholder="help, aid, assist"></textarea>
+        <div class="preview" id="synonymsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>対義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldAntonyms" rows="2" placeholder="hinder, obstruct"></textarea>
+        <div class="preview" id="antonymsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>メモ <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldNotes" rows="3" placeholder="##import## も参照。"></textarea>
+        <div class="preview" id="notesPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>レベルタグ</legend>
+        <div class="tags-row">
+          <label class="tag-chip"><input type="checkbox" id="tagOxford5000" /> Oxford 5000</label>
+          <label class="tag-chip"><input type="checkbox" id="tagAwl" /> AWL</label>
+          <label class="tag-select">英検
+            <select id="tagEiken">
+              <option value="">―</option>
+              <option value="5級">5級</option>
+              <option value="4級">4級</option>
+              <option value="3級">3級</option>
+              <option value="準2級">準2級</option>
+              <option value="2級">2級</option>
+              <option value="準1級">準1級</option>
+              <option value="1級">1級</option>
+            </select>
+          </label>
+        </div>
+        <label class="custom-tags-label">カスタムタグ（カンマ区切り）
+          <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
+        </label>
+      </fieldset>
+    </form>
+  </section>
 </div>
 
 <template id="senseRowTpl">
@@ -202,6 +214,9 @@
     </select>
     <input type="text" class="meaning" placeholder="意味" />
     <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" />
+    <label class="primary-radio" title="単語一覧に表示する見出しの意味にする">
+      <input type="radio" name="isPrimarySense" class="is-primary" /> 見出し
+    </label>
     <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
   </div>
 </template>
@@ -229,9 +244,13 @@
 
 <template id="exampleRowTpl">
   <div class="repeat-row example-row" data-kind="examples">
-    <input type="text" class="sentence" placeholder="例文（空所は ＿＿＿）" />
-    <input type="text" class="answer" placeholder="解答" />
+    <select class="type" aria-label="種別">
+      <option value="example">◆ 例文</option>
+      <option value="phrase">◇ フレーズ</option>
+    </select>
+    <input type="text" class="sentence" placeholder="例文・フレーズ（空所は ＿＿＿）" />
     <input type="text" class="translation" placeholder="和訳" />
+    <input type="hidden" class="answer" />
     <button type="button" class="remove-row-btn" aria-label="行を削除">×</button>
   </div>
 </template>

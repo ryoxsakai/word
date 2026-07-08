@@ -7,7 +7,6 @@ const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const learnedKey = (listId) => `vocab-learned:${listId}`;
 
-const SENTENCE_END_RE = /[.!?。!？]\s*$/;
 const BLANK_RE = /(＿{2,}|_{3,})/;
 
 const TAG_LABELS = { oxford5000: "Oxford 5000", awl: "AWL" };
@@ -130,10 +129,6 @@ function buildIndex() {
 
 // ---- レンダリング ----
 
-function isSentenceLike(sentence) {
-  return SENTENCE_END_RE.test(String(sentence || "").trim());
-}
-
 function renderExampleHtml(ex) {
   let html = renderMarkup(ex.sentence || "", { resolve: resolveRef });
   if (ex.answer && BLANK_RE.test(html)) {
@@ -165,6 +160,8 @@ function wordHaystack(w) {
     ...(w.derivatives || []).map((d) => `${d.word || ""} ${d.meaning || ""}`),
     ...(w.examples || []).map((e) => `${e.sentence || ""} ${e.translation || ""}`),
     w.etymology,
+    w.synonyms,
+    w.antonyms,
     w.notes,
   ];
   for (const [k, v] of Object.entries(w.tags || {})) parts.push(k, v);
@@ -184,7 +181,7 @@ function renderEntry(w) {
   const sensesHtml = (w.senses || [])
     .map(
       (s) => `
-    <div class="sense-line">
+    <div class="sense-line${s.isPrimary ? " sense-primary" : ""}">
       ${s.pos ? `<span class="pos-badge">${escapeHtml(s.pos)}</span>` : ""}
       <span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span>
       ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(s.pronunciation))}]</span>` : ""}
@@ -192,18 +189,14 @@ function renderEntry(w) {
     )
     .join("");
 
-  const examples = w.examples || [];
-  const collocations = examples.filter((ex) => !isSentenceLike(ex.sentence));
-  const sentences = examples.filter((ex) => isSentenceLike(ex.sentence));
-
-  const collocationsHtml = collocations.length
-    ? `<div class="collocation-list">${collocations
+  const examplesHtml = (w.examples || []).length
+    ? `<div class="example-list">${(w.examples || [])
         .map(
           (ex) => `
-        <div class="collocation-line">
-          <span class="bullet">◆</span>
-          <span class="collocation-phrase">${renderExampleHtml(ex)}</span>
-          ${ex.translation ? `<span class="collocation-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : ""}
+        <div class="example-line">
+          <span class="bullet${ex.type === "phrase" ? " hollow" : ""}">${ex.type === "phrase" ? "◇" : "◆"}</span>
+          <span class="example-phrase">${renderExampleHtml(ex)}</span>
+          ${ex.translation ? `<span class="example-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : ""}
         </div>`
         )
         .join("")}</div>`
@@ -223,22 +216,23 @@ function renderEntry(w) {
         .join("")}</div>`
     : "";
 
-  const sentencesHtml = sentences
-    .map(
-      (ex) => `
-    <div class="example-block">
-      <span class="example-label">(例)</span>${renderExampleHtml(ex)}
-      ${ex.translation ? `<div class="example-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</div>` : ""}
-    </div>`
-    )
-    .join("");
-
   const etymologyHtml = w.etymology
     ? `<div class="etymology-block"><span class="etymology-label">(コア)</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
     : "";
-  const notesHtml = w.notes
-    ? `<div class="notes-block"><span class="notes-label">関連</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
+  const synonymsHtml = w.synonyms
+    ? `<div class="notes-block"><span class="notes-label">類義語</span>${renderMarkup(w.synonyms, { resolve: resolveRef })}</div>`
     : "";
+  const antonymsHtml = w.antonyms
+    ? `<div class="notes-block"><span class="notes-label">対義語</span>${renderMarkup(w.antonyms, { resolve: resolveRef })}</div>`
+    : "";
+  const notesHtml = w.notes
+    ? `<div class="notes-block"><span class="notes-label">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
+    : "";
+
+  const cautionHtml = [
+    w.pronunciationCaution ? '<span class="caution-badge" title="発音に注意">⚠発音注意</span>' : "",
+    w.accentCaution ? '<span class="caution-badge" title="アクセント位置に注意">⚠アクセント注意</span>' : "",
+  ].join("");
 
   return `
   <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.displayNo)}" data-haystack="${escapeHtml(haystack)}">
@@ -248,15 +242,17 @@ function renderEntry(w) {
         <span class="headword">${escapeHtml(w.spelling)}</span>
         <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
         ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
+        ${cautionHtml}
       </div>
       ${renderTagBadges(w.tags)}
       ${familyLine}
       <div class="entry-card">
         ${sensesHtml}
-        ${collocationsHtml}
+        ${examplesHtml}
         ${derivativesHtml}
-        ${sentencesHtml}
         ${etymologyHtml}
+        ${synonymsHtml}
+        ${antonymsHtml}
         ${notesHtml}
       </div>
       <label class="learned-toggle">
