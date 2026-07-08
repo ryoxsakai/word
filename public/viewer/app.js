@@ -22,6 +22,8 @@ const state = {
 const el = {
   listSelect: document.getElementById("listSelect"),
   themeToggleBtn: document.getElementById("themeToggleBtn"),
+  menuToggle: document.getElementById("menuToggle"),
+  topbarMenu: document.getElementById("topbarMenu"),
   searchInput: document.getElementById("searchInput"),
   unlearnedOnlyBtn: document.getElementById("unlearnedOnlyBtn"),
   progressFill: document.getElementById("progressFill"),
@@ -290,9 +292,11 @@ function renderSectionNav() {
   if (seen.size === 0) {
     el.sectionNav.hidden = true;
     el.sectionNav.innerHTML = "";
+    document.body.classList.remove("has-section-nav");
     return;
   }
   el.sectionNav.hidden = false;
+  document.body.classList.add("has-section-nav");
   el.sectionNav.innerHTML = [...seen.entries()]
     .map(([key, name]) => `<button type="button" data-section-key="${escapeHtml(String(key))}">${escapeHtml(name)}</button>`)
     .join("");
@@ -464,6 +468,21 @@ function applyHashScroll() {
   if (target) setTimeout(() => revealAndScroll(target), 60);
 }
 
+// ---- ハンバーガーメニュー(検索・ジャンプ) ----
+
+function closeTopbarMenu() {
+  el.topbarMenu.classList.remove("is-open");
+  el.menuToggle.setAttribute("aria-expanded", "false");
+  el.menuToggle.setAttribute("aria-label", "メニューを開く");
+}
+
+function toggleTopbarMenu() {
+  const open = !el.topbarMenu.classList.contains("is-open");
+  el.topbarMenu.classList.toggle("is-open", open);
+  el.menuToggle.setAttribute("aria-expanded", String(open));
+  el.menuToggle.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
+}
+
 // ---- イベント委譲 ----
 
 el.wordList.addEventListener("click", (e) => {
@@ -526,6 +545,20 @@ el.jumpForm.addEventListener("submit", (e) => {
   }
   history.pushState(null, "", `#word-${target.dataset.wordId}`);
   revealAndScroll(target);
+  closeTopbarMenu();
+});
+
+el.menuToggle.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleTopbarMenu();
+});
+document.addEventListener("click", (e) => {
+  if (!el.topbarMenu.classList.contains("is-open")) return;
+  if (el.topbarMenu.contains(e.target) || el.menuToggle.contains(e.target)) return;
+  closeTopbarMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
 });
 
 window.addEventListener(

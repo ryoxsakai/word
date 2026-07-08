@@ -54,6 +54,7 @@ body {
   color: var(--text);
   padding-bottom: 3rem;
 }
+body.has-section-nav { padding-bottom: calc(3.6rem + env(safe-area-inset-bottom, 0px)); }
 
 a { color: var(--accent); }
 
@@ -65,18 +66,38 @@ button { font-family: inherit; }
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0.6rem 0.9rem;
   background: linear-gradient(120deg, var(--header-grad-1), var(--header-grad-2));
-  color: white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
-.brand { display: flex; align-items: center; gap: 0.45rem; font-weight: 700; font-size: 1.05rem; }
+.topbar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+}
+.topbar-row--secondary {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem 0.8rem;
+  background: var(--bg);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  max-height: calc(100vh - 3.2rem);
+  max-height: calc(100dvh - 3.2rem);
+  overflow-y: auto;
+}
+.topbar-row--secondary.is-open { display: flex; }
+
+.brand { display: flex; align-items: center; gap: 0.45rem; font-weight: 700; font-size: 1.05rem; color: white; }
 .brand-icon { font-size: 1.3rem; }
-.toolbar-controls { display: flex; align-items: center; gap: 0.4rem; }
+.toolbar-controls { display: flex; align-items: center; gap: 0.4rem; margin-left: auto; }
 .toolbar-controls select {
   border-radius: 999px;
   border: none;
@@ -99,6 +120,37 @@ button { font-family: inherit; }
   font-size: 1rem;
 }
 .icon-btn:hover { background: rgba(255, 255, 255, 0.35); }
+
+.menu-toggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.menu-toggle:hover { background: rgba(255, 255, 255, 0.22); }
+.menu-toggle-bar {
+  display: block;
+  width: 1.1rem;
+  height: 2px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 1px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(2) { opacity: 0; }
+.menu-toggle[aria-expanded="true"] .menu-toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
 
 .subbar {
   position: sticky;
@@ -143,7 +195,21 @@ button { font-family: inherit; }
 .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--header-grad-1), var(--header-grad-2)); transition: width 0.25s ease; }
 .progress-label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
 
-.section-nav { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 0.1rem; }
+.section-nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 18;
+  padding: 0.55rem 0.9rem calc(0.55rem + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+.section-nav[hidden] { display: none; }
 .section-nav button {
   flex: none;
   border: 1px solid var(--border);
@@ -370,7 +436,9 @@ mark.search-hit { background: var(--mark-bg); }
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   z-index: 15;
+  transition: bottom 0.15s ease;
 }
+body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bottom, 0px)); }
 
 .toast {
   position: fixed;
@@ -392,7 +460,7 @@ mark.search-hit { background: var(--mark-bg); }
 }
 
 @media print {
-  .topbar, .subbar, .back-to-top, .toast, .learned-toggle { display: none !important; }
+  .topbar, .subbar, .section-nav, .back-to-top, .toast, .learned-toggle { display: none !important; }
   .word-list { max-width: 100%; }
   .entry { break-inside: avoid; }
 }

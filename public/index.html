@@ -15,32 +15,40 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">
-    <i class="fa-solid fa-book-open brand-icon" aria-hidden="true"></i>
-    <span class="brand-name">単語帳</span>
+  <div class="topbar-row topbar-row--primary">
+    <div class="brand">
+      <i class="fa-solid fa-book-open brand-icon" aria-hidden="true"></i>
+      <span class="brand-name">単語帳</span>
+    </div>
+    <div class="toolbar-controls">
+      <select id="listSelect" aria-label="リストを選択"></select>
+      <button id="themeToggleBtn" type="button" class="icon-btn" title="ダーク/ライト切り替え"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
+      <a class="icon-btn" href="./setting/index.html" title="単語を編集"><i class="fa-solid fa-gear" aria-hidden="true"></i></a>
+    </div>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
+      <span class="menu-toggle-bar"></span>
+      <span class="menu-toggle-bar"></span>
+      <span class="menu-toggle-bar"></span>
+    </button>
   </div>
-  <div class="toolbar-controls">
-    <select id="listSelect" aria-label="リストを選択"></select>
-    <button id="themeToggleBtn" type="button" class="icon-btn" title="ダーク/ライト切り替え"><i class="fa-solid fa-moon" aria-hidden="true"></i></button>
-    <a class="icon-btn" href="./setting/index.html" title="単語を編集"><i class="fa-solid fa-gear" aria-hidden="true"></i></a>
+  <div class="topbar-row topbar-row--secondary" id="topbarMenu">
+    <div class="search-row">
+      <input id="searchInput" type="search" placeholder="スペル・意味・タグで検索" autocomplete="off" />
+      <button id="unlearnedOnlyBtn" type="button" class="chip-toggle" aria-pressed="false">未習得のみ</button>
+    </div>
+    <form id="jumpForm" class="jump-row">
+      <label for="jumpInput">no.</label>
+      <input id="jumpInput" type="text" inputmode="numeric" placeholder="42" />
+      <button type="submit">ジャンプ</button>
+    </form>
   </div>
 </header>
 
 <div class="subbar">
-  <div class="search-row">
-    <input id="searchInput" type="search" placeholder="スペル・意味・タグで検索" autocomplete="off" />
-    <button id="unlearnedOnlyBtn" type="button" class="chip-toggle" aria-pressed="false">未習得のみ</button>
-  </div>
   <div class="progress-row">
     <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
     <span id="progressLabel" class="progress-label">0 / 0 習得</span>
   </div>
-  <div id="sectionNav" class="section-nav" hidden></div>
-  <form id="jumpForm" class="jump-row">
-    <label for="jumpInput">no.</label>
-    <input id="jumpInput" type="text" inputmode="numeric" placeholder="42" />
-    <button type="submit">ジャンプ</button>
-  </form>
 </div>
 
 <main id="wordList" class="word-list" aria-live="polite"></main>
@@ -48,6 +56,7 @@
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
 <p id="loadingMsg" class="loading-msg">読み込み中...</p>
 
+<nav id="sectionNav" class="section-nav" hidden></nav>
 <button id="backToTopBtn" type="button" class="back-to-top" hidden title="先頭に戻る"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
 <div id="toast" class="toast" hidden></div>
 
