@@ -234,6 +234,8 @@ async function listMasterWords(db, searchUrl) {
   const target1900 = params.get("target1900");
   const target1400 = params.get("target1400");
   const q = params.get("q")?.trim();
+  const limit = Math.min(Math.max(parseInt(params.get("limit"), 10) || 100, 1), 300);
+  const offset = Math.max(parseInt(params.get("offset"), 10) || 0, 0);
 
   let sql = `
     SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
@@ -264,16 +266,19 @@ async function listMasterWords(db, searchUrl) {
     sql += " AND w.spelling LIKE ? ESCAPE '\\'";
     binds.push(`%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
   }
-  sql += " ORDER BY w.spelling COLLATE NOCASE";
+  sql += " ORDER BY w.spelling COLLATE NOCASE LIMIT ? OFFSET ?";
+  // hasMoreを判定するため実際のlimitより1件多く取得する
+  binds.push(limit + 1, offset);
 
   const { results } = await db.prepare(sql).bind(...binds).all();
-  const rows = results.map((r) => ({
+  const hasMore = results.length > limit;
+  const words = results.slice(0, limit).map((r) => ({
     ...r,
     displayNo: null,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
   }));
-  return json(rows);
+  return json({ words, hasMore, offset, limit });
 }
 
 function groupByWordId(rows) {

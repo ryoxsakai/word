@@ -70,19 +70,20 @@
         </div>
         <div class="master-actions">
           <span id="selectionCount" class="selection-count">0語選択</span>
-          <button id="selectAllMasterBtn" type="button" class="btn-ghost">全選択</button>
+          <button id="selectAllMasterBtn" type="button" class="btn-ghost" title="現在読み込み済みの単語のみ選択されます">表示中を全選択</button>
           <button id="clearSelectionBtn" type="button" class="btn-ghost">解除</button>
           <button id="addToNotebookBtn" type="button" class="primary" disabled>単語帳に追加</button>
         </div>
       </div>
 
-      <div class="table-scroll">
+      <div class="table-scroll" id="tableScroll">
         <table class="word-table">
           <thead id="wordTableHead">
             <tr><th class="col-no">no.</th><th>スペル</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>
           </thead>
           <tbody id="wordTableBody"></tbody>
         </table>
+        <p id="masterLoadingMore" class="loading-more" hidden>読み込み中…</p>
       </div>
       <p id="wordTableEmpty" class="empty-msg" hidden>このリストにはまだ単語がありません。</p>
     </section>

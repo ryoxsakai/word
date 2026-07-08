@@ -17,9 +17,13 @@ const state = {
   currentAudioUrl: null,
   selectedWordIds: new Set(),
   masterFilter: { q: "", awl: "", oxford: "", target1900: "", target1400: "" },
+  masterOffset: 0,
+  masterHasMore: false,
+  masterLoading: false,
 };
 
 const MOBILE_BREAKPOINT = 768;
+const MASTER_PAGE_SIZE = 150;
 let masterSearchTimer = null;
 let dragState = null; // { type: "word" | "section", id }
 
@@ -46,6 +50,8 @@ const el = {
   wordTableHead: document.getElementById("wordTableHead"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
+  tableScroll: document.getElementById("tableScroll"),
+  masterLoadingMore: document.getElementById("masterLoadingMore"),
   editPane: document.getElementById("editPane"),
   editTitle: document.getElementById("editTitle"),
   saveBtn: document.getElementById("saveBtn"),
@@ -352,23 +358,60 @@ async function selectList(listId) {
   await Promise.all([loadWordsForList(listId), loadSectionsForList(listId)]);
 }
 
+function buildMasterQuery(offset) {
+  const qs = new URLSearchParams();
+  if (state.masterFilter.q) qs.set("q", state.masterFilter.q);
+  if (state.masterFilter.awl) qs.set("awl", state.masterFilter.awl);
+  if (state.masterFilter.oxford) qs.set("oxford", state.masterFilter.oxford);
+  if (state.masterFilter.target1900) qs.set("target1900", "1");
+  if (state.masterFilter.target1400) qs.set("target1400", "1");
+  qs.set("limit", String(MASTER_PAGE_SIZE));
+  qs.set("offset", String(offset));
+  return qs.toString();
+}
+
 async function loadWordsForList(listId) {
   if (isMasterView()) {
-    const qs = new URLSearchParams();
-    if (state.masterFilter.q) qs.set("q", state.masterFilter.q);
-    if (state.masterFilter.awl) qs.set("awl", state.masterFilter.awl);
-    if (state.masterFilter.oxford) qs.set("oxford", state.masterFilter.oxford);
-    if (state.masterFilter.target1900) qs.set("target1900", "1");
-    if (state.masterFilter.target1400) qs.set("target1400", "1");
-    const query = qs.toString();
-    state.words = await api(`/master/words${query ? `?${query}` : ""}`);
+    const result = await api(`/master/words?${buildMasterQuery(0)}`);
+    state.words = result.words;
+    state.masterOffset = result.words.length;
+    state.masterHasMore = result.hasMore;
     state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: null }]));
   } else {
     state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
+    state.masterHasMore = false;
     state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
   }
   renderWordTableHead();
   renderWordTable();
+}
+
+async function loadMoreMasterWords() {
+  if (!isMasterView() || !state.masterHasMore || state.masterLoading) return;
+  state.masterLoading = true;
+  el.masterLoadingMore.hidden = false;
+  try {
+    const result = await api(`/master/words?${buildMasterQuery(state.masterOffset)}`);
+    for (const w of result.words) state.listWordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: null });
+    state.words = state.words.concat(result.words);
+    state.masterOffset += result.words.length;
+    state.masterHasMore = result.hasMore;
+    renderWordTableHead();
+    renderWordTable();
+  } catch (err) {
+    console.error("追加読み込みに失敗しました:", err);
+  } finally {
+    state.masterLoading = false;
+    el.masterLoadingMore.hidden = true;
+  }
+}
+
+function handleWordTableScroll() {
+  if (!isMasterView() || !state.masterHasMore || state.masterLoading) return;
+  const el2 = el.tableScroll;
+  if (el2.scrollTop + el2.clientHeight >= el2.scrollHeight - 400) {
+    loadMoreMasterWords();
+  }
 }
 
 async function loadSectionsForList(listId) {
@@ -1065,6 +1108,7 @@ el.filterAwl.addEventListener("change", () => applyMasterFilters());
 el.filterOxford.addEventListener("change", () => applyMasterFilters());
 el.filterTarget1900.addEventListener("change", () => applyMasterFilters());
 el.filterTarget1400.addEventListener("change", () => applyMasterFilters());
+el.tableScroll.addEventListener("scroll", handleWordTableScroll);
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
