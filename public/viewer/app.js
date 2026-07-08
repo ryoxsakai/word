@@ -1,5 +1,6 @@
 import { renderMarkup, escapeHtml } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
+import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 
 const API = `${API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -186,7 +187,7 @@ function renderEntry(w) {
     <div class="sense-line">
       ${s.pos ? `<span class="pos-badge">${escapeHtml(s.pos)}</span>` : ""}
       <span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span>
-      ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(s.pronunciation)}]</span>` : ""}
+      ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(s.pronunciation))}]</span>` : ""}
     </div>`
     )
     .join("");
@@ -246,7 +247,7 @@ function renderEntry(w) {
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
         <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く">🔊</button>
-        ${w.pronunciation ? `<span class="pron">[${escapeHtml(w.pronunciation)}]</span>` : ""}
+        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
       </div>
       ${renderTagBadges(w.tags)}
       ${familyLine}

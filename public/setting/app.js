@@ -1,5 +1,6 @@
 import { renderMarkup } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
+import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 
 const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -465,7 +466,7 @@ function renderWordTable() {
 
     if (isMasterView()) {
       const checked = state.selectedWordIds.has(w.id);
-      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
+      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
       const cb = tr.querySelector(".word-check");
       cb.addEventListener("click", (e) => e.stopPropagation());
       cb.addEventListener("change", () => {
@@ -479,7 +480,7 @@ function renderWordTable() {
         openWordEditor(w.id);
       });
     } else {
-      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(w.pronunciation || "")}</td>`;
+      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td><td class="col-levels">${levels}</td><td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
       tr.addEventListener("click", () => openWordEditor(w.id));
     }
     el.wordTableBody.appendChild(tr);
