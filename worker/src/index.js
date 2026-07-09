@@ -1208,6 +1208,36 @@ async function normalizePosTags(db) {
   };
 }
 
+// キュレーション済みの意味を単語(spelling指定)ごとに一括反映する。
+// 既存の意味はすべて置き換える(バッチレビュー→承認を経た内容を書き込む一回限りの用途)。
+// body: [{ spelling, senses: [{ pos, meaning, isPrimary }] }, ...]
+async function applyCuratedSenses(db, body) {
+  const items = Array.isArray(body) ? body : body?.words;
+  if (!Array.isArray(items)) return badRequest("expected an array of {spelling, senses}");
+
+  let updated = 0;
+  let notFound = 0;
+  const notFoundSpellings = [];
+  for (const item of items) {
+    if (!item?.spelling || !Array.isArray(item.senses)) continue;
+    const word = await db.prepare("SELECT id FROM words WHERE spelling = ? COLLATE NOCASE").bind(item.spelling).first();
+    if (!word) {
+      notFound += 1;
+      notFoundSpellings.push(item.spelling);
+      continue;
+    }
+    const rows = item.senses.map((s) => ({
+      pos: s.pos || null,
+      meaning: s.meaning,
+      pronunciation: null,
+      is_primary: s.isPrimary ? 1 : 0,
+    }));
+    await replaceChildRows(db, "senses", ["pos", "meaning", "pronunciation", "is_primary", "sort_order"], word.id, rows);
+    updated += 1;
+  }
+  return json({ total: items.length, updated, notFound, notFoundSpellings });
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -1543,6 +1573,11 @@ async function handleApi(request, env, parts, method) {
   // /api/normalize-pos
   if (parts.length === 2 && parts[1] === "normalize-pos" && method === "POST") {
     return json(await normalizePosTags(db));
+  }
+
+  // /api/apply-curated-senses
+  if (parts.length === 2 && parts[1] === "apply-curated-senses" && method === "POST") {
+    return await applyCuratedSenses(db, await request.json());
   }
 
   // /api/words

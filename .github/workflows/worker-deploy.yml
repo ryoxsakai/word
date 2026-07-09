@@ -13,6 +13,10 @@ on:
         description: "初回のみtrue: D1データベースを新規作成しスキーマを適用してからデプロイする"
         type: boolean
         default: false
+      apply_curated_senses_batch1:
+        description: "true: キュレーション済みの意味(先頭100語, curated-senses-batch1.json)を本番に反映する(手動実行専用の一回限りの操作)"
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -54,4 +58,12 @@ jobs:
         run: |
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
+            --retry 5 --retry-delay 10 --retry-all-errors
+
+      - name: Apply curated senses (batch 1, manual dispatch only)
+        if: ${{ inputs.apply_curated_senses_batch1 == true }}
+        run: |
+          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/apply-curated-senses" \
+            -H "Content-Type: application/json" \
+            --data-binary @src/data/curated-senses-batch1.json \
             --retry 5 --retry-delay 10 --retry-all-errors

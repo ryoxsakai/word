@@ -1,0 +1,1207 @@
+[
+  {
+    "spelling": "abandon",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を捨てる",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を断念する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "abolish",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を廃止する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "aboriginal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "先住民の",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "原生の",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "abrupt",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "突然の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "absolute",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "絶対的な",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "完全な",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "absorb",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を吸収する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を夢中にさせる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "abstract",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "抽象的な",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "要約",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "absurd",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "ばかげた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "abundant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "豊富な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "abuse",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を乱用する",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "虐待",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "academic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "学問の",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "大学の",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accelerate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を加速させる",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "加速する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "なまり",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "アクセント",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "access",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "利用",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "にアクセスする",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accidental",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "偶然の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "accommodate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を収容する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "に応じる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accompany",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に同行する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "に伴う",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accomplish",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を成し遂げる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "accord",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "一致",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "協定",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "account",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "口座",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "説明",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accumulate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を蓄積する",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "たまる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accurate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "正確な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "accuse",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を非難する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を告訴する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "accustom",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を慣れさせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "achieve",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を達成する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "acid",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "酸性の",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "酸",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "acknowledge",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を認める",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "に謝意を表す",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "acoustic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "音響の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "acquaintance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "知人",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "acquire",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を得る",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を習得する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "act",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "行動する",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "行為",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "active",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "活動的な",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "積極的な",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "actual",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "実際の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "acute",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "深刻な",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "急性の",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "adapt",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "適応する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を適合させる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "addict",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "中毒者",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "[be addicted to] 夢中である",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "address",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に対処する",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "住所",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "adequate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "十分な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "adjust",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を調整する",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "順応する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "administration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "管理",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "政権",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "admire",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に感心する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "admit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "（を）認める",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "入学を許可する",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "adolescent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "青年",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "青年期の",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "adopt",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を採用する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を養子にする",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "advance",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "前進する",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を進める",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "advantage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "利点",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "advent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "[the advent of] 出現",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "adverse",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "不利な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "advertise",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を宣伝する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "advise",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に助言する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "advocate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を主張する",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "主張者",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "aesthetic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "美的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "affect",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に影響を及ぼす",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "affluent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "裕福な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "afford",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "[can afford] ～する余裕がある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "afraid",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恐れて",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "afterward",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "その後",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "age",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "年齢",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "時代",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "agenda",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "議題",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "agent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "代理人",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "薬剤",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "aggressive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "攻撃的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "agriculture",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "農業",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "aid",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を援助する",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "援助",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "aim",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "目的",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "[aim at/to] 目指す",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "aisle",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "通路",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "alarm",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "不安",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "警報",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "alert",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "警戒して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "algorithm",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "アルゴリズム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "alien",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "異質な",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "外国の",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "alike",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "似ている",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "alive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "生きている",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "allege",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を主張する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "allergy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "アレルギー",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "allocate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を割り当てる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "allow",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を許す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ally",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "同盟国",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "alter",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を変える",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "変わる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "alternate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "交互の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "alternative",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "代わりの",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "代替案",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "altitude",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "高度",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "altogether",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "完全に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "amaze",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を驚かせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "amazing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "驚くべき",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ambiguous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "あいまいな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ambition",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "野望",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ambulance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "救急車",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "amount",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "量",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ample",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "十分な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "amuse",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を楽しませる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "analogy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "類推",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "analysis",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "分析",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ancestor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "祖先",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ancient",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "古代の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "anniversary",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "記念日",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "announce",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を発表する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "annoy",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をいらいらさせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "annual",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "毎年の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "anonymous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "匿名の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "anthropology",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "人類学",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "antibiotic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "抗生物質",
+        "isPrimary": true
+      },
+      {
+        "pos": "形",
+        "meaning": "抗生物質の",
+        "isPrimary": false
+      }
+    ]
+  }
+]
