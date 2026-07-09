@@ -55,15 +55,3 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
-
-      - name: Remove duplicate misspelled word entries (poisen/proffecion, one-off)
-        run: |
-          # target1400.jsonの綴り誤り("poisen"→"poison","proffecion"→"profession")を修正した結果、
-          # 上のシードで正しい綴りの既存語(poison/profession)にtarget1400タグが付与された。
-          # 誤った綴りのまま残っている旧語エントリを削除する。
-          curl -sf -X DELETE "https://vocab-app.ryoxsakai.workers.dev/api/words/poisen" \
-            --retry 5 --retry-delay 10 --retry-all-errors
-          echo
-          curl -sf -X DELETE "https://vocab-app.ryoxsakai.workers.dev/api/words/proffecion" \
-            --retry 5 --retry-delay 10 --retry-all-errors
-          echo
