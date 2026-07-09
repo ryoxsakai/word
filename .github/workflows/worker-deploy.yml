@@ -55,3 +55,14 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
+
+      - name: Apply curated senses (Non-Oxford5000 vocabulary, one-off)
+        run: |
+          for f in src/data/curated-senses-otherbatch*.json; do
+            echo "Applying $f"
+            curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/apply-curated-senses" \
+              -H "Content-Type: application/json" \
+              --data-binary "@$f" \
+              --retry 5 --retry-delay 10 --retry-all-errors
+            echo
+          done
