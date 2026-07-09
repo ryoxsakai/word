@@ -1,0 +1,1012 @@
+[
+  {
+    "spelling": "escape",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "逃れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "essential",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "必要不可欠な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "eventually",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "結局",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "examine",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を調べる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exchange",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を交換する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "excitement",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "興奮",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exhibition",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "展覧会",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exit",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "出口",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expand",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "拡大する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expected",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "予期された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "experienced",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "経験豊富な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "explode",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "爆発する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "explore",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を探検する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "explosion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "爆発",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "export",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を輸出する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fairly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "かなり",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "familiar",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "精通している",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fancy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "空想",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fascinating",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "魅力的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fashionable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "流行の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fasten",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を留める",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "favor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "好意",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "federal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "連邦の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "フェンス",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fighting",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "戦闘",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "file",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ファイル",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "financial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "財政上の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fitness",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "健康",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fixed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "固定された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flag",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "旗",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flood",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "洪水",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flour",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "小麦粉",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flow",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "流れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fold",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を折り畳む",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "folk",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "人々",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "force",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に強いる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "forever",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "永遠に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frame",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "枠",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "freeze",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "凍る",
+        "isPrimary": true
+      },
+      {
+        "pos": "他",
+        "meaning": "を凍らせる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "frequently",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "頻繁に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "friendship",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "友情",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frighten",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を怖がらせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frightened",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "怖がって",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frightening",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恐ろしい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frozen",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "凍った",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fry",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を油で揚げる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fuel",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "燃料",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "function",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "機能",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fur",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "毛皮",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "garage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "車庫",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gather",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を集める",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "generally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "一般に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "generation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "世代",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "generous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "寛大な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gentle",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "優しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gentleman",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "紳士",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ghost",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "幽霊",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "giant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "巨大な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "glad",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "うれしい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "global",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "地球全体の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "glove",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "手袋",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grade",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "学年",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "成績",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "graduate",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "卒業する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grain",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "穀物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grateful",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "感謝している",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "growth",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "成長",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "guard",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "警備員",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "guilty",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "有罪の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hang",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を掛ける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "happiness",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "幸福",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hardly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "ほとんど～ない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "headline",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "見出し",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "heating",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "暖房",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "heavily",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "激しく",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "helicopter",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ヘリコプター",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "highlight",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を強調する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "highly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "非常に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "highway",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "幹線道路",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hire",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を雇う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "historic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "歴史上重要な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "historical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "歴史の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "honest",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "正直な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "horrible",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恐ろしい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "horror",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "恐怖",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "host",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を主催する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hunt",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を狩る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hurricane",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ハリケーン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hurry",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "急ぐ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "identity",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "身元",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ignore",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を無視する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "illegal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "違法な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "imaginary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "想像上の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "immediate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "即座の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "immigrant",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "移民",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impact",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "影響",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "import",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を輸入する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "importance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "重要性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impression",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "印象",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impressive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "印象的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "improvement",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "改善",
+        "isPrimary": true
+      }
+    ]
+  }
+]

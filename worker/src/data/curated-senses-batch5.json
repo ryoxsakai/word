@@ -1,0 +1,1007 @@
+[
+  {
+    "spelling": "incredibly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "信じられないほど",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indeed",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "実に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indicate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を指し示す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indirect",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "間接的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indoor",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "屋内の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indoors",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "屋内で",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "influence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "影響",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ingredient",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "材料",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "injure",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を傷つける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "injured",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "負傷した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "innocent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "無罪の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intelligence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "知能",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intend",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を意図する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intention",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "意図",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "invest",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "投資する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "investigate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を調査する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "involved",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "関与している",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "iron",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "鉄",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "issue",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "問題",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "journal",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "雑誌",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "journey",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "旅",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "judge",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を判断する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "keyboard",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "キーボード",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "kick",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を蹴る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "killing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "殺害",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "kiss",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "にキスする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "label",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ラベル",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "laboratory",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "実験室",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lack",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を欠いている",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "latest",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "最新の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lay",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を置く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "layer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "層",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "leading",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "主要な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "leaf",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "葉",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "leather",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "革",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "legal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "法律の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "leisure",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "余暇",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "length",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "長さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "limit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を制限する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lip",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "唇",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "liquid",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "液体",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "literature",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "文学",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "living",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "生きている",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "locate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "の位置を特定する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "located",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "位置している",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "location",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "場所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lonely",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "寂しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "loss",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "喪失",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "luxury",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ぜいたく品",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mad",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "気が狂った",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "magic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "魔法",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mainly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "主に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "management",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "経営",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "marketing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "マーケティング",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "marriage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "結婚",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "meanwhile",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "その間に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "measure",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を測る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "medium",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "媒体",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mental",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "精神の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mess",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "散らかった状態",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mild",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "穏やかな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mix",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を混ぜる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mixture",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "混合物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mood",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "気分",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mud",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "泥",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "murder",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を殺害する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "muscle",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "筋肉",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mystery",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "謎",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "nail",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "つめ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "narrative",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "物語",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "nation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "国家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "native",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "出生地の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "naturally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "自然に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "neat",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "きちんとした",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "necessarily",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "必ずしも(～ない)",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "needle",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "針",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "net",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "網",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "nor",
+    "senses": [
+      {
+        "pos": "接",
+        "meaning": "も～ない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "northern",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "北の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "obvious",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "明らかな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "obviously",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "明らかに",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "occasion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "場合",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "occur",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "起こる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "odd",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "奇妙な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "official",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "公式の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "old-fashioned",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "旧式の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "operation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "操作",
+        "isPrimary": true
+      },
+      {
+        "pos": "名",
+        "meaning": "手術",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "organized",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "組織化された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "organizer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "主催者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "originally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "元々",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ought",
+    "senses": [
+      {
+        "pos": "助",
+        "meaning": "[ought to] すべきである",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ours",
+    "senses": [
+      {
+        "pos": "代",
+        "meaning": "私たちのもの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "outdoor",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "屋外の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "outdoors",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "屋外で",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "package",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "小包",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "painful",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "痛い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "pale",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "青白い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "pan",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "鍋",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "participate",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "参加する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "particularly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "特に",
+        "isPrimary": true
+      }
+    ]
+  }
+]

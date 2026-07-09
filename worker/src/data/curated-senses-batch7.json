@@ -1,0 +1,1012 @@
+[
+  {
+    "spelling": "repeated",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "繰り返された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "represent",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を表す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "require",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を必要とする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "reservation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "予約",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "resource",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "資源",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "respect",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を尊敬する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "responsibility",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "責任",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "responsible",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "責任がある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "retire",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "引退する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "retired",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "引退した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "revise",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を修正する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "risk",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "危険性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "robot",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ロボット",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "roll",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "転がる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "romantic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恋愛の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "rope",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ロープ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "rough",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "粗い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "row",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "列",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "royal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "王の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "safety",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "安全",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sailor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "船員",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sample",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "見本",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sand",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "砂",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "scan",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をスキャンする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "scientific",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "科学の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "script",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "台本",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sculpture",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "彫刻",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "secondary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "二次的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "security",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "安全",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "seed",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "種",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sensible",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "賢明な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "seriously",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "真剣に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "servant",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "使用人",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "set",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "一式",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "setting",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "環境",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sex",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sexual",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "性の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sharp",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "鋭い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shelf",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "棚",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shell",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "殻",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shift",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を変える",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "変わる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "shine",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "輝く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shiny",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "光る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shoot",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を撃つ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "shy",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "内気な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sight",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "光景",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "signal",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "信号",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "silent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "無言の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "silly",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "ばかげた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "similarity",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "類似点",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "similarly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "同様に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "simply",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "単に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sink",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "沈む",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "slave",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "奴隷",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "slice",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "薄切り",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "slightly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "わずかに",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "smooth",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "滑らかな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "software",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ソフトウェア",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "soil",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "土壌",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "solid",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "しっかりした",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "southern",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "南の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "specialize",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "専門とする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "specifically",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "具体的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spending",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "支出",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spicy",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "香辛料のきいた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spirit",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "精神",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spoken",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "話される",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spot",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "場所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "spread",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を広める",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "広がる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "stadium",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "競技場",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "staff",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "職員",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "standard",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "水準",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "statistic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "統計値",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "statue",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "像",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "stick",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "くっつく",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "stranger",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "見知らぬ人",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "strength",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "強さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "string",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ひも",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "strongly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "強く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "studio",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "スタジオ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "stuff",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "substance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "物質",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "successfully",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "うまく",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "sudden",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "急な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "suffer",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "苦しむ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "suitable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "適した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "summarize",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を要約する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "summary",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "要約",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "supply",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を供給する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "supporter",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "支持者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "surely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "確かに",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "surface",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "表面",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "survive",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "生き残る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "switch",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "スイッチ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "symptom",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "症状",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tail",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "しっぽ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "talent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "才能",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "talented",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "才能のある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tape",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "テープ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tax",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "税金",
+        "isPrimary": true
+      }
+    ]
+  }
+]

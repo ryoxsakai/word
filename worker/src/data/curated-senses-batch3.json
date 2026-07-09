@@ -1,0 +1,1007 @@
+[
+  {
+    "spelling": "competitor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "競争相手",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "complaint",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "苦情",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "complex",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "複雑な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concentrate",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "集中する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conclude",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "と結論づける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conclusion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "結論",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confident",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "自信のある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confirm",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を確認する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confuse",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を混同する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confused",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "混乱して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "connection",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "関連",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consequence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "結果",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consist",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "[consist of] から成る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consume",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を消費する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consumer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "消費者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contact",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "と連絡を取る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "container",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "容器",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "content",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "内容",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "continuous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "継続的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contrast",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "対照",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convenient",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "便利な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convince",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を納得させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "corn",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "トウモロコシ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "costume",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "衣装",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cotton",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "綿",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "countryside",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "田舎",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "court",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "裁判所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "covered",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "覆われた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cruel",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "残酷な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cultural",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "文化の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cupboard",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "食器棚",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "currency",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "通貨",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "current",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "現在の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "currently",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "現在",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "curtain",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "カーテン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "custom",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "慣習",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "damage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "損害",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decade",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "10年間",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "define",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を定義する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "definite",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "明確な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "definition",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "定義",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deliver",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を配達する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "departure",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "出発",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "despite",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～にもかかわらず",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "destination",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "目的地",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "determine",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を決定する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "determined",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "決意した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "development",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "発達",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "diagram",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "図",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "diamond",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ダイヤモンド",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "difficulty",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "困難",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "directly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "直接に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dirt",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "汚れ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disadvantage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "不利な点",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disappointed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "がっかりして",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disappointing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "がっかりさせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "discount",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "割引",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dislike",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を嫌う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "district",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "地区",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "divide",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を分ける",
+        "isPrimary": true
+      },
+      {
+        "pos": "自",
+        "meaning": "分かれる",
+        "isPrimary": false
+      }
+    ]
+  },
+  {
+    "spelling": "documentary",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ドキュメンタリー",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "donate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を寄付する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "doubt",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を疑う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dressed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "服を着て",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "drum",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ドラム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "drunk",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "酔った",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "due",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "予定された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dust",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ほこり",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "duty",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "義務",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "earthquake",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "地震",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "eastern",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "東の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "economic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "経済の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "economy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "経済",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "edge",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "端",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "editor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "編集者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "educate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を教育する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "educated",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "教育を受けた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "educational",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "教育の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "effective",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "効果的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "effectively",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "効果的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "effort",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "努力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "election",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "選挙",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "element",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "要素",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "embarrassed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恥ずかしく思って",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "embarrassing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "恥ずかしい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emergency",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "緊急事態",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emotion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "感情",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "employment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "雇用",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "encourage",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を励ます",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enemy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "敵",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "engaged",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "婚約して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "engineering",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "工学",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entertain",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を楽しませる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entertainment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "娯楽",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entrance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "入口",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entry",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "入場",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "environmental",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "環境の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "episode",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "エピソード",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "equal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "等しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "equally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "等しく",
+        "isPrimary": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,752 @@
+[
+  {
+    "spelling": "technical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "技術的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "technique",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "技術",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tend",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "[tend to] 傾向がある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "テント",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "theirs",
+    "senses": [
+      {
+        "pos": "代",
+        "meaning": "彼らのもの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "theme",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "主題",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "theory",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "理論",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "therefore",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "したがって",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "though",
+    "senses": [
+      {
+        "pos": "接",
+        "meaning": "～だけれども",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "throat",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "のど",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "throughout",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～の間中",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tight",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "きつい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "till",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～まで",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tiny",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "とても小さな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tire",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "疲れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "toe",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "つま先",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ton",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "トン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tongue",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "舌",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "total",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "合計の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "totally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "完全に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "trade",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "貿易",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "trainer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "トレーナー",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "translate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を翻訳する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "translation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "翻訳",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "transport",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を輸送する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "treat",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を扱う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "treatment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "治療",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "trend",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "傾向",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "trick",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "策略",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "truth",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "真実",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "tube",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "管",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "typically",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "典型的には",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ugly",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "醜い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "[unable to] できない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "uncomfortable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "心地悪い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "underwear",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "下着",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unemployed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "失業した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unemployment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "失業",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unfair",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "不公平な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "union",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "組合",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unless",
+    "senses": [
+      {
+        "pos": "接",
+        "meaning": "～でない限り",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unlike",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～と違って",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unlikely",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "ありそうもない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unnecessary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "不必要な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "unpleasant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "不愉快な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "update",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を最新のものにする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "upon",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～の上に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "upset",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を動揺させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "used",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "中古の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "valuable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "貴重な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "value",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "価値",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "various",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "さまざまな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "version",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "版",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "victim",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "被害者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "viewer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "視聴者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "violent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "暴力的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "volunteer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ボランティア",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "vote",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "投票",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "warn",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に警告する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "warning",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "警告",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "waste",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を浪費する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "weapon",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "兵器",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "weigh",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "の重さがある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "western",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "西の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "whatever",
+    "senses": [
+      {
+        "pos": "代",
+        "meaning": "何でも",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "whenever",
+    "senses": [
+      {
+        "pos": "接",
+        "meaning": "いつ～しても",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "whether",
+    "senses": [
+      {
+        "pos": "接",
+        "meaning": "～かどうか",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "wing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "翼",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "within",
+    "senses": [
+      {
+        "pos": "前",
+        "meaning": "～以内に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "wonder",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "かなと思う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "wool",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "羊毛",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "worldwide",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "世界的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "worth",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "の価値がある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "written",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "書かれた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "youth",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "若さ",
+        "isPrimary": true
+      }
+    ]
+  }
+]
