@@ -1242,7 +1242,7 @@ async function applyCuratedSenses(db, body) {
 // 和訳の欠落・文頭が小文字・末尾に終端句読点(.!?)がない、を洗い出す。
 function hasNoTerminalPunct(sentence) {
   const s = String(sentence).trim();
-  return !/[.!?][")'”’]?$/.test(s);
+  return !/[.!?…][")\]”’']?$/.test(s);
 }
 
 async function examplesReport(db) {
@@ -1288,6 +1288,26 @@ async function examplesReport(db) {
     problemCount: problems.length,
     problems,
   });
+}
+
+// 例文の文頭大文字化・末尾句読点をまとめて機械的に修正する(和訳には触れない)。
+// body: [{ id, sentence }, ...] examples.id と修正後の全文を渡す。
+async function fixExamplesFormatting(db, body) {
+  const items = Array.isArray(body) ? body : body?.items;
+  if (!Array.isArray(items)) return badRequest("expected an array of {id, sentence}");
+
+  let updated = 0;
+  let notFound = 0;
+  for (const item of items) {
+    if (item?.id == null || typeof item.sentence !== "string") continue;
+    const result = await db
+      .prepare("UPDATE examples SET sentence = ? WHERE id = ?")
+      .bind(item.sentence, item.id)
+      .run();
+    if (result.meta.changes > 0) updated += 1;
+    else notFound += 1;
+  }
+  return json({ total: items.length, updated, notFound });
 }
 
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
@@ -1635,6 +1655,11 @@ async function handleApi(request, env, parts, method) {
   // /api/examples-report (一時的な診断用エンドポイント)
   if (parts.length === 2 && parts[1] === "examples-report" && method === "GET") {
     return await examplesReport(db);
+  }
+
+  // /api/fix-examples-formatting (一時的な一括修正用エンドポイント)
+  if (parts.length === 2 && parts[1] === "fix-examples-formatting" && method === "POST") {
+    return await fixExamplesFormatting(db, await request.json());
   }
 
   // /api/words

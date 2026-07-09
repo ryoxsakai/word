@@ -55,3 +55,10 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
+
+      - name: Fix examples formatting (capitalization/punctuation, one-off)
+        run: |
+          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/fix-examples-formatting" \
+            -H "Content-Type: application/json" \
+            --data-binary "@src/data/examples-formatting-fix.json" \
+            --retry 5 --retry-delay 10 --retry-all-errors
