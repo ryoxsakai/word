@@ -1310,6 +1310,26 @@ async function fixExamplesFormatting(db, body) {
   return json({ total: items.length, updated, notFound });
 }
 
+// 例文のid指定で和訳をまとめて反映する(既存の和訳は上書き)。
+// body: [{ id, translation }, ...]
+async function fixExamplesTranslation(db, body) {
+  const items = Array.isArray(body) ? body : body?.items;
+  if (!Array.isArray(items)) return badRequest("expected an array of {id, translation}");
+
+  let updated = 0;
+  let notFound = 0;
+  for (const item of items) {
+    if (item?.id == null || typeof item.translation !== "string") continue;
+    const result = await db
+      .prepare("UPDATE examples SET translation = ? WHERE id = ?")
+      .bind(item.translation, item.id)
+      .run();
+    if (result.meta.changes > 0) updated += 1;
+    else notFound += 1;
+  }
+  return json({ total: items.length, updated, notFound });
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -1660,6 +1680,11 @@ async function handleApi(request, env, parts, method) {
   // /api/fix-examples-formatting (一時的な一括修正用エンドポイント)
   if (parts.length === 2 && parts[1] === "fix-examples-formatting" && method === "POST") {
     return await fixExamplesFormatting(db, await request.json());
+  }
+
+  // /api/fix-examples-translation (例文の和訳を一括反映するエンドポイント)
+  if (parts.length === 2 && parts[1] === "fix-examples-translation" && method === "POST") {
+    return await fixExamplesTranslation(db, await request.json());
   }
 
   // /api/words
