@@ -57,4 +57,6 @@ jobs:
             --retry 5 --retry-delay 10 --retry-all-errors
 
       - name: Examples/phrases data quality report (one-off, diagnostic only)
-        run: npx wrangler d1 execute vocab-db --remote --file scratch_examples_report.sql --json
+        run: |
+          curl -sf "https://vocab-app.ryoxsakai.workers.dev/api/examples-report" \
+            --retry 5 --retry-delay 10 --retry-all-errors

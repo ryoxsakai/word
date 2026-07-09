@@ -1238,6 +1238,58 @@ async function applyCuratedSenses(db, body) {
   return json({ total: items.length, updated, notFound, notFoundSpellings });
 }
 
+// 例文/フレーズのデータ品質調査(一時的な診断用エンドポイント)。
+// 和訳の欠落・文頭が小文字・末尾に終端句読点(.!?)がない、を洗い出す。
+function hasNoTerminalPunct(sentence) {
+  const s = String(sentence).trim();
+  return !/[.!?][")'”’]?$/.test(s);
+}
+
+async function examplesReport(db) {
+  const { results } = await db
+    .prepare(
+      `SELECT e.id AS id, w.spelling AS spelling, e.type AS type, e.sentence AS sentence, e.translation AS translation
+       FROM examples e JOIN words w ON w.id = e.word_id`
+    )
+    .all();
+
+  let missingTranslation = 0;
+  let lowercaseStart = 0;
+  let missingTerminalPunct = 0;
+  let typeExample = 0;
+  let typePhrase = 0;
+  const problems = [];
+
+  for (const r of results) {
+    if (r.type === "phrase") typePhrase += 1;
+    else typeExample += 1;
+
+    const issues = [];
+    if (!r.translation || !String(r.translation).trim()) issues.push("missingTranslation");
+    if (/^[a-z]/.test(r.sentence || "")) issues.push("lowercaseStart");
+    if (hasNoTerminalPunct(r.sentence || "")) issues.push("missingTerminalPunct");
+
+    if (issues.includes("missingTranslation")) missingTranslation += 1;
+    if (issues.includes("lowercaseStart")) lowercaseStart += 1;
+    if (issues.includes("missingTerminalPunct")) missingTerminalPunct += 1;
+
+    if (issues.length) {
+      problems.push({ id: r.id, spelling: r.spelling, type: r.type, sentence: r.sentence, translation: r.translation, issues });
+    }
+  }
+
+  return json({
+    total: results.length,
+    typeExample,
+    typePhrase,
+    missingTranslation,
+    lowercaseStart,
+    missingTerminalPunct,
+    problemCount: problems.length,
+    problems,
+  });
+}
+
 // ---- markup render (##記法 のサーバー側解決。設定ページのプレビュー確認用) ----
 
 async function renderText(db, body) {
@@ -1578,6 +1630,11 @@ async function handleApi(request, env, parts, method) {
   // /api/apply-curated-senses
   if (parts.length === 2 && parts[1] === "apply-curated-senses" && method === "POST") {
     return await applyCuratedSenses(db, await request.json());
+  }
+
+  // /api/examples-report (一時的な診断用エンドポイント)
+  if (parts.length === 2 && parts[1] === "examples-report" && method === "GET") {
+    return await examplesReport(db);
   }
 
   // /api/words
