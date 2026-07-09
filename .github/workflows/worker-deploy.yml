@@ -55,10 +55,3 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
-
-      - name: Apply curated senses (batch 1, one-off run)
-        run: |
-          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/apply-curated-senses" \
-            -H "Content-Type: application/json" \
-            --data-binary @src/data/curated-senses-batch1.json \
-            --retry 5 --retry-delay 10 --retry-all-errors
