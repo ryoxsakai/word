@@ -58,6 +58,12 @@ const el = {
   selectAllMasterBtn: document.getElementById("selectAllMasterBtn"),
   clearSelectionBtn: document.getElementById("clearSelectionBtn"),
   addToNotebookBtn: document.getElementById("addToNotebookBtn"),
+  addNotebookModalOverlay: document.getElementById("addNotebookModalOverlay"),
+  addNotebookConfirmBtn: document.getElementById("addNotebookConfirmBtn"),
+  addNotebookCloseBtn: document.getElementById("addNotebookCloseBtn"),
+  addNotebookCount: document.getElementById("addNotebookCount"),
+  addNotebookSelect: document.getElementById("addNotebookSelect"),
+  addNotebookSection: document.getElementById("addNotebookSection"),
   wordTableHead: document.getElementById("wordTableHead"),
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
@@ -775,6 +781,32 @@ async function applyMasterFilters() {
   await loadWordsForList(state.currentListId);
 }
 
+function setAddNotebookModalOpen(open) {
+  el.addNotebookModalOverlay.hidden = !open;
+}
+
+function closeAddNotebookModal() {
+  setAddNotebookModalOpen(false);
+}
+
+// 選択中の単語帳に対応するセクション一覧をプルダウンへ読み込む。
+async function loadAddNotebookSections(listId) {
+  el.addNotebookSection.innerHTML = '<option value="">（セクションなし）</option>';
+  if (!listId) return;
+  try {
+    const sections = await api(`/lists/${encodeURIComponent(listId)}/sections`);
+    for (const s of sections) {
+      const opt = document.createElement("option");
+      opt.value = String(s.id);
+      opt.textContent = s.name;
+      el.addNotebookSection.appendChild(opt);
+    }
+  } catch {
+    /* sections optional */
+  }
+}
+
+// マスターで選択した単語を単語帳へ追加する。追加先の単語帳・セクションはモーダルのプルダウンで選ぶ。
 async function addSelectedToNotebook() {
   const ids = [...state.selectedWordIds];
   if (ids.length === 0) return;
@@ -785,32 +817,39 @@ async function addSelectedToNotebook() {
     return;
   }
 
-  const listing = notebooks.map((l) => `${l.id}（${l.name}）`).join("\n");
-  const targetId = prompt(`追加先の単語帳IDを入力してください:\n${listing}`);
-  if (!targetId) return;
-  const target = notebooks.find((l) => l.id === targetId);
-  if (!target) {
-    alert("その単語帳が見つかりませんでした。");
+  el.addNotebookCount.textContent = `${ids.length}語を追加します`;
+  el.addNotebookSelect.innerHTML = "";
+  for (const l of notebooks) {
+    const opt = document.createElement("option");
+    opt.value = l.id;
+    opt.textContent = l.name;
+    el.addNotebookSelect.appendChild(opt);
+  }
+  await loadAddNotebookSections(el.addNotebookSelect.value);
+  setAddNotebookModalOpen(true);
+}
+
+async function confirmAddToNotebook() {
+  const ids = [...state.selectedWordIds];
+  if (ids.length === 0) {
+    closeAddNotebookModal();
     return;
   }
-
-  let sectionId = null;
-  try {
-    const sections = await api(`/lists/${encodeURIComponent(targetId)}/sections`);
-    if (sections.length > 0) {
-      const sectionListing = ["（セクションなし）", ...sections.map((s) => `${s.id}: ${s.name}`)].join("\n");
-      const sectionInput = prompt(`セクションIDを入力（省略可）:\n${sectionListing}`);
-      if (sectionInput && sectionInput.trim()) sectionId = Number(sectionInput.trim());
-    }
-  } catch {
-    /* sections optional */
+  const targetId = el.addNotebookSelect.value;
+  const target = notebookLists().find((l) => l.id === targetId);
+  if (!target) {
+    alert("追加先の単語帳を選択してください。");
+    return;
   }
+  const sectionValue = el.addNotebookSection.value;
+  const sectionId = sectionValue ? Number(sectionValue) : null;
 
   try {
     const result = await api(`/lists/${encodeURIComponent(targetId)}/add-words`, {
       method: "POST",
       body: JSON.stringify({ wordIds: ids, sectionId }),
     });
+    closeAddNotebookModal();
     alert(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
     state.selectedWordIds.clear();
     updateSelectionUi();
@@ -1161,6 +1200,7 @@ document.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
+  if (!el.addNotebookModalOverlay.hidden) { closeAddNotebookModal(); return; }
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
@@ -1174,6 +1214,12 @@ el.sectionModalOverlay.addEventListener("click", (e) => {
 el.sectionSaveBtn.addEventListener("click", saveSectionEdit);
 el.sectionDeleteBtn.addEventListener("click", deleteSectionFromEditor);
 el.sectionCloseBtn.addEventListener("click", closeSectionEditor);
+el.addNotebookModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.addNotebookModalOverlay) closeAddNotebookModal();
+});
+el.addNotebookConfirmBtn.addEventListener("click", confirmAddToNotebook);
+el.addNotebookCloseBtn.addEventListener("click", closeAddNotebookModal);
+el.addNotebookSelect.addEventListener("change", () => loadAddNotebookSections(el.addNotebookSelect.value));
 el.pronunciationCautionBtn.addEventListener("click", () =>
   setCautionButton(el.pronunciationCautionBtn, !isCautionButtonActive(el.pronunciationCautionBtn))
 );
