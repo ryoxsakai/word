@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "inner",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "内部の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "innovation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "革新",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "innovative",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "革新的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "input",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "入力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inquiry",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "問い合わせ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "insert",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を挿入する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "insight",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "見識",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "insist",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "強く主張する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inspector",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "検査官",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inspire",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を奮起させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "install",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をインストールする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "installation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "設置",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "instance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "実例",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "instant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "即時の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "instantly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "即座に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "institute",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "研究所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "institution",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "機関",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "insurance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "保険",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "integrate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を統合する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intellectual",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "知的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intended",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "意図された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "intense",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "強烈な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interact",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "影響し合う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interaction",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "相互作用",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "internal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "内部の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interpret",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を解釈する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interpretation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "解釈",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interrupt",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を中断させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "interval",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "間隔",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "invade",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を侵略する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "invasion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "侵略",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "investigation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "調査",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "investment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "投資",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "investor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "投資家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "isolate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を孤立させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "isolated",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "孤立した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "jail",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "刑務所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "jet",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ジェット機",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "joint",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "関節",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "journalism",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ジャーナリズム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "joy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "喜び",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "judgment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "判断",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "junior",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "年下の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "jury",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "陪審員団",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "justice",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "公正",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "justify",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を正当化する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "kindergarten",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "幼稚園",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "kit",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "道具一式",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "labor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "労働",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ladder",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "はしご",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "landing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "着陸",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "landscape",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "風景",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lane",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "車線",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "largely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "主として",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lately",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "最近",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "launch",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を開始する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "leadership",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "指導力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "league",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "連盟",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lean",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "傾く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "legend",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "伝説",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lens",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "レンズ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "license",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "免許",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lifetime",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "生涯",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lighting",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "照明",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "likewise",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "同様に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "limitation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "限界",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "limited",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "限られた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "literally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "文字通り",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "literary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "文学の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "litter",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ごみ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lively",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "元気な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "load",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に積む",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "loan",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "貸付金",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "logical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "論理的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "logo",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ロゴ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "long-term",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "長期の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "loose",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "緩い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lord",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "領主",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lottery",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "宝くじ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lower",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "下の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "loyal",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "忠実な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lung",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "肺",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "lyric",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "歌詞",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "magnificent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "壮大な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "maintain",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を維持する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "majority",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "大多数",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "makeup",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "化粧",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "making",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "製造",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "manufacture",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を製造する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "manufacturing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "製造業",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "marathon",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "マラソン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "margin",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "余白",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "marker",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "マーカー",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "martial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "戦争の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mass",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "大量の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "massive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "巨大な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "master",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を習得する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "matching",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "調和する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "mate",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "仲間",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "maximum",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "最大限",
+        "isPrimary": true
+      }
+    ]
+  }
+]

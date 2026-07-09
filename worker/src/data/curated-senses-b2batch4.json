@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "desperate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "必死の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "desperately",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "必死に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "destruction",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "破壊",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "detailed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "詳細な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "detect",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を感知する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "determination",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "決意",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "devote",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をささげる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "differ",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "異なる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dig",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を掘る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dime",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "10セント硬貨",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disability",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "障害",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disabled",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "障害のある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disagreement",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "不一致",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disappoint",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を失望させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disappointment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "失望",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "discipline",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "規律",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "discourage",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "にやる気をなくさせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dishonest",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "不正直な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disk",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ディスク",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dismiss",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を退ける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disorder",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "不調",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "display",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を示す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "遠い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distinct",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "明らかに異なる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distinguish",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を区別する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distract",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をそらす",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distribute",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を分配する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "distribution",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "分配",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "disturb",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をかき乱す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dive",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "飛び込む",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "diverse",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "多様な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "diversity",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "多様性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "division",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "分割",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "divorce",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "離婚",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "domestic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "家庭の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dominant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "支配的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dominate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を支配する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "donation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "寄付",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dot",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "点",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "downward",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "下方へ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dozen",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "1ダース",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "draft",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "下書き",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "drag",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を引きずる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dramatic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "劇的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dramatically",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "劇的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "drought",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "干ばつ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dull",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "退屈な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dump",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を投棄する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "duration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "継続時間",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dynamic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "活動的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "eager",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "熱望して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "economics",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "経済学",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "economist",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "経済学者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "edit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を編集する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "edition",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "版",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "editorial",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "社説",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "efficient",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "効率的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "efficiently",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "効率的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elbow",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ひじ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elderly",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "年配の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elect",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を選出する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "electronics",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "電子工学",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elegant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "上品な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elementary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "初等の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "eliminate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を取り除く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "elsewhere",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "どこかほかの所で",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "embrace",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を受け入れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emerge",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "現れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emission",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "排出",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emotional",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "感情の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emotionally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "感情的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emphasis",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "強調",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "emphasize",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を強調する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "empire",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "帝国",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enable",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "が…できるようにする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "encounter",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に遭遇する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "engage",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を従事させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enhance",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を高める",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enjoyable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "楽しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ensure",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を確実にする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entertaining",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "楽しませる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enthusiasm",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "熱意",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "enthusiastic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "熱心な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entire",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "全体の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entirely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "完全に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "entrepreneur",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "起業家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "envelope",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "封筒",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "equip",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に備えつける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "equivalent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "等しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "era",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "時代",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "erupt",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "噴火する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "essentially",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "本質的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "establish",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を確立する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "estate",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "財産",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "estimate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "と推定する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ethic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "倫理",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ethical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "倫理的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ethnic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "民族の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "evaluate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を評価する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "evaluation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "評価",
+        "isPrimary": true
+      }
+    ]
+  }
+]

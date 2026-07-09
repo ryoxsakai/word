@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "bound",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "縛られた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "breast",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "胸",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "brick",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "レンガ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "brief",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "簡潔な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "briefly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "簡潔に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "broad",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "広範囲な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "broadcast",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を放送する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "broadcaster",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "放送局",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "broadly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "広く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "buck",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ドル",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "budget",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "予算",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "bug",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "虫",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "bullet",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "銃弾",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "bunch",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "束",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "bush",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "低木",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cabin",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "小屋",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "calculate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を計算する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "canal",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "運河",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cancel",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を中止する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cancer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "癌",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "candle",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ろうそく",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "capable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "能力がある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "capacity",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "収容能力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "capture",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をとらえる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "carbon",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "炭素",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cast",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を投じる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "castle",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "城",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "casual",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "何気ない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cave",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "洞窟",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "certainty",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "確実性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "certificate",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "証明書",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "chairman",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "議長",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "challenging",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "やりがいのある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "championship",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "選手権",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "characteristic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "特徴",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "charming",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "魅力的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "chase",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を追跡する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cheek",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ほお",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cheer",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を元気づける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "chief",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "主要な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "chop",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を切り刻む",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "circuit",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "回路",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "circumstance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "状況",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cite",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を引用する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "citizen",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "国民",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "civil",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "市民の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "civilization",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "文明",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "clarify",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を明確にする",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "classic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "第一級の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "classify",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を分類する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cliff",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "崖",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "clinic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "診療所",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "clip",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を切り抜く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "closely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "綿密に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "coincidence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "偶然の一致",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "collapse",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "崩壊する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "collector",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "収集家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "colony",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "植民地",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "colorful",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "色彩豊かな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "combination",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "組み合わせ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "comfort",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "快適さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "comic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "喜劇の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "command",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を命じる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "commander",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "指揮官",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "commission",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "委員会",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "commitment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "献身",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "committee",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "委員会",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "commonly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "一般に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "comparative",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "比較の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "completion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "完了",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "complicated",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "複雑な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "component",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "構成要素",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "compose",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を構成する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "composer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "作曲家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "compound",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "化合物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "comprehensive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "包括的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "comprise",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "から成る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "compulsory",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "義務的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concentration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "集中",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concept",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "概念",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concern",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "懸念",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concerned",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "心配して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "concrete",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "具体的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conduct",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を実施する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confess",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "告白する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confidence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "自信",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conflict",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "争い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confusing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "混乱させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "confusion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "混乱",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "congress",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "議会",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conscious",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "意識して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consequently",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "その結果",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conservation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "保護",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conservative",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "保守的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "considerable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "かなりの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "considerably",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "かなり",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consideration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "考慮",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consistent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "一貫した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consistently",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "一貫して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conspiracy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "陰謀",
+        "isPrimary": true
+      }
+    ]
+  }
+]

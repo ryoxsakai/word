@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "constant",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "絶え間ない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "constantly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "絶えず",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "construct",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を建設する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "construction",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "建設",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consult",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に相談する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consultant",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "コンサルタント",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "consumption",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "消費",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contemporary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "現代の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contest",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "コンテスト",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contract",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "契約",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contribute",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "貢献する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "contribution",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "貢献",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "controversial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "論争を呼ぶ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "controversy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "論争",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convenience",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "便利さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convention",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "慣習",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "conventional",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "従来の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convert",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を変える",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convey",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を伝える",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convinced",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "確信して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "convincing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "説得力のある",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cop",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "警官",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cope",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "うまく処理する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "core",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "核心",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "corporate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "法人の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "corporation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "大企業",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "corridor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "廊下",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "council",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "議会",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "counter",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "カウンター",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "county",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "郡",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "courage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "勇気",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "coverage",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "報道",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cowboy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "カウボーイ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crack",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "ひびが入る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "craft",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "工芸",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crash",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "衝突する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "creation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "創造",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "creativity",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "創造性",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "creature",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "生き物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crew",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "乗組員",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crisis",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "危機",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "criterion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "基準",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "critic",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "評論家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "critical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "批判的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "critically",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "批判的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "criticism",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "批判",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "criticize",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を批判する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crop",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "作物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "crucial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "重要な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cruise",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "クルーズ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cue",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "合図",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cure",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を治す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "curious",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "好奇心の強い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "curriculum",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "カリキュラム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "curve",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "カーブ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "curved",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "曲がった",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "cute",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "かわいい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dairy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "乳製品",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dare",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "あえて…する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "darkness",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "暗さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "database",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "データベース",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deadline",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "締め切り",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deadly",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "致命的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dealer",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "販売業者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "debate",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "討論",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "debt",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "借金",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "まずまずの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deck",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "デッキ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "declare",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を宣言する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decline",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "減少する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decorate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を装飾する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decoration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "装飾",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "decrease",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "減少する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deeply",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "深く",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "defeat",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を負かす",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "defend",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を防御する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "defender",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "守備者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "defense",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "防御",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "delay",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "遅れ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "delete",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を削除する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deliberate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "故意の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deliberately",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "故意に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "delighted",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "喜んで",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "delivery",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "配達",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "demand",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を要求する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "democracy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "民主主義",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "democratic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "民主的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "demonstrate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を証明する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "demonstration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "実演",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deny",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を否定する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "depart",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "出発する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "dependent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "依存している",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deposit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を預ける",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "depressed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "落ち込んで",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "depressing",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "気をめいらせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "depression",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "憂うつ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "depth",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "深さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "derive",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "[derive from] に由来する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "deserve",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に値する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "desire",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を強く望む",
+        "isPrimary": true
+      }
+    ]
+  }
+]

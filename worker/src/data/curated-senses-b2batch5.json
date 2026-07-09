@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "evident",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "明白な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "evil",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "邪悪な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "evolution",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "進化",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "evolve",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "発展する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "examination",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "試験",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exceed",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を超える",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exception",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "例外",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "excessive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "過度の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exclude",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を除外する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "excuse",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を大目に見る",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "executive",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "重役",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exhibit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を示す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "existence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "存在",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exotic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "外来の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expansion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "拡大",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expectation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "期待",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expedition",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "遠征",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expense",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "経費",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expertise",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "専門知識",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exploit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を活用する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exploration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "探検",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "expose",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をさらす",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "exposure",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "さらすこと",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extend",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を伸ばす",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extension",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "延長",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extensive",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "広範囲の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extensively",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "広範囲に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extent",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "程度",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "external",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "外部の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extract",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を取り出す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "extraordinary",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "並はずれた",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fabric",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "織物",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fabulous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "素晴らしい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "facility",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "施設",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "faculty",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "能力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "failed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "失敗した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "failure",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "失敗",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "faith",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "信頼",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fake",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "偽の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fame",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "名声",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fantasy",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "空想",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fare",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "運賃",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fault",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "責任",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "feather",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "羽",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fee",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "料金",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "feedback",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "フィードバック",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fellow",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "仲間",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "finance",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "財政",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "finding",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "発見",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "firefighter",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "消防士",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "firework",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "花火",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "firm",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "確固たる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "firmly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "しっかりと",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flame",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "炎",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flash",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "閃光",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flavor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "風味",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "flexible",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "柔軟な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "float",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "漂う",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "folding",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "折り畳み式の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fond",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "[fond of] 好んで",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fool",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ばか者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "forbid",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を禁じる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "forecast",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を予想する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "forgive",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を許す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "format",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "形式",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "formation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "形成",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "former",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "元の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "formerly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "以前は",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fortunate",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "幸運な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fortune",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "財産",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "forum",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "フォーラム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fossil",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "化石",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "found",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を設立する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "foundation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "基礎",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "founder",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "創設者",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fraction",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "わずか",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fragment",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "断片",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "framework",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "枠組み",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fraud",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "詐欺",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "freedom",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "自由",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "freely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "自由に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frequency",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "頻度",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "frequent",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "頻繁な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fulfill",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を実現させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "full-time",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "常勤の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fully",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "十分に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fund",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "資金",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fundamental",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "基本的な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "fundamentally",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "根本的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "funding",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "資金提供",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "furious",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "激怒した",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "furthermore",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "そのうえ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gain",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を獲得する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gallon",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ガロン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gaming",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ゲーム",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gang",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ギャング",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gay",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "同性愛の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gender",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "性別",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gene",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "遺伝子",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "generate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を生み出す",
+        "isPrimary": true
+      }
+    ]
+  }
+]

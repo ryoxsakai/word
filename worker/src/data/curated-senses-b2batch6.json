@@ -1,0 +1,1002 @@
+[
+  {
+    "spelling": "genetic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "遺伝の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "genius",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "天才",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "genre",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ジャンル",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "genuine",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "本物の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "genuinely",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "本当に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gesture",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "身振り",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "globalization",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "グローバル化",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "globe",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "地球",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "golden",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "金色の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "goodness",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "善良さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "goods",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "商品",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gorgeous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "とても美しい",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "govern",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を統治する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "governor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "知事",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grab",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "をつかむ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "gradually",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "徐々に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grand",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "豪華な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "grant",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に与える",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "graphic",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "グラフィックの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "graphics",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "図表",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "greatly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "大いに",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "greenhouse",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "温室",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "guarantee",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を保証する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "guideline",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "指針",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "habitat",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "生息地",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "handle",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を処理する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "harbor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "港",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "harm",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "害",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "harmful",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "有害な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "headquarters",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "本部",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "heal",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を治す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "healthcare",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "医療",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hearing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "聴力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "heaven",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "天国",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "heel",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "かかと",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hell",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "地獄",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "helmet",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ヘルメット",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hence",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "従って",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "herb",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ハーブ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hesitate",
+    "senses": [
+      {
+        "pos": "自",
+        "meaning": "躊躇する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hidden",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "隠された",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hilarious",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "とても面白い",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hip",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "腰",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "historian",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "歴史家",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hollow",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "空洞の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "holy",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "神聖な",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "homeless",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "ホームレスの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "honesty",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "正直さ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "honey",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "はちみつ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "honor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "名誉",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hook",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "フック",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hopefully",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "願わくは",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "household",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "世帯",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "housing",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "住宅",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "humor",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "ユーモア",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "humorous",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "ユーモラスな",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hunger",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "飢え",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hunting",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "狩猟",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "hypothesis",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "仮説",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "icon",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "アイコン",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "id",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "身分証明書",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "identical",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "同一の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "illusion",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "錯覚",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "illustrate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を説明する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "illustration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "説明",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "imagination",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "想像力",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "immigration",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "移民",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "immune",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "免疫を持つ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impatient",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "我慢できない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "implement",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を実行する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "implication",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "含意",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "imply",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を暗に意味する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impose",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を課す",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impress",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を感動させる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "impressed",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "感動して",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "incentive",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "動機付け",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inch",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "インチ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "incident",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "出来事",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "income",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "収入",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "incorporate",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を取り入れる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "incorrect",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "誤った",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "increasingly",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "ますます",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "independence",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "独立",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "index",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "指標",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "indication",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "兆候",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "industrial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "産業の",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inevitable",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "避けられない",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inevitably",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "必然的に",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "infection",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "感染",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "infer",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を推論する",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inflation",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "インフレ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "info",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "情報",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inform",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "に知らせる",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "infrastructure",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "インフラ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inhabitant",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "住民",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "inherit",
+    "senses": [
+      {
+        "pos": "他",
+        "meaning": "を受け継ぐ",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "initial",
+    "senses": [
+      {
+        "pos": "形",
+        "meaning": "初めの",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "initially",
+    "senses": [
+      {
+        "pos": "副",
+        "meaning": "初めに",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "initiative",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "主導権",
+        "isPrimary": true
+      }
+    ]
+  },
+  {
+    "spelling": "ink",
+    "senses": [
+      {
+        "pos": "名",
+        "meaning": "インク",
+        "isPrimary": true
+      }
+    ]
+  }
+]
