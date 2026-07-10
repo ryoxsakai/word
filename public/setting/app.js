@@ -31,6 +31,7 @@ let dragState = null; // { type: "word" | "section", id }
 
 const el = {
   layout: document.getElementById("layout"),
+  toast: document.getElementById("toast"),
   themeToggleBtn: document.getElementById("themeToggleBtn"),
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
@@ -132,6 +133,16 @@ function setEditorOpen(open) {
   if (open) {
     el.editPane.scrollTop = 0;
   }
+}
+
+let toastTimer;
+function showToast(msg) {
+  el.toast.textContent = msg;
+  el.toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.toast.hidden = true;
+  }, 2200);
 }
 
 function closeTopbarMenu() {
@@ -1115,7 +1126,8 @@ async function saveWord() {
       }
     }
     await loadWordsForList(state.currentListId);
-    await openWordEditor(word.id);
+    closeEditor();
+    showToast("保存しました");
   } catch (err) {
     alert(`保存に失敗しました: ${err.message}`);
   }

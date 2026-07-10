@@ -1071,6 +1071,22 @@ legend .hint {
   :root:not([data-theme="light"]) .preview mark { background: #5c4d1a; color: #fff3bf; }
 }
 
+/* ---- toast ---- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.4rem;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  z-index: 300;
+  box-shadow: var(--shadow-md);
+}
+
 /* ---- reduced motion ---- */
 
 @media (prefers-reduced-motion: reduce) {
