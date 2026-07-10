@@ -2,6 +2,10 @@
   color-scheme: light dark;
   --header-grad-1: #1793a1;
   --header-grad-2: #3fc2a4;
+  --title-bg-1: #4a72d9;
+  --title-bg-2: #9a5fd0;
+  --title-text-1: #b6f0d6;
+  --title-text-2: #e0c9f5;
   --border: #d9dee0;
   --bg: #ffffff;
   --bg-soft: #f4f7f7;
@@ -288,12 +292,19 @@ button { font-family: inherit; }
 .section-divider {
   margin: 1.4rem 0 0.6rem;
   padding: 0.55rem 0.85rem;
-  background: linear-gradient(135deg, var(--header-grad-1), var(--header-grad-2));
-  border-radius: 10px;
+  background: linear-gradient(135deg, var(--title-bg-1), var(--title-bg-2));
+  border-radius: 5px;
   box-shadow: 0 2px 8px rgba(20, 28, 50, 0.12);
 }
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
-.section-title { font-size: 1.02rem; font-weight: 700; color: #fff; }
+.section-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--title-text-1), var(--title-text-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .section-subtitle { font-size: 0.9rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); }
 .section-description {
   margin-top: 0.25rem;
@@ -387,7 +398,7 @@ button { font-family: inherit; }
 
 .entry-card {
   margin-top: 0.15rem;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 0.75rem 0.9rem;
   display: flex;
   flex-direction: column;
