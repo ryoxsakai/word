@@ -226,6 +226,27 @@
   </section>
 </div>
 
+<div class="modal-overlay" id="addNotebookModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="addNotebookPane" role="dialog" aria-modal="true" aria-labelledby="addNotebookTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="addNotebookTitle">単語帳に追加</h2>
+      <div class="edit-actions">
+        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-book" aria-hidden="true"></i><span>追加</span></button>
+        <button id="addNotebookCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <form id="addNotebookForm" class="word-form">
+      <p id="addNotebookCount" class="add-notebook-count"></p>
+      <label>追加先の単語帳
+        <select id="addNotebookSelect"></select>
+      </label>
+      <label>セクション <span class="hint">（任意）</span>
+        <select id="addNotebookSection"><option value="">（セクションなし）</option></select>
+      </label>
+    </form>
+  </section>
+</div>
+
 <template id="senseRowTpl">
   <div class="repeat-row sense-row" data-kind="senses">
     <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞">
