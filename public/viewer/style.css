@@ -4,14 +4,12 @@
   --header-grad-2: #3fc2a4;
   --title-bg-1: rgba(74, 114, 217, 0.14);
   --title-bg-2: rgba(154, 95, 208, 0.14);
-  --title-text-1: #2f6f66;
-  --title-text-2: #6a3f96;
+  --title-border: rgba(110, 100, 200, 0.4);
   --card-bg-1: #eaf3f6;
   --card-bg-2: #f2ecf9;
   --border: #d9dee0;
   --bg: #ffffff;
   --bg-soft: #f4f7f7;
-  --card-bg: #eaf7f4;
   --text: #202325;
   --text-muted: #6b7378;
   --accent: #1c7fae;
@@ -37,11 +35,8 @@
   --border: #3a3f42;
   --bg: #15181a;
   --bg-soft: #1d2123;
-  --card-bg: #1a2b29;
   --card-bg-1: #17262a;
   --card-bg-2: #241f30;
-  --title-text-1: #9fe8cf;
-  --title-text-2: #dcb8f2;
   --text: #eaeceb;
   --text-muted: #9aa2a6;
   --accent: #6fc2ee;
@@ -65,11 +60,8 @@
     --border: #3a3f42;
     --bg: #15181a;
     --bg-soft: #1d2123;
-    --card-bg: #1a2b29;
     --card-bg-1: #17262a;
     --card-bg-2: #241f30;
-    --title-text-1: #9fe8cf;
-    --title-text-2: #dcb8f2;
     --text: #eaeceb;
     --text-muted: #9aa2a6;
     --accent: #6fc2ee;
@@ -303,17 +295,14 @@ button { font-family: inherit; }
   margin: 1.4rem 0 0.6rem;
   padding: 0.55rem 0.85rem;
   background: linear-gradient(135deg, var(--title-bg-1), var(--title-bg-2));
+  border: 1px solid var(--title-border);
   border-radius: 5px;
-  box-shadow: 0 1px 4px rgba(20, 28, 50, 0.06);
 }
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
 .section-title {
-  font-size: 1.02rem;
+  font-size: 1.12rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--title-text-1), var(--title-text-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text);
 }
 .section-subtitle { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
 .section-description {
@@ -389,14 +378,14 @@ button { font-family: inherit; }
 .caution-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.68rem;
+  gap: 0.2rem;
+  font-size: 0.56rem;
   font-weight: 650;
-  padding: 0.05rem 0.4rem;
+  padding: 0.02rem 0.32rem;
   border-radius: 999px;
   border: 1px solid currentColor;
 }
-.caution-badge i { font-size: 0.9em; }
+.caution-badge i { font-size: 0.85em; }
 .caution-badge.caution-pronunciation { background: #fff4e0; color: #8a5a00; }
 .caution-badge.caution-accent { background: #fde3e3; color: #b3261e; }
 :root[data-theme="dark"] .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
@@ -505,7 +494,7 @@ button { font-family: inherit; }
 .etymology-label { font-weight: 700; color: var(--text); margin-right: 0.3rem; }
 
 .notes-block { font-size: 0.7rem; color: var(--text-muted); }
-.notes-label { font-weight: 700; display: inline-block; vertical-align: baseline; font-size: 1em; padding: 0.1em 0.5em; border-radius: 4px; margin-right: 0.5rem; white-space: nowrap; }
+.notes-label { font-weight: 700; display: inline-block; vertical-align: baseline; font-size: 1em; padding: 0.1em 0.5em; border-radius: 4px; margin-right: 0.5rem; white-space: nowrap; border: 1px solid currentColor; }
 .notes-block.notes-synonym { color: #1565c0; }
 .notes-block.notes-antonym { color: #e65100; }
 .notes-block.notes-memo { color: #6a1b9a; }
@@ -646,7 +635,11 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   :root {
     --bg: #ffffff !important;
     --bg-soft: #eef1f1 !important;
-    --card-bg: #edf7f3 !important;
+    --card-bg-1: #eaf3f6 !important;
+    --card-bg-2: #f2ecf9 !important;
+    --title-bg-1: rgba(74, 114, 217, 0.14) !important;
+    --title-bg-2: rgba(154, 95, 208, 0.14) !important;
+    --title-border: rgba(110, 100, 200, 0.4) !important;
     --text: #111111 !important;
     --text-muted: #444444 !important;
     --border: #9aa2a6 !important;
@@ -660,7 +653,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .word-list { max-width: 100%; padding: 0; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-divider, .entry, .entry-card, .pos-badge, .caution-badge, mark {
+  body, .section-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -668,16 +661,27 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   /* セクションの先頭（2つ目以降）で必ず改ページする */
   .section-divider {
     break-inside: avoid;
+    box-shadow: none;
   }
   .section-divider:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
   }
-  /* 「意味〜メモ」のカード枠を印刷 */
+  /* 「意味〜メモ」のカード枠を印刷（画面表示と同じ薄いグラデーションを維持） */
   .entry-card {
-    background: var(--card-bg) !important;
+    background: linear-gradient(135deg, var(--card-bg-1), var(--card-bg-2)) !important;
     border: 1px solid var(--border);
   }
+
+  /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
+  .caution-badge.caution-pronunciation { background: #fff4e0 !important; color: #8a5a00 !important; }
+  .caution-badge.caution-accent { background: #fde3e3 !important; color: #b3261e !important; }
+  .notes-label.synonym-badge { background-color: #e3f2fd !important; color: #1565c0 !important; }
+  .notes-label.antonym-badge { background-color: #fff3e0 !important; color: #e65100 !important; }
+  .notes-label.memo-badge { background-color: #f3e5f5 !important; color: #6a1b9a !important; }
+  .notes-block.notes-synonym { color: #1565c0 !important; }
+  .notes-block.notes-antonym { color: #e65100 !important; }
+  .notes-block.notes-memo { color: #6a1b9a !important; }
   .entry {
     break-inside: avoid;
     page-break-inside: avoid;
