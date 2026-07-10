@@ -2,10 +2,12 @@
   color-scheme: light dark;
   --header-grad-1: #1793a1;
   --header-grad-2: #3fc2a4;
-  --title-bg-1: #4a72d9;
-  --title-bg-2: #9a5fd0;
-  --title-text-1: #b6f0d6;
-  --title-text-2: #e0c9f5;
+  --title-bg-1: rgba(74, 114, 217, 0.14);
+  --title-bg-2: rgba(154, 95, 208, 0.14);
+  --title-text-1: #2f6f66;
+  --title-text-2: #6a3f96;
+  --card-bg-1: #eaf3f6;
+  --card-bg-2: #f2ecf9;
   --border: #d9dee0;
   --bg: #ffffff;
   --bg-soft: #f4f7f7;
@@ -36,6 +38,10 @@
   --bg: #15181a;
   --bg-soft: #1d2123;
   --card-bg: #1a2b29;
+  --card-bg-1: #17262a;
+  --card-bg-2: #241f30;
+  --title-text-1: #9fe8cf;
+  --title-text-2: #dcb8f2;
   --text: #eaeceb;
   --text-muted: #9aa2a6;
   --accent: #6fc2ee;
@@ -60,6 +66,10 @@
     --bg: #15181a;
     --bg-soft: #1d2123;
     --card-bg: #1a2b29;
+    --card-bg-1: #17262a;
+    --card-bg-2: #241f30;
+    --title-text-1: #9fe8cf;
+    --title-text-2: #dcb8f2;
     --text: #eaeceb;
     --text-muted: #9aa2a6;
     --accent: #6fc2ee;
@@ -294,7 +304,7 @@ button { font-family: inherit; }
   padding: 0.55rem 0.85rem;
   background: linear-gradient(135deg, var(--title-bg-1), var(--title-bg-2));
   border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(20, 28, 50, 0.12);
+  box-shadow: 0 1px 4px rgba(20, 28, 50, 0.06);
 }
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
 .section-title {
@@ -305,12 +315,12 @@ button { font-family: inherit; }
   background-clip: text;
   color: transparent;
 }
-.section-subtitle { font-size: 0.9rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); }
+.section-subtitle { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
 .section-description {
   margin-top: 0.25rem;
   font-size: 0.7rem;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-muted);
   line-height: 1.4;
 }
 
@@ -405,7 +415,7 @@ button { font-family: inherit; }
   gap: 0.55rem;
   border: 1px solid transparent;
   background:
-    linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+    linear-gradient(135deg, var(--card-bg-1), var(--card-bg-2)) padding-box,
     linear-gradient(135deg, rgba(100, 150, 200, 0.4), rgba(150, 100, 200, 0.4)) border-box;
 }
 
@@ -655,9 +665,13 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     print-color-adjust: exact;
   }
 
-  /* セクション帯はグラデーションのまま印刷（白文字が読めるように背景を維持） */
+  /* セクションの先頭（2つ目以降）で必ず改ページする */
   .section-divider {
     break-inside: avoid;
+  }
+  .section-divider:not(:first-of-type) {
+    break-before: page;
+    page-break-before: always;
   }
   /* 「意味〜メモ」のカード枠を印刷 */
   .entry-card {
