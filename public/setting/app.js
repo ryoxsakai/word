@@ -46,7 +46,12 @@ const el = {
   sectionFieldSubtitle: document.getElementById("sectionFieldSubtitle"),
   sectionFieldDescription: document.getElementById("sectionFieldDescription"),
   listSelect: document.getElementById("listSelect"),
-  newListBtn: document.getElementById("newListBtn"),
+  listManageBtn: document.getElementById("listManageBtn"),
+  listManageModalOverlay: document.getElementById("listManageModalOverlay"),
+  listManageCloseBtn: document.getElementById("listManageCloseBtn"),
+  listManageList: document.getElementById("listManageList"),
+  listManageNewName: document.getElementById("listManageNewName"),
+  listManageCreateBtn: document.getElementById("listManageCreateBtn"),
   listTitle: document.getElementById("listTitle"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
@@ -1202,17 +1207,124 @@ async function deleteSectionFromEditor() {
   }
 }
 
-async function createNewList() {
-  const name = prompt("新規単語帳名を入力してください（例: 英検2級オリジナル）");
-  if (!name) return;
+async function createNewList(name) {
   try {
     const { id } = await api("/lists", { method: "POST", body: JSON.stringify({ name }) });
     await loadLists();
     el.listSelect.value = id;
     await selectList(id);
+    return id;
   } catch (err) {
     alert(`単語帳作成に失敗しました: ${err.message}`);
+    return null;
   }
+}
+
+// ---- 単語帳の管理モーダル（作成・改名・削除・並び替え） ----
+
+function editableLists() {
+  return state.lists.filter((l) => l.isNotebook);
+}
+
+function renderListManageRows() {
+  const lists = editableLists();
+  el.listManageList.innerHTML = "";
+  if (lists.length === 0) {
+    el.listManageList.innerHTML = '<p class="empty-msg">まだ単語帳がありません。下から作成してください。</p>';
+    return;
+  }
+  lists.forEach((l, index) => {
+    const row = document.createElement("div");
+    row.className = "list-manage-row";
+    row.dataset.listId = l.id;
+    const isFirst = index === 0;
+    const isLast = index === lists.length - 1;
+    row.innerHTML = `
+      <span class="list-manage-move">
+        <button type="button" class="move-btn" data-action="list-up" ${isFirst ? "disabled" : ""} aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+        <button type="button" class="move-btn" data-action="list-down" ${isLast ? "disabled" : ""} aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+      </span>
+      <input type="text" class="list-manage-name" value="${escapeHtml(l.name)}" aria-label="単語帳名" />
+      <button type="button" class="remove-row-btn" data-action="list-delete" aria-label="削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+    `;
+    row.querySelector('[data-action="list-up"]').addEventListener("click", () => moveListBy(l.id, -1));
+    row.querySelector('[data-action="list-down"]').addEventListener("click", () => moveListBy(l.id, 1));
+    row.querySelector('[data-action="list-delete"]').addEventListener("click", () => deleteListFromManage(l.id, l.name));
+    const nameInput = row.querySelector(".list-manage-name");
+    nameInput.addEventListener("blur", () => renameListFromManage(l.id, l.name, nameInput));
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") nameInput.blur();
+    });
+    el.listManageList.appendChild(row);
+  });
+}
+
+async function moveListBy(listId, direction) {
+  const lists = editableLists();
+  const idx = lists.findIndex((l) => l.id === listId);
+  const targetIdx = idx + direction;
+  if (idx === -1 || targetIdx < 0 || targetIdx >= lists.length) return;
+  const order = lists.map((l) => l.id);
+  [order[idx], order[targetIdx]] = [order[targetIdx], order[idx]];
+  try {
+    await api("/lists/reorder", { method: "POST", body: JSON.stringify({ listIds: order }) });
+    await loadLists();
+    renderListManageRows();
+  } catch (err) {
+    alert(`並び替えに失敗しました: ${err.message}`);
+  }
+}
+
+async function renameListFromManage(listId, originalName, inputEl) {
+  const name = inputEl.value.trim();
+  if (!name || name === originalName) {
+    inputEl.value = originalName;
+    return;
+  }
+  try {
+    await api(`/lists/${encodeURIComponent(listId)}`, { method: "PUT", body: JSON.stringify({ name }) });
+    await loadLists();
+    renderListManageRows();
+  } catch (err) {
+    alert(`名称変更に失敗しました: ${err.message}`);
+    inputEl.value = originalName;
+  }
+}
+
+async function deleteListFromManage(listId, name) {
+  if (!confirm(`単語帳「${name}」を削除しますか？（登録済みの単語データは削除されません）`)) return;
+  try {
+    await api(`/lists/${encodeURIComponent(listId)}`, { method: "DELETE" });
+    const wasCurrent = state.currentListId === listId;
+    await loadLists();
+    renderListManageRows();
+    if (wasCurrent) {
+      const fallback = state.lists[0]?.id ?? MASTER_LIST_ID;
+      el.listSelect.value = fallback;
+      await selectList(fallback);
+    }
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
+  }
+}
+
+async function createListFromManage() {
+  const name = el.listManageNewName.value.trim();
+  if (!name) return;
+  const id = await createNewList(name);
+  if (id) {
+    el.listManageNewName.value = "";
+    renderListManageRows();
+  }
+}
+
+function openListManageModal() {
+  renderListManageRows();
+  el.listManageModalOverlay.hidden = false;
+}
+
+function closeListManageModal() {
+  el.listManageModalOverlay.hidden = true;
 }
 
 // ---- イベント登録 ----
@@ -1229,6 +1341,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!el.addNotebookModalOverlay.hidden) { closeAddNotebookModal(); return; }
+  if (!el.listManageModalOverlay.hidden) { closeListManageModal(); return; }
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
@@ -1259,7 +1372,15 @@ el.listSelect.addEventListener("change", (e) => {
   selectList(e.target.value);
   closeTopbarMenu();
 });
-el.newListBtn.addEventListener("click", createNewList);
+el.listManageBtn.addEventListener("click", openListManageModal);
+el.listManageCloseBtn.addEventListener("click", closeListManageModal);
+el.listManageModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.listManageModalOverlay) closeListManageModal();
+});
+el.listManageCreateBtn.addEventListener("click", createListFromManage);
+el.listManageNewName.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") createListFromManage();
+});
 el.newWordBtn.addEventListener("click", openNewWordForm);
 el.newSectionBtn.addEventListener("click", createSectionForCurrentList);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);

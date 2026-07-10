@@ -31,7 +31,7 @@
       <div class="list-switcher">
         <label for="listSelect">表示</label>
         <select id="listSelect"></select>
-        <button id="newListBtn" type="button" class="btn-compact"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>新規</span></button>
+        <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
       </div>
 
       <div class="master-toolbar" id="masterToolbar" hidden>
@@ -245,6 +245,24 @@
         <select id="addNotebookSection"><option value="">（セクションなし）</option></select>
       </label>
     </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="listManageModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="listManagePane" role="dialog" aria-modal="true" aria-labelledby="listManageTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="listManageTitle">単語帳を編集</h2>
+      <div class="edit-actions">
+        <button id="listManageCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="word-form">
+      <div id="listManageList" class="list-manage-list"></div>
+      <div class="list-manage-new">
+        <input type="text" id="listManageNewName" placeholder="新しい単語帳名" autocomplete="off" />
+        <button type="button" id="listManageCreateBtn" class="primary"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>作成</span></button>
+      </div>
+    </div>
   </section>
 </div>
 
