@@ -194,14 +194,42 @@ function renderEntry(w) {
   // 見出しの意味(is_primary)が1つもない単語では、最初の意味を仮の見出しとして扱い
   // 一覧が全て同じ薄さになってしまわないようにする。
   const hasPrimarySense = (w.senses || []).some((s) => s.isPrimary);
-  const sensesHtml = (w.senses || [])
-    .map((s, i) => {
-      const isPrimary = s.isPrimary || (!hasPrimarySense && i === 0);
+  const sensesWithFlags = (w.senses || []).map((s, i) => ({
+    ...s,
+    _isPrimary: s.isPrimary || (!hasPrimarySense && i === 0),
+  }));
+
+  // 同じ品詞の意味は1行にまとめ、①②…の丸数字で並べる(初出の品詞順を維持)。
+  const posGroups = [];
+  const posGroupIndex = new Map();
+  for (const s of sensesWithFlags) {
+    const key = s.pos || "";
+    if (!posGroupIndex.has(key)) {
+      posGroupIndex.set(key, posGroups.length);
+      posGroups.push({ pos: s.pos, items: [] });
+    }
+    posGroups[posGroupIndex.get(key)].items.push(s);
+  }
+
+  const sensesHtml = posGroups
+    .map((group) => {
+      // 見出しの意味は常に①として先頭に来るよう並べ替える
+      const items = [...group.items].sort((a, b) => (a._isPrimary ? 0 : 1) - (b._isPrimary ? 0 : 1));
+      const isPrimaryGroup = items.some((s) => s._isPrimary);
+      const pron = items.find((s) => s.pronunciation)?.pronunciation;
+      const meaningsHtml =
+        items.length > 1
+          ? `<span class="sense-items">${items
+              .map(
+                (s) => `<span class="sense-item"><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
+              )
+              .join("")}</span>`
+          : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;
       return `
-    <div class="sense-line${isPrimary ? " sense-primary" : ""}">
-      ${s.pos ? `<span class="pos-badge">${escapeHtml(s.pos)}</span>` : ""}
-      <span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span>
-      ${s.pronunciation ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(s.pronunciation))}]</span>` : ""}
+    <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}">
+      ${group.pos ? `<span class="pos-badge">${escapeHtml(group.pos)}</span>` : ""}
+      ${meaningsHtml}
+      ${pron ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(pron))}]</span>` : ""}
     </div>`;
     })
     .join("");

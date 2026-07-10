@@ -404,6 +404,31 @@ button { font-family: inherit; }
 .sense-meaning { color: var(--accent-strong); font-weight: 600; }
 .sense-pron { font-size: 0.78rem; }
 
+/* 同一品詞の意味をまとめた行: ①②…の丸数字はCSSで生成する(実体文字は使わない) */
+.sense-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.7rem;
+  counter-reset: sense-num;
+}
+.sense-item { display: inline-flex; align-items: baseline; gap: 0.3rem; }
+.sense-item::before {
+  counter-increment: sense-num;
+  content: counter(sense-num);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.68em;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .example-list, .derivative-list { display: flex; flex-direction: column; gap: 0.35rem; }
 .example-line, .derivative-line {
   display: grid;
