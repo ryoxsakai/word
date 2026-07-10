@@ -808,6 +808,39 @@ legend .hint {
 }
 .remove-row-btn:hover { background: var(--danger-soft); }
 
+/* ---- 単語帳の管理モーダル ---- */
+
+.list-manage-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.list-manage-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.list-manage-move { display: inline-flex; gap: 0.25rem; }
+
+.list-manage-name {
+  min-height: 2.35rem;
+  font-size: 0.92rem;
+  background: var(--bg-elevated);
+}
+
+.list-manage-new {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+.list-manage-new input { flex: 1; }
+.list-manage-new button { flex: none; white-space: nowrap; }
+
 .add-row-btn {
   margin-top: 0.55rem;
   width: 100%;

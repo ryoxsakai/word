@@ -174,6 +174,41 @@ async function createList(db, body) {
   return json({ id }, { status: 201 });
 }
 
+async function updateList(db, listId, body) {
+  if (!isNotebookListId(listId)) return badRequest("this list cannot be edited");
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  if (!body.name) return badRequest("name is required");
+  await db
+    .prepare("UPDATE lists SET name = ?, description = ? WHERE id = ?")
+    .bind(body.name, body.description || null, listId)
+    .run();
+  return json({ ok: true });
+}
+
+async function deleteList(db, listId) {
+  if (!isNotebookListId(listId)) return badRequest("this list cannot be deleted");
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  await db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(listId).run();
+  await db.prepare("DELETE FROM sections WHERE list_id = ?").bind(listId).run();
+  await db.prepare("DELETE FROM lists WHERE id = ?").bind(listId).run();
+  return json({ ok: true });
+}
+
+// 単語帳(リスト)自体の並び順(sort_order)を入れ替える。プリセット系リスト・マスターは対象外。
+async function reorderLists(db, body) {
+  const listIds = body.listIds;
+  if (!Array.isArray(listIds) || listIds.length === 0) return badRequest("listIds is required");
+  if (!listIds.every(isNotebookListId)) return badRequest("listIds contains a non-editable list");
+
+  const stmts = listIds.map((id, index) =>
+    db.prepare("UPDATE lists SET sort_order = ? WHERE id = ?").bind(index + 1, id)
+  );
+  await runBatched(db, stmts);
+  return json({ ok: true });
+}
+
 const WORD_TAG_SELECT = `
   ta.tag_value AS awlSublist,
   to5.tag_value AS oxfordLevel,
@@ -1596,6 +1631,17 @@ async function handleApi(request, env, parts, method) {
   if (parts.length === 2 && parts[1] === "lists") {
     if (method === "GET") return await listLists(db);
     if (method === "POST") return await createList(db, await request.json());
+  }
+
+  // /api/lists/reorder （単語帳自体の並び順を更新）
+  if (parts.length === 3 && parts[1] === "lists" && parts[2] === "reorder" && method === "POST") {
+    return await reorderLists(db, await request.json());
+  }
+
+  // /api/lists/:listId （単語帳の名称変更・削除）
+  if (parts.length === 3 && parts[1] === "lists") {
+    if (method === "PUT") return await updateList(db, parts[2], await request.json());
+    if (method === "DELETE") return await deleteList(db, parts[2]);
   }
 
   // /api/lists/:listId/words
