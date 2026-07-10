@@ -106,6 +106,7 @@ async function selectList(listId) {
   try {
     const data = await api(`/lists/${encodeURIComponent(listId)}/words/full`);
     state.words = data.words;
+    assignSequentialNumbers();
     buildIndex();
     renderSectionNav();
     renderWords();
@@ -120,10 +121,29 @@ async function selectList(listId) {
   }
 }
 
+// 閲覧ページの番号は、保存された no ではなく「上から表示される順番」で毎回振り直す。
+// これにより、単語帳での並び替えやマスターからの追加後も、常に 1,2,3,... と隙間なく連番になる。
+// 派生語の枝番(例: 5-1, 5-2)は直前の見出し語の番号にぶら下げる。
+// state.words はサーバー側で「セクション順 → no → branch」に整列済みなので、この順で数えればよい。
+function assignSequentialNumbers() {
+  let top = 0;
+  let branch = 0;
+  for (const w of state.words) {
+    if (w.branch > 0 && top > 0) {
+      branch += 1;
+      w.seqNo = `${top}-${branch}`;
+    } else {
+      top += 1;
+      branch = 0;
+      w.seqNo = String(top);
+    }
+  }
+}
+
 function buildIndex() {
   state.wordIndex = new Map();
   for (const w of state.words) {
-    state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.displayNo });
+    state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
   }
 }
 
@@ -230,8 +250,8 @@ function renderEntry(w) {
   ].join("");
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.displayNo)}" data-haystack="${escapeHtml(haystack)}">
-    <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.displayNo)}</div>
+  <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+    <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
