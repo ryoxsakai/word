@@ -296,6 +296,9 @@ function renderEntry(w) {
     w.accentCaution
       ? '<span class="caution-badge caution-accent" title="アクセント位置に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>アクセント</span>'
       : "",
+    w.polysemousCaution
+      ? '<span class="caution-badge caution-polysemous" title="複数の意味に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>多義語</span>'
+      : "",
   ].join("");
 
   return `

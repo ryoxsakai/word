@@ -243,6 +243,7 @@ async function listWordsInList(db, listId) {
               s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder,
               w.derived_from_id AS derivedFromId,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+              w.polysemous_caution AS polysemousCaution,
               ${WORD_TAG_SELECT},
               ${PRIMARY_MEANING_SELECT}
        FROM list_items li JOIN words w ON w.id = li.word_id
@@ -258,6 +259,7 @@ async function listWordsInList(db, listId) {
     displayNo: formatNo(r.no, r.branch),
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
+    polysemousCaution: !!r.polysemousCaution,
   }));
   return json(rows);
 }
@@ -277,6 +279,7 @@ async function listMasterWords(db, searchUrl) {
            NULL AS no, 0 AS branch, NULL AS sectionId, NULL AS sectionName,
            w.derived_from_id AS derivedFromId,
            w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+              w.polysemous_caution AS polysemousCaution,
            ${WORD_TAG_SELECT},
            ${PRIMARY_MEANING_SELECT}
     FROM words w
@@ -312,6 +315,7 @@ async function listMasterWords(db, searchUrl) {
     displayNo: null,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
+    polysemousCaution: !!r.polysemousCaution,
   }));
   return json({ words, hasMore, offset, limit });
 }
@@ -336,6 +340,7 @@ async function listWordsInListFull(db, listId) {
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
               w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
+              w.polysemous_caution AS polysemousCaution,
               w.derived_from_id AS derivedFromId,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder
@@ -395,6 +400,7 @@ async function listWordsInListFull(db, listId) {
     antonyms: r.antonyms,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
+    polysemousCaution: !!r.polysemousCaution,
     no: r.no,
     branch: r.branch,
     displayNo: formatNo(r.no, r.branch),
@@ -541,6 +547,7 @@ async function loadWordDetail(db, id) {
     .prepare(
       `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms,
               pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
+              polysemous_caution AS polysemousCaution,
               derived_from_id AS derivedFromId, created_at, updated_at
        FROM words WHERE id = ?`
     )
@@ -574,6 +581,7 @@ async function loadWordDetail(db, id) {
     ...word,
     pronunciationCaution: !!word.pronunciationCaution,
     accentCaution: !!word.accentCaution,
+    polysemousCaution: !!word.polysemousCaution,
     senses: senses.results.map((s) => ({ ...s, is_primary: !!s.is_primary })),
     derivatives: derivatives.results,
     examples: examples.results,
@@ -648,8 +656,8 @@ async function createWord(db, body) {
   await db
     .prepare(
       `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms,
-                           pronunciation_caution, accent_caution, derived_from_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                           pronunciation_caution, accent_caution, polysemous_caution, derived_from_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -662,6 +670,7 @@ async function createWord(db, body) {
       body.antonyms || null,
       body.pronunciationCaution ? 1 : 0,
       body.accentCaution ? 1 : 0,
+      body.polysemousCaution ? 1 : 0,
       derivedFromId
     )
     .run();
@@ -694,13 +703,14 @@ async function updateWord(db, id, body) {
     body.antonyms || null,
     body.pronunciationCaution ? 1 : 0,
     body.accentCaution ? 1 : 0,
+    body.polysemousCaution ? 1 : 0,
   ];
   if (derivedFromResolved.id !== undefined) {
     if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
     await db
       .prepare(
         `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
-                           pronunciation_caution = ?, accent_caution = ?, derived_from_id = ?, updated_at = datetime('now')
+                           pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, derived_from_id = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
       .bind(...commonBinds, derivedFromResolved.id, id)
@@ -709,7 +719,7 @@ async function updateWord(db, id, body) {
     await db
       .prepare(
         `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
-                           pronunciation_caution = ?, accent_caution = ?, updated_at = datetime('now')
+                           pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
       .bind(...commonBinds, id)
