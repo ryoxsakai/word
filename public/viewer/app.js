@@ -278,8 +278,12 @@ function renderEntry(w) {
     : "";
 
   const cautionHtml = [
-    w.pronunciationCaution ? '<span class="caution-badge caution-pronunciation" title="発音に注意">発音</span>' : "",
-    w.accentCaution ? '<span class="caution-badge caution-accent" title="アクセント位置に注意">アクセント</span>' : "",
+    w.pronunciationCaution
+      ? '<span class="caution-badge caution-pronunciation" title="発音に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>発音</span>'
+      : "",
+    w.accentCaution
+      ? '<span class="caution-badge caution-accent" title="アクセント位置に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>アクセント</span>'
+      : "",
   ].join("");
 
   return `

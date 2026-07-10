@@ -363,11 +363,15 @@ button { font-family: inherit; }
 .pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; }
 
 .caution-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.68rem;
   font-weight: 650;
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
 }
+.caution-badge i { font-size: 0.9em; }
 .caution-badge.caution-pronunciation { background: #fff4e0; color: #8a5a00; }
 .caution-badge.caution-accent { background: #fde3e3; color: #b3261e; }
 :root[data-theme="dark"] .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
@@ -442,14 +446,15 @@ button { font-family: inherit; }
   display: grid;
   grid-template-columns: 1.1rem 1fr;
   column-gap: 0.5rem;
-  row-gap: 0.15rem;
+  row-gap: 0.08rem;
   font-size: 0.9rem;
+  align-items: baseline;
 }
-.bullet { grid-column: 1; align-self: start; color: var(--accent); font-size: 0.75rem; padding-top: 0.2em; }
+.bullet { grid-column: 1; grid-row: 1; color: var(--accent); font-size: 0.75rem; }
 .bullet.hollow { color: var(--text-muted); }
 .example-phrase, .example-translation, .derivative-head, .derivative-meaning { grid-column: 2; }
 .example-phrase, .derivative-word { color: var(--text); }
-.example-translation, .derivative-meaning { color: var(--text-muted); }
+.example-translation, .derivative-meaning { color: var(--text-muted); font-size: 0.85em; }
 .derivative-head { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
 
 .blank-toggle {
