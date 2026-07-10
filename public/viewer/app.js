@@ -221,7 +221,8 @@ function renderEntry(w) {
         items.length > 1
           ? `<span class="sense-items">${items
               .map(
-                (s) => `<span class="sense-item"><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
+                (s) =>
+                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
               )
               .join("")}</span>`
           : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;

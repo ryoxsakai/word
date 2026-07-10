@@ -387,7 +387,7 @@ button { font-family: inherit; }
   gap: 0.55rem;
 }
 
-.sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
+.sense-line { display: flex; align-items: center; gap: 0.45rem; font-size: 0.98rem; }
 .sense-line.sense-primary { font-weight: 700; }
 .sense-line:not(.sense-primary) { font-size: 0.85rem; }
 .sense-line:not(.sense-primary) .sense-meaning { color: var(--text-muted); font-weight: 400; }
@@ -408,11 +408,11 @@ button { font-family: inherit; }
 .sense-items {
   display: inline-flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 0.25rem 0.7rem;
   counter-reset: sense-num;
 }
-.sense-item { display: inline-flex; align-items: baseline; gap: 0.3rem; }
+.sense-item { display: inline-flex; align-items: center; gap: 0.3rem; }
 .sense-item::before {
   counter-increment: sense-num;
   content: counter(sense-num);
@@ -427,6 +427,14 @@ button { font-family: inherit; }
   font-size: 0.68em;
   font-weight: 700;
   line-height: 1;
+}
+/* ①(見出しの意味)だけを目立たせ、同じ行内の②以降は控えめにする */
+.sense-line.sense-primary .sense-item:not(.sense-item-primary) .sense-meaning {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.sense-line.sense-primary .sense-item:not(.sense-item-primary)::before {
+  opacity: 0.7;
 }
 
 .example-list, .derivative-list { display: flex; flex-direction: column; gap: 0.35rem; }
