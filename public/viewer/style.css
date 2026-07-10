@@ -333,7 +333,7 @@ button { font-family: inherit; }
 
 .entry-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
   row-gap: 0.15rem;
@@ -348,19 +348,22 @@ button { font-family: inherit; }
   border: none;
   background: var(--accent);
   color: white;
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 4px;
+  font-size: 0.42rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
+  margin-left: 0.2rem;
+  vertical-align: baseline;
 }
 .speak-btn:hover { filter: brightness(1.08); }
 .speak-btn.speaking { background: var(--accent-strong); }
-.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; }
+@media print { .speak-btn { display: none; } }
+.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; display: flex; align-items: center; }
 
 .caution-badge {
   display: inline-flex;
@@ -389,6 +392,8 @@ button { font-family: inherit; }
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  border: 1px solid;
+  border-image: linear-gradient(135deg, rgba(100, 150, 200, 0.4), rgba(150, 100, 200, 0.4)) 1;
 }
 
 .sense-line { display: flex; align-items: center; gap: 0.45rem; font-size: 0.98rem; }

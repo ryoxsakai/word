@@ -292,8 +292,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
-        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
+        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cautionHtml}
       </div>
       ${familyLine}
