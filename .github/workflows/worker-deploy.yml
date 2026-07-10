@@ -55,9 +55,3 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
-
-      - name: Check examples translation progress (temporary diagnostic)
-        run: |
-          curl -sf "https://vocab-app.ryoxsakai.workers.dev/api/examples-report" \
-            --retry 5 --retry-delay 10 --retry-all-errors \
-            | python3 -c "import json,sys; d=json.load(sys.stdin); print('total:', d['total']); print('missingTranslation:', d['missingTranslation'])"
