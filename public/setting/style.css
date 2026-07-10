@@ -368,6 +368,13 @@ body {
 
 .pane-header--edit h2 { flex: 1; }
 
+.pane-header .list-switcher {
+  flex: 1;
+  min-width: 0;
+  max-width: 24rem;
+}
+.pane-header .list-switcher select { max-width: none; }
+
 .pane-header-actions,
 .edit-actions {
   display: flex;
@@ -632,6 +639,7 @@ textarea:focus-visible {
 
 select { cursor: pointer; }
 textarea { resize: vertical; min-height: 4.5rem; line-height: 1.55; }
+textarea.autosize { resize: none; min-height: 2.5rem; overflow: hidden; }
 
 /* ---- form sections ---- */
 
@@ -681,6 +689,56 @@ legend .hint {
   font-size: 0.72rem;
   margin-left: 0.35rem;
 }
+
+/* ---- 折りたたみ可能なfieldset ---- */
+
+fieldset.collapsible {
+  padding: 0;
+  overflow: hidden;
+}
+
+.fieldset-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.85rem 1rem;
+  min-height: 0;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.fieldset-toggle:hover { background: var(--bg-soft); }
+
+.fieldset-title {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.fieldset-toggle .hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.fieldset-chevron {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  transition: transform 0.15s;
+  flex: none;
+}
+
+.fieldset-body {
+  padding: 0 1rem 1rem;
+}
+
+fieldset.collapsible.is-collapsed .fieldset-body { display: none; }
+fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg); }
 
 .field-row {
   display: grid;
@@ -760,14 +818,33 @@ legend .hint {
 }
 
 .repeat-row.sense-row {
-  grid-template-columns: 5.5rem 1fr 9rem 4.5rem auto;
+  grid-template-columns: 5.5rem 1fr 9rem 4.5rem auto auto;
 }
 .repeat-row.derivative-row {
-  grid-template-columns: 5.5rem 1fr 1fr auto;
+  grid-template-columns: 5.5rem 1fr 1fr auto auto;
 }
 .repeat-row.example-row {
-  grid-template-columns: 7.5rem 1fr 1fr auto;
+  grid-template-columns: 7.5rem 1fr 1fr auto auto;
 }
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.row-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+.row-drag-handle:active { cursor: grabbing; }
+.repeat-row.dragging { opacity: 0.4; }
+.repeat-row.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
 
 .repeat-row input {
   min-height: 2.35rem;
@@ -916,6 +993,24 @@ legend .hint {
 }
 .tag-select select { width: auto; min-width: 5rem; }
 
+.tags-readonly-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.tag-readonly {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
 .custom-tags-label {
   display: block;
   margin-top: 0.65rem;
@@ -959,6 +1054,10 @@ legend .hint {
   .pane-header--edit h2 {
     flex-basis: 100%;
   }
+  .pane-header .list-switcher {
+    flex-basis: 100%;
+    max-width: none;
+  }
   .pane-header--edit .edit-actions {
     width: 100%;
   }
@@ -994,10 +1093,17 @@ legend .hint {
   .repeat-row .pronunciation,
   .repeat-row .translation { grid-column: 1; }
   .repeat-row .primary-radio { grid-column: 1; }
+  .repeat-row .row-actions {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    justify-self: end;
+  }
   .repeat-row .remove-row-btn {
     grid-column: 2;
-    grid-row: 1 / -1;
+    grid-row: 2;
     align-self: start;
+    justify-self: end;
   }
 }
 

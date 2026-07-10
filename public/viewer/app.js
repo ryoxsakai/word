@@ -285,7 +285,7 @@ function renderEntry(w) {
     : "";
 
   const etymologyHtml = w.etymology
-    ? `<div class="etymology-block"><span class="etymology-label">(コア)</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
     : "";
   const synonymsHtml = w.synonyms
     ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span>${renderWordListMarkup(w.synonyms)}</div>`
