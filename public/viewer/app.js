@@ -268,13 +268,13 @@ function renderEntry(w) {
     ? `<div class="etymology-block"><span class="etymology-label">(コア)</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
     : "";
   const synonymsHtml = w.synonyms
-    ? `<div class="notes-block"><span class="notes-label">類義語</span>${renderMarkup(w.synonyms, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block"><span class="notes-label synonym-badge">類義語</span>${renderMarkup(w.synonyms, { resolve: resolveRef })}</div>`
     : "";
   const antonymsHtml = w.antonyms
-    ? `<div class="notes-block"><span class="notes-label">対義語</span>${renderMarkup(w.antonyms, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block"><span class="notes-label antonym-badge">対義語</span>${renderMarkup(w.antonyms, { resolve: resolveRef })}</div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block"><span class="notes-label">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block"><span class="notes-label memo-badge">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
     : "";
 
   const cautionHtml = [
@@ -292,8 +292,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        <button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
-        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]</span>` : ""}
+        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cautionHtml}
       </div>
       ${familyLine}
