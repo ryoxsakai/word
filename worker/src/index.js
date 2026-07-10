@@ -240,7 +240,7 @@ async function listWordsInList(db, listId) {
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
-              s.sort_order AS sectionSortOrder,
+              s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder,
               w.derived_from_id AS derivedFromId,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               ${WORD_TAG_SELECT},
