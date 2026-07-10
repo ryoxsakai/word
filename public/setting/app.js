@@ -54,6 +54,11 @@ const el = {
   listManageList: document.getElementById("listManageList"),
   listManageNewName: document.getElementById("listManageNewName"),
   listManageCreateBtn: document.getElementById("listManageCreateBtn"),
+  sectionManageModalOverlay: document.getElementById("sectionManageModalOverlay"),
+  sectionManageCloseBtn: document.getElementById("sectionManageCloseBtn"),
+  sectionManageList: document.getElementById("sectionManageList"),
+  sectionManageNewName: document.getElementById("sectionManageNewName"),
+  sectionManageCreateBtn: document.getElementById("sectionManageCreateBtn"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
   masterToolbar: document.getElementById("masterToolbar"),
@@ -510,20 +515,101 @@ async function handleSectionSelectChange() {
   }
 }
 
-async function createSectionForCurrentList() {
-  if (!isNotebookView()) return;
-  const name = prompt("新規セクション名を入力してください（例: Week 1）");
+// ---- セクションの管理モーダル（作成・改名・削除・並び替え） ----
+
+function renderSectionManageRows() {
+  el.sectionManageList.innerHTML = "";
+  if (state.sections.length === 0) {
+    el.sectionManageList.innerHTML = '<p class="empty-msg">まだセクションがありません。下から作成してください。</p>';
+    return;
+  }
+  state.sections.forEach((s, index) => {
+    const row = document.createElement("div");
+    row.className = "list-manage-row";
+    row.dataset.sectionId = String(s.id);
+    const isFirst = index === 0;
+    const isLast = index === state.sections.length - 1;
+    row.innerHTML = `
+      <span class="list-manage-move">
+        <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+        <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+      </span>
+      <input type="text" class="list-manage-name" value="${escapeHtml(s.name)}" aria-label="セクション名" />
+      <button type="button" class="remove-row-btn" data-action="section-delete" aria-label="削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+    `;
+    row.querySelector('[data-action="section-up"]').addEventListener("click", () => moveSectionFromManage(s.id, -1));
+    row.querySelector('[data-action="section-down"]').addEventListener("click", () => moveSectionFromManage(s.id, 1));
+    row.querySelector('[data-action="section-delete"]').addEventListener("click", () => deleteSectionFromManage(s.id, s.name));
+    const nameInput = row.querySelector(".list-manage-name");
+    nameInput.addEventListener("blur", () => renameSectionFromManage(s, nameInput));
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") nameInput.blur();
+    });
+    el.sectionManageList.appendChild(row);
+  });
+}
+
+async function moveSectionFromManage(sectionId, direction) {
+  await moveSectionBy(sectionId, direction);
+  renderSectionManageRows();
+}
+
+async function renameSectionFromManage(section, inputEl) {
+  const name = inputEl.value.trim();
+  if (!name || name === section.name) {
+    inputEl.value = section.name;
+    return;
+  }
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/${encodeURIComponent(section.id)}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, subtitle: section.subtitle || null, description: section.description || null }),
+    });
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+    renderSectionManageRows();
+  } catch (err) {
+    alert(`名称変更に失敗しました: ${err.message}`);
+    inputEl.value = section.name;
+  }
+}
+
+async function deleteSectionFromManage(sectionId, name) {
+  if (!confirm(`セクション「${name}」を削除しますか？（所属する単語はセクションなしになります）`)) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/${encodeURIComponent(sectionId)}`, {
+      method: "DELETE",
+    });
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+    renderSectionManageRows();
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
+  }
+}
+
+async function createSectionFromManage() {
+  const name = el.sectionManageNewName.value.trim();
   if (!name) return;
   try {
     await api(`/lists/${encodeURIComponent(state.currentListId)}/sections`, {
       method: "POST",
       body: JSON.stringify({ name }),
     });
-    await loadSectionsForList(state.currentListId);
-    await loadWordsForList(state.currentListId);
+    el.sectionManageNewName.value = "";
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+    renderSectionManageRows();
   } catch (err) {
     alert(`セクション作成に失敗しました: ${err.message}`);
   }
+}
+
+function openSectionManageModal() {
+  if (!isNotebookView()) return;
+  renderSectionManageRows();
+  el.sectionManageModalOverlay.hidden = false;
+}
+
+function closeSectionManageModal() {
+  el.sectionManageModalOverlay.hidden = true;
 }
 
 const LEVEL_COLUMNS_HEAD =
@@ -747,6 +833,96 @@ function attachRepeatRowReorder(row, kind) {
   row.querySelector('[data-action="row-down"]').addEventListener("click", () => moveRepeatRow(row, 1));
 }
 
+function buildSectionBandRow(sectionId, sectionName, sectionSubtitle) {
+  const colspan = 12;
+  const sectionTr = document.createElement("tr");
+  sectionTr.className = "section-header-row";
+  const sectionIndex = sectionId != null ? state.sections.findIndex((s) => s.id === sectionId) : -1;
+  const isFirst = sectionIndex <= 0;
+  const isLast = sectionIndex === -1 || sectionIndex === state.sections.length - 1;
+  const moveButtons =
+    sectionId != null
+      ? `<span class="section-move-btns">
+          <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="セクションを上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+          <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        </span>`
+      : "";
+  const nameHtml = `<span class="section-band-name">${escapeHtml(sectionName || "（セクションなし）")}</span>${sectionSubtitle ? `<span class="section-band-subtitle">${escapeHtml(sectionSubtitle)}</span>` : ""}`;
+  sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
+  if (sectionId != null) {
+    sectionTr.draggable = true;
+    sectionTr.classList.add("section-band-clickable");
+    sectionTr.title = "クリックしてサブタイトル・説明を編集";
+    sectionTr.addEventListener("click", () => openSectionEditor(sectionId));
+    sectionTr.querySelector('[data-action="section-up"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      moveSectionBy(sectionId, -1);
+    });
+    sectionTr.querySelector('[data-action="section-down"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      moveSectionBy(sectionId, 1);
+    });
+    attachSectionDragHandlers(sectionTr, sectionId);
+  }
+  return sectionTr;
+}
+
+function buildWordRow(w) {
+  const tr = document.createElement("tr");
+  tr.dataset.wordId = w.id;
+  if (w.branch) tr.classList.add("branch-row");
+  if (state.currentWord?.id === w.id) tr.classList.add("selected");
+  if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
+
+  const meaningCell = `<td class="col-meaning">${escapeHtml(w.primaryMeaning || "")}</td>`;
+  const levelCells =
+    `<td class="col-awl">${formatLevelBadgeCell(w, "awl")}</td>` +
+    `<td class="col-oxford">${formatLevelBadgeCell(w, "oxford")}</td>` +
+    `<td class="col-eiken">${formatLevelBadgeCell(w, "eiken")}</td>` +
+    `<td class="col-target1900">${formatLevelBadgeCell(w, "target1900")}</td>` +
+    `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
+  const pronCells =
+    `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
+    `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
+    `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>`;
+
+  if (isMasterView()) {
+    const checked = state.selectedWordIds.has(w.id);
+    tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}`;
+    const cb = tr.querySelector(".word-check");
+    cb.addEventListener("click", (e) => e.stopPropagation());
+    cb.addEventListener("change", () => {
+      if (cb.checked) state.selectedWordIds.add(w.id);
+      else state.selectedWordIds.delete(w.id);
+      updateSelectionUi();
+      tr.classList.toggle("checked-row", cb.checked);
+    });
+    tr.addEventListener("click", (e) => {
+      if (e.target.closest(".col-check")) return;
+      openWordEditor(w.id);
+    });
+  } else {
+    const moveCell = w.branch
+      ? `<td class="col-move"></td>`
+      : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></td>`;
+    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}${moveCell}`;
+    tr.addEventListener("click", () => openWordEditor(w.id));
+    if (!w.branch) {
+      tr.draggable = true;
+      tr.querySelector('[data-action="word-up"]').addEventListener("click", (e) => {
+        e.stopPropagation();
+        moveWordBy(w.id, -1);
+      });
+      tr.querySelector('[data-action="word-down"]').addEventListener("click", (e) => {
+        e.stopPropagation();
+        moveWordBy(w.id, 1);
+      });
+      attachWordDragHandlers(tr, w.id);
+    }
+  }
+  return tr;
+}
+
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
   el.wordTableEmpty.hidden = state.words.length > 0;
@@ -754,96 +930,30 @@ function renderWordTable() {
     ? "条件に一致する単語がありません。"
     : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
 
-  let lastSectionId = undefined;
-  const colspan = isMasterView() ? 11 : 12;
+  if (isMasterView()) {
+    for (const w of state.words) el.wordTableBody.appendChild(buildWordRow(w));
+    return;
+  }
 
+  // セクションは単語が0件でも帯を表示する(新規作成直後に見えなくなるのを防ぐため)。
+  // セクションなしの単語は先頭、以降はstate.sectionsの並び順どおりに帯を出す。
+  const wordsBySection = new Map();
   for (const w of state.words) {
-    if (!isMasterView() && w.sectionId !== lastSectionId) {
-      lastSectionId = w.sectionId;
-      const sectionTr = document.createElement("tr");
-      sectionTr.className = "section-header-row";
-      const sectionIndex = w.sectionId != null ? state.sections.findIndex((s) => s.id === w.sectionId) : -1;
-      const isFirst = sectionIndex <= 0;
-      const isLast = sectionIndex === -1 || sectionIndex === state.sections.length - 1;
-      const moveButtons =
-        w.sectionId != null
-          ? `<span class="section-move-btns">
-              <button type="button" class="move-btn" data-action="section-up" ${isFirst ? "disabled" : ""} aria-label="セクションを上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
-              <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
-            </span>`
-          : "";
-      sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-name">${escapeHtml(w.sectionName || "（セクションなし）")}</span>${moveButtons}</span></td>`;
-      if (w.sectionId != null) {
-        sectionTr.draggable = true;
-        sectionTr.classList.add("section-band-clickable");
-        sectionTr.title = "クリックしてサブタイトル・説明を編集";
-        sectionTr.addEventListener("click", () => openSectionEditor(w.sectionId));
-        sectionTr.querySelector('[data-action="section-up"]').addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveSectionBy(w.sectionId, -1);
-        });
-        sectionTr.querySelector('[data-action="section-down"]').addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveSectionBy(w.sectionId, 1);
-        });
-        attachSectionDragHandlers(sectionTr, w.sectionId);
-      }
-      el.wordTableBody.appendChild(sectionTr);
-    }
+    const key = w.sectionId ?? null;
+    if (!wordsBySection.has(key)) wordsBySection.set(key, []);
+    wordsBySection.get(key).push(w);
+  }
 
-    const tr = document.createElement("tr");
-    tr.dataset.wordId = w.id;
-    if (w.branch) tr.classList.add("branch-row");
-    if (state.currentWord?.id === w.id) tr.classList.add("selected");
-    if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
+  const noSectionWords = wordsBySection.get(null) || [];
+  if (noSectionWords.length > 0) {
+    el.wordTableBody.appendChild(buildSectionBandRow(null, null, null));
+    for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
+  }
 
-    const meaningCell = `<td class="col-meaning">${escapeHtml(w.primaryMeaning || "")}</td>`;
-    const levelCells =
-      `<td class="col-awl">${formatLevelBadgeCell(w, "awl")}</td>` +
-      `<td class="col-oxford">${formatLevelBadgeCell(w, "oxford")}</td>` +
-      `<td class="col-eiken">${formatLevelBadgeCell(w, "eiken")}</td>` +
-      `<td class="col-target1900">${formatLevelBadgeCell(w, "target1900")}</td>` +
-      `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
-    const pronCells =
-      `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
-      `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
-      `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>`;
-
-    if (isMasterView()) {
-      const checked = state.selectedWordIds.has(w.id);
-      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}`;
-      const cb = tr.querySelector(".word-check");
-      cb.addEventListener("click", (e) => e.stopPropagation());
-      cb.addEventListener("change", () => {
-        if (cb.checked) state.selectedWordIds.add(w.id);
-        else state.selectedWordIds.delete(w.id);
-        updateSelectionUi();
-        tr.classList.toggle("checked-row", cb.checked);
-      });
-      tr.addEventListener("click", (e) => {
-        if (e.target.closest(".col-check")) return;
-        openWordEditor(w.id);
-      });
-    } else {
-      const moveCell = w.branch
-        ? `<td class="col-move"></td>`
-        : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></td>`;
-      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}${moveCell}`;
-      tr.addEventListener("click", () => openWordEditor(w.id));
-      if (!w.branch) {
-        tr.draggable = true;
-        tr.querySelector('[data-action="word-up"]').addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveWordBy(w.id, -1);
-        });
-        tr.querySelector('[data-action="word-down"]').addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveWordBy(w.id, 1);
-        });
-        attachWordDragHandlers(tr, w.id);
-      }
-    }
-    el.wordTableBody.appendChild(tr);
+  for (const section of state.sections) {
+    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.name, section.subtitle));
+    const words = wordsBySection.get(section.id) || [];
+    for (const w of words) el.wordTableBody.appendChild(buildWordRow(w));
   }
 }
 
@@ -1441,6 +1551,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!el.addNotebookModalOverlay.hidden) { closeAddNotebookModal(); return; }
   if (!el.listManageModalOverlay.hidden) { closeListManageModal(); return; }
+  if (!el.sectionManageModalOverlay.hidden) { closeSectionManageModal(); return; }
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
@@ -1480,8 +1591,16 @@ el.listManageCreateBtn.addEventListener("click", createListFromManage);
 el.listManageNewName.addEventListener("keydown", (e) => {
   if (e.key === "Enter") createListFromManage();
 });
+el.sectionManageCloseBtn.addEventListener("click", closeSectionManageModal);
+el.sectionManageModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.sectionManageModalOverlay) closeSectionManageModal();
+});
+el.sectionManageCreateBtn.addEventListener("click", createSectionFromManage);
+el.sectionManageNewName.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") createSectionFromManage();
+});
 el.newWordBtn.addEventListener("click", openNewWordForm);
-el.newSectionBtn.addEventListener("click", createSectionForCurrentList);
+el.newSectionBtn.addEventListener("click", openSectionManageModal);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);
 el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);

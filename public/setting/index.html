@@ -321,6 +321,24 @@
   </section>
 </div>
 
+<div class="modal-overlay" id="sectionManageModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="sectionManagePane" role="dialog" aria-modal="true" aria-labelledby="sectionManageTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="sectionManageTitle">セクションを編集</h2>
+      <div class="edit-actions">
+        <button id="sectionManageCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="word-form">
+      <div id="sectionManageList" class="list-manage-list"></div>
+      <div class="list-manage-new">
+        <input type="text" id="sectionManageNewName" placeholder="新しいセクション名" autocomplete="off" />
+        <button type="button" id="sectionManageCreateBtn" class="primary"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>作成</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <template id="senseRowTpl">
   <div class="repeat-row sense-row" data-kind="senses">
     <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語">
