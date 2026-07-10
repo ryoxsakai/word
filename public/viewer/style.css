@@ -504,8 +504,93 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .toolbar-controls select { max-width: 32vw; }
 }
 
+/* ---- 文字サイズ調整（5段階）---- */
+
+.fontsize-row { display: flex; align-items: center; gap: 0.5rem; }
+.fontsize-label { font-size: 0.78rem; color: var(--text-muted); }
+.fontsize-steps { display: inline-flex; gap: 0.25rem; }
+.fontsize-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 0.3rem;
+}
+.fontsize-btn[data-font-level="1"] { font-size: 0.72rem; }
+.fontsize-btn[data-font-level="2"] { font-size: 0.86rem; }
+.fontsize-btn[data-font-level="3"] { font-size: 1rem; }
+.fontsize-btn[data-font-level="4"] { font-size: 1.15rem; }
+.fontsize-btn[data-font-level="5"] { font-size: 1.32rem; }
+.fontsize-btn[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* 保存された no ではなく、単語一覧の文字だけを --font-scale 倍して拡大縮小する。
+   既存ルールは書き換えず、.word-list 配下の上書きとして定義（既定値1で従来と同じ見た目）。 */
+:root { --font-scale: 1; }
+.word-list .section-title { font-size: calc(0.82rem * var(--font-scale)); }
+.word-list .section-subtitle { font-size: calc(0.78rem * var(--font-scale)); }
+.word-list .section-description { font-size: calc(0.74rem * var(--font-scale)); }
+.word-list .entry-no { font-size: calc(1.05rem * var(--font-scale)); }
+.word-list .entry.branch-entry .entry-no { font-size: calc(0.9rem * var(--font-scale)); }
+.word-list .headword { font-size: calc(1.3rem * var(--font-scale)); }
+.word-list .pron { font-size: calc(0.9rem * var(--font-scale)); }
+.word-list .sense-line { font-size: calc(0.98rem * var(--font-scale)); }
+.word-list .sense-line:not(.sense-primary) { font-size: calc(0.85rem * var(--font-scale)); }
+.word-list .sense-pron { font-size: calc(0.78rem * var(--font-scale)); }
+.word-list .pos-badge { font-size: calc(0.72rem * var(--font-scale)); }
+.word-list .example-line, .word-list .derivative-line { font-size: calc(0.9rem * var(--font-scale)); }
+.word-list .etymology-block, .word-list .notes-block { font-size: calc(0.88rem * var(--font-scale)); }
+.word-list .family-block { font-size: calc(0.82rem * var(--font-scale)); }
+
+/* ---- 印刷用スタイル ---- */
+
 @media print {
-  .topbar, .subbar, .section-nav, .back-to-top, .toast, .learned-toggle { display: none !important; }
-  .word-list { max-width: 100%; }
-  .entry { break-inside: avoid; }
+  /* テーマに関わらず、印刷は明るい配色に固定して枠・背景をはっきり出す */
+  :root {
+    --bg: #ffffff !important;
+    --bg-soft: #eef1f1 !important;
+    --card-bg: #edf7f3 !important;
+    --text: #111111 !important;
+    --text-muted: #444444 !important;
+    --border: #9aa2a6 !important;
+    --accent: #155e8a !important;
+    --accent-strong: #b3441a !important;
+    --pos-border: #155e8a !important;
+    --mark-bg: #ffe58a !important;
+  }
+  .topbar, .subbar, .section-nav, .back-to-top, .toast, .learned-toggle, .speak-btn { display: none !important; }
+  body { padding: 0 !important; background: #fff !important; }
+  .word-list { max-width: 100%; padding: 0; }
+
+  /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
+  body, .section-divider, .entry, .entry-card, .pos-badge, .caution-badge, mark {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* セクション帯を枠付きで印刷 */
+  .section-divider {
+    background: var(--bg-soft) !important;
+    border: 1px solid var(--border);
+    break-inside: avoid;
+  }
+  /* 「意味〜メモ」のカード枠を印刷 */
+  .entry-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border);
+  }
+  .entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 }

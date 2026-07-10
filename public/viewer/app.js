@@ -5,6 +5,9 @@ import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 const API = `${API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
+const FONT_SIZE_KEY = "vocab-viewer-font-size";
+// 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
+const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 const learnedKey = (listId) => `vocab-learned:${listId}`;
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
@@ -36,6 +39,7 @@ const el = {
   loadingMsg: document.getElementById("loadingMsg"),
   backToTopBtn: document.getElementById("backToTopBtn"),
   toast: document.getElementById("toast"),
+  fontSizeSteps: document.getElementById("fontSizeSteps"),
 };
 
 async function api(path) {
@@ -616,6 +620,30 @@ el.themeToggleBtn.addEventListener("click", () => {
 });
 
 applyTheme(localStorage.getItem(THEME_KEY));
+
+// ---- 文字サイズ（5段階） ----
+
+function applyFontSize(level) {
+  const lvl = FONT_SCALES[level] ? Number(level) : 3;
+  document.documentElement.style.setProperty("--font-scale", String(FONT_SCALES[lvl]));
+  if (el.fontSizeSteps) {
+    el.fontSizeSteps.querySelectorAll(".fontsize-btn").forEach((b) => {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.fontLevel) === lvl));
+    });
+  }
+}
+
+if (el.fontSizeSteps) {
+  el.fontSizeSteps.addEventListener("click", (e) => {
+    const btn = e.target.closest(".fontsize-btn");
+    if (!btn) return;
+    const level = Number(btn.dataset.fontLevel);
+    localStorage.setItem(FONT_SIZE_KEY, String(level));
+    applyFontSize(level);
+  });
+}
+
+applyFontSize(Number(localStorage.getItem(FONT_SIZE_KEY)) || 3);
 
 // ---- 起動 ----
 
