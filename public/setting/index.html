@@ -28,12 +28,6 @@
       </button>
     </div>
     <div class="topbar-row topbar-row--secondary" id="topbarMenu">
-      <div class="list-switcher">
-        <label for="listSelect">表示</label>
-        <select id="listSelect"></select>
-        <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
-      </div>
-
       <div class="master-toolbar" id="masterToolbar" hidden>
         <div class="master-filters">
           <input type="search" id="masterSearch" placeholder="スペルで検索…" autocomplete="off" />
@@ -65,7 +59,6 @@
           <span id="selectionCount" class="selection-count">0語選択</span>
           <button id="selectAllMasterBtn" type="button" class="btn-ghost" title="現在読み込み済みの単語のみ選択されます"><i class="fa-solid fa-square-check" aria-hidden="true"></i><span>表示中を全選択</span></button>
           <button id="clearSelectionBtn" type="button" class="btn-ghost"><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>解除</span></button>
-          <button id="addToNotebookBtn" type="button" class="primary" disabled><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳に追加</span></button>
         </div>
       </div>
     </div>
@@ -74,8 +67,12 @@
   <main class="main">
     <section class="word-table-pane" id="wordTablePane">
       <div class="pane-header">
-        <h2 id="listTitle">リスト未選択</h2>
+        <div class="list-switcher">
+          <select id="listSelect" aria-label="表示するリスト"></select>
+          <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
+        </div>
         <div class="pane-header-actions">
+          <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳に追加</span></button>
           <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語を追加</span></button>
           <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
         </div>
@@ -155,51 +152,107 @@
         <button type="button" class="add-row-btn" data-add="derivatives"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>派生語を追加</span></button>
       </fieldset>
 
-      <fieldset>
-        <legend>語源メモ <span class="hint">##見出し語## / *語根* / ==語==</span></legend>
-        <textarea id="fieldEtymology" rows="3" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
-        <div class="preview" id="etymologyPreview"></div>
+      <fieldset class="collapsible" data-fieldset="etymology">
+        <button type="button" class="fieldset-toggle">
+          <span class="fieldset-title">語源</span>
+          <span class="hint">##見出し語## / *語根* / ==語==</span>
+          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="fieldset-body">
+          <textarea id="fieldEtymology" class="autosize" rows="1" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
+          <div class="preview" id="etymologyPreview"></div>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>類義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
-        <textarea id="fieldSynonyms" rows="2" placeholder="help, aid, assist"></textarea>
-        <div class="preview" id="synonymsPreview"></div>
+      <fieldset class="collapsible" data-fieldset="synonyms">
+        <button type="button" class="fieldset-toggle">
+          <span class="fieldset-title">類義語</span>
+          <span class="hint">##headword## / ##headword|表示##</span>
+          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="fieldset-body">
+          <textarea id="fieldSynonyms" class="autosize" rows="1" placeholder="help, aid, assist"></textarea>
+          <div class="preview" id="synonymsPreview"></div>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>対義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
-        <textarea id="fieldAntonyms" rows="2" placeholder="hinder, obstruct"></textarea>
-        <div class="preview" id="antonymsPreview"></div>
+      <fieldset class="collapsible" data-fieldset="antonyms">
+        <button type="button" class="fieldset-toggle">
+          <span class="fieldset-title">対義語</span>
+          <span class="hint">##headword## / ##headword|表示##</span>
+          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="fieldset-body">
+          <textarea id="fieldAntonyms" class="autosize" rows="1" placeholder="hinder, obstruct"></textarea>
+          <div class="preview" id="antonymsPreview"></div>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>メモ <span class="hint">##headword## / ##headword|表示##</span></legend>
-        <textarea id="fieldNotes" rows="3" placeholder="##import## も参照。"></textarea>
-        <div class="preview" id="notesPreview"></div>
+      <fieldset class="collapsible" data-fieldset="notes">
+        <button type="button" class="fieldset-toggle">
+          <span class="fieldset-title">メモ</span>
+          <span class="hint">##headword## / ##headword|表示##</span>
+          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="fieldset-body">
+          <textarea id="fieldNotes" class="autosize" rows="1" placeholder="##import## も参照。"></textarea>
+          <div class="preview" id="notesPreview"></div>
+        </div>
       </fieldset>
 
-      <fieldset>
-        <legend>レベルタグ</legend>
-        <div class="tags-row">
-          <label class="tag-chip"><input type="checkbox" id="tagOxford5000" /> Oxford 5000</label>
-          <label class="tag-chip"><input type="checkbox" id="tagAwl" /> AWL</label>
-          <label class="tag-select">英検
-            <select id="tagEiken">
-              <option value="">―</option>
-              <option value="5級">5級</option>
-              <option value="4級">4級</option>
-              <option value="3級">3級</option>
-              <option value="準2級">準2級</option>
-              <option value="2級">2級</option>
-              <option value="準1級">準1級</option>
-              <option value="1級">1級</option>
-            </select>
+      <fieldset class="collapsible" data-fieldset="tags">
+        <button type="button" class="fieldset-toggle">
+          <span class="fieldset-title">レベルタグ</span>
+          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="fieldset-body">
+          <div class="tags-row">
+            <label class="tag-select">Oxford 5000
+              <select id="tagOxford5000">
+                <option value="">―</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+              </select>
+            </label>
+            <label class="tag-select">AWL
+              <select id="tagAwl">
+                <option value="">―</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <label class="tag-select">英検
+              <select id="tagEiken">
+                <option value="">―</option>
+                <option value="5級">5級</option>
+                <option value="4級">4級</option>
+                <option value="3級">3級</option>
+                <option value="準2級">準2級</option>
+                <option value="2級">2級</option>
+                <option value="準1級">準1級</option>
+                <option value="1級">1級</option>
+              </select>
+            </label>
+          </div>
+          <div class="tags-readonly-row">
+            <span class="tag-readonly" id="tagTarget1900Display" hidden></span>
+            <span class="tag-readonly" id="tagTarget1400Display" hidden></span>
+          </div>
+          <label class="custom-tags-label">カスタムタグ（カンマ区切り）
+            <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
           </label>
         </div>
-        <label class="custom-tags-label">カスタムタグ（カンマ区切り）
-          <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
-        </label>
       </fieldset>
     </form>
   </section>
@@ -290,6 +343,11 @@
     <label class="primary-radio" title="単語一覧に表示する見出しの意味にする">
       <input type="radio" name="isPrimarySense" class="is-primary" /> 見出し
     </label>
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
     <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>
@@ -313,6 +371,11 @@
     </select>
     <input type="text" class="word" placeholder="派生語" autocapitalize="none" />
     <input type="text" class="meaning" placeholder="意味" />
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
     <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>
@@ -326,6 +389,11 @@
     <input type="text" class="sentence" placeholder="例文・フレーズ（空所は ＿＿＿）" />
     <input type="text" class="translation" placeholder="和訳" />
     <input type="hidden" class="answer" />
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
     <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
   </div>
 </template>

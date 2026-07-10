@@ -6,6 +6,7 @@ const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
 const MASTER_LIST_ID = "__master__";
 const LAST_LIST_KEY = "vocab-setting-last-list";
+const LAST_ADD_NOTEBOOK_KEY = "vocab-setting-last-add-notebook";
 const THEME_KEY = "vocab-setting-theme";
 
 const state = {
@@ -27,7 +28,7 @@ const state = {
 
 const MASTER_PAGE_SIZE = 150;
 let masterSearchTimer = null;
-let dragState = null; // { type: "word" | "section", id }
+let dragState = null; // { type: "word" | "section", id } | { type: "repeat-row", kind, row }
 
 const el = {
   layout: document.getElementById("layout"),
@@ -53,7 +54,6 @@ const el = {
   listManageList: document.getElementById("listManageList"),
   listManageNewName: document.getElementById("listManageNewName"),
   listManageCreateBtn: document.getElementById("listManageCreateBtn"),
-  listTitle: document.getElementById("listTitle"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
   masterToolbar: document.getElementById("masterToolbar"),
@@ -107,6 +107,8 @@ const el = {
   tagOxford5000: document.getElementById("tagOxford5000"),
   tagAwl: document.getElementById("tagAwl"),
   tagEiken: document.getElementById("tagEiken"),
+  tagTarget1900Display: document.getElementById("tagTarget1900Display"),
+  tagTarget1400Display: document.getElementById("tagTarget1400Display"),
   tagCustom: document.getElementById("tagCustom"),
 };
 
@@ -225,6 +227,7 @@ function updateListModeUi() {
   const master = isMasterView();
   const notebook = isNotebookView();
   el.masterToolbar.hidden = !master;
+  el.addToNotebookBtn.hidden = !master;
   el.newSectionBtn.hidden = !notebook;
   el.newSectionBtn.disabled = !notebook;
   document.body.classList.toggle("view-master", master);
@@ -332,11 +335,15 @@ async function draftFromDictionary() {
     if (info.synonyms?.length > 0 && !el.fieldSynonyms.value.trim()) {
       el.fieldSynonyms.value = info.synonyms.join(", ");
       updatePreview(el.fieldSynonyms, el.synonymsPreview);
+      autosizeTextarea(el.fieldSynonyms);
+      setFieldsetCollapsed("synonyms", false);
       filledAnything = true;
     }
     if (info.antonyms?.length > 0 && !el.fieldAntonyms.value.trim()) {
       el.fieldAntonyms.value = info.antonyms.join(", ");
       updatePreview(el.fieldAntonyms, el.antonymsPreview);
+      autosizeTextarea(el.fieldAntonyms);
+      setFieldsetCollapsed("antonyms", false);
       filledAnything = true;
     }
     if (filledAnything) alert("辞書から下書きを取得しました。");
@@ -387,7 +394,6 @@ async function loadLists() {
     await selectList(state.currentListId);
   } else {
     state.currentListId = null;
-    el.listTitle.textContent = "リストがありません";
     el.newWordBtn.disabled = true;
   }
 }
@@ -397,8 +403,6 @@ async function selectList(listId) {
   localStorage.setItem(LAST_LIST_KEY, listId);
   state.selectedWordIds.clear();
   updateSelectionUi();
-  const list = state.lists.find((l) => l.id === listId);
-  el.listTitle.textContent = list ? list.name : "";
   el.newWordBtn.disabled = !listId;
   updateListModeUi();
   closeEditor();
@@ -702,6 +706,47 @@ function attachSectionDragHandlers(sectionTr, sectionId) {
   });
 }
 
+// 意味・例文・派生語の行を上下ボタン/ドラッグ&ドロップで並び替える。
+// APIには保存時にDOM順のままcollectRows()で送るので、ここではDOM操作だけで完結する。
+function moveRepeatRow(row, direction) {
+  if (direction === -1) {
+    const prev = row.previousElementSibling;
+    if (prev) row.parentElement.insertBefore(row, prev);
+  } else {
+    const next = row.nextElementSibling;
+    if (next) row.parentElement.insertBefore(next, row);
+  }
+}
+
+function attachRepeatRowReorder(row, kind) {
+  const handle = row.querySelector(".row-drag-handle");
+  handle.addEventListener("dragstart", (e) => {
+    dragState = { type: "repeat-row", kind, row };
+    e.dataTransfer.effectAllowed = "move";
+    row.classList.add("dragging");
+  });
+  handle.addEventListener("dragend", () => {
+    row.classList.remove("dragging");
+    row.parentElement.querySelectorAll(".drag-over").forEach((r) => r.classList.remove("drag-over"));
+  });
+  row.addEventListener("dragover", (e) => {
+    if (dragState?.type !== "repeat-row" || dragState.kind !== kind) return;
+    e.preventDefault();
+    row.classList.add("drag-over");
+  });
+  row.addEventListener("dragleave", () => row.classList.remove("drag-over"));
+  row.addEventListener("drop", (e) => {
+    e.preventDefault();
+    row.classList.remove("drag-over");
+    if (dragState?.type !== "repeat-row" || dragState.kind !== kind) return;
+    const draggedRow = dragState.row;
+    dragState = null;
+    if (draggedRow !== row) row.parentElement.insertBefore(draggedRow, row);
+  });
+  row.querySelector('[data-action="row-up"]').addEventListener("click", () => moveRepeatRow(row, -1));
+  row.querySelector('[data-action="row-down"]').addEventListener("click", () => moveRepeatRow(row, 1));
+}
+
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
   el.wordTableEmpty.hidden = state.words.length > 0;
@@ -857,7 +902,7 @@ async function addSelectedToNotebook() {
 
   const notebooks = notebookLists();
   if (notebooks.length === 0) {
-    alert("先に「＋ 新規」から単語帳を作成してください。");
+    alert("先に「編集」から単語帳を作成してください。");
     return;
   }
 
@@ -869,6 +914,8 @@ async function addSelectedToNotebook() {
     opt.textContent = l.name;
     el.addNotebookSelect.appendChild(opt);
   }
+  const lastTarget = localStorage.getItem(LAST_ADD_NOTEBOOK_KEY);
+  if (lastTarget && notebooks.some((l) => l.id === lastTarget)) el.addNotebookSelect.value = lastTarget;
   await loadAddNotebookSections(el.addNotebookSelect.value);
   setAddNotebookModalOpen(true);
 }
@@ -893,8 +940,9 @@ async function confirmAddToNotebook() {
       method: "POST",
       body: JSON.stringify({ wordIds: ids, sectionId }),
     });
+    localStorage.setItem(LAST_ADD_NOTEBOOK_KEY, targetId);
     closeAddNotebookModal();
-    alert(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
+    showToast(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
     state.selectedWordIds.clear();
     updateSelectionUi();
     renderWordTable();
@@ -929,6 +977,7 @@ function addRow(kind, data = {}) {
     node.querySelector(".answer").value = data.answer || "";
   }
   node.querySelector(".remove-row-btn").addEventListener("click", () => node.remove());
+  attachRepeatRowReorder(node, kind);
   container.appendChild(node);
 }
 
@@ -977,6 +1026,28 @@ function isCautionButtonActive(btn) {
   return btn.getAttribute("aria-pressed") === "true";
 }
 
+// ---- 折りたたみ可能なfieldset / テキストエリア自動リサイズ ----
+
+function setFieldsetCollapsed(name, collapsed) {
+  const fs = document.querySelector(`fieldset[data-fieldset="${name}"]`);
+  if (fs) fs.classList.toggle("is-collapsed", collapsed);
+}
+
+function autosizeTextarea(textarea) {
+  textarea.style.height = "auto";
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+function updateTagReadonly(el2, label, value) {
+  if (value) {
+    el2.textContent = `${label}: No.${value}`;
+    el2.hidden = false;
+  } else {
+    el2.textContent = "";
+    el2.hidden = true;
+  }
+}
+
 function openNewWordForm() {
   state.currentWord = null;
   state.isNew = true;
@@ -1001,14 +1072,22 @@ function openNewWordForm() {
   el.fieldSynonyms.value = "";
   el.fieldAntonyms.value = "";
   el.fieldNotes.value = "";
-  el.tagOxford5000.checked = false;
-  el.tagAwl.checked = false;
+  el.tagOxford5000.value = "";
+  el.tagAwl.value = "";
   el.tagEiken.value = "";
   el.tagCustom.value = "";
+  updateTagReadonly(el.tagTarget1900Display, "Target1900", null);
+  updateTagReadonly(el.tagTarget1400Display, "Target1400", null);
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
+  [el.fieldEtymology, el.fieldSynonyms, el.fieldAntonyms, el.fieldNotes].forEach(autosizeTextarea);
+  setFieldsetCollapsed("etymology", true);
+  setFieldsetCollapsed("synonyms", true);
+  setFieldsetCollapsed("antonyms", true);
+  setFieldsetCollapsed("notes", true);
+  setFieldsetCollapsed("tags", true);
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -1048,18 +1127,26 @@ async function openWordEditor(wordId) {
   el.fieldSynonyms.value = detail.synonyms || "";
   el.fieldAntonyms.value = detail.antonyms || "";
   el.fieldNotes.value = detail.notes || "";
-  el.tagOxford5000.checked = "oxford5000" in detail.tags;
-  el.tagAwl.checked = "awl" in detail.tags;
+  el.tagOxford5000.value = detail.tags.oxford5000 || "";
+  el.tagAwl.value = detail.tags.awl || "";
   el.tagEiken.value = detail.tags.eiken || "";
   el.tagCustom.value = Object.entries(detail.tags)
     .filter(([k]) => k.startsWith("custom:"))
     .map(([k]) => k.slice("custom:".length))
     .join(", ");
+  updateTagReadonly(el.tagTarget1900Display, "Target1900", detail.tags.target1900);
+  updateTagReadonly(el.tagTarget1400Display, "Target1400", detail.tags.target1400);
 
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
+  [el.fieldEtymology, el.fieldSynonyms, el.fieldAntonyms, el.fieldNotes].forEach(autosizeTextarea);
+  setFieldsetCollapsed("etymology", !detail.etymology);
+  setFieldsetCollapsed("synonyms", !detail.synonyms);
+  setFieldsetCollapsed("antonyms", !detail.antonyms);
+  setFieldsetCollapsed("notes", !detail.notes);
+  setFieldsetCollapsed("tags", Object.keys(detail.tags).length === 0);
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -1074,8 +1161,8 @@ function closeEditor() {
 
 function collectTags() {
   const tags = {};
-  if (el.tagOxford5000.checked) tags.oxford5000 = true;
-  if (el.tagAwl.checked) tags.awl = true;
+  if (el.tagOxford5000.value) tags.oxford5000 = el.tagOxford5000.value;
+  if (el.tagAwl.value) tags.awl = el.tagAwl.value;
   if (el.tagEiken.value) tags.eiken = el.tagEiken.value;
   for (const raw of el.tagCustom.value.split(",")) {
     const v = raw.trim();
@@ -1420,10 +1507,16 @@ el.fieldSpelling.addEventListener("keydown", (e) => {
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
 el.playAudioBtn.addEventListener("click", playCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
-el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
-el.fieldSynonyms.addEventListener("input", () => updatePreview(el.fieldSynonyms, el.synonymsPreview));
-el.fieldAntonyms.addEventListener("input", () => updatePreview(el.fieldAntonyms, el.antonymsPreview));
-el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
+el.fieldEtymology.addEventListener("input", () => { updatePreview(el.fieldEtymology, el.etymologyPreview); autosizeTextarea(el.fieldEtymology); });
+el.fieldSynonyms.addEventListener("input", () => { updatePreview(el.fieldSynonyms, el.synonymsPreview); autosizeTextarea(el.fieldSynonyms); });
+el.fieldAntonyms.addEventListener("input", () => { updatePreview(el.fieldAntonyms, el.antonymsPreview); autosizeTextarea(el.fieldAntonyms); });
+el.fieldNotes.addEventListener("input", () => { updatePreview(el.fieldNotes, el.notesPreview); autosizeTextarea(el.fieldNotes); });
+
+document.querySelectorAll(".fieldset-toggle").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    btn.closest("fieldset").classList.toggle("is-collapsed");
+  });
+});
 
 document.querySelectorAll(".add-row-btn").forEach((btn) => {
   btn.addEventListener("click", () => addRow(btn.dataset.add));
