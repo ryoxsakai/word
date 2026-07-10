@@ -6,6 +6,7 @@ const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
 const MASTER_LIST_ID = "__master__";
 const LAST_LIST_KEY = "vocab-setting-last-list";
+const THEME_KEY = "vocab-setting-theme";
 
 const state = {
   lists: [],
@@ -30,6 +31,7 @@ let dragState = null; // { type: "word" | "section", id }
 
 const el = {
   layout: document.getElementById("layout"),
+  themeToggleBtn: document.getElementById("themeToggleBtn"),
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
   editModalOverlay: document.getElementById("editModalOverlay"),
@@ -166,22 +168,35 @@ function escapeHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function formatLevelBadges(w) {
-  const badges = [];
-  if (w.awlSublist) badges.push({ cls: "badge-awl", text: `AWL ${w.awlSublist}` });
-  if (w.oxfordLevel) badges.push({ cls: "badge-oxford", text: w.oxfordLevel });
-  if (w.eiken) badges.push({ cls: "badge-eiken", text: `英検${w.eiken}` });
-  if (w.target1900No) badges.push({ cls: "badge-target1900", text: `1900-${w.target1900No}` });
-  if (w.target1400No) badges.push({ cls: "badge-target1400", text: `1400-${w.target1400No}` });
-  if (badges.length === 0) return '<span class="level-empty">―</span>';
-  return badges.map((b) => `<span class="level-badge ${b.cls}">${escapeHtml(b.text)}</span>`).join("");
+function formatLevelBadgeCell(w, type) {
+  switch (type) {
+    case "awl":
+      return w.awlSublist ? `<span class="level-badge badge-awl">${escapeHtml(String(w.awlSublist))}</span>` : "";
+    case "oxford":
+      return w.oxfordLevel ? `<span class="level-badge badge-oxford">${escapeHtml(w.oxfordLevel)}</span>` : "";
+    case "eiken":
+      return w.eiken ? `<span class="level-badge badge-eiken">${escapeHtml(w.eiken)}</span>` : "";
+    case "target1900":
+      return w.target1900No ? `<span class="level-badge badge-target1900">${escapeHtml(String(w.target1900No))}</span>` : "";
+    case "target1400":
+      return w.target1400No ? `<span class="level-badge badge-target1400">${escapeHtml(String(w.target1400No))}</span>` : "";
+    default:
+      return "";
+  }
 }
 
-function formatCautionIcons(w) {
-  const marks = [];
-  if (w.pronunciationCaution) marks.push('<span class="caution-icon caution-pronunciation" title="発音注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>発</span>');
-  if (w.accentCaution) marks.push('<span class="caution-icon caution-accent" title="アクセント注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>ア</span>');
-  return marks.join("");
+function formatCautionBadgeCell(w, type) {
+  if (type === "pron") {
+    return w.pronunciationCaution
+      ? '<span class="caution-icon caution-pronunciation" title="発音注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
+  if (type === "accent") {
+    return w.accentCaution
+      ? '<span class="caution-icon caution-accent" title="アクセント注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
+  return "";
 }
 
 function updateSelectionUi() {
@@ -491,10 +506,15 @@ async function createSectionForCurrentList() {
   }
 }
 
+const LEVEL_COLUMNS_HEAD =
+  '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
+const PRON_COLUMNS_HEAD =
+  '<th class="col-pron">発音</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th>';
+
 function renderWordTableHead() {
   if (isMasterView()) {
     el.wordTableHead.innerHTML =
-      '<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th><th class="col-levels">レベル</th><th class="col-pron">発音</th></tr>';
+      `<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}</tr>`;
     const checkAll = document.getElementById("checkAllMaster");
     checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
     checkAll.indeterminate =
@@ -507,7 +527,7 @@ function renderWordTableHead() {
     });
   } else {
     el.wordTableHead.innerHTML =
-      '<tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-levels">レベル</th><th class="col-pron">発音</th><th class="col-move">並び替え</th></tr>';
+      `<tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並び替え</th></tr>`;
   }
 }
 
@@ -674,7 +694,7 @@ function renderWordTable() {
     : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
 
   let lastSectionId = undefined;
-  const colspan = isMasterView() ? 5 : 6;
+  const colspan = isMasterView() ? 11 : 12;
 
   for (const w of state.words) {
     if (!isMasterView() && w.sectionId !== lastSectionId) {
@@ -716,13 +736,21 @@ function renderWordTable() {
     if (state.currentWord?.id === w.id) tr.classList.add("selected");
     if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
 
-    const levels = formatLevelBadges(w);
     const meaningCell = `<td class="col-meaning">${escapeHtml(w.primaryMeaning || "")}</td>`;
-    const pronCell = `<td class="col-pron">${formatCautionIcons(w)}${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>`;
+    const levelCells =
+      `<td class="col-awl">${formatLevelBadgeCell(w, "awl")}</td>` +
+      `<td class="col-oxford">${formatLevelBadgeCell(w, "oxford")}</td>` +
+      `<td class="col-eiken">${formatLevelBadgeCell(w, "eiken")}</td>` +
+      `<td class="col-target1900">${formatLevelBadgeCell(w, "target1900")}</td>` +
+      `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
+    const pronCells =
+      `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
+      `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
+      `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>`;
 
     if (isMasterView()) {
       const checked = state.selectedWordIds.has(w.id);
-      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}<td class="col-levels">${levels}</td>${pronCell}`;
+      tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}`;
       const cb = tr.querySelector(".word-check");
       cb.addEventListener("click", (e) => e.stopPropagation());
       cb.addEventListener("change", () => {
@@ -739,7 +767,7 @@ function renderWordTable() {
       const moveCell = w.branch
         ? `<td class="col-move"></td>`
         : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></td>`;
-      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}<td class="col-levels">${levels}</td>${pronCell}${moveCell}`;
+      tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}${moveCell}`;
       tr.addEventListener("click", () => openWordEditor(w.id));
       if (!w.branch) {
         tr.draggable = true;
@@ -1272,3 +1300,25 @@ loadLists().catch((err) => {
   console.error(err);
   el.listTitle.textContent = `読み込みエラー: ${err.message}`;
 });
+
+// ---- テーマ切り替え ----
+
+function currentEffectiveTheme() {
+  const explicit = document.documentElement.dataset.theme;
+  if (explicit) return explicit;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+  if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+  el.themeToggleBtn.textContent = currentEffectiveTheme() === "dark" ? "ライト" : "ダーク";
+}
+
+el.themeToggleBtn.addEventListener("click", () => {
+  const next = currentEffectiveTheme() === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
+
+applyTheme(localStorage.getItem(THEME_KEY));
