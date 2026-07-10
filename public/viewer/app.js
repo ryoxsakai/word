@@ -250,7 +250,7 @@ function renderEntry(w) {
     <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}">
       ${group.pos ? `<span class="pos-badge">${escapeHtml(group.pos)}</span>` : ""}
       ${meaningsHtml}
-      ${pron ? `<span class="pron sense-pron">[${escapeHtml(formatPronunciationWithAccents(pron))}]</span>` : ""}
+      ${pron ? `<span class="pron sense-pron">${escapeHtml(formatPronunciationWithAccents(pron))}</span>` : ""}
     </div>`;
     })
     .join("");
@@ -269,19 +269,11 @@ function renderEntry(w) {
     : "";
 
   const derivativesHtml = (w.derivatives || []).length
-    ? `<div class="derivative-list">${w.derivatives
+    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="derivative-items">${w.derivatives
         .map(
-          (d) => `
-        <div class="derivative-line">
-          <span class="bullet hollow">◇</span>
-          <span class="derivative-head">
-            <span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>
-            ${d.pos ? `<span class="pos-badge">${escapeHtml(d.pos)}</span>` : ""}
-          </span>
-          ${d.meaning ? `<span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}
-        </div>`
+          (d) => `<span class="derivative-item">${d.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(d.pos)}</span> ` : ""}<span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>${d.meaning ? ` <span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
         )
-        .join("")}</div>`
+        .join("")}</span></div>`
     : "";
 
   const etymologyHtml = w.etymology
@@ -312,7 +304,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        ${w.pronunciation ? `<span class="pron">[${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}]<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
+        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cautionHtml}
       </div>
       ${familyLine}
