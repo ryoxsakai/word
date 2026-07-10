@@ -100,6 +100,7 @@ const el = {
   playAudioBtn: document.getElementById("playAudioBtn"),
   pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
   accentCautionBtn: document.getElementById("accentCautionBtn"),
+  polysemousCautionBtn: document.getElementById("polysemousCautionBtn"),
   draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
@@ -222,6 +223,11 @@ function formatCautionBadgeCell(w, type) {
   if (type === "accent") {
     return w.accentCaution
       ? '<span class="caution-icon caution-accent" title="アクセント注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
+  if (type === "poly") {
+    return w.polysemousCaution
+      ? '<span class="caution-icon caution-polysemous" title="多義語"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
       : "";
   }
   return "";
@@ -623,7 +629,7 @@ function closeSectionManageModal() {
 const LEVEL_COLUMNS_HEAD =
   '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
-  '<th class="col-pron">発音</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th>';
+  '<th class="col-pron">発音</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th>';
 
 function renderWordTableHead() {
   if (isMasterView()) {
@@ -892,7 +898,8 @@ function buildWordRow(w) {
   const pronCells =
     `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
     `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
-    `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>`;
+    `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
+    `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>`;
 
   if (isMasterView()) {
     const checked = state.selectedWordIds.has(w.id);
@@ -1214,6 +1221,7 @@ function openNewWordForm() {
   updatePlayAudioButton();
   setCautionButton(el.pronunciationCautionBtn, false);
   setCautionButton(el.accentCautionBtn, false);
+  setCautionButton(el.polysemousCautionBtn, false);
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
@@ -1267,6 +1275,7 @@ async function openWordEditor(wordId) {
   updatePlayAudioButton();
   setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
   setCautionButton(el.accentCautionBtn, detail.accentCaution);
+  setCautionButton(el.polysemousCautionBtn, detail.polysemousCaution);
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
 
@@ -1337,6 +1346,7 @@ async function saveWord() {
     audioUrl: state.currentAudioUrl || null,
     pronunciationCaution: isCautionButtonActive(el.pronunciationCautionBtn),
     accentCaution: isCautionButtonActive(el.accentCautionBtn),
+    polysemousCaution: isCautionButtonActive(el.polysemousCautionBtn),
     derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
@@ -1620,6 +1630,9 @@ el.pronunciationCautionBtn.addEventListener("click", () =>
 );
 el.accentCautionBtn.addEventListener("click", () =>
   setCautionButton(el.accentCautionBtn, !isCautionButtonActive(el.accentCautionBtn))
+);
+el.polysemousCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.polysemousCautionBtn, !isCautionButtonActive(el.polysemousCautionBtn))
 );
 
 el.listSelect.addEventListener("change", (e) => {
