@@ -30,7 +30,6 @@
     <div class="topbar-row topbar-row--secondary" id="topbarMenu">
       <div class="master-toolbar" id="masterToolbar" hidden>
         <div class="master-filters">
-          <input type="search" id="masterSearch" placeholder="スペルで検索…" autocomplete="off" />
           <select id="filterAwl" aria-label="AWL sublistで絞り込み">
             <option value="">AWL 全sublist</option>
             <option value="1">AWL 1</option>
@@ -72,10 +71,15 @@
           <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
         </div>
         <div class="pane-header-actions">
-          <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳に追加</span></button>
-          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語を追加</span></button>
-          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
+          <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>＋単語帳</span></button>
+          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>＋単語</span></button>
+          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>＋セクション</span></button>
+          <button id="toggleSearchBtn" type="button" class="btn-ghost btn-icon-only" aria-expanded="false" aria-controls="tableSearchRow" title="検索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
         </div>
+      </div>
+
+      <div class="table-search-row" id="tableSearchRow" hidden>
+        <input type="search" id="tableSearchInput" placeholder="スペルで検索…" autocomplete="off" />
       </div>
 
       <div class="table-scroll" id="tableScroll">
