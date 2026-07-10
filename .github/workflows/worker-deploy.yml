@@ -55,15 +55,3 @@ jobs:
           curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
-
-      - name: Apply example translations batch 13-18 (IDs 1803-2702)
-        run: |
-          sleep 15
-          for batch in 13 14 15 16 17 18; do
-            echo "Applying batch $batch..."
-            curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/fix-examples-translation" \
-              -H "Content-Type: application/json" \
-              -d @src/data/examples-translation-batch${batch}.json \
-              --retry 5 --retry-delay 10 --retry-all-errors
-            sleep 2
-          done
