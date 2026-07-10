@@ -454,7 +454,7 @@ button { font-family: inherit; }
 .bullet.hollow { color: var(--text-muted); }
 .example-phrase, .example-translation, .derivative-head, .derivative-meaning { grid-column: 2; }
 .example-phrase, .derivative-word { color: var(--text); }
-.example-translation, .derivative-meaning { color: var(--text-muted); font-size: 0.85em; }
+.example-translation, .derivative-meaning { color: var(--text-muted); font-size: 0.7em; }
 .derivative-head { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
 
 .blank-toggle {
