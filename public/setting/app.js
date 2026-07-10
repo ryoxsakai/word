@@ -7,6 +7,7 @@ const NEW_SECTION_VALUE = "__new__";
 const MASTER_LIST_ID = "__master__";
 const LAST_LIST_KEY = "vocab-setting-last-list";
 const LAST_ADD_NOTEBOOK_KEY = "vocab-setting-last-add-notebook";
+const LAST_ADD_NOTEBOOK_SECTION_KEY = "vocab-setting-last-add-notebook-section";
 const THEME_KEY = "vocab-setting-theme";
 
 const state = {
@@ -989,7 +990,8 @@ function closeAddNotebookModal() {
 }
 
 // 選択中の単語帳に対応するセクション一覧をプルダウンへ読み込む。
-async function loadAddNotebookSections(listId) {
+// preferredSectionValueを渡すと、選択肢に存在する場合そのセクションを初期選択する(前回の記憶を復元する用途)。
+async function loadAddNotebookSections(listId, preferredSectionValue) {
   el.addNotebookSection.innerHTML = '<option value="">（セクションなし）</option>';
   if (!listId) return;
   try {
@@ -1002,6 +1004,9 @@ async function loadAddNotebookSections(listId) {
     }
   } catch {
     /* sections optional */
+  }
+  if (preferredSectionValue != null && [...el.addNotebookSection.options].some((o) => o.value === preferredSectionValue)) {
+    el.addNotebookSection.value = preferredSectionValue;
   }
 }
 
@@ -1026,7 +1031,8 @@ async function addSelectedToNotebook() {
   }
   const lastTarget = localStorage.getItem(LAST_ADD_NOTEBOOK_KEY);
   if (lastTarget && notebooks.some((l) => l.id === lastTarget)) el.addNotebookSelect.value = lastTarget;
-  await loadAddNotebookSections(el.addNotebookSelect.value);
+  const lastSection = localStorage.getItem(LAST_ADD_NOTEBOOK_SECTION_KEY);
+  await loadAddNotebookSections(el.addNotebookSelect.value, lastSection);
   setAddNotebookModalOpen(true);
 }
 
@@ -1051,6 +1057,7 @@ async function confirmAddToNotebook() {
       body: JSON.stringify({ wordIds: ids, sectionId }),
     });
     localStorage.setItem(LAST_ADD_NOTEBOOK_KEY, targetId);
+    localStorage.setItem(LAST_ADD_NOTEBOOK_SECTION_KEY, sectionValue);
     closeAddNotebookModal();
     showToast(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
     state.selectedWordIds.clear();
