@@ -458,8 +458,8 @@ button { font-family: inherit; }
   opacity: 0.7;
 }
 
-.example-list, .derivative-list { display: flex; flex-direction: column; gap: 0.35rem; }
-.example-line, .derivative-line {
+.example-list { display: flex; flex-direction: column; gap: 0.35rem; }
+.example-line {
   display: grid;
   grid-template-columns: 1.1rem 1fr;
   column-gap: 0.5rem;
@@ -469,10 +469,16 @@ button { font-family: inherit; }
 }
 .bullet { grid-column: 1; grid-row: 1; color: var(--accent); font-size: 0.75rem; }
 .bullet.hollow { color: var(--text-muted); }
-.example-phrase, .example-translation, .derivative-head, .derivative-meaning { grid-column: 2; }
-.example-phrase, .derivative-word { color: var(--text); }
-.example-translation, .derivative-meaning { color: var(--text-muted); font-size: 0.7em; }
-.derivative-head { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+.example-phrase, .example-translation { grid-column: 2; }
+.example-phrase { color: var(--text); }
+.example-translation { color: var(--text-muted); font-size: 0.7em; }
+
+.derivative-items { display: inline; }
+.derivative-item { margin-right: 1.1em; white-space: nowrap; }
+.derivative-item:last-child { margin-right: 0; }
+.pos-badge.derivative-pos { opacity: 0.6; vertical-align: middle; }
+.derivative-word { font-weight: 600; }
+.derivative-meaning { color: var(--text-muted); font-weight: 400; }
 
 .blank-toggle {
   border: none;
@@ -492,28 +498,34 @@ button { font-family: inherit; }
 
 .notes-block { font-size: 0.7rem; color: var(--text-muted); }
 .notes-label { font-weight: 700; display: inline-block; vertical-align: baseline; font-size: 1em; padding: 0.1em 0.5em; border-radius: 4px; margin-right: 0.5rem; white-space: nowrap; border: 1px solid currentColor; }
+.notes-block.notes-derivative { color: #00695c; }
 .notes-block.notes-etymology { color: #2e7d32; }
 .notes-block.notes-synonym { color: #1565c0; }
 .notes-block.notes-antonym { color: #e65100; }
 .notes-block.notes-memo { color: #6a1b9a; }
+.notes-label.derivative-badge { background-color: #e0f2f1; color: #00695c; }
 .notes-label.etymology-badge { background-color: #e8f5e9; color: #2e7d32; }
 .notes-label.synonym-badge { background-color: #e3f2fd; color: #1565c0; }
 .notes-label.antonym-badge { background-color: #fff3e0; color: #e65100; }
 .notes-label.memo-badge { background-color: #f3e5f5; color: #6a1b9a; }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-block.notes-derivative { color: #80cbc4; }
   :root:not([data-theme="light"]) .notes-block.notes-etymology { color: #81c995; }
   :root:not([data-theme="light"]) .notes-block.notes-synonym { color: #90caf9; }
   :root:not([data-theme="light"]) .notes-block.notes-antonym { color: #ffb74d; }
   :root:not([data-theme="light"]) .notes-block.notes-memo { color: #ce93d8; }
+  :root:not([data-theme="light"]) .notes-label.derivative-badge { background-color: #004d40; color: #80cbc4; }
   :root:not([data-theme="light"]) .notes-label.etymology-badge { background-color: #1e3d2e; color: #81c995; }
   :root:not([data-theme="light"]) .notes-label.synonym-badge { background-color: #0d47a1; color: #90caf9; }
   :root:not([data-theme="light"]) .notes-label.antonym-badge { background-color: #bf360c; color: #ffb74d; }
   :root:not([data-theme="light"]) .notes-label.memo-badge { background-color: #4a148c; color: #ce93d8; }
 }
+:root[data-theme="dark"] .notes-block.notes-derivative { color: #80cbc4; }
 :root[data-theme="dark"] .notes-block.notes-etymology { color: #81c995; }
 :root[data-theme="dark"] .notes-block.notes-synonym { color: #90caf9; }
 :root[data-theme="dark"] .notes-block.notes-antonym { color: #ffb74d; }
 :root[data-theme="dark"] .notes-block.notes-memo { color: #ce93d8; }
+:root[data-theme="dark"] .notes-label.derivative-badge { background-color: #004d40; color: #80cbc4; }
 :root[data-theme="dark"] .notes-label.etymology-badge { background-color: #1e3d2e; color: #81c995; }
 :root[data-theme="dark"] .notes-label.synonym-badge { background-color: #0d47a1; color: #90caf9; }
 :root[data-theme="dark"] .notes-label.antonym-badge { background-color: #bf360c; color: #ffb74d; }
@@ -678,10 +690,12 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
   .caution-badge.caution-pronunciation { background: #fff4e0 !important; color: #8a5a00 !important; }
   .caution-badge.caution-accent { background: #fde3e3 !important; color: #b3261e !important; }
+  .notes-label.derivative-badge { background-color: #e0f2f1 !important; color: #00695c !important; }
   .notes-label.etymology-badge { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
   .notes-label.synonym-badge { background-color: #e3f2fd !important; color: #1565c0 !important; }
   .notes-label.antonym-badge { background-color: #fff3e0 !important; color: #e65100 !important; }
   .notes-label.memo-badge { background-color: #f3e5f5 !important; color: #6a1b9a !important; }
+  .notes-block.notes-derivative { color: #00695c !important; }
   .notes-block.notes-etymology { color: #2e7d32 !important; }
   .notes-block.notes-synonym { color: #1565c0 !important; }
   .notes-block.notes-antonym { color: #e65100 !important; }

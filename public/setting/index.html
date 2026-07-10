@@ -135,7 +135,7 @@
       </div>
 
       <fieldset>
-        <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞。「見出し」は単語一覧に表示する代表の意味</span></legend>
+        <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語。「見出し」は単語一覧に表示する代表の意味</span></legend>
         <div id="sensesList" class="repeat-list"></div>
         <button type="button" class="add-row-btn" data-add="senses"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>意味を追加</span></button>
       </fieldset>
@@ -323,7 +323,7 @@
 
 <template id="senseRowTpl">
   <div class="repeat-row sense-row" data-kind="senses">
-    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞">
+    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語">
       <option value="">―</option>
       <option value="名">名</option>
       <option value="自">自</option>
@@ -337,6 +337,8 @@
       <option value="接">接</option>
       <option value="間">間</option>
       <option value="助">助</option>
+      <option value="熟">熟</option>
+      <option value="連">連</option>
     </select>
     <input type="text" class="meaning" placeholder="意味" />
     <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" />
@@ -354,7 +356,7 @@
 
 <template id="derivativeRowTpl">
   <div class="repeat-row derivative-row" data-kind="derivatives">
-    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞">
+    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語">
       <option value="">―</option>
       <option value="名">名</option>
       <option value="自">自</option>
@@ -368,6 +370,8 @@
       <option value="接">接</option>
       <option value="間">間</option>
       <option value="助">助</option>
+      <option value="熟">熟</option>
+      <option value="連">連</option>
     </select>
     <input type="text" class="word" placeholder="派生語" autocapitalize="none" />
     <input type="text" class="meaning" placeholder="意味" />
