@@ -287,19 +287,19 @@ button { font-family: inherit; }
 
 .section-divider {
   margin: 1.4rem 0 0.6rem;
-  padding: 0.45rem 0.7rem;
-  background: var(--bg-soft);
-  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  background: linear-gradient(135deg, var(--header-grad-1), var(--header-grad-2));
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(20, 28, 50, 0.12);
 }
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
-.section-title { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); }
-.section-subtitle { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); opacity: 0.75; }
+.section-title { font-size: 1.02rem; font-weight: 700; color: #fff; }
+.section-subtitle { font-size: 0.9rem; font-weight: 500; color: rgba(255, 255, 255, 0.85); }
 .section-description {
-  margin-top: 0.2rem;
-  font-size: 0.74rem;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
   font-weight: 400;
-  color: var(--text-muted);
-  opacity: 0.7;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.4;
 }
 
@@ -373,6 +373,7 @@ button { font-family: inherit; }
   font-weight: 650;
   padding: 0.05rem 0.4rem;
   border-radius: 999px;
+  border: 1px solid currentColor;
 }
 .caution-badge i { font-size: 0.9em; }
 .caution-badge.caution-pronunciation { background: #fff4e0; color: #8a5a00; }
@@ -386,14 +387,15 @@ button { font-family: inherit; }
 
 .entry-card {
   margin-top: 0.15rem;
-  background: var(--card-bg);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 0.75rem 0.9rem;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  border: 1px solid;
-  border-image: linear-gradient(135deg, rgba(100, 150, 200, 0.4), rgba(150, 100, 200, 0.4)) 1;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+    linear-gradient(135deg, rgba(100, 150, 200, 0.4), rgba(150, 100, 200, 0.4)) border-box;
 }
 
 .sense-line { display: flex; align-items: center; gap: 0.45rem; font-size: 0.98rem; }
@@ -481,16 +483,25 @@ button { font-family: inherit; }
 .etymology-block { font-size: 0.88rem; color: var(--text-muted); }
 .etymology-label { font-weight: 700; color: var(--text); margin-right: 0.3rem; }
 
-.notes-block { font-size: 0.88rem; color: var(--text-muted); }
-.notes-label { font-weight: 700; color: var(--text); margin-right: 0.3rem; display: inline-block; font-size: 0.5em; padding: 0.4em 0.6em; border-radius: 4px; margin-right: 0.5rem; white-space: nowrap; }
+.notes-block { font-size: 0.7rem; color: var(--text-muted); }
+.notes-label { font-weight: 700; display: inline-block; vertical-align: baseline; font-size: 1em; padding: 0.1em 0.5em; border-radius: 4px; margin-right: 0.5rem; white-space: nowrap; }
+.notes-block.notes-synonym { color: #1565c0; }
+.notes-block.notes-antonym { color: #e65100; }
+.notes-block.notes-memo { color: #6a1b9a; }
 .notes-label.synonym-badge { background-color: #e3f2fd; color: #1565c0; }
 .notes-label.antonym-badge { background-color: #fff3e0; color: #e65100; }
 .notes-label.memo-badge { background-color: #f3e5f5; color: #6a1b9a; }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notes-block.notes-synonym { color: #90caf9; }
+  :root:not([data-theme="light"]) .notes-block.notes-antonym { color: #ffb74d; }
+  :root:not([data-theme="light"]) .notes-block.notes-memo { color: #ce93d8; }
   :root:not([data-theme="light"]) .notes-label.synonym-badge { background-color: #0d47a1; color: #90caf9; }
   :root:not([data-theme="light"]) .notes-label.antonym-badge { background-color: #bf360c; color: #ffb74d; }
   :root:not([data-theme="light"]) .notes-label.memo-badge { background-color: #4a148c; color: #ce93d8; }
 }
+:root[data-theme="dark"] .notes-block.notes-synonym { color: #90caf9; }
+:root[data-theme="dark"] .notes-block.notes-antonym { color: #ffb74d; }
+:root[data-theme="dark"] .notes-block.notes-memo { color: #ce93d8; }
 :root[data-theme="dark"] .notes-label.synonym-badge { background-color: #0d47a1; color: #90caf9; }
 :root[data-theme="dark"] .notes-label.antonym-badge { background-color: #bf360c; color: #ffb74d; }
 :root[data-theme="dark"] .notes-label.memo-badge { background-color: #4a148c; color: #ce93d8; }
@@ -591,9 +602,9 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 /* 保存された no ではなく、単語一覧の文字だけを --font-scale 倍して拡大縮小する。
    既存ルールは書き換えず、.word-list 配下の上書きとして定義（既定値1で従来と同じ見た目）。 */
 :root { --font-scale: 1; }
-.word-list .section-title { font-size: calc(0.82rem * var(--font-scale)); }
-.word-list .section-subtitle { font-size: calc(0.78rem * var(--font-scale)); }
-.word-list .section-description { font-size: calc(0.74rem * var(--font-scale)); }
+.word-list .section-title { font-size: calc(1.02rem * var(--font-scale)); }
+.word-list .section-subtitle { font-size: calc(0.9rem * var(--font-scale)); }
+.word-list .section-description { font-size: calc(0.7rem * var(--font-scale)); }
 .word-list .entry-no { font-size: calc(1.05rem * var(--font-scale)); }
 .word-list .entry.branch-entry .entry-no { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .headword { font-size: calc(1.3rem * var(--font-scale)); }
@@ -603,7 +614,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 .word-list .sense-pron { font-size: calc(0.78rem * var(--font-scale)); }
 .word-list .pos-badge { font-size: calc(0.72rem * var(--font-scale)); }
 .word-list .example-line, .word-list .derivative-line { font-size: calc(0.9rem * var(--font-scale)); }
-.word-list .etymology-block, .word-list .notes-block { font-size: calc(0.88rem * var(--font-scale)); }
+.word-list .etymology-block { font-size: calc(0.88rem * var(--font-scale)); }
+.word-list .notes-block { font-size: calc(0.7rem * var(--font-scale)); }
 .word-list .family-block { font-size: calc(0.82rem * var(--font-scale)); }
 
 /* ---- 印刷用スタイル ---- */
@@ -632,10 +644,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     print-color-adjust: exact;
   }
 
-  /* セクション帯を枠付きで印刷 */
+  /* セクション帯はグラデーションのまま印刷（白文字が読めるように背景を維持） */
   .section-divider {
-    background: var(--bg-soft) !important;
-    border: 1px solid var(--border);
     break-inside: avoid;
   }
   /* 「意味〜メモ」のカード枠を印刷 */

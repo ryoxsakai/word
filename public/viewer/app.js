@@ -268,13 +268,13 @@ function renderEntry(w) {
     ? `<div class="etymology-block"><span class="etymology-label">(コア)</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
     : "";
   const synonymsHtml = w.synonyms
-    ? `<div class="notes-block"><span class="notes-label synonym-badge">類義語</span>${renderMarkup(w.synonyms, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span>${renderMarkup(w.synonyms, { resolve: resolveRef })}</div>`
     : "";
   const antonymsHtml = w.antonyms
-    ? `<div class="notes-block"><span class="notes-label antonym-badge">対義語</span>${renderMarkup(w.antonyms, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span>${renderMarkup(w.antonyms, { resolve: resolveRef })}</div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block"><span class="notes-label memo-badge">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
     : "";
 
   const cautionHtml = [
