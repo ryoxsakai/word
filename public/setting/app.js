@@ -9,6 +9,7 @@ const LAST_LIST_KEY = "vocab-setting-last-list";
 const LAST_ADD_NOTEBOOK_KEY = "vocab-setting-last-add-notebook";
 const LAST_ADD_NOTEBOOK_SECTION_KEY = "vocab-setting-last-add-notebook-section";
 const THEME_KEY = "vocab-setting-theme";
+const SEARCH_VISIBLE_KEY = "vocab-setting-search-visible";
 
 const state = {
   lists: [],
@@ -22,13 +23,14 @@ const state = {
   currentAudioUrl: null,
   selectedWordIds: new Set(),
   masterFilter: { q: "", awl: "", oxford: "", target1900: "", target1400: "" },
+  notebookSearchQuery: "",
   masterOffset: 0,
   masterHasMore: false,
   masterLoading: false,
 };
 
 const MASTER_PAGE_SIZE = 150;
-let masterSearchTimer = null;
+let tableSearchTimer = null;
 let dragState = null; // { type: "word" | "section", id } | { type: "repeat-row", kind, row }
 
 const el = {
@@ -62,8 +64,10 @@ const el = {
   sectionManageCreateBtn: document.getElementById("sectionManageCreateBtn"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
+  toggleSearchBtn: document.getElementById("toggleSearchBtn"),
+  tableSearchRow: document.getElementById("tableSearchRow"),
+  tableSearchInput: document.getElementById("tableSearchInput"),
   masterToolbar: document.getElementById("masterToolbar"),
-  masterSearch: document.getElementById("masterSearch"),
   filterAwl: document.getElementById("filterAwl"),
   filterOxford: document.getElementById("filterOxford"),
   filterTarget1900: document.getElementById("filterTarget1900"),
@@ -412,6 +416,9 @@ async function selectList(listId) {
   el.newWordBtn.disabled = !listId;
   updateListModeUi();
   closeEditor();
+  state.masterFilter.q = "";
+  state.notebookSearchQuery = "";
+  el.tableSearchInput.value = "";
   await Promise.all([loadWordsForList(listId), loadSectionsForList(listId)]);
 }
 
@@ -926,20 +933,27 @@ function buildWordRow(w) {
 
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
-  el.wordTableEmpty.hidden = state.words.length > 0;
-  el.wordTableEmpty.textContent = isMasterView()
-    ? "条件に一致する単語がありません。"
-    : "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。";
 
   if (isMasterView()) {
+    el.wordTableEmpty.hidden = state.words.length > 0;
+    el.wordTableEmpty.textContent = "条件に一致する単語がありません。";
     for (const w of state.words) el.wordTableBody.appendChild(buildWordRow(w));
     return;
   }
 
+  const query = state.notebookSearchQuery;
+  const words = query ? state.words.filter((w) => w.spelling.toLowerCase().includes(query)) : state.words;
+
+  el.wordTableEmpty.hidden = words.length > 0;
+  el.wordTableEmpty.textContent =
+    state.words.length === 0
+      ? "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。"
+      : "検索条件に一致する単語がありません。";
+
   // セクションは単語が0件でも帯を表示する(新規作成直後に見えなくなるのを防ぐため)。
   // セクションなしの単語は先頭、以降はstate.sectionsの並び順どおりに帯を出す。
   const wordsBySection = new Map();
-  for (const w of state.words) {
+  for (const w of words) {
     const key = w.sectionId ?? null;
     if (!wordsBySection.has(key)) wordsBySection.set(key, []);
     wordsBySection.get(key).push(w);
@@ -953,8 +967,8 @@ function renderWordTable() {
 
   for (const section of state.sections) {
     el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.name, section.subtitle));
-    const words = wordsBySection.get(section.id) || [];
-    for (const w of words) el.wordTableBody.appendChild(buildWordRow(w));
+    const wordsInSection = wordsBySection.get(section.id) || [];
+    for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
   }
 }
 
@@ -972,8 +986,31 @@ function clearWordSelection() {
   renderWordTable();
 }
 
+function setSearchRowVisible(visible) {
+  el.tableSearchRow.hidden = !visible;
+  el.toggleSearchBtn.setAttribute("aria-expanded", String(visible));
+  el.toggleSearchBtn.classList.toggle("is-active", visible);
+  localStorage.setItem(SEARCH_VISIBLE_KEY, visible ? "1" : "0");
+  if (visible) {
+    el.tableSearchInput.focus();
+  } else if (el.tableSearchInput.value) {
+    el.tableSearchInput.value = "";
+    applyTableSearch();
+  }
+}
+
+// 検索窓の入力を現在のビューに応じて振り分ける(マスターはサーバー側フィルタ、単語帳はクライアント側で絞り込む)。
+async function applyTableSearch() {
+  if (isMasterView()) {
+    await applyMasterFilters();
+  } else {
+    state.notebookSearchQuery = el.tableSearchInput.value.trim().toLowerCase();
+    renderWordTable();
+  }
+}
+
 async function applyMasterFilters() {
-  state.masterFilter.q = el.masterSearch.value.trim();
+  state.masterFilter.q = el.tableSearchInput.value.trim();
   state.masterFilter.awl = el.filterAwl.value;
   state.masterFilter.oxford = el.filterOxford.value;
   state.masterFilter.target1900 = el.filterTarget1900.checked;
@@ -1611,9 +1648,10 @@ el.newSectionBtn.addEventListener("click", openSectionManageModal);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);
 el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);
-el.masterSearch.addEventListener("input", () => {
-  clearTimeout(masterSearchTimer);
-  masterSearchTimer = setTimeout(() => applyMasterFilters(), 300);
+el.toggleSearchBtn.addEventListener("click", () => setSearchRowVisible(el.tableSearchRow.hidden));
+el.tableSearchInput.addEventListener("input", () => {
+  clearTimeout(tableSearchTimer);
+  tableSearchTimer = setTimeout(() => applyTableSearch(), 300);
 });
 el.filterAwl.addEventListener("change", () => applyMasterFilters());
 el.filterOxford.addEventListener("change", () => applyMasterFilters());
@@ -1674,3 +1712,10 @@ el.themeToggleBtn.addEventListener("click", () => {
 });
 
 applyTheme(localStorage.getItem(THEME_KEY));
+
+// 検索窓の表示状態をlocalStorageから復元する(inputへのフォーカスは初期表示時には行わない)。
+if (localStorage.getItem(SEARCH_VISIBLE_KEY) === "1") {
+  el.tableSearchRow.hidden = false;
+  el.toggleSearchBtn.setAttribute("aria-expanded", "true");
+  el.toggleSearchBtn.classList.add("is-active");
+}
