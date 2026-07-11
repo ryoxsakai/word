@@ -726,7 +726,6 @@ textarea:focus-visible {
 
 select { cursor: pointer; }
 textarea { resize: vertical; min-height: 4.5rem; line-height: 1.55; }
-textarea.autosize { resize: none; min-height: 2.5rem; overflow: hidden; }
 
 /* ---- form sections ---- */
 
@@ -776,56 +775,6 @@ legend .hint {
   font-size: 0.72rem;
   margin-left: 0.35rem;
 }
-
-/* ---- 折りたたみ可能なfieldset ---- */
-
-fieldset.collapsible {
-  padding: 0;
-  overflow: hidden;
-}
-
-.fieldset-toggle {
-  display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  width: 100%;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  padding: 0.85rem 1rem;
-  min-height: 0;
-  font-family: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-.fieldset-toggle:hover { background: var(--bg-soft); }
-
-.fieldset-title {
-  font-size: 0.82rem;
-  font-weight: 650;
-  color: var(--text);
-}
-
-.fieldset-toggle .hint {
-  font-weight: 400;
-  color: var(--text-muted);
-  font-size: 0.72rem;
-}
-
-.fieldset-chevron {
-  margin-left: auto;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  transition: transform 0.15s;
-  flex: none;
-}
-
-.fieldset-body {
-  padding: 0 1rem 1rem;
-}
-
-fieldset.collapsible.is-collapsed .fieldset-body { display: none; }
-fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg); }
 
 .field-row {
   display: grid;
@@ -922,7 +871,11 @@ fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg);
 }
 
 .repeat-row.sense-row {
-  grid-template-columns: 5.5rem 1fr 9rem 4.5rem auto auto;
+  grid-template-columns: 5.5rem 1fr auto auto auto auto;
+}
+/* 品詞ごとの発音はボタンで追加したときのみ、行の下に全幅で表示する */
+.repeat-row.sense-row .pronunciation {
+  grid-column: 1 / -1;
 }
 .repeat-row.derivative-row {
   grid-template-columns: 5.5rem 1fr 1fr auto auto;
@@ -962,13 +915,55 @@ fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg);
   background: var(--bg-elevated);
 }
 
+/* 「見出し」指定は星アイコンのトグルで表す（ラジオ本体は視覚的に隠す） */
 .primary-radio {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.primary-radio input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.primary-radio:has(input:checked) {
+  color: #d9a406;
+  border-color: #d9a406;
+  background: #fff8e5;
+}
+:root[data-theme="dark"] .primary-radio:has(input:checked) {
+  background: #453a10;
+  border-color: #c9a53f;
+  color: #ffd95e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .primary-radio:has(input:checked) {
+    background: #453a10;
+    border-color: #c9a53f;
+    color: #ffd95e;
+  }
+}
+
+/* 品詞ごとの発音を追加するアイコンボタン */
+.add-pron-btn {
+  width: 2.25rem;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
 }
 
 #fieldPronunciation,
@@ -1138,14 +1133,13 @@ fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg);
   }
   .topbar-tools button { width: 100%; }
 
-  /* モバイルではモーダルを全画面表示にする */
-  .modal-overlay { padding: 0; }
+  /* モバイルでも全画面にせず、背景から浮いて見えるカードとして表示する */
+  .modal-overlay { padding: 0.6rem; }
   .edit-pane {
     max-width: 100%;
     width: 100%;
-    height: 100%;
+    height: auto;
     max-height: 100%;
-    border-radius: 0;
   }
 
   .pane-header {
@@ -1165,6 +1159,11 @@ fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg);
   }
   .pane-header--edit .edit-actions button { flex: 1; min-width: 0; }
 
+  /* 単語編集モーダルはボタンがアイコンのみになったので、タイトルと同じ1行に収める */
+  #editPane .pane-header--edit h2 { flex: 1; flex-basis: auto; }
+  #editPane .edit-actions { width: auto; }
+  #editPane .edit-actions button { flex: none; }
+
   .pane-header-actions {
     width: 100%;
   }
@@ -1183,31 +1182,26 @@ fieldset.collapsible.is-collapsed .fieldset-chevron { transform: rotate(-90deg);
   .word-table .col-target1400 { display: none; }
   .word-table .col-meaning { display: none; }
 
+  /* モバイル: 1行目に品詞＋意味（例文行は種別＋英文）を並べ、操作ボタン類は2行目にまとめる */
   .repeat-row.sense-row,
   .repeat-row.derivative-row,
   .repeat-row.example-row {
-    grid-template-columns: 1fr auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
   }
-  .repeat-row .pos,
-  .repeat-row .type { grid-column: 1; }
-  .repeat-row .meaning,
-  .repeat-row .word,
-  .repeat-row .sentence { grid-column: 1; }
-  .repeat-row .pronunciation,
-  .repeat-row .translation { grid-column: 1; }
-  .repeat-row .primary-radio { grid-column: 1; }
-  .repeat-row .row-actions {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: start;
-    justify-self: end;
-  }
-  .repeat-row .remove-row-btn {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: start;
-    justify-self: end;
-  }
+  .repeat-row .pos { flex: 0 0 4.4rem; }
+  .repeat-row select.type { flex: 0 0 6.2rem; }
+  .sense-row .meaning { flex: 1 1 calc(100% - 4.8rem - 2.65rem - 2.65rem); }
+  .derivative-row .word { flex: 1 1 calc(100% - 4.8rem); }
+  .example-row .sentence { flex: 1 1 calc(100% - 6.6rem); }
+  .derivative-row .meaning,
+  .example-row .translation,
+  .repeat-row .pronunciation { flex: 1 1 100%; }
+  .repeat-row .primary-radio,
+  .repeat-row .add-pron-btn,
+  .repeat-row .remove-row-btn { flex: none; }
+  .repeat-row .row-actions { flex: none; margin-left: auto; }
 }
 
 @media (max-width: 480px) {
