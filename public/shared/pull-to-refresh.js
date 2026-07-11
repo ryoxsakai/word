@@ -45,6 +45,14 @@ export function attachPullToRefresh({ hitArea, indicatorEl, getScrollTop, onRefr
     "touchmove",
     (e) => {
       if (refreshing || !tracking) return;
+      // タッチ開始時点ではまだ判定できない競合(例: 長押しドラッグが確定した瞬間)にも
+      // 対応できるよう、動きがあるたびに毎回isBlockedを再チェックする。
+      if (isBlocked && isBlocked(e.target)) {
+        tracking = false;
+        pulling = false;
+        reset();
+        return;
+      }
       const touch = e.touches[0];
       const dx = touch.clientX - startX;
       const dy = touch.clientY - startY;

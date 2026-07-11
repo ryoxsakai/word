@@ -540,9 +540,15 @@ async function loadSectionsForList(listId) {
 }
 
 // プルリフレッシュ用: 選択中/検索状態は保ったまま、単語とセクションをサーバーから読み直す。
+// 単語帳(通し番号を持つ)を見ている場合は、読み直した表示順のままno.を振り直すことで、
+// 単語の削除などでできた欠番も一緒に詰める。
 async function refreshCurrentList() {
   if (!state.currentListId) return;
   await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  if (isNotebookView()) {
+    const order = getHeadWordOrder();
+    if (order.length > 0) await submitReorder(order);
+  }
 }
 
 function renderSectionOptions() {
@@ -1859,8 +1865,11 @@ if (el.ptrIndicator) {
     indicatorEl: el.ptrIndicator,
     getScrollTop: () => el.tableScroll.scrollTop,
     onRefresh: refreshCurrentList,
-    // 単語行の長押しドラッグ中は競合するので、その間はプルリフレッシュを発火させない。
-    isBlocked: (target) => !!target.closest(".touch-drag-armed, [draggable=\"true\"]"),
+    // 単語行の長押しドラッグが確定した後は競合するので、その間はプルリフレッシュを発火させない。
+    // touch-drag-armedは行に触れた瞬間(まだ長押しが確定していない段階)から常につくクラスなので、
+    // それで判定すると単語帳編集画面でプルリフレッシュがほぼ発火しなくなってしまう。
+    // 実際に長押しドラッグが確定した後だけ付く dragging クラスで判定する。
+    isBlocked: (target) => !!target.closest(".dragging"),
   });
 }
 el.saveBtn.addEventListener("click", saveWord);
