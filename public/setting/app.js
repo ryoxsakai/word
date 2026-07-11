@@ -1003,7 +1003,7 @@ function attachRepeatRowReorder(row, kind) {
   row.querySelector('[data-action="row-down"]').addEventListener("click", () => moveRepeatRow(row, 1));
 }
 
-function buildSectionBandRow(sectionId, sectionSubtitle) {
+function buildSectionBandRow(sectionId, sectionSubtitle, wordCount) {
   // ヘッダーの実際の列数に合わせる(固定値だと列を追加・削除するたびにここがずれて、
   // セクション帯の右端が単語行のcol-move列の右端と合わなくなってしまうため)。
   const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
@@ -1020,7 +1020,7 @@ function buildSectionBandRow(sectionId, sectionSubtitle) {
           <button type="button" class="move-btn" data-action="section-down" ${isLast ? "disabled" : ""} aria-label="セクションを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
         </span>`
       : "";
-  const nameHtml = `<span class="section-band-name">${escapeHtml(sectionName || "（セクションなし）")}</span>${sectionSubtitle ? `<span class="section-band-subtitle">${escapeHtml(sectionSubtitle)}</span>` : ""}`;
+  const nameHtml = `<span class="section-band-name">${escapeHtml(sectionName || "（セクションなし）")}</span>${sectionSubtitle ? `<span class="section-band-subtitle">${escapeHtml(sectionSubtitle)}</span>` : ""}<span class="section-band-count">(${wordCount})</span>`;
   sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
   if (sectionId != null) {
     sectionTr.draggable = true;
@@ -1132,13 +1132,13 @@ function renderWordTable() {
 
   const noSectionWords = wordsBySection.get(null) || [];
   if (noSectionWords.length > 0) {
-    el.wordTableBody.appendChild(buildSectionBandRow(null, null));
+    el.wordTableBody.appendChild(buildSectionBandRow(null, null, noSectionWords.length));
     for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
   }
 
   for (const section of state.sections) {
-    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle));
     const wordsInSection = wordsBySection.get(section.id) || [];
+    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length));
     for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
   }
 }

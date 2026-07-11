@@ -326,6 +326,11 @@ function hasAnySection() {
 
 function renderWords() {
   const withSections = hasAnySection();
+  const countByKey = new Map();
+  for (const w of state.words) {
+    const key = w.sectionId != null ? String(w.sectionId) : "none";
+    countByKey.set(key, (countByKey.get(key) || 0) + 1);
+  }
   let lastKey;
   const parts = [];
   for (const w of state.words) {
@@ -334,7 +339,7 @@ function renderWords() {
       lastKey = key;
       const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
         w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
-      }`;
+      }<span class="section-count">(${countByKey.get(key)})</span>`;
       const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
       parts.push(
         `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`

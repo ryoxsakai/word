@@ -642,6 +642,12 @@ body {
   color: var(--text-muted);
 }
 
+.section-band-count {
+  font-weight: 400;
+  font-size: 0.85em;
+  color: var(--text-muted);
+}
+
 .section-move-btns {
   display: inline-flex;
   gap: 0.25rem;
