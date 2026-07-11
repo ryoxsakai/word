@@ -270,10 +270,15 @@ function updateListModeUi() {
 function updateEditorListFields() {
   const showNotebookFields = isNotebookView() && !el.editModalOverlay.hidden;
   el.notebookFields.hidden = !showNotebookFields;
+  // マスターでは完全削除(ゴミ箱)、単語帳ではリストからの除外(−)とアイコンを分けて示す
   if (isMasterView()) {
-    el.deleteBtn.textContent = "マスターから削除";
+    el.deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can" aria-hidden="true"></i>';
+    el.deleteBtn.title = "マスターから削除";
+    el.deleteBtn.setAttribute("aria-label", "マスターから削除");
   } else if (isNotebookView()) {
-    el.deleteBtn.textContent = "単語帳から除外";
+    el.deleteBtn.innerHTML = '<i class="fa-solid fa-circle-minus" aria-hidden="true"></i>';
+    el.deleteBtn.title = "単語帳から除外";
+    el.deleteBtn.setAttribute("aria-label", "単語帳から除外");
   }
 }
 
@@ -367,15 +372,11 @@ async function draftFromDictionary() {
     if (info.synonyms?.length > 0 && !el.fieldSynonyms.value.trim()) {
       el.fieldSynonyms.value = info.synonyms.join(", ");
       updatePreview(el.fieldSynonyms, el.synonymsPreview);
-      autosizeTextarea(el.fieldSynonyms);
-      setFieldsetCollapsed("synonyms", false);
       filledAnything = true;
     }
     if (info.antonyms?.length > 0 && !el.fieldAntonyms.value.trim()) {
       el.fieldAntonyms.value = info.antonyms.join(", ");
       updatePreview(el.fieldAntonyms, el.antonymsPreview);
-      autosizeTextarea(el.fieldAntonyms);
-      setFieldsetCollapsed("antonyms", false);
       filledAnything = true;
     }
     if (filledAnything) alert("辞書から下書きを取得しました。");
@@ -1095,8 +1096,19 @@ function addRow(kind, data = {}) {
   if (kind === "senses") {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".meaning").value = data.meaning || "";
-    node.querySelector(".pronunciation").value = data.pronunciation || "";
     node.querySelector(".is-primary").checked = !!data.is_primary;
+    // 品詞ごとの発音は毎回あるわけではないので、値があるときだけ入力欄を出し、
+    // ないときはボタンを押した場合にのみ入力欄を追加する。
+    const pronInput = node.querySelector(".pronunciation");
+    const pronBtn = node.querySelector(".add-pron-btn");
+    pronInput.value = data.pronunciation || "";
+    pronInput.hidden = !data.pronunciation;
+    pronBtn.hidden = !!data.pronunciation;
+    pronBtn.addEventListener("click", () => {
+      pronInput.hidden = false;
+      pronBtn.hidden = true;
+      pronInput.focus();
+    });
   } else if (kind === "derivatives") {
     node.querySelector(".pos").value = data.pos || "";
     node.querySelector(".word").value = data.word || "";
@@ -1157,18 +1169,6 @@ function isCautionButtonActive(btn) {
   return btn.getAttribute("aria-pressed") === "true";
 }
 
-// ---- 折りたたみ可能なfieldset / テキストエリア自動リサイズ ----
-
-function setFieldsetCollapsed(name, collapsed) {
-  const fs = document.querySelector(`fieldset[data-fieldset="${name}"]`);
-  if (fs) fs.classList.toggle("is-collapsed", collapsed);
-}
-
-function autosizeTextarea(textarea) {
-  textarea.style.height = "auto";
-  textarea.style.height = `${textarea.scrollHeight}px`;
-}
-
 function updateTagReadonly(el2, label, value) {
   if (value) {
     el2.textContent = `${label}: No.${value}`;
@@ -1214,12 +1214,6 @@ function openNewWordForm() {
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
-  [el.fieldEtymology, el.fieldSynonyms, el.fieldAntonyms, el.fieldNotes].forEach(autosizeTextarea);
-  setFieldsetCollapsed("etymology", true);
-  setFieldsetCollapsed("synonyms", true);
-  setFieldsetCollapsed("antonyms", true);
-  setFieldsetCollapsed("notes", true);
-  setFieldsetCollapsed("tags", true);
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -1274,12 +1268,6 @@ async function openWordEditor(wordId) {
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
-  [el.fieldEtymology, el.fieldSynonyms, el.fieldAntonyms, el.fieldNotes].forEach(autosizeTextarea);
-  setFieldsetCollapsed("etymology", !detail.etymology);
-  setFieldsetCollapsed("synonyms", !detail.synonyms);
-  setFieldsetCollapsed("antonyms", !detail.antonyms);
-  setFieldsetCollapsed("notes", !detail.notes);
-  setFieldsetCollapsed("tags", Object.keys(detail.tags).length === 0);
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
@@ -1651,16 +1639,10 @@ el.fieldSpelling.addEventListener("keydown", (e) => {
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
 el.playAudioBtn.addEventListener("click", playCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
-el.fieldEtymology.addEventListener("input", () => { updatePreview(el.fieldEtymology, el.etymologyPreview); autosizeTextarea(el.fieldEtymology); });
-el.fieldSynonyms.addEventListener("input", () => { updatePreview(el.fieldSynonyms, el.synonymsPreview); autosizeTextarea(el.fieldSynonyms); });
-el.fieldAntonyms.addEventListener("input", () => { updatePreview(el.fieldAntonyms, el.antonymsPreview); autosizeTextarea(el.fieldAntonyms); });
-el.fieldNotes.addEventListener("input", () => { updatePreview(el.fieldNotes, el.notesPreview); autosizeTextarea(el.fieldNotes); });
-
-document.querySelectorAll(".fieldset-toggle").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    btn.closest("fieldset").classList.toggle("is-collapsed");
-  });
-});
+el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
+el.fieldSynonyms.addEventListener("input", () => updatePreview(el.fieldSynonyms, el.synonymsPreview));
+el.fieldAntonyms.addEventListener("input", () => updatePreview(el.fieldAntonyms, el.antonymsPreview));
+el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 
 document.querySelectorAll(".add-row-btn").forEach((btn) => {
   btn.addEventListener("click", () => addRow(btn.dataset.add));

@@ -106,10 +106,10 @@
     <div class="pane-header pane-header--edit">
       <h2 id="editTitle">単語を編集</h2>
       <div class="edit-actions">
-        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost" title="辞書から発音・例文・類義語/対義語の下書きを取得"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>辞書下書き</span></button>
-        <button id="saveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
-        <button id="deleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
-        <button id="closeBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost btn-icon-only" title="辞書から発音・例文・類義語/対義語の下書きを取得" aria-label="辞書下書き"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
+        <button id="saveBtn" type="button" class="primary btn-icon-only" title="保存" aria-label="保存"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></button>
+        <button id="deleteBtn" type="button" class="danger btn-ghost btn-icon-only" title="削除" aria-label="削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+        <button id="closeBtn" type="button" class="btn-ghost btn-icon-only" title="閉じる" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
       </div>
     </div>
 
@@ -144,76 +144,48 @@
       <fieldset>
         <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語。「見出し」は単語一覧に表示する代表の意味</span></legend>
         <div id="sensesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="senses"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>意味を追加</span></button>
+        <button type="button" class="add-row-btn" data-add="senses" title="意味を追加" aria-label="意味を追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
       </fieldset>
 
       <fieldset>
         <legend>例文・フレーズ <span class="hint">◆例文 / ◇フレーズ。空所は ＿＿＿</span></legend>
         <div id="examplesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="examples"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>例文・フレーズを追加</span></button>
+        <button type="button" class="add-row-btn" data-add="examples" title="例文・フレーズを追加" aria-label="例文・フレーズを追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
       </fieldset>
 
       <fieldset>
         <legend>派生語</legend>
         <div id="derivativesList" class="repeat-list"></div>
-        <button type="button" class="add-row-btn" data-add="derivatives"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>派生語を追加</span></button>
+        <button type="button" class="add-row-btn" data-add="derivatives" title="派生語を追加" aria-label="派生語を追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
       </fieldset>
 
-      <fieldset class="collapsible" data-fieldset="etymology">
-        <button type="button" class="fieldset-toggle">
-          <span class="fieldset-title">語源</span>
-          <span class="hint">##見出し語## / *語根* / ==語==</span>
-          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
-        </button>
-        <div class="fieldset-body">
-          <textarea id="fieldEtymology" class="autosize" rows="1" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
-          <div class="preview" id="etymologyPreview"></div>
-        </div>
+      <fieldset>
+        <legend>語源 <span class="hint">##見出し語## / *語根* / ==語==</span></legend>
+        <textarea id="fieldEtymology" rows="2" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
+        <div class="preview" id="etymologyPreview"></div>
       </fieldset>
 
-      <fieldset class="collapsible" data-fieldset="synonyms">
-        <button type="button" class="fieldset-toggle">
-          <span class="fieldset-title">類義語</span>
-          <span class="hint">##headword## / ##headword|表示##</span>
-          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
-        </button>
-        <div class="fieldset-body">
-          <textarea id="fieldSynonyms" class="autosize" rows="1" placeholder="help, aid, assist"></textarea>
-          <div class="preview" id="synonymsPreview"></div>
-        </div>
+      <fieldset>
+        <legend>類義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldSynonyms" rows="2" placeholder="help, aid, assist"></textarea>
+        <div class="preview" id="synonymsPreview"></div>
       </fieldset>
 
-      <fieldset class="collapsible" data-fieldset="antonyms">
-        <button type="button" class="fieldset-toggle">
-          <span class="fieldset-title">対義語</span>
-          <span class="hint">##headword## / ##headword|表示##</span>
-          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
-        </button>
-        <div class="fieldset-body">
-          <textarea id="fieldAntonyms" class="autosize" rows="1" placeholder="hinder, obstruct"></textarea>
-          <div class="preview" id="antonymsPreview"></div>
-        </div>
+      <fieldset>
+        <legend>対義語 <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldAntonyms" rows="2" placeholder="hinder, obstruct"></textarea>
+        <div class="preview" id="antonymsPreview"></div>
       </fieldset>
 
-      <fieldset class="collapsible" data-fieldset="notes">
-        <button type="button" class="fieldset-toggle">
-          <span class="fieldset-title">メモ</span>
-          <span class="hint">##headword## / ##headword|表示##</span>
-          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
-        </button>
-        <div class="fieldset-body">
-          <textarea id="fieldNotes" class="autosize" rows="1" placeholder="##import## も参照。"></textarea>
-          <div class="preview" id="notesPreview"></div>
-        </div>
+      <fieldset>
+        <legend>メモ <span class="hint">##headword## / ##headword|表示##</span></legend>
+        <textarea id="fieldNotes" rows="2" placeholder="##import## も参照。"></textarea>
+        <div class="preview" id="notesPreview"></div>
       </fieldset>
 
-      <fieldset class="collapsible" data-fieldset="tags">
-        <button type="button" class="fieldset-toggle">
-          <span class="fieldset-title">レベルタグ</span>
-          <i class="fa-solid fa-chevron-down fieldset-chevron" aria-hidden="true"></i>
-        </button>
-        <div class="fieldset-body">
-          <div class="tags-row">
+      <fieldset>
+        <legend>レベルタグ</legend>
+        <div class="tags-row">
             <label class="tag-select">Oxford 5000
               <select id="tagOxford5000">
                 <option value="">―</option>
@@ -259,7 +231,6 @@
           <label class="custom-tags-label">カスタムタグ（カンマ区切り）
             <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
           </label>
-        </div>
       </fieldset>
     </form>
   </section>
@@ -362,16 +333,17 @@
       <option value="連">連</option>
     </select>
     <input type="text" class="meaning" placeholder="意味" />
-    <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" />
     <label class="primary-radio" title="単語一覧に表示する見出しの意味にする">
-      <input type="radio" name="isPrimarySense" class="is-primary" /> 見出し
+      <input type="radio" name="isPrimarySense" class="is-primary" /><i class="fa-solid fa-star" aria-hidden="true"></i>
     </label>
+    <button type="button" class="add-pron-btn" title="品詞ごとの発音を追加" aria-label="品詞ごとの発音を追加"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i></button>
     <span class="row-actions">
       <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
       <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
       <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
     </span>
     <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+    <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" hidden />
   </div>
 </template>
 
