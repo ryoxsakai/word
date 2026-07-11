@@ -532,6 +532,18 @@ body {
   color: var(--text-secondary);
 }
 
+.meaning-pos {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 0.25rem;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+
 .caution-icon {
   display: inline-flex;
   align-items: center;
@@ -815,13 +827,17 @@ legend .hint {
 }
 
 .caution-toggle-btn {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
+  font-weight: 700;
   white-space: nowrap;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-secondary);
   cursor: pointer;
+  flex: none;
+  min-width: 2.25rem;
+  padding: 0.35rem 0.4rem;
 }
 .caution-toggle-btn.is-active {
   background: #fff4e0;
@@ -1201,7 +1217,18 @@ legend .hint {
   .word-table .col-eiken,
   .word-table .col-target1900,
   .word-table .col-target1400 { display: none; }
-  .word-table .col-meaning { display: none; }
+  /* 品詞＋意味はスペルの右に列表示のまま残す */
+  .word-table .col-meaning { max-width: 9rem; }
+
+  /* リストno.と派生元は横並びに、セクションは単独行に */
+  #notebookFields { grid-template-columns: 1fr 1fr; }
+  #notebookFields > label:nth-child(3) { grid-column: 1 / -1; }
+
+  /* 発音記号入力欄＋各種注意ボタンを1行に収める */
+  .field-pronunciation .input-with-btn { gap: 0.25rem; }
+  .field-pronunciation .input-with-btn input { min-width: 5rem; }
+  .field-pronunciation .input-with-btn button:not(.caution-toggle-btn) { min-width: 2.1rem; padding: 0.3rem 0.35rem; }
+  .caution-toggle-btn { min-width: 1.8rem; padding: 0.3rem; font-size: 0.74rem; }
 
   /* モバイル: 1行目に品詞＋意味（例文行は種別＋英文）を並べ、操作ボタン類は2行目にまとめる */
   .repeat-row.sense-row,

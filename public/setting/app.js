@@ -63,6 +63,12 @@ const el = {
   listSettingsSaveBtn: document.getElementById("listSettingsSaveBtn"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
+  moveToSectionBtn: document.getElementById("moveToSectionBtn"),
+  moveToSectionModalOverlay: document.getElementById("moveToSectionModalOverlay"),
+  moveToSectionCloseBtn: document.getElementById("moveToSectionCloseBtn"),
+  moveToSectionCount: document.getElementById("moveToSectionCount"),
+  moveToSectionSelect: document.getElementById("moveToSectionSelect"),
+  moveToSectionConfirmBtn: document.getElementById("moveToSectionConfirmBtn"),
   toggleSearchBtn: document.getElementById("toggleSearchBtn"),
   tableSearchRow: document.getElementById("tableSearchRow"),
   tableSearchInput: document.getElementById("tableSearchInput"),
@@ -107,6 +113,8 @@ const el = {
   sensesList: document.getElementById("sensesList"),
   derivativesList: document.getElementById("derivativesList"),
   examplesList: document.getElementById("examplesList"),
+  fieldIrregularForms: document.getElementById("fieldIrregularForms"),
+  irregularFormsPreview: document.getElementById("irregularFormsPreview"),
   fieldEtymology: document.getElementById("fieldEtymology"),
   etymologyPreview: document.getElementById("etymologyPreview"),
   fieldSynonyms: document.getElementById("fieldSynonyms"),
@@ -258,6 +266,7 @@ function updateSelectionUi() {
   const n = state.selectedWordIds.size;
   el.selectionCount.textContent = `${n}語選択`;
   el.addToNotebookBtn.disabled = n === 0;
+  el.moveToSectionBtn.disabled = n === 0;
 }
 
 function updateListModeUi() {
@@ -268,6 +277,7 @@ function updateListModeUi() {
   el.addToNotebookSettingsBtn.hidden = !master;
   el.newSectionBtn.hidden = !notebook;
   el.newSectionBtn.disabled = !notebook;
+  el.moveToSectionBtn.hidden = !notebook;
   el.listSettingsBtn.hidden = !notebook;
   document.body.classList.toggle("view-master", master);
   document.body.classList.toggle("view-notebook", notebook);
@@ -611,21 +621,21 @@ const PRON_COLUMNS_HEAD =
 function renderWordTableHead() {
   if (isMasterView()) {
     el.wordTableHead.innerHTML =
-      `<tr><th class="col-check"><input type="checkbox" id="checkAllMaster" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}</tr>`;
-    const checkAll = document.getElementById("checkAllMaster");
-    checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
-    checkAll.indeterminate =
-      state.selectedWordIds.size > 0 && !state.words.every((w) => state.selectedWordIds.has(w.id));
-    checkAll.addEventListener("change", () => {
-      if (checkAll.checked) state.words.forEach((w) => state.selectedWordIds.add(w.id));
-      else state.words.forEach((w) => state.selectedWordIds.delete(w.id));
-      updateSelectionUi();
-      renderWordTable();
-    });
+      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}</tr>`;
   } else {
     el.wordTableHead.innerHTML =
-      `<tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並び替え</th></tr>`;
+      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並び替え</th></tr>`;
   }
+  const checkAll = document.getElementById("checkAllWords");
+  checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
+  checkAll.indeterminate =
+    state.selectedWordIds.size > 0 && !state.words.every((w) => state.selectedWordIds.has(w.id));
+  checkAll.addEventListener("change", () => {
+    if (checkAll.checked) state.words.forEach((w) => state.selectedWordIds.add(w.id));
+    else state.words.forEach((w) => state.selectedWordIds.delete(w.id));
+    updateSelectionUi();
+    renderWordTable();
+  });
 }
 
 // state.wordsは既にサーバー側で(セクションの並び順, no, branch)順に並んでいる。
@@ -690,6 +700,56 @@ async function moveWordToSectionStart(wordId, sectionId) {
   const insertAt = order.findIndex((it) => it.sectionId === sectionId);
   order.splice(insertAt === -1 ? order.length : insertAt, 0, moved);
   await submitReorder(order);
+}
+
+// チェック済みの複数単語を、指定セクションの先頭へまとめて移動する。
+async function moveWordsToSectionStart(wordIds, sectionId) {
+  const order = getHeadWordOrder();
+  const idSet = new Set(wordIds);
+  const moving = order.filter((it) => idSet.has(it.wordId));
+  const staying = order.filter((it) => !idSet.has(it.wordId));
+  for (const it of moving) it.sectionId = sectionId;
+  const insertAt = staying.findIndex((it) => it.sectionId === sectionId);
+  const newOrder =
+    insertAt === -1 ? [...staying, ...moving] : [...staying.slice(0, insertAt), ...moving, ...staying.slice(insertAt)];
+  await submitReorder(newOrder);
+}
+
+function openMoveToSectionModal() {
+  if (!isNotebookView()) return;
+  const ids = [...state.selectedWordIds];
+  if (ids.length === 0) return;
+  el.moveToSectionCount.textContent = `${ids.length}語を移動します`;
+  el.moveToSectionSelect.innerHTML = '<option value="">（セクションなし）</option>';
+  const label = getSectionLabel();
+  state.sections.forEach((s, index) => {
+    const opt = document.createElement("option");
+    opt.value = String(s.id);
+    const name = `${label} ${index + 1}`;
+    opt.textContent = s.subtitle ? `${name} - ${s.subtitle}` : name;
+    el.moveToSectionSelect.appendChild(opt);
+  });
+  el.moveToSectionModalOverlay.hidden = false;
+}
+
+function closeMoveToSectionModal() {
+  el.moveToSectionModalOverlay.hidden = true;
+}
+
+async function confirmMoveToSection() {
+  const ids = [...state.selectedWordIds];
+  if (ids.length === 0) {
+    closeMoveToSectionModal();
+    return;
+  }
+  const sectionValue = el.moveToSectionSelect.value;
+  const sectionId = sectionValue ? Number(sectionValue) : null;
+  await moveWordsToSectionStart(ids, sectionId);
+  closeMoveToSectionModal();
+  state.selectedWordIds.clear();
+  updateSelectionUi();
+  renderWordTable();
+  showToast(`${ids.length}語を移動しました`);
 }
 
 async function moveSectionBy(sectionId, direction) {
@@ -958,7 +1018,7 @@ function buildWordRow(w) {
   if (state.currentWord?.id === w.id) tr.classList.add("selected");
   if (state.selectedWordIds.has(w.id)) tr.classList.add("checked-row");
 
-  const meaningCell = `<td class="col-meaning">${escapeHtml(w.primaryMeaning || "")}</td>`;
+  const meaningCell = `<td class="col-meaning">${w.primaryPos ? `<span class="meaning-pos">${escapeHtml(w.primaryPos)}</span>` : ""}${escapeHtml(w.primaryMeaning || "")}</td>`;
   const levelCells =
     `<td class="col-awl">${formatLevelBadgeCell(w, "awl")}</td>` +
     `<td class="col-oxford">${formatLevelBadgeCell(w, "oxford")}</td>` +
@@ -972,27 +1032,16 @@ function buildWordRow(w) {
     `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
     `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>`;
 
+  const checked = state.selectedWordIds.has(w.id);
+  const checkCell = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td>`;
+
   if (isMasterView()) {
-    const checked = state.selectedWordIds.has(w.id);
-    tr.innerHTML = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}`;
-    const cb = tr.querySelector(".word-check");
-    cb.addEventListener("click", (e) => e.stopPropagation());
-    cb.addEventListener("change", () => {
-      if (cb.checked) state.selectedWordIds.add(w.id);
-      else state.selectedWordIds.delete(w.id);
-      updateSelectionUi();
-      tr.classList.toggle("checked-row", cb.checked);
-    });
-    tr.addEventListener("click", (e) => {
-      if (e.target.closest(".col-check")) return;
-      openWordEditor(w.id);
-    });
+    tr.innerHTML = `${checkCell}<td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}`;
   } else {
     const moveCell = w.branch
       ? `<td class="col-move"></td>`
       : `<td class="col-move"><button type="button" class="move-btn" data-action="word-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button><button type="button" class="move-btn" data-action="word-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button></td>`;
-    tr.innerHTML = `<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}${moveCell}`;
-    tr.addEventListener("click", () => openWordEditor(w.id));
+    tr.innerHTML = `${checkCell}<td class="col-no">${escapeHtml(w.displayNo)}</td><td class="col-spelling">${escapeHtml(w.spelling)}</td>${meaningCell}${levelCells}${pronCells}${moveCell}`;
     if (!w.branch) {
       tr.draggable = true;
       tr.querySelector('[data-action="word-up"]').addEventListener("click", (e) => {
@@ -1006,6 +1055,19 @@ function buildWordRow(w) {
       attachWordDragHandlers(tr, w.id);
     }
   }
+
+  const cb = tr.querySelector(".word-check");
+  cb.addEventListener("click", (e) => e.stopPropagation());
+  cb.addEventListener("change", () => {
+    if (cb.checked) state.selectedWordIds.add(w.id);
+    else state.selectedWordIds.delete(w.id);
+    updateSelectionUi();
+    tr.classList.toggle("checked-row", cb.checked);
+  });
+  tr.addEventListener("click", (e) => {
+    if (e.target.closest(".col-check")) return;
+    openWordEditor(w.id);
+  });
   return tr;
 }
 
@@ -1310,6 +1372,7 @@ function openNewWordForm() {
   addRow("senses");
   addRow("derivatives");
   addRow("examples");
+  el.fieldIrregularForms.value = "";
   el.fieldEtymology.value = "";
   el.fieldSynonyms.value = "";
   el.fieldAntonyms.value = "";
@@ -1320,6 +1383,7 @@ function openNewWordForm() {
   el.tagCustom.value = "";
   updateTagReadonly(el.tagTarget1900Display, "Target1900", null);
   updateTagReadonly(el.tagTarget1400Display, "Target1400", null);
+  updatePreview(el.fieldIrregularForms, el.irregularFormsPreview);
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
@@ -1361,6 +1425,7 @@ async function openWordEditor(wordId) {
   clearRepeatList(el.examplesList);
   (detail.examples.length ? detail.examples : [{}]).forEach((ex) => addRow("examples", ex));
 
+  el.fieldIrregularForms.value = detail.irregularForms || "";
   el.fieldEtymology.value = detail.etymology || "";
   el.fieldSynonyms.value = detail.synonyms || "";
   el.fieldAntonyms.value = detail.antonyms || "";
@@ -1375,6 +1440,7 @@ async function openWordEditor(wordId) {
   updateTagReadonly(el.tagTarget1900Display, "Target1900", detail.tags.target1900);
   updateTagReadonly(el.tagTarget1400Display, "Target1400", detail.tags.target1400);
 
+  updatePreview(el.fieldIrregularForms, el.irregularFormsPreview);
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
@@ -1421,6 +1487,7 @@ async function saveWord() {
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
     examples: collectRows("examples"),
+    irregularForms: el.fieldIrregularForms.value.trim() || null,
     etymology: el.fieldEtymology.value.trim() || null,
     synonyms: el.fieldSynonyms.value.trim() || null,
     antonyms: el.fieldAntonyms.value.trim() || null,
@@ -1675,6 +1742,7 @@ document.addEventListener("keydown", (e) => {
   if (!el.addNotebookModalOverlay.hidden) { closeAddNotebookModal(); return; }
   if (!el.listManageModalOverlay.hidden) { closeListManageModal(); return; }
   if (!el.listSettingsModalOverlay.hidden) { closeListSettingsModal(); return; }
+  if (!el.moveToSectionModalOverlay.hidden) { closeMoveToSectionModal(); return; }
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
@@ -1732,6 +1800,12 @@ el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);
 el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);
 el.addToNotebookSettingsBtn.addEventListener("click", openAddNotebookSettingsModal);
+el.moveToSectionBtn.addEventListener("click", openMoveToSectionModal);
+el.moveToSectionCloseBtn.addEventListener("click", closeMoveToSectionModal);
+el.moveToSectionModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.moveToSectionModalOverlay) closeMoveToSectionModal();
+});
+el.moveToSectionConfirmBtn.addEventListener("click", confirmMoveToSection);
 el.toggleSearchBtn.addEventListener("click", () => setSearchRowVisible(el.tableSearchRow.hidden));
 el.tableSearchInput.addEventListener("input", () => {
   clearTimeout(tableSearchTimer);
@@ -1755,6 +1829,7 @@ el.fieldSpelling.addEventListener("keydown", (e) => {
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
 el.playAudioBtn.addEventListener("click", playCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
+el.fieldIrregularForms.addEventListener("input", () => updatePreview(el.fieldIrregularForms, el.irregularFormsPreview));
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
 el.fieldSynonyms.addEventListener("input", () => updatePreview(el.fieldSynonyms, el.synonymsPreview));
 el.fieldAntonyms.addEventListener("input", () => updatePreview(el.fieldAntonyms, el.antonymsPreview));
