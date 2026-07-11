@@ -334,9 +334,10 @@ body {
   overflow: hidden;
 }
 
-/* ---- 単語帳設定モーダル（画面全体を覆わず、背景から浮いて見えるコンパクトなカード） ---- */
+/* ---- 単語帳設定モーダル・単語帳に追加モーダル（画面全体を覆わず、背景から浮いて見えるコンパクトなカード） ---- */
 
-#listSettingsModalOverlay {
+#listSettingsModalOverlay,
+#addNotebookModalOverlay {
   padding: clamp(1rem, 5vw, 2rem);
 }
 
