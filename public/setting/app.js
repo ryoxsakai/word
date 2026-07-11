@@ -1338,13 +1338,19 @@ async function saveWord() {
       }
       word = await api("/words", { method: "POST", body: JSON.stringify(body) });
     } else {
-      word = await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "PUT", body: JSON.stringify(body) });
-      if (isNotebookView() && el.fieldNo.value.trim()) {
-        await api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(word.id)}`, {
-          method: "PUT",
-          body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId }),
-        });
-      }
+      const wordId = state.currentWord.id;
+      // 単語本体とリスト内no/セクションの更新は別テーブルを触る独立した処理なので並行実行する。
+      const listItemUpdate =
+        isNotebookView() && el.fieldNo.value.trim()
+          ? api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(wordId)}`, {
+              method: "PUT",
+              body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId }),
+            })
+          : null;
+      [word] = await Promise.all([
+        api(`/words/${encodeURIComponent(wordId)}`, { method: "PUT", body: JSON.stringify(body) }),
+        listItemUpdate,
+      ]);
     }
     await loadWordsForList(state.currentListId);
     closeEditor();
