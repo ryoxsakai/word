@@ -77,6 +77,7 @@
           <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳</span></button>
           <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
           <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語</span></button>
+          <button id="moveToSectionBtn" type="button" class="btn-ghost btn-icon-only" disabled hidden title="選択した単語をセクションへ移動"><i class="fa-solid fa-right-left" aria-hidden="true"></i></button>
           <button id="toggleSearchBtn" type="button" class="btn-ghost btn-icon-only" aria-expanded="false" aria-controls="tableSearchRow" title="検索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
         </div>
       </div>
@@ -119,23 +120,23 @@
         <label>スペル
           <input type="text" id="fieldSpelling" required autocapitalize="none" spellcheck="false" />
         </label>
-        <label class="field-pronunciation">発音記号 (IPA) <span class="hint">入力時に自動取得</span>
+        <label class="field-pronunciation">発音記号 (IPA)
           <span class="input-with-btn">
             <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
             <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
             <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
-            <button type="button" id="spellingCautionBtn" class="caution-toggle-btn caution-toggle-btn--spelling" aria-pressed="false" title="スペルを間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>スペル注意</span></button>
-            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>発音注意</span></button>
-            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>アクセント注意</span></button>
-            <button type="button" id="polysemousCautionBtn" class="caution-toggle-btn caution-toggle-btn--polysemous" aria-pressed="false" title="複数の意味を持つ紛らわしい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>多義語</span></button>
+            <button type="button" id="spellingCautionBtn" class="caution-toggle-btn caution-toggle-btn--spelling" aria-pressed="false" title="スペルを間違えやすい単語としてマークします">ス</button>
+            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします">発</button>
+            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします">ア</button>
+            <button type="button" id="polysemousCautionBtn" class="caution-toggle-btn caution-toggle-btn--polysemous" aria-pressed="false" title="複数の意味を持つ紛らわしい単語としてマークします">多</button>
           </span>
         </label>
       </div>
       <div class="field-row notebook-only" id="notebookFields">
-        <label>このリストでの no. <span class="hint">例: 42 / 42-1</span>
+        <label>このリストでの no.
           <input type="text" id="fieldNo" placeholder="42" inputmode="numeric" />
         </label>
-        <label>派生元 <span class="hint">同じ no の枝番になる</span>
+        <label>派生元
           <input type="text" id="fieldDerivedFrom" placeholder="（なし）" autocapitalize="none" />
         </label>
         <label>セクション
@@ -159,6 +160,12 @@
         <legend>派生語</legend>
         <div id="derivativesList" class="repeat-list"></div>
         <button type="button" class="add-row-btn" data-add="derivatives" title="派生語を追加" aria-label="派生語を追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+      </fieldset>
+
+      <fieldset>
+        <legend>不規則活用</legend>
+        <textarea id="fieldIrregularForms" rows="2" placeholder="go - went - gone"></textarea>
+        <div class="preview" id="irregularFormsPreview"></div>
       </fieldset>
 
       <fieldset>
@@ -312,6 +319,22 @@
         <button type="button" id="listSettingsSaveBtn" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
       </div>
     </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="moveToSectionModalOverlay" hidden>
+  <section class="settings-pane" id="moveToSectionPane" role="dialog" aria-modal="true" aria-labelledby="moveToSectionTitle">
+    <button id="moveToSectionCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="moveToSectionTitle">セクションへ移動</h2>
+    <form id="moveToSectionForm" class="word-form">
+      <p id="moveToSectionCount" class="add-notebook-count"></p>
+      <label>移動先のセクション
+        <select id="moveToSectionSelect"><option value="">（セクションなし）</option></select>
+      </label>
+      <div class="settings-actions">
+        <button id="moveToSectionConfirmBtn" type="button" class="primary"><i class="fa-solid fa-right-left" aria-hidden="true"></i><span>移動</span></button>
+      </div>
+    </form>
   </section>
 </div>
 

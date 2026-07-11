@@ -192,6 +192,7 @@ function wordHaystack(w) {
     ...(w.senses || []).map((s) => s.meaning),
     ...(w.derivatives || []).map((d) => `${d.word || ""} ${d.meaning || ""}`),
     ...(w.examples || []).map((e) => `${e.sentence || ""} ${e.translation || ""}`),
+    w.irregularForms,
     w.etymology,
     w.synonyms,
     w.antonyms,
@@ -276,6 +277,9 @@ function renderEntry(w) {
         .join("")}</span></div>`
     : "";
 
+  const irregularFormsHtml = w.irregularForms
+    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge">不規則</span>${renderMarkup(w.irregularForms, { resolve: resolveRef })}</div>`
+    : "";
   const etymologyHtml = w.etymology
     ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
     : "";
@@ -318,6 +322,7 @@ function renderEntry(w) {
         ${sensesHtml}
         ${examplesHtml}
         ${derivativesHtml}
+        ${irregularFormsHtml}
         ${etymologyHtml}
         ${synonymsHtml}
         ${antonymsHtml}

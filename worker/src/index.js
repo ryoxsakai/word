@@ -228,9 +228,10 @@ const WORD_TAG_SELECT = `
   t14.tag_value AS target1400No
 `;
 
-// 単語一覧に表示する「見出しの意味」(senses.is_primary=1の1件)。
+// 単語一覧に表示する「見出しの意味」(senses.is_primary=1の1件)。モバイルではpos+meaningをスペルの右に列表示する。
 const PRIMARY_MEANING_SELECT = `
-  (SELECT se.meaning FROM senses se WHERE se.word_id = w.id AND se.is_primary = 1 ORDER BY se.sort_order, se.id LIMIT 1) AS primaryMeaning
+  (SELECT se.meaning FROM senses se WHERE se.word_id = w.id AND se.is_primary = 1 ORDER BY se.sort_order, se.id LIMIT 1) AS primaryMeaning,
+  (SELECT se.pos FROM senses se WHERE se.word_id = w.id AND se.is_primary = 1 ORDER BY se.sort_order, se.id LIMIT 1) AS primaryPos
 `;
 
 const WORD_TAG_JOINS = `
@@ -352,6 +353,7 @@ async function listWordsInListFull(db, listId) {
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
               w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
+              w.irregular_forms AS irregularForms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
               w.derived_from_id AS derivedFromId,
@@ -422,6 +424,7 @@ async function listWordsInListFull(db, listId) {
     notes: r.notes,
     synonyms: r.synonyms,
     antonyms: r.antonyms,
+    irregularForms: r.irregularForms,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
     polysemousCaution: !!r.polysemousCaution,
@@ -570,7 +573,7 @@ async function reorderListItems(db, listId, body) {
 async function loadWordDetail(db, id) {
   const word = await db
     .prepare(
-      `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms,
+      `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, irregular_forms AS irregularForms,
               pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
               polysemous_caution AS polysemousCaution, spelling_caution AS spellingCaution,
               derived_from_id AS derivedFromId, created_at, updated_at
@@ -693,9 +696,9 @@ async function createWord(db, body) {
   const id = await uniqueWordId(db, body.spelling);
   await db
     .prepare(
-      `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms,
+      `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms, irregular_forms,
                            pronunciation_caution, accent_caution, polysemous_caution, spelling_caution, derived_from_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -706,6 +709,7 @@ async function createWord(db, body) {
       body.notes || null,
       body.synonyms || null,
       body.antonyms || null,
+      body.irregularForms || null,
       body.pronunciationCaution ? 1 : 0,
       body.accentCaution ? 1 : 0,
       body.polysemousCaution ? 1 : 0,
@@ -740,6 +744,7 @@ async function updateWord(db, id, body) {
     body.notes || null,
     body.synonyms || null,
     body.antonyms || null,
+    body.irregularForms || null,
     body.pronunciationCaution ? 1 : 0,
     body.accentCaution ? 1 : 0,
     body.polysemousCaution ? 1 : 0,
@@ -749,7 +754,7 @@ async function updateWord(db, id, body) {
     if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
     await db
       .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
                            pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, derived_from_id = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
@@ -758,7 +763,7 @@ async function updateWord(db, id, body) {
   } else {
     await db
       .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?,
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
                            pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
