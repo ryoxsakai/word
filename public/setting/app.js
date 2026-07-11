@@ -109,6 +109,7 @@ const el = {
   pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
   accentCautionBtn: document.getElementById("accentCautionBtn"),
   polysemousCautionBtn: document.getElementById("polysemousCautionBtn"),
+  conjugationCautionBtn: document.getElementById("conjugationCautionBtn"),
   draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
@@ -259,6 +260,11 @@ function formatCautionBadgeCell(w, type) {
   if (type === "poly") {
     return w.polysemousCaution
       ? '<span class="caution-icon caution-polysemous" title="多義語"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
+  if (type === "conjugation") {
+    return w.conjugationCaution
+      ? '<span class="caution-icon caution-conjugation" title="活用注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
       : "";
   }
   return "";
@@ -624,7 +630,7 @@ async function saveListSettings() {
 const LEVEL_COLUMNS_HEAD =
   '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
-  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th>';
+  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th>';
 
 function renderWordTableHead() {
   if (isMasterView()) {
@@ -998,7 +1004,9 @@ function attachRepeatRowReorder(row, kind) {
 }
 
 function buildSectionBandRow(sectionId, sectionSubtitle) {
-  const colspan = 12;
+  // ヘッダーの実際の列数に合わせる(固定値だと列を追加・削除するたびにここがずれて、
+  // セクション帯の右端が単語行のcol-move列の右端と合わなくなってしまうため)。
+  const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
   const sectionTr = document.createElement("tr");
   sectionTr.className = "section-header-row";
   const sectionIndex = sectionId != null ? state.sections.findIndex((s) => s.id === sectionId) : -1;
@@ -1052,7 +1060,8 @@ function buildWordRow(w) {
     `<td class="col-caution-spelling">${formatCautionBadgeCell(w, "spelling")}</td>` +
     `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
     `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
-    `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>`;
+    `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>` +
+    `<td class="col-caution-conjugation">${formatCautionBadgeCell(w, "conjugation")}</td>`;
 
   const checked = state.selectedWordIds.has(w.id);
   const checkCell = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td>`;
@@ -1386,6 +1395,7 @@ function openNewWordForm() {
   setCautionButton(el.pronunciationCautionBtn, false);
   setCautionButton(el.accentCautionBtn, false);
   setCautionButton(el.polysemousCautionBtn, false);
+  setCautionButton(el.conjugationCautionBtn, false);
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
@@ -1437,6 +1447,7 @@ async function openWordEditor(wordId) {
   setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
   setCautionButton(el.accentCautionBtn, detail.accentCaution);
   setCautionButton(el.polysemousCautionBtn, detail.polysemousCaution);
+  setCautionButton(el.conjugationCautionBtn, detail.conjugationCaution);
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
 
@@ -1505,6 +1516,7 @@ async function saveWord() {
     pronunciationCaution: isCautionButtonActive(el.pronunciationCautionBtn),
     accentCaution: isCautionButtonActive(el.accentCautionBtn),
     polysemousCaution: isCautionButtonActive(el.polysemousCautionBtn),
+    conjugationCaution: isCautionButtonActive(el.conjugationCautionBtn),
     derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
@@ -1795,6 +1807,9 @@ el.accentCautionBtn.addEventListener("click", () =>
 );
 el.polysemousCautionBtn.addEventListener("click", () =>
   setCautionButton(el.polysemousCautionBtn, !isCautionButtonActive(el.polysemousCautionBtn))
+);
+el.conjugationCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.conjugationCautionBtn, !isCautionButtonActive(el.conjugationCautionBtn))
 );
 
 el.listSelect.addEventListener("change", (e) => {
