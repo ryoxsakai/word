@@ -20,8 +20,6 @@
     <h1 class="brand-name">単語帳</h1>
     <div class="toolbar-controls">
       <select id="listSelect" aria-label="リストを選択"></select>
-      <button id="themeToggleBtn" type="button" class="topbar-text-btn" title="ダーク/ライト切り替え">ダーク</button>
-      <a class="topbar-text-btn" href="./setting/index.html" title="単語を編集">編集</a>
     </div>
     <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
       <span class="menu-toggle-bar"></span>
@@ -49,10 +47,18 @@
         <button type="button" class="fontsize-btn" data-font-level="5" aria-label="最大">A</button>
       </div>
     </div>
+    <div class="theme-row">
+      <span class="theme-label">テーマ</span>
+      <button id="themeToggleBtn" type="button" class="chip-toggle" title="ダーク/ライト切り替え">ダーク</button>
+    </div>
   </div>
 </header>
 
 <div class="subbar">
+  <div class="view-tabs" role="tablist" aria-label="表示切り替え">
+    <button type="button" class="view-tab" id="viewTabList" role="tab" aria-selected="true" data-view="list">一覧</button>
+    <button type="button" class="view-tab" id="viewTabIndex" role="tab" aria-selected="false" data-view="index">索引</button>
+  </div>
   <div class="progress-row">
     <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
     <span id="progressLabel" class="progress-label">0 / 0 習得</span>
@@ -61,6 +67,7 @@
 
 <div id="ptrIndicator" class="ptr-indicator" aria-hidden="true"><i class="fa-solid fa-rotate" aria-hidden="true"></i></div>
 <main id="wordList" class="word-list" aria-live="polite"></main>
+<div id="indexList" class="index-list" aria-live="polite" hidden></div>
 
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
 <p id="loadingMsg" class="loading-msg">読み込み中...</p>

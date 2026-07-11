@@ -1,4 +1,4 @@
-import { renderMarkup, escapeHtml } from "../shared/markup.js";
+import { renderMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
@@ -21,6 +21,7 @@ const state = {
   learned: new Set(),
   search: "",
   unlearnedOnly: false,
+  activeView: "list", // "list" | "index"
 };
 
 const el = {
@@ -36,6 +37,9 @@ const el = {
   jumpForm: document.getElementById("jumpForm"),
   jumpInput: document.getElementById("jumpInput"),
   wordList: document.getElementById("wordList"),
+  indexList: document.getElementById("indexList"),
+  viewTabList: document.getElementById("viewTabList"),
+  viewTabIndex: document.getElementById("viewTabIndex"),
   emptyMsg: document.getElementById("emptyMsg"),
   loadingMsg: document.getElementById("loadingMsg"),
   backToTopBtn: document.getElementById("backToTopBtn"),
@@ -136,6 +140,7 @@ async function selectList(listId) {
     buildIndex();
     renderSectionNav();
     renderWords();
+    renderAlphabeticalIndex();
     setupSectionObserver();
     updateProgress();
     el.emptyMsg.hidden = state.words.length > 0;
@@ -364,6 +369,68 @@ function renderWords() {
   applyFilters();
 }
 
+// ---- 索引（abc順） ----
+
+// state.wordsには見出し語(branch=0)と派生語エントリー(branch>0)しか並ばないため、
+// 各エントリーの derivatives（例文欄と違い、独立したエントリーを持たない参考の派生語）も
+// 拾い上げて索引に含める。ただし派生語自身が別途エントリーを持つ場合は二重掲載しない。
+function buildAlphabeticalIndex() {
+  const entries = [];
+  for (const w of state.words) {
+    entries.push({ spelling: w.spelling, loc: w.seqNo, targetId: w.id, isRef: false });
+  }
+  const derivSeen = new Set();
+  for (const w of state.words) {
+    for (const d of w.derivatives || []) {
+      const plain = stripMarkup(d.word || "");
+      if (!plain) continue;
+      const key = plain.toLowerCase();
+      if (state.wordIndex.has(key)) continue; // 本来のエントリーとして別途載るので、参照表記は不要
+      if (derivSeen.has(key)) continue;
+      derivSeen.add(key);
+      entries.push({ spelling: plain, loc: `→ ${w.spelling} ${w.seqNo}`, targetId: w.id, isRef: true });
+    }
+  }
+  entries.sort((a, b) => a.spelling.localeCompare(b.spelling, "en", { sensitivity: "base" }));
+  return entries;
+}
+
+function renderAlphabeticalIndex() {
+  const entries = buildAlphabeticalIndex();
+  if (entries.length === 0) {
+    el.indexList.innerHTML = '<p class="index-empty">単語がまだ登録されていません。</p>';
+    return;
+  }
+  el.indexList.innerHTML = entries
+    .map(
+      (e) => `
+    <div class="index-entry${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-word-id="${escapeHtml(e.targetId)}">
+      <span class="index-word">${escapeHtml(e.spelling)}</span>
+      <span class="index-loc">${escapeHtml(e.loc)}</span>
+    </div>`
+    )
+    .join("");
+}
+
+function setActiveView(view) {
+  state.activeView = view;
+  const isIndex = view === "index";
+  el.wordList.hidden = isIndex;
+  el.indexList.hidden = !isIndex;
+  el.sectionNav.hidden = isIndex || !hasAnySection();
+  el.viewTabList.setAttribute("aria-selected", String(!isIndex));
+  el.viewTabIndex.setAttribute("aria-selected", String(isIndex));
+}
+
+el.viewTabList.addEventListener("click", () => setActiveView("list"));
+el.viewTabIndex.addEventListener("click", () => setActiveView("index"));
+
+el.indexList.addEventListener("click", (e) => {
+  const item = e.target.closest('[data-action="index-jump"]');
+  if (!item) return;
+  navigateToWord(item.dataset.wordId);
+});
+
 // ---- セクションナビ ----
 
 let sectionObserver;
@@ -538,6 +605,7 @@ function revealAndScroll(target) {
 function navigateToWord(id) {
   const target = document.getElementById(`word-${id}`);
   if (!target) return;
+  if (state.activeView !== "list") setActiveView("list");
   history.pushState(null, "", `#word-${id}`);
   revealAndScroll(target);
 }
