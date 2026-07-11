@@ -620,44 +620,56 @@ async function getWord(db, id) {
   return json(detail);
 }
 
-async function replaceChildRows(db, table, columns, wordId, rows) {
-  await db.prepare(`DELETE FROM ${table} WHERE word_id = ?`).bind(wordId).run();
+// DELETE + INSERT群をまとめてstatement配列として組み立てる(実行はしない)。
+// saveWordChildren側で他テーブル分とまとめて1回のdb.batch()で送るため、往復回数を減らせる。
+function buildReplaceChildRowsStatements(db, table, columns, wordId, rows) {
+  const stmts = [db.prepare(`DELETE FROM ${table} WHERE word_id = ?`).bind(wordId)];
+  const placeholders = columns.map(() => "?").join(", ");
   let i = 0;
   for (const row of rows || []) {
     const values = columns.map((c) => (c === "sort_order" ? i : row[c] ?? null));
-    const placeholders = columns.map(() => "?").join(", ");
-    await db
-      .prepare(`INSERT INTO ${table} (word_id, ${columns.join(", ")}) VALUES (?, ${placeholders})`)
-      .bind(wordId, ...values)
-      .run();
+    stmts.push(
+      db.prepare(`INSERT INTO ${table} (word_id, ${columns.join(", ")}) VALUES (?, ${placeholders})`).bind(wordId, ...values)
+    );
     i += 1;
   }
+  return stmts;
+}
+
+async function replaceChildRows(db, table, columns, wordId, rows) {
+  await runBatched(db, buildReplaceChildRowsStatements(db, table, columns, wordId, rows));
 }
 
 // 単語編集フォームが管理するtag_keyのみを対象にする。
 // target1900/target1400など一括インポートでのみ設定されるタグは対象外にし、
 // 保存のたびに消えてしまわないようにする。
-async function replaceTags(db, wordId, tags) {
-  await db
-    .prepare(
-      "DELETE FROM tags WHERE word_id = ? AND (tag_key IN ('oxford5000', 'awl', 'eiken') OR tag_key LIKE 'custom:%')"
-    )
-    .bind(wordId)
-    .run();
+function buildReplaceTagsStatements(db, wordId, tags) {
+  const stmts = [
+    db
+      .prepare("DELETE FROM tags WHERE word_id = ? AND (tag_key IN ('oxford5000', 'awl', 'eiken') OR tag_key LIKE 'custom:%')")
+      .bind(wordId),
+  ];
   for (const [key, value] of Object.entries(tags || {})) {
     if (value === false || value === null || value === undefined) continue;
-    await db
-      .prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)")
-      .bind(wordId, key, value === true ? null : String(value))
-      .run();
+    stmts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)").bind(wordId, key, value === true ? null : String(value)));
   }
+  return stmts;
 }
 
+async function replaceTags(db, wordId, tags) {
+  await runBatched(db, buildReplaceTagsStatements(db, wordId, tags));
+}
+
+// senses/derivatives/examples/tagsの置き換えを1回のdb.batch()にまとめて送る。
+// (以前は各行ごとにawaitしており、単語1件の保存でD1への往復が10回以上発生し遅かった)
 async function saveWordChildren(db, id, body) {
-  await replaceChildRows(db, "senses", ["pos", "meaning", "pronunciation", "is_primary", "sort_order"], id, body.senses);
-  await replaceChildRows(db, "derivatives", ["pos", "word", "meaning", "sort_order"], id, body.derivatives);
-  await replaceChildRows(db, "examples", ["sentence", "answer", "translation", "type", "sort_order"], id, body.examples);
-  await replaceTags(db, id, body.tags);
+  const stmts = [
+    ...buildReplaceChildRowsStatements(db, "senses", ["pos", "meaning", "pronunciation", "is_primary", "sort_order"], id, body.senses),
+    ...buildReplaceChildRowsStatements(db, "derivatives", ["pos", "word", "meaning", "sort_order"], id, body.derivatives),
+    ...buildReplaceChildRowsStatements(db, "examples", ["sentence", "answer", "translation", "type", "sort_order"], id, body.examples),
+    ...buildReplaceTagsStatements(db, id, body.tags),
+  ];
+  await runBatched(db, stmts);
 }
 
 async function resolveDerivedFrom(db, body) {
