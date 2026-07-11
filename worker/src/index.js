@@ -386,28 +386,30 @@ async function listWordsInListFull(db, listId) {
     sectionId != null && sectionPositionById.has(sectionId) ? `${sectionLabel} ${sectionPositionById.get(sectionId)}` : null;
 
   const ids = items.map((r) => r.id);
-  const placeholders = ids.map(() => "?").join(", ");
-  const [sensesRes, derivativesRes, examplesRes, tagsRes] = await Promise.all([
-    db
-      .prepare(`SELECT word_id AS wordId, pos, meaning, pronunciation, is_primary AS isPrimary, sort_order AS sortOrder FROM senses WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
-      .bind(...ids)
-      .all(),
-    db
-      .prepare(`SELECT word_id AS wordId, pos, word, meaning, sort_order AS sortOrder FROM derivatives WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
-      .bind(...ids)
-      .all(),
-    db
-      .prepare(`SELECT word_id AS wordId, sentence, answer, translation, type, sort_order AS sortOrder FROM examples WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`)
-      .bind(...ids)
-      .all(),
-    db.prepare(`SELECT word_id AS wordId, tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id IN (${placeholders})`).bind(...ids).all(),
+  const [sensesRows, derivativesRows, examplesRows, tagsRows] = await Promise.all([
+    selectInChunks(
+      db,
+      (ph) => `SELECT word_id AS wordId, pos, meaning, pronunciation, is_primary AS isPrimary, sort_order AS sortOrder FROM senses WHERE word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
+      ids
+    ),
+    selectInChunks(
+      db,
+      (ph) => `SELECT word_id AS wordId, pos, word, meaning, sort_order AS sortOrder FROM derivatives WHERE word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
+      ids
+    ),
+    selectInChunks(
+      db,
+      (ph) => `SELECT word_id AS wordId, sentence, answer, translation, type, sort_order AS sortOrder FROM examples WHERE word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
+      ids
+    ),
+    selectInChunks(db, (ph) => `SELECT word_id AS wordId, tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id IN (${ph})`, ids),
   ]);
 
-  const sensesByWord = groupByWordId(sensesRes.results);
-  const derivativesByWord = groupByWordId(derivativesRes.results);
-  const examplesByWord = groupByWordId(examplesRes.results);
+  const sensesByWord = groupByWordId(sensesRows);
+  const derivativesByWord = groupByWordId(derivativesRows);
+  const examplesByWord = groupByWordId(examplesRows);
   const tagsByWord = new Map();
-  for (const t of tagsRes.results) {
+  for (const t of tagsRows) {
     if (!tagsByWord.has(t.wordId)) tagsByWord.set(t.wordId, {});
     tagsByWord.get(t.wordId)[t.tagKey] = t.tagValue;
   }
@@ -415,9 +417,8 @@ async function listWordsInListFull(db, listId) {
   const spellingById = new Map(items.map((i) => [i.id, i.spelling]));
   const missingDerivedFromIds = [...new Set(items.map((i) => i.derivedFromId).filter((id) => id && !spellingById.has(id)))];
   if (missingDerivedFromIds.length) {
-    const ph2 = missingDerivedFromIds.map(() => "?").join(", ");
-    const { results } = await db.prepare(`SELECT id, spelling FROM words WHERE id IN (${ph2})`).bind(...missingDerivedFromIds).all();
-    for (const r of results) spellingById.set(r.id, r.spelling);
+    const rows = await selectInChunks(db, (ph) => `SELECT id, spelling FROM words WHERE id IN (${ph})`, missingDerivedFromIds);
+    for (const r of rows) spellingById.set(r.id, r.spelling);
   }
 
   const words = items.map((r) => ({
@@ -538,24 +539,21 @@ async function reorderSections(db, listId, body) {
 async function renumberListItemsByHeadOrder(db, listId, items) {
   const headIds = items.map((it) => it.wordId);
   if (headIds.length === 0) return 0;
-  const idPlaceholders = headIds.map(() => "?").join(",");
-  const { results: headRows } = await db
-    .prepare(`SELECT word_id AS wordId, no FROM list_items WHERE list_id = ? AND branch = 0 AND word_id IN (${idPlaceholders})`)
-    .bind(listId, ...headIds)
-    .all();
-  const noByHeadId = new Map(headRows.map((r) => [r.wordId, r.no]));
 
-  const allNos = [...new Set(headRows.map((r) => r.no))];
-  if (allNos.length === 0) return 0;
-  const noPlaceholders = allNos.map(() => "?").join(",");
-  const { results: familyRows } = await db
-    .prepare(`SELECT word_id AS wordId, no FROM list_items WHERE list_id = ? AND no IN (${noPlaceholders})`)
-    .bind(listId, ...allNos)
+  // items(単語数の多いリストだと数百件になりうる)をIN(...)のプレースホルダに
+  // 展開するとD1のバインド変数上限を超えて "too many SQL variables" になるため、
+  // 代わりにこのリストの全list_itemsを1回のクエリでまとめて読み、絞り込みはJS側で行う。
+  const { results: allRows } = await db
+    .prepare("SELECT word_id AS wordId, no, branch FROM list_items WHERE list_id = ?")
+    .bind(listId)
     .all();
+
+  const noByHeadId = new Map();
   const familyByNo = new Map();
-  for (const r of familyRows) {
+  for (const r of allRows) {
     if (!familyByNo.has(r.no)) familyByNo.set(r.no, []);
     familyByNo.get(r.no).push(r.wordId);
+    if (r.branch === 0) noByHeadId.set(r.wordId, r.no);
   }
 
   const phase1 = [];
@@ -960,6 +958,21 @@ async function listDistinctTags(db) {
 function chunkArray(arr, size) {
   const out = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
+// ids配列をチャンクに分けてIN(...)クエリを発行し、結果をまとめて1つの配列で返す。
+// D1はバインド変数の数に上限があり、リストの単語数が多いと1回のIN(...)に収まらず
+// "too many SQL variables" エラーになるため、90件ずつに分割して発行する。
+// buildSql(placeholders)は "?, ?, ..." のプレースホルダ文字列を受け取りSQL文字列を返す関数。
+async function selectInChunks(db, buildSql, ids, size = 90) {
+  const out = [];
+  for (const part of chunkArray(ids, size)) {
+    if (part.length === 0) continue;
+    const placeholders = part.map(() => "?").join(", ");
+    const { results } = await db.prepare(buildSql(placeholders)).bind(...part).all();
+    out.push(...results);
+  }
   return out;
 }
 
