@@ -73,6 +73,7 @@
           <button id="listSettingsBtn" type="button" class="btn-compact" hidden title="単語帳の設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
         </div>
         <div class="pane-header-actions">
+          <button id="addToNotebookSettingsBtn" type="button" class="btn-ghost btn-icon-only" hidden title="追加先の単語帳・セクションを設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
           <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳</span></button>
           <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
           <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語</span></button>
@@ -87,7 +88,7 @@
       <div class="table-scroll" id="tableScroll">
         <table class="word-table">
           <thead id="wordTableHead">
-            <tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th><th class="col-pron">発音</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th></tr>
+            <tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th><th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th></tr>
           </thead>
           <tbody id="wordTableBody"></tbody>
         </table>
@@ -123,6 +124,7 @@
             <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
             <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
             <button type="button" id="playAudioBtn" title="発音を再生" aria-label="発音を再生" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+            <button type="button" id="spellingCautionBtn" class="caution-toggle-btn caution-toggle-btn--spelling" aria-pressed="false" title="スペルを間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>スペル注意</span></button>
             <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>発音注意</span></button>
             <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>アクセント注意</span></button>
             <button type="button" id="polysemousCautionBtn" class="caution-toggle-btn caution-toggle-btn--polysemous" aria-pressed="false" title="複数の意味を持つ紛らわしい単語としてマークします"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span>多義語</span></button>
@@ -260,9 +262,9 @@
 <div class="modal-overlay" id="addNotebookModalOverlay" hidden>
   <section class="settings-pane" id="addNotebookPane" role="dialog" aria-modal="true" aria-labelledby="addNotebookTitle">
     <button id="addNotebookCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-    <h2 id="addNotebookTitle">単語帳に追加</h2>
+    <h2 id="addNotebookTitle">追加先の単語帳・セクション</h2>
     <form id="addNotebookForm" class="word-form">
-      <p id="addNotebookCount" class="add-notebook-count"></p>
+      <p class="hint">ここで設定した単語帳へ、「単語帳」ボタンでチェック済みの単語を直接追加します。</p>
       <label>追加先の単語帳
         <select id="addNotebookSelect"></select>
       </label>
@@ -270,7 +272,7 @@
         <select id="addNotebookSection"><option value="">（セクションなし）</option></select>
       </label>
       <div class="settings-actions">
-        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-book" aria-hidden="true"></i><span>追加</span></button>
+        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
       </div>
     </form>
   </section>

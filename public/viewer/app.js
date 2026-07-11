@@ -290,6 +290,9 @@ function renderEntry(w) {
     : "";
 
   const cautionHtml = [
+    w.spellingCaution
+      ? '<span class="caution-badge caution-spelling" title="スペルに注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>スペル</span>'
+      : "",
     w.pronunciationCaution
       ? '<span class="caution-badge caution-pronunciation" title="発音に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>発音</span>'
       : "",
