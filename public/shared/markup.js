@@ -53,6 +53,21 @@ export function renderMarkup(raw, opts = {}) {
 }
 
 /**
+ * 記法を取り除いたプレーンテキストを返す（索引の見出し語・並び替えキーなど、
+ * HTMLではなく素の文字列が必要な場面で使う）。
+ * @param {string} raw
+ * @returns {string}
+ */
+export function stripMarkup(raw) {
+  if (!raw) return "";
+  return String(raw)
+    .replace(CROSSREF_RE, (_m, headwordRaw, displayRaw) => (displayRaw ? displayRaw.trim() : headwordRaw.trim()))
+    .replace(HIGHLIGHT_RE, (_m, inner) => inner)
+    .replace(ITALIC_RE, (_m, inner) => inner)
+    .trim();
+}
+
+/**
  * テキスト内に登場する ##headword## 参照の見出し語一覧を抽出する（保存前検証用）。
  * @param {string} raw
  * @returns {string[]}

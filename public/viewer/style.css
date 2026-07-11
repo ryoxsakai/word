@@ -147,22 +147,6 @@ button { font-family: inherit; }
   background: var(--topbar-bg);
   color: var(--topbar-text);
 }
-.topbar-text-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--topbar-accent);
-  text-decoration: none;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 500;
-  padding: 0.35rem 0.65rem;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-.topbar-text-btn:hover { background: var(--topbar-accent-soft); }
 
 .menu-toggle {
   display: flex;
@@ -205,6 +189,24 @@ button { font-family: inherit; }
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+}
+
+.view-tabs { display: flex; gap: 0.4rem; }
+.view-tab {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.view-tab[aria-selected="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
 .search-row { display: flex; gap: 0.4rem; }
@@ -309,6 +311,44 @@ button { font-family: inherit; }
 /* ---- word list ---- */
 
 .word-list { max-width: 640px; margin: 0 auto; padding: 0.6rem 0.9rem 2rem; }
+
+/* ---- 索引（abc順） ---- */
+
+.index-list {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0.7rem 0.9rem 2rem;
+  columns: 4;
+  column-gap: 1.4rem;
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+@media (max-width: 640px) {
+  .index-list { columns: 2; column-gap: 1rem; }
+}
+.index-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5rem;
+  padding: 0.22rem 0;
+  border-bottom: 1px solid var(--border);
+  break-inside: avoid;
+  cursor: pointer;
+}
+.index-entry:hover { color: var(--accent); }
+/* 単語は左寄せのまま折り返さず1行で表示し、収まらない場合は番号(→参照)側だけ次の行へ回す */
+.index-word { text-align: left; white-space: nowrap; overflow-wrap: break-word; }
+.index-loc {
+  flex: none;
+  margin-left: auto;
+  text-align: right;
+  color: var(--text-muted);
+  white-space: nowrap;
+  font-size: 0.92em;
+}
+.index-entry.is-ref .index-loc { font-style: italic; }
+.index-empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
 
 .section-divider {
   margin: 1.4rem 0 0.6rem;
@@ -653,6 +693,11 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   color: #fff;
 }
 
+/* ---- テーマ切り替え（ハンバーガーメニュー内） ---- */
+
+.theme-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.theme-label { font-size: 0.78rem; color: var(--text-muted); }
+
 /* 保存された no ではなく、単語一覧の文字だけを --font-scale 倍して拡大縮小する。
    既存ルールは書き換えず、.word-list 配下の上書きとして定義（既定値1で従来と同じ見た目）。 */
 :root { --font-scale: 1; }
@@ -695,6 +740,13 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .topbar, .subbar, .section-nav, .back-to-top, .toast, .learned-toggle, .speak-btn { display: none !important; }
   body { padding: 0 !important; background: #fff !important; }
   .word-list { max-width: 100%; padding: 0; }
+  .index-list {
+    max-width: 100%;
+    padding: 0;
+    columns: 3 !important;
+    column-gap: 1.1rem;
+  }
+  .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
   body, .section-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
