@@ -646,6 +646,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 .word-list .sense-line:not(.sense-primary) { font-size: calc(0.85rem * var(--font-scale)); }
 .word-list .sense-pron { font-size: calc(0.78rem * var(--font-scale)); }
 .word-list .pos-badge { font-size: calc(0.72rem * var(--font-scale)); }
+.word-list .pos-badge.derivative-pos { font-size: calc(0.6rem * var(--font-scale)); }
 .word-list .example-line, .word-list .derivative-line { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .notes-block { font-size: calc(0.7rem * var(--font-scale)); }
 .word-list .family-block { font-size: calc(0.82rem * var(--font-scale)); }
