@@ -518,7 +518,7 @@ body {
   color: var(--text-secondary);
 }
 
-.word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly {
+.word-table .col-caution-spelling, .word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly {
   width: 3.5rem;
   text-align: center;
 }
@@ -542,14 +542,17 @@ body {
   width: 1.6rem;
   height: 1.6rem;
 }
+.caution-icon.caution-spelling { color: #0f7b6c; }
 .caution-icon.caution-pronunciation { color: #a15c00; }
 .caution-icon.caution-accent { color: #b3261e; }
 .caution-icon.caution-polysemous { color: #4527a0; }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-icon.caution-spelling { color: #6fe0cc; }
   :root:not([data-theme="light"]) .caution-icon.caution-pronunciation { color: #ffcf7a; }
   :root:not([data-theme="light"]) .caution-icon.caution-accent { color: #ff9a9a; }
   :root:not([data-theme="light"]) .caution-icon.caution-polysemous { color: #c9b3ff; }
 }
+:root[data-theme="dark"] .caution-icon.caution-spelling { color: #6fe0cc; }
 :root[data-theme="dark"] .caution-icon.caution-pronunciation { color: #ffcf7a; }
 :root[data-theme="dark"] .caution-icon.caution-accent { color: #ff9a9a; }
 :root[data-theme="dark"] .caution-icon.caution-polysemous { color: #c9b3ff; }
@@ -854,6 +857,23 @@ legend .hint {
   background: #362658;
   border-color: #8462d4;
   color: #c9b3ff;
+}
+.caution-toggle-btn--spelling.is-active {
+  background: #e2f6f2;
+  border-color: #3c9c89;
+  color: #0f7b6c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-toggle-btn--spelling.is-active {
+    background: #163531;
+    border-color: #3c9c89;
+    color: #6fe0cc;
+  }
+}
+:root[data-theme="dark"] .caution-toggle-btn--spelling.is-active {
+  background: #163531;
+  border-color: #3c9c89;
+  color: #6fe0cc;
 }
 
 /* ---- repeat rows ---- */
@@ -1172,6 +1192,7 @@ legend .hint {
   .master-filters select { flex: 1 1 100%; max-width: none; }
   .master-actions button { flex: 1; min-width: 0; }
   .word-table .col-pron,
+  .word-table .col-caution-spelling,
   .word-table .col-caution-pron,
   .word-table .col-caution-accent,
   .word-table .col-caution-poly,

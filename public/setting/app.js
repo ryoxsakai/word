@@ -75,10 +75,10 @@ const el = {
   selectAllMasterBtn: document.getElementById("selectAllMasterBtn"),
   clearSelectionBtn: document.getElementById("clearSelectionBtn"),
   addToNotebookBtn: document.getElementById("addToNotebookBtn"),
+  addToNotebookSettingsBtn: document.getElementById("addToNotebookSettingsBtn"),
   addNotebookModalOverlay: document.getElementById("addNotebookModalOverlay"),
   addNotebookConfirmBtn: document.getElementById("addNotebookConfirmBtn"),
   addNotebookCloseBtn: document.getElementById("addNotebookCloseBtn"),
-  addNotebookCount: document.getElementById("addNotebookCount"),
   addNotebookSelect: document.getElementById("addNotebookSelect"),
   addNotebookSection: document.getElementById("addNotebookSection"),
   wordTableHead: document.getElementById("wordTableHead"),
@@ -97,6 +97,7 @@ const el = {
   fieldPronunciation: document.getElementById("fieldPronunciation"),
   lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
   playAudioBtn: document.getElementById("playAudioBtn"),
+  spellingCautionBtn: document.getElementById("spellingCautionBtn"),
   pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
   accentCautionBtn: document.getElementById("accentCautionBtn"),
   polysemousCautionBtn: document.getElementById("polysemousCautionBtn"),
@@ -230,6 +231,11 @@ function formatLevelBadgeCell(w, type) {
 }
 
 function formatCautionBadgeCell(w, type) {
+  if (type === "spelling") {
+    return w.spellingCaution
+      ? '<span class="caution-icon caution-spelling" title="スペル注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
   if (type === "pron") {
     return w.pronunciationCaution
       ? '<span class="caution-icon caution-pronunciation" title="発音注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
@@ -259,6 +265,7 @@ function updateListModeUi() {
   const notebook = isNotebookView();
   el.masterToolbar.hidden = !master;
   el.addToNotebookBtn.hidden = !master;
+  el.addToNotebookSettingsBtn.hidden = !master;
   el.newSectionBtn.hidden = !notebook;
   el.newSectionBtn.disabled = !notebook;
   el.listSettingsBtn.hidden = !notebook;
@@ -520,7 +527,8 @@ function renderSectionOptions() {
   state.sections.forEach((s, index) => {
     const opt = document.createElement("option");
     opt.value = String(s.id);
-    opt.textContent = `${getSectionLabel()} ${index + 1}`;
+    const name = `${getSectionLabel()} ${index + 1}`;
+    opt.textContent = s.subtitle ? `${name} - ${s.subtitle}` : name;
     el.fieldSection.appendChild(opt);
   });
   const newOpt = document.createElement("option");
@@ -598,7 +606,7 @@ async function saveListSettings() {
 const LEVEL_COLUMNS_HEAD =
   '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
-  '<th class="col-pron">発音</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th>';
+  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th>';
 
 function renderWordTableHead() {
   if (isMasterView()) {
@@ -719,6 +727,86 @@ async function submitSectionOrder(orderedSections) {
   }
 }
 
+// タッチ端末はHTML5 drag&dropが使えないため、長押し(LONG_PRESS_MS)でドラッグを開始する。
+// 長押し確定前に指が動いた場合はスクロールとみなしてキャンセルする。
+const TOUCH_LONG_PRESS_MS = 380;
+const TOUCH_MOVE_TOLERANCE = 10;
+
+function attachTouchLongPressDrag(sourceEl, { findTargetEl, onDrop }) {
+  let timer = null;
+  let dragging = false;
+  let startX = 0;
+  let startY = 0;
+  let hoverEl = null;
+
+  function clearHover() {
+    if (hoverEl) hoverEl.classList.remove("drag-over");
+    hoverEl = null;
+  }
+
+  function endDrag() {
+    dragging = false;
+    clearTimeout(timer);
+    timer = null;
+    sourceEl.classList.remove("dragging");
+    clearHover();
+  }
+
+  sourceEl.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        dragging = true;
+        sourceEl.classList.add("dragging");
+        if (navigator.vibrate) navigator.vibrate(15);
+      }, TOUCH_LONG_PRESS_MS);
+    },
+    { passive: true }
+  );
+
+  sourceEl.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!dragging) {
+        const touch = e.touches[0];
+        if (
+          Math.abs(touch.clientX - startX) > TOUCH_MOVE_TOLERANCE ||
+          Math.abs(touch.clientY - startY) > TOUCH_MOVE_TOLERANCE
+        ) {
+          clearTimeout(timer);
+        }
+        return;
+      }
+      e.preventDefault();
+      const touch = e.touches[0];
+      const under = document.elementFromPoint(touch.clientX, touch.clientY);
+      const target = under ? findTargetEl(under) : null;
+      if (target !== hoverEl) {
+        clearHover();
+        hoverEl = target;
+        if (hoverEl) hoverEl.classList.add("drag-over");
+      }
+    },
+    { passive: false }
+  );
+
+  sourceEl.addEventListener("touchend", (e) => {
+    if (!dragging) {
+      clearTimeout(timer);
+      return;
+    }
+    e.preventDefault();
+    if (hoverEl) onDrop(hoverEl);
+    endDrag();
+  });
+
+  sourceEl.addEventListener("touchcancel", endDrag);
+}
+
 function attachWordDragHandlers(tr, wordId) {
   tr.addEventListener("dragstart", (e) => {
     dragState = { type: "word", id: wordId };
@@ -742,6 +830,17 @@ function attachWordDragHandlers(tr, wordId) {
     const draggedId = dragState.id;
     dragState = null;
     if (draggedId !== wordId) moveWordBeforeTarget(draggedId, wordId);
+  });
+
+  attachTouchLongPressDrag(tr, {
+    findTargetEl: (el2) => el2.closest('tr[data-word-id]:not(.branch-row), tr.section-band-clickable'),
+    onDrop: (targetEl) => {
+      if (targetEl.dataset.sectionId) {
+        moveWordToSectionStart(wordId, Number(targetEl.dataset.sectionId));
+      } else if (targetEl.dataset.wordId && targetEl.dataset.wordId !== wordId) {
+        moveWordBeforeTarget(wordId, targetEl.dataset.wordId);
+      }
+    },
   });
 }
 
@@ -835,6 +934,7 @@ function buildSectionBandRow(sectionId, sectionSubtitle) {
   sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
   if (sectionId != null) {
     sectionTr.draggable = true;
+    sectionTr.dataset.sectionId = String(sectionId);
     sectionTr.classList.add("section-band-clickable");
     sectionTr.title = "クリックしてサブタイトル・説明を編集";
     sectionTr.addEventListener("click", () => openSectionEditor(sectionId));
@@ -867,6 +967,7 @@ function buildWordRow(w) {
     `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
   const pronCells =
     `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
+    `<td class="col-caution-spelling">${formatCautionBadgeCell(w, "spelling")}</td>` +
     `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
     `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
     `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>`;
@@ -1003,7 +1104,7 @@ function closeAddNotebookModal() {
   setAddNotebookModalOpen(false);
 }
 
-// 選択中の単語帳に対応するセクション一覧をプルダウンへ読み込む。
+// 指定した単語帳に対応するセクション一覧をプルダウンへ読み込む。
 // preferredSectionValueを渡すと、選択肢に存在する場合そのセクションを初期選択する(前回の記憶を復元する用途)。
 async function loadAddNotebookSections(listId, preferredSectionValue) {
   el.addNotebookSection.innerHTML = '<option value="">（セクションなし）</option>';
@@ -1014,7 +1115,8 @@ async function loadAddNotebookSections(listId, preferredSectionValue) {
     sections.forEach((s, index) => {
       const opt = document.createElement("option");
       opt.value = String(s.id);
-      opt.textContent = `${label} ${index + 1}`;
+      const name = `${label} ${index + 1}`;
+      opt.textContent = s.subtitle ? `${name} - ${s.subtitle}` : name;
       el.addNotebookSection.appendChild(opt);
     });
   } catch {
@@ -1025,18 +1127,15 @@ async function loadAddNotebookSections(listId, preferredSectionValue) {
   }
 }
 
-// マスターで選択した単語を単語帳へ追加する。追加先の単語帳・セクションはモーダルのプルダウンで選ぶ。
-async function addSelectedToNotebook() {
-  const ids = [...state.selectedWordIds];
-  if (ids.length === 0) return;
-
+// 「単語帳」ボタンの追加先(単語帳・セクション)を設定するモーダルを開く。
+// ここではまだ何も追加しない。「保存」で記憶した設定を、以後「単語帳」ボタンが直接使う。
+async function openAddNotebookSettingsModal() {
   const notebooks = notebookLists();
   if (notebooks.length === 0) {
     alert("先に「編集」から単語帳を作成してください。");
     return;
   }
 
-  el.addNotebookCount.textContent = `${ids.length}語を追加します`;
   el.addNotebookSelect.innerHTML = "";
   for (const l of notebooks) {
     const opt = document.createElement("option");
@@ -1051,19 +1150,32 @@ async function addSelectedToNotebook() {
   setAddNotebookModalOpen(true);
 }
 
-async function confirmAddToNotebook() {
-  const ids = [...state.selectedWordIds];
-  if (ids.length === 0) {
-    closeAddNotebookModal();
-    return;
-  }
+function saveAddNotebookSettings() {
   const targetId = el.addNotebookSelect.value;
   const target = notebookLists().find((l) => l.id === targetId);
   if (!target) {
     alert("追加先の単語帳を選択してください。");
     return;
   }
-  const sectionValue = el.addNotebookSection.value;
+  localStorage.setItem(LAST_ADD_NOTEBOOK_KEY, targetId);
+  localStorage.setItem(LAST_ADD_NOTEBOOK_SECTION_KEY, el.addNotebookSection.value);
+  closeAddNotebookModal();
+  showToast(`追加先を「${target.name}」に設定しました`);
+}
+
+// マスターでチェックした単語を、⚙で設定済みの単語帳・セクションへ直接追加する。
+// 追加先が未設定(または削除済み)の場合は設定モーダルを開く。
+async function addSelectedToNotebook() {
+  const ids = [...state.selectedWordIds];
+  if (ids.length === 0) return;
+
+  const targetId = localStorage.getItem(LAST_ADD_NOTEBOOK_KEY);
+  const target = notebookLists().find((l) => l.id === targetId);
+  if (!target) {
+    await openAddNotebookSettingsModal();
+    return;
+  }
+  const sectionValue = localStorage.getItem(LAST_ADD_NOTEBOOK_SECTION_KEY) || "";
   const sectionId = sectionValue ? Number(sectionValue) : null;
 
   try {
@@ -1071,9 +1183,6 @@ async function confirmAddToNotebook() {
       method: "POST",
       body: JSON.stringify({ wordIds: ids, sectionId }),
     });
-    localStorage.setItem(LAST_ADD_NOTEBOOK_KEY, targetId);
-    localStorage.setItem(LAST_ADD_NOTEBOOK_SECTION_KEY, sectionValue);
-    closeAddNotebookModal();
     showToast(`「${target.name}」へ追加: ${result.added}件 / スキップ: ${result.skipped}件`);
     state.selectedWordIds.clear();
     updateSelectionUi();
@@ -1189,6 +1298,7 @@ function openNewWordForm() {
   el.fieldPronunciation.value = "";
   state.currentAudioUrl = null;
   updatePlayAudioButton();
+  setCautionButton(el.spellingCautionBtn, false);
   setCautionButton(el.pronunciationCautionBtn, false);
   setCautionButton(el.accentCautionBtn, false);
   setCautionButton(el.polysemousCautionBtn, false);
@@ -1237,6 +1347,7 @@ async function openWordEditor(wordId) {
   el.fieldPronunciation.value = detail.pronunciation || "";
   state.currentAudioUrl = detail.audioUrl || null;
   updatePlayAudioButton();
+  setCautionButton(el.spellingCautionBtn, detail.spellingCaution);
   setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
   setCautionButton(el.accentCautionBtn, detail.accentCaution);
   setCautionButton(el.polysemousCautionBtn, detail.polysemousCaution);
@@ -1302,6 +1413,7 @@ async function saveWord() {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
     audioUrl: state.currentAudioUrl || null,
+    spellingCaution: isCautionButtonActive(el.spellingCautionBtn),
     pronunciationCaution: isCautionButtonActive(el.pronunciationCautionBtn),
     accentCaution: isCautionButtonActive(el.accentCautionBtn),
     polysemousCaution: isCautionButtonActive(el.polysemousCautionBtn),
@@ -1579,9 +1691,12 @@ el.sectionCloseBtn.addEventListener("click", closeSectionEditor);
 el.addNotebookModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.addNotebookModalOverlay) closeAddNotebookModal();
 });
-el.addNotebookConfirmBtn.addEventListener("click", confirmAddToNotebook);
+el.addNotebookConfirmBtn.addEventListener("click", saveAddNotebookSettings);
 el.addNotebookCloseBtn.addEventListener("click", closeAddNotebookModal);
 el.addNotebookSelect.addEventListener("change", () => loadAddNotebookSections(el.addNotebookSelect.value));
+el.spellingCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.spellingCautionBtn, !isCautionButtonActive(el.spellingCautionBtn))
+);
 el.pronunciationCautionBtn.addEventListener("click", () =>
   setCautionButton(el.pronunciationCautionBtn, !isCautionButtonActive(el.pronunciationCautionBtn))
 );
@@ -1616,6 +1731,7 @@ el.newSectionBtn.addEventListener("click", createSectionInstant);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);
 el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);
+el.addToNotebookSettingsBtn.addEventListener("click", openAddNotebookSettingsModal);
 el.toggleSearchBtn.addEventListener("click", () => setSearchRowVisible(el.tableSearchRow.hidden));
 el.tableSearchInput.addEventListener("input", () => {
   clearTimeout(tableSearchTimer);
