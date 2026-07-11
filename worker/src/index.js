@@ -505,22 +505,33 @@ async function reorderSections(db, listId, body) {
     db.prepare("UPDATE sections SET sort_order = ? WHERE id = ? AND list_id = ?").bind(index + 1, id, listId)
   );
   await runBatched(db, stmts);
+
+  // セクションの並び順だけを変えてもlist_items.noは古いセクション順のまま残ってしまい、
+  // 画面の表示順(セクション順→no)とnoの値が食い違ってしまう。
+  // そのため、更新後のセクション順で単語一覧を読み直し、その表示順でnoを振り直す。
+  const { results: headRows } = await db
+    .prepare(
+      `SELECT li.word_id AS wordId, li.section_id AS sectionId
+       FROM list_items li LEFT JOIN sections s ON s.id = li.section_id
+       WHERE li.list_id = ? AND li.branch = 0
+       ORDER BY COALESCE(s.sort_order, -1), li.no`
+    )
+    .bind(listId)
+    .all();
+  await renumberListItemsByHeadOrder(db, listId, headRows);
+
   return json({ ok: true });
 }
 
-// 単語帳内の並び順を丸ごと入れ替える。
-// bodyには「branch=0(派生語ファミリーの見出しとなる語)のword_idを新しい表示順に並べた配列」を渡す。
+// 単語帳内の並び順を丸ごと入れ替え、noを表示順の連番に振り直す。
+// items には「branch=0(派生語ファミリーの見出しとなる語)のword_idを新しい表示順に並べた配列」を渡す。
 // 派生語の枝番(42-1, 42-2等)は見出し語と同じnoを共有しているため、見出し語を動かすと
 // 枝番の兄弟たちも自動的に一緒に(同じ新しいno・同じ新しいsectionIdへ)移動する。
 // UNIQUE制約(list_id, no, branch)に一時的にでも抵触しないよう、一旦負の仮番号へ退避してから
 // 本来のno(1,2,3,...)を振り直す2段階更新を行う。
-async function reorderListItems(db, listId, body) {
-  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
-  if (!list) return notFound("list not found");
-  const items = body.items;
-  if (!Array.isArray(items) || items.length === 0) return badRequest("items is required");
-
+async function renumberListItemsByHeadOrder(db, listId, items) {
   const headIds = items.map((it) => it.wordId);
+  if (headIds.length === 0) return 0;
   const idPlaceholders = headIds.map(() => "?").join(",");
   const { results: headRows } = await db
     .prepare(`SELECT word_id AS wordId, no FROM list_items WHERE list_id = ? AND branch = 0 AND word_id IN (${idPlaceholders})`)
@@ -529,7 +540,7 @@ async function reorderListItems(db, listId, body) {
   const noByHeadId = new Map(headRows.map((r) => [r.wordId, r.no]));
 
   const allNos = [...new Set(headRows.map((r) => r.no))];
-  if (allNos.length === 0) return json({ ok: true, count: 0 });
+  if (allNos.length === 0) return 0;
   const noPlaceholders = allNos.map(() => "?").join(",");
   const { results: familyRows } = await db
     .prepare(`SELECT word_id AS wordId, no FROM list_items WHERE list_id = ? AND no IN (${noPlaceholders})`)
@@ -565,7 +576,17 @@ async function reorderListItems(db, listId, body) {
   await runBatched(db, phase1);
   await runBatched(db, phase2);
 
-  return json({ ok: true, count: position });
+  return position;
+}
+
+async function reorderListItems(db, listId, body) {
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const items = body.items;
+  if (!Array.isArray(items) || items.length === 0) return badRequest("items is required");
+
+  const count = await renumberListItemsByHeadOrder(db, listId, items);
+  return json({ ok: true, count });
 }
 
 // ---- words ----
