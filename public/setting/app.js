@@ -1,6 +1,7 @@
 import { renderMarkup } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
+import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 
 const API = `${API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -91,6 +92,7 @@ const el = {
   wordTableBody: document.getElementById("wordTableBody"),
   wordTableEmpty: document.getElementById("wordTableEmpty"),
   tableScroll: document.getElementById("tableScroll"),
+  ptrIndicator: document.getElementById("ptrIndicator"),
   masterLoadingMore: document.getElementById("masterLoadingMore"),
   editPane: document.getElementById("editPane"),
   editTitle: document.getElementById("editTitle"),
@@ -529,6 +531,12 @@ async function loadSectionsForList(listId) {
   // 単語一覧を再描画して最新のセクション帯を反映する(先に解決した側の描画が古いsectionsで
   // 上書きされたままにならないようにするため)。
   renderWordTable();
+}
+
+// プルリフレッシュ用: 選択中/検索状態は保ったまま、単語とセクションをサーバーから読み直す。
+async function refreshCurrentList() {
+  if (!state.currentListId) return;
+  await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
 }
 
 function renderSectionOptions() {
@@ -1830,6 +1838,16 @@ el.filterOxford.addEventListener("change", () => applyMasterFilters());
 el.filterTarget1900.addEventListener("change", () => applyMasterFilters());
 el.filterTarget1400.addEventListener("change", () => applyMasterFilters());
 el.tableScroll.addEventListener("scroll", handleWordTableScroll);
+if (el.ptrIndicator) {
+  attachPullToRefresh({
+    hitArea: el.tableScroll,
+    indicatorEl: el.ptrIndicator,
+    getScrollTop: () => el.tableScroll.scrollTop,
+    onRefresh: refreshCurrentList,
+    // 単語行の長押しドラッグ中は競合するので、その間はプルリフレッシュを発火させない。
+    isBlocked: (target) => !!target.closest(".touch-drag-armed, [draggable=\"true\"]"),
+  });
+}
 el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);

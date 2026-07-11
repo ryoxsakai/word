@@ -1,6 +1,7 @@
 import { renderMarkup, escapeHtml } from "../shared/markup.js";
 import { API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
+import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 
 const API = `${API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -40,6 +41,7 @@ const el = {
   backToTopBtn: document.getElementById("backToTopBtn"),
   toast: document.getElementById("toast"),
   fontSizeSteps: document.getElementById("fontSizeSteps"),
+  ptrIndicator: document.getElementById("ptrIndicator"),
 };
 
 async function api(path) {
@@ -699,6 +701,23 @@ if (el.fontSizeSteps) {
 }
 
 applyFontSize(Number(localStorage.getItem(FONT_SIZE_KEY)) || 3);
+
+// ---- プルリフレッシュ ----
+
+async function refreshCurrentList() {
+  if (!state.currentListId) return;
+  await selectList(state.currentListId);
+}
+
+if (el.ptrIndicator) {
+  attachPullToRefresh({
+    hitArea: document.body,
+    indicatorEl: el.ptrIndicator,
+    getScrollTop: () => window.scrollY || document.documentElement.scrollTop || 0,
+    onRefresh: refreshCurrentList,
+    isBlocked: (target) => !!target.closest("#topbarMenu, #sectionNav"),
+  });
+}
 
 // ---- 起動 ----
 

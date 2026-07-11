@@ -459,6 +459,24 @@ body {
   padding: 0.35rem 0.6rem;
 }
 
+/* ---- pull-to-refresh ---- */
+
+.ptr-indicator {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0;
+  overflow: hidden;
+  color: var(--text-muted);
+}
+.ptr-indicator i { font-size: 1.05rem; transition: transform 0.15s ease, color 0.15s ease; }
+.ptr-indicator.ptr-ready i { color: var(--accent); transform: rotate(180deg); }
+.ptr-indicator.ptr-refreshing i { color: var(--accent); animation: ptr-spin 0.7s linear infinite; }
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ---- word table ---- */
 
 .table-scroll {
@@ -1245,8 +1263,13 @@ legend .hint {
     flex-wrap: wrap;
     align-items: center;
   }
-  .repeat-row .pos { flex: 0 0 4.4rem; }
-  .repeat-row select.type { flex: 0 0 6.2rem; }
+  .repeat-row .pos { flex: 0 0 4.6rem; }
+  .repeat-row select.type { flex: 0 0 6.4rem; }
+  /* iOSはfont-sizeが16px未満の入力欄にフォーカスすると自動的にズームしてしまうため、
+     モバイル幅では1rem(16px)を下回らないようにする(それ以外の画面幅は密度優先で0.92remのまま) */
+  .repeat-row input,
+  .repeat-row select.type,
+  .list-manage-name { font-size: 1rem; }
   .sense-row .meaning { flex: 1 1 calc(100% - 4.8rem - 2.65rem - 2.65rem); }
   .derivative-row .word { flex: 1 1 calc(100% - 4.8rem); }
   .example-row .sentence { flex: 1 1 calc(100% - 6.6rem); }
