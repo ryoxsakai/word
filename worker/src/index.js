@@ -9,6 +9,9 @@ const MASTER_LIST_ID = "__master__";
 
 const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
 
+/** 単語帳ごとに選べるセクションの呼び方 */
+const SECTION_LABELS = ["Section", "Unit", "Part"];
+
 function isNotebookListId(id) {
   return id && id !== MASTER_LIST_ID && !LEGACY_PRESET_LIST_PREFIXES.some((p) => id.startsWith(p));
 }
@@ -141,7 +144,7 @@ async function loadListWordIndex(db, listId) {
 
 async function listLists(db) {
   const { results } = await db
-    .prepare("SELECT id, name, description, sort_order FROM lists ORDER BY sort_order, name")
+    .prepare("SELECT id, name, description, sort_order, section_label AS sectionLabel FROM lists ORDER BY sort_order, name")
     .all();
   const notebooks = results
     .filter((l) => isNotebookListId(l.id))
@@ -179,10 +182,18 @@ async function updateList(db, listId, body) {
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   if (!body.name) return badRequest("name is required");
-  await db
-    .prepare("UPDATE lists SET name = ?, description = ? WHERE id = ?")
-    .bind(body.name, body.description || null, listId)
-    .run();
+  if (body.sectionLabel !== undefined) {
+    if (!SECTION_LABELS.includes(body.sectionLabel)) return badRequest(`invalid sectionLabel "${body.sectionLabel}"`);
+    await db
+      .prepare("UPDATE lists SET name = ?, description = ?, section_label = ? WHERE id = ?")
+      .bind(body.name, body.description || null, body.sectionLabel, listId)
+      .run();
+  } else {
+    await db
+      .prepare("UPDATE lists SET name = ?, description = ? WHERE id = ?")
+      .bind(body.name, body.description || null, listId)
+      .run();
+  }
   return json({ ok: true });
 }
 
@@ -332,7 +343,7 @@ function groupByWordId(rows) {
 // 閲覧ページ用: リスト内の全単語を、意味・派生語・例文・タグまで含めて1回のリクエストで返す。
 // (単語詳細を1件ずつ取得すると N+1 になってしまうため、子テーブルは word_id IN (...) でまとめて取得する)
 async function listWordsInListFull(db, listId) {
-  const list = await db.prepare("SELECT id, name, description FROM lists WHERE id = ?").bind(listId).first();
+  const list = await db.prepare("SELECT id, name, description, section_label AS sectionLabel FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
 
   const { results: items } = await db
@@ -342,7 +353,7 @@ async function listWordsInListFull(db, listId) {
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution,
               w.derived_from_id AS derivedFromId,
-              li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
@@ -353,6 +364,17 @@ async function listWordsInListFull(db, listId) {
     .all();
 
   if (items.length === 0) return json({ list, words: [] });
+
+  // セクション名は保存された文字列ではなく、単語帳の呼び方(Section/Unit/Part)+並び順から常に自動計算する。
+  // (並べ替えても番号がずれないようにするため)
+  const { results: orderedSections } = await db
+    .prepare("SELECT id FROM sections WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
+  const sectionPositionById = new Map(orderedSections.map((s, i) => [s.id, i + 1]));
+  const sectionLabel = list.sectionLabel || "Section";
+  const sectionNameById = (sectionId) =>
+    sectionId != null && sectionPositionById.has(sectionId) ? `${sectionLabel} ${sectionPositionById.get(sectionId)}` : null;
 
   const ids = items.map((r) => r.id);
   const placeholders = ids.map(() => "?").join(", ");
@@ -405,7 +427,7 @@ async function listWordsInListFull(db, listId) {
     branch: r.branch,
     displayNo: formatNo(r.no, r.branch),
     sectionId: r.sectionId,
-    sectionName: r.sectionName,
+    sectionName: sectionNameById(r.sectionId),
     sectionSubtitle: r.sectionSubtitle,
     sectionDescription: r.sectionDescription,
     sectionSortOrder: r.sectionSortOrder,
@@ -435,28 +457,28 @@ async function listSections(db, listId) {
   return json(results);
 }
 
+// セクション名(name列)はもう使わない。番号はsort_orderの並び順から自動計算し、
+// 呼び方(Section/Unit/Part)は単語帳(lists.section_label)の設定に従う。
 async function createSection(db, listId, body) {
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
-  if (!body.name) return badRequest("name is required");
   const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM sections WHERE list_id = ?").bind(listId).first();
   const sortOrder = (row?.m || 0) + 1;
   const result = await db
-    .prepare("INSERT INTO sections (list_id, name, sort_order) VALUES (?, ?, ?)")
-    .bind(listId, body.name, sortOrder)
+    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order) VALUES (?, '', ?, ?, ?)")
+    .bind(listId, body.subtitle || null, body.description || null, sortOrder)
     .run();
-  return json({ id: result.meta.last_row_id, name: body.name, sortOrder }, { status: 201 });
+  return json({ id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder }, { status: 201 });
 }
 
 async function updateSection(db, listId, sectionId, body) {
   const section = await db.prepare("SELECT id FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
   if (!section) return notFound("section not found");
-  if (!body.name) return badRequest("name is required");
   await db
-    .prepare("UPDATE sections SET name = ?, subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
-    .bind(body.name, body.subtitle || null, body.description || null, sectionId, listId)
+    .prepare("UPDATE sections SET subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
+    .bind(body.subtitle || null, body.description || null, sectionId, listId)
     .run();
-  return json({ id: Number(sectionId), name: body.name, subtitle: body.subtitle || null, description: body.description || null });
+  return json({ id: Number(sectionId), subtitle: body.subtitle || null, description: body.description || null });
 }
 
 async function deleteSection(db, listId, sectionId) {

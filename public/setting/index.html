@@ -69,11 +69,12 @@
         <div class="list-switcher">
           <select id="listSelect" aria-label="表示するリスト"></select>
           <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
+          <button id="listSettingsBtn" type="button" class="btn-compact" hidden title="単語帳の設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
         </div>
         <div class="pane-header-actions">
-          <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>＋単語帳</span></button>
-          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>＋単語</span></button>
-          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>＋セクション</span></button>
+          <button id="addToNotebookBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳</span></button>
+          <button id="newSectionBtn" type="button" class="btn-ghost" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
+          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語</span></button>
           <button id="toggleSearchBtn" type="button" class="btn-ghost btn-icon-only" aria-expanded="false" aria-controls="tableSearchRow" title="検索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
         </div>
       </div>
@@ -274,9 +275,6 @@
       </div>
     </div>
     <form id="sectionForm" class="word-form">
-      <label>セクション名
-        <input type="text" id="sectionFieldName" required />
-      </label>
       <label>サブタイトル <span class="hint">閲覧ページでタイトルの横に表示します</span>
         <input type="text" id="sectionFieldSubtitle" placeholder="（任意）" />
       </label>
@@ -326,19 +324,20 @@
   </section>
 </div>
 
-<div class="modal-overlay" id="sectionManageModalOverlay" hidden>
-  <section class="edit-pane section-edit-pane" id="sectionManagePane" role="dialog" aria-modal="true" aria-labelledby="sectionManageTitle">
-    <div class="pane-header pane-header--edit">
-      <h2 id="sectionManageTitle">セクションを編集</h2>
-      <div class="edit-actions">
-        <button id="sectionManageCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      </div>
-    </div>
+<div class="modal-overlay" id="listSettingsModalOverlay" hidden>
+  <section class="settings-pane" id="listSettingsPane" role="dialog" aria-modal="true" aria-labelledby="listSettingsTitle">
+    <button id="listSettingsCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="listSettingsTitle">単語帳の設定</h2>
     <div class="word-form">
-      <div id="sectionManageList" class="list-manage-list"></div>
-      <div class="list-manage-new">
-        <input type="text" id="sectionManageNewName" placeholder="新しいセクション名" autocomplete="off" />
-        <button type="button" id="sectionManageCreateBtn" class="primary"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>作成</span></button>
+      <label>セクションの呼び方
+        <select id="listSettingsSectionLabel">
+          <option value="Section">Section</option>
+          <option value="Unit">Unit</option>
+          <option value="Part">Part</option>
+        </select>
+      </label>
+      <div class="settings-actions">
+        <button type="button" id="listSettingsSaveBtn" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
       </div>
     </div>
   </section>

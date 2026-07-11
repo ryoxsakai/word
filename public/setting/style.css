@@ -334,6 +334,53 @@ body {
   overflow: hidden;
 }
 
+/* ---- 単語帳設定モーダル（画面全体を覆わず、背景から浮いて見えるコンパクトなカード） ---- */
+
+#listSettingsModalOverlay {
+  padding: clamp(1rem, 5vw, 2rem);
+}
+
+.settings-pane {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: 100%;
+  overflow: auto;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem 1.5rem 1.25rem;
+}
+
+.settings-pane h2 {
+  font-size: 1rem;
+  font-weight: 650;
+  margin: 0 0 1.1rem;
+  padding-right: 2.25rem;
+  letter-spacing: -0.01em;
+}
+
+.settings-pane .modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+.settings-pane .word-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.settings-pane .settings-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .pane-header {
   display: flex;
   align-items: center;
