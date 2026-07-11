@@ -1245,6 +1245,12 @@ legend .hint {
   /* 品詞＋意味はスペルの右に列表示のまま残す */
   .word-table .col-meaning { max-width: 9rem; }
 
+  /* モバイルは表示列が減っても幅が微妙に収まりきらず左右にずれることがあるため、
+     セル余白と上下ボタンを詰めて確実に画面幅へ収める */
+  .word-table td { padding: 0.5rem 0.5rem; }
+  .col-move { width: 2.6rem; }
+  .move-btn { min-width: 1.3rem; min-height: 1.3rem; font-size: 0.6rem; }
+
   /* リストno.と派生元は横並びに、セクションは単独行に */
   #notebookFields { grid-template-columns: 1fr 1fr; }
   #notebookFields > label:nth-child(3) { grid-column: 1 / -1; }

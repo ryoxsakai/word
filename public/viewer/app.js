@@ -9,7 +9,6 @@ const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
-const learnedKey = (listId) => `vocab-learned:${listId}`;
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
 
@@ -18,9 +17,7 @@ const state = {
   currentListId: null,
   words: [],
   wordIndex: new Map(), // spelling(lower) -> {id, no}
-  learned: new Set(),
   search: "",
-  unlearnedOnly: false,
   activeView: "list", // "list" | "index"
 };
 
@@ -30,9 +27,6 @@ const el = {
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
   searchInput: document.getElementById("searchInput"),
-  unlearnedOnlyBtn: document.getElementById("unlearnedOnlyBtn"),
-  progressFill: document.getElementById("progressFill"),
-  progressLabel: document.getElementById("progressLabel"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
   jumpInput: document.getElementById("jumpInput"),
@@ -113,23 +107,9 @@ async function loadLists() {
   await selectList(initial);
 }
 
-function loadLearned(listId) {
-  try {
-    const raw = localStorage.getItem(learnedKey(listId));
-    state.learned = new Set(raw ? JSON.parse(raw) : []);
-  } catch {
-    state.learned = new Set();
-  }
-}
-
-function saveLearned() {
-  localStorage.setItem(learnedKey(state.currentListId), JSON.stringify([...state.learned]));
-}
-
 async function selectList(listId) {
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
-  loadLearned(listId);
   el.loadingMsg.hidden = false;
   el.emptyMsg.hidden = true;
   el.wordList.innerHTML = "";
@@ -142,7 +122,6 @@ async function selectList(listId) {
     renderWords();
     renderAlphabeticalIndex();
     setupSectionObserver();
-    updateProgress();
     el.emptyMsg.hidden = state.words.length > 0;
     applyHashScroll();
   } catch (err) {
@@ -211,7 +190,6 @@ function wordHaystack(w) {
 
 function renderEntry(w) {
   const isBranch = w.branch > 0;
-  const isLearned = state.learned.has(w.id);
   const haystack = wordHaystack(w);
 
   const familyLine =
@@ -316,7 +294,7 @@ function renderEntry(w) {
   ].join("");
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}${isLearned ? " is-learned" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
@@ -335,10 +313,6 @@ function renderEntry(w) {
         ${antonymsHtml}
         ${notesHtml}
       </div>
-      <label class="learned-toggle">
-        <input type="checkbox" data-action="toggle-learned" data-word-id="${escapeHtml(w.id)}" ${isLearned ? "checked" : ""} />
-        習得済みにする
-      </label>
     </div>
   </article>`;
 }
@@ -395,18 +369,43 @@ function buildAlphabeticalIndex() {
   return entries;
 }
 
+function renderIndexEntryHtml(e) {
+  return `
+    <div class="index-entry${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-word-id="${escapeHtml(e.targetId)}">
+      <span class="index-word">${escapeHtml(e.spelling)}</span>
+      <span class="index-loc">${escapeHtml(e.loc)}</span>
+    </div>`;
+}
+
+// 印刷時にa/bなど文字ごとに独立した段組みで区切れるよう、先頭文字でグループ化する
+// (1つの巨大なcolumnsに流し込むと、同じ列内でa→bのように文字が混ざってしまうため)。
+function groupIndexEntriesByLetter(entries) {
+  const groups = [];
+  let current = null;
+  for (const e of entries) {
+    const letter = (e.spelling[0] || "").toUpperCase();
+    if (!current || current.letter !== letter) {
+      current = { letter, items: [] };
+      groups.push(current);
+    }
+    current.items.push(e);
+  }
+  return groups;
+}
+
 function renderAlphabeticalIndex() {
   const entries = buildAlphabeticalIndex();
   if (entries.length === 0) {
     el.indexList.innerHTML = '<p class="index-empty">単語がまだ登録されていません。</p>';
     return;
   }
-  el.indexList.innerHTML = entries
+  const groups = groupIndexEntriesByLetter(entries);
+  el.indexList.innerHTML = groups
     .map(
-      (e) => `
-    <div class="index-entry${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-word-id="${escapeHtml(e.targetId)}">
-      <span class="index-word">${escapeHtml(e.spelling)}</span>
-      <span class="index-loc">${escapeHtml(e.loc)}</span>
+      (g) => `
+    <div class="index-group">
+      <h2 class="index-letter">${escapeHtml(g.letter)}</h2>
+      <div class="index-columns">${g.items.map(renderIndexEntryHtml).join("")}</div>
     </div>`
     )
     .join("");
@@ -485,9 +484,7 @@ function applyFilters() {
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
     const haystack = entry.dataset.haystack || "";
-    const matchesSearch = !q || haystack.includes(q);
-    const matchesLearned = !state.unlearnedOnly || !state.learned.has(entry.dataset.wordId);
-    entry.hidden = !(matchesSearch && matchesLearned);
+    entry.hidden = !(!q || haystack.includes(q));
   });
 
   let currentDivider = null;
@@ -502,20 +499,6 @@ function applyFilters() {
     }
   }
   if (currentDivider) currentDivider.hidden = !dividerHasVisible;
-}
-
-function updateProgress() {
-  const total = state.words.length;
-  const learnedCount = state.words.filter((w) => state.learned.has(w.id)).length;
-  el.progressFill.style.width = total ? `${Math.round((learnedCount / total) * 100)}%` : "0%";
-  el.progressLabel.textContent = `${learnedCount} / ${total} 習得`;
-}
-
-function toggleLearned(id) {
-  if (state.learned.has(id)) state.learned.delete(id);
-  else state.learned.add(id);
-  saveLearned();
-  updateProgress();
 }
 
 // ---- 発音 / リンクコピー / 空所トグル ----
@@ -594,8 +577,6 @@ function revealAndScroll(target) {
   if (target.hidden) {
     state.search = "";
     el.searchInput.value = "";
-    state.unlearnedOnly = false;
-    el.unlearnedOnlyBtn.setAttribute("aria-pressed", "false");
     applyFilters();
   }
   target.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -653,16 +634,6 @@ el.wordList.addEventListener("click", (e) => {
   else if (action === "toggle-blank") toggleBlank(actionEl);
 });
 
-el.wordList.addEventListener("change", (e) => {
-  const cb = e.target.closest('[data-action="toggle-learned"]');
-  if (!cb) return;
-  toggleLearned(cb.dataset.wordId);
-  const entry = cb.closest(".entry");
-  if (entry) entry.classList.toggle("is-learned", state.learned.has(cb.dataset.wordId));
-  updateProgress();
-  applyFilters();
-});
-
 let searchTimer;
 el.searchInput.addEventListener("input", () => {
   clearTimeout(searchTimer);
@@ -670,12 +641,6 @@ el.searchInput.addEventListener("input", () => {
     state.search = el.searchInput.value;
     applyFilters();
   }, 120);
-});
-
-el.unlearnedOnlyBtn.addEventListener("click", () => {
-  state.unlearnedOnly = !state.unlearnedOnly;
-  el.unlearnedOnlyBtn.setAttribute("aria-pressed", String(state.unlearnedOnly));
-  applyFilters();
 });
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
