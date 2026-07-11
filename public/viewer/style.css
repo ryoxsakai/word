@@ -373,6 +373,7 @@ button { font-family: inherit; }
   color: var(--text);
 }
 .section-subtitle { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+.section-count { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
 .section-description {
   margin-top: 0.25rem;
   font-size: 0.7rem;
@@ -710,6 +711,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 :root { --font-scale: 1; }
 .word-list .section-title { font-size: calc(1.02rem * var(--font-scale)); }
 .word-list .section-subtitle { font-size: calc(0.9rem * var(--font-scale)); }
+.word-list .section-count { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-description { font-size: calc(0.7rem * var(--font-scale)); }
 .word-list .entry-no { font-size: calc(1.05rem * var(--font-scale)); }
 .word-list .entry.branch-entry .entry-no { font-size: calc(0.9rem * var(--font-scale)); }
