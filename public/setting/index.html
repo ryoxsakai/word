@@ -287,14 +287,9 @@
 </div>
 
 <div class="modal-overlay" id="addNotebookModalOverlay" hidden>
-  <section class="edit-pane section-edit-pane" id="addNotebookPane" role="dialog" aria-modal="true" aria-labelledby="addNotebookTitle">
-    <div class="pane-header pane-header--edit">
-      <h2 id="addNotebookTitle">単語帳に追加</h2>
-      <div class="edit-actions">
-        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-book" aria-hidden="true"></i><span>追加</span></button>
-        <button id="addNotebookCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      </div>
-    </div>
+  <section class="settings-pane" id="addNotebookPane" role="dialog" aria-modal="true" aria-labelledby="addNotebookTitle">
+    <button id="addNotebookCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="addNotebookTitle">単語帳に追加</h2>
     <form id="addNotebookForm" class="word-form">
       <p id="addNotebookCount" class="add-notebook-count"></p>
       <label>追加先の単語帳
@@ -303,6 +298,9 @@
       <label>セクション <span class="hint">（任意）</span>
         <select id="addNotebookSection"><option value="">（セクションなし）</option></select>
       </label>
+      <div class="settings-actions">
+        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-book" aria-hidden="true"></i><span>追加</span></button>
+      </div>
     </form>
   </section>
 </div>
