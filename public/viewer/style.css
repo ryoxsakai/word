@@ -398,7 +398,10 @@ button { font-family: inherit; }
 }
 .entry-no:hover { color: var(--accent); }
 
-.entry-body { grid-column: 2; display: flex; flex-direction: column; gap: 0.35rem; }
+/* grid/flexアイテムは既定でmin-width:autoとなり、中に改行できない長い単語があると
+   それに押されて.entry(ひいてはページ全体)が横スクロールしてしまう。min-width:0で
+   トラック幅まで縮められるようにし、長い単語自体はoverflow-wrapで折り返す。 */
+.entry-body { grid-column: 2; min-width: 0; display: flex; flex-direction: column; gap: 0.35rem; }
 
 .entry-head {
   display: flex;
@@ -412,6 +415,9 @@ button { font-family: inherit; }
   font-weight: 800;
   color: var(--text);
   text-decoration: none;
+  overflow-wrap: break-word;
+  min-width: 0;
+  max-width: 100%;
 }
 .speak-btn {
   border: none;
@@ -432,7 +438,7 @@ button { font-family: inherit; }
 .speak-btn:hover { filter: brightness(1.08); }
 .speak-btn.speaking { background: var(--accent-strong); }
 @media print { .speak-btn { display: none; } }
-.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; display: flex; align-items: center; }
+.pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; display: flex; align-items: center; overflow-wrap: break-word; min-width: 0; }
 
 .caution-badge {
   display: inline-flex;
@@ -533,12 +539,15 @@ button { font-family: inherit; }
 }
 .bullet { grid-column: 1; grid-row: 1; color: var(--accent); font-size: 0.75rem; }
 .bullet.hollow { color: var(--text-muted); }
-.example-phrase, .example-translation { grid-column: 2; }
+.example-phrase, .example-translation { grid-column: 2; min-width: 0; overflow-wrap: break-word; }
 .example-phrase { color: var(--text); }
 .example-translation { color: var(--text-muted); font-size: 0.7em; }
 
 .derivative-items { display: inline; }
-.derivative-item { margin-right: 1.1em; white-space: nowrap; }
+/* white-space:nowrapで1項目を1行にまとめていたが、項目自体が画面幅を超える場合に
+   ページ全体が横スクロールしてしまっていたため、通常の折り返しに変更した上で
+   overflow-wrapで長い単語単体でも折り返せるようにする */
+.derivative-item { margin-right: 1.1em; overflow-wrap: break-word; }
 .derivative-item:last-child { margin-right: 0; }
 .pos-badge.derivative-pos { opacity: 0.6; vertical-align: middle; }
 .derivative-word { font-weight: 600; }
@@ -601,7 +610,7 @@ button { font-family: inherit; }
 :root[data-theme="dark"] .notes-label.antonym-badge { background-color: #bf360c; color: #ffb74d; }
 :root[data-theme="dark"] .notes-label.memo-badge { background-color: #4a148c; color: #ce93d8; }
 
-.family-block { font-size: 0.82rem; color: var(--text-muted); }
+.family-block { font-size: 0.82rem; color: var(--text-muted); overflow-wrap: break-word; }
 
 a.ref { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent); }
 .ref-missing { color: var(--danger); border-bottom: 1px dotted var(--danger); }
