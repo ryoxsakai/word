@@ -690,29 +690,38 @@ async function moveWordBeforeTarget(wordId, targetWordId) {
   await submitReorder(order);
 }
 
+// wordIdsを指定セクションの先頭へまとめて移動した並び順を組み立てる。
+// 単純に配列中の1箇所へ挿入するだけだと、移動先セクションに既存メンバーが1件も
+// いない場合にinsertAtが見つからず末尾へ追いやられ、表示上は先頭のセクションなのに
+// noだけ最大値になる、という連番の食い違いが起きていた。
+// そのため、既存セクションの表示順(state.sections、セクションなしは先頭)を基準に
+// 全体を毎回組み直すことで、noが常に表示順と一致するようにする。
+function buildOrderWithWordsMovedToSection(wordIds, sectionId) {
+  const order = getHeadWordOrder();
+  const idSet = new Set(wordIds);
+  const moving = order.filter((it) => idSet.has(it.wordId));
+  for (const it of moving) it.sectionId = sectionId;
+
+  const sectionOrder = [null, ...state.sections.map((s) => s.id)];
+  const groups = new Map(sectionOrder.map((id) => [id, []]));
+  for (const it of order) {
+    if (idSet.has(it.wordId)) continue;
+    if (!groups.has(it.sectionId)) groups.set(it.sectionId, []);
+    groups.get(it.sectionId).push(it);
+  }
+  groups.get(sectionId).unshift(...moving);
+
+  return [...groups.values()].flat();
+}
+
 // wordIdを指定セクションの先頭へ移動する(sectionIdはnull=セクションなしも可)。
 async function moveWordToSectionStart(wordId, sectionId) {
-  const order = getHeadWordOrder();
-  const fromIdx = order.findIndex((it) => it.wordId === wordId);
-  if (fromIdx === -1) return;
-  const [moved] = order.splice(fromIdx, 1);
-  moved.sectionId = sectionId;
-  const insertAt = order.findIndex((it) => it.sectionId === sectionId);
-  order.splice(insertAt === -1 ? order.length : insertAt, 0, moved);
-  await submitReorder(order);
+  await submitReorder(buildOrderWithWordsMovedToSection([wordId], sectionId));
 }
 
 // チェック済みの複数単語を、指定セクションの先頭へまとめて移動する。
 async function moveWordsToSectionStart(wordIds, sectionId) {
-  const order = getHeadWordOrder();
-  const idSet = new Set(wordIds);
-  const moving = order.filter((it) => idSet.has(it.wordId));
-  const staying = order.filter((it) => !idSet.has(it.wordId));
-  for (const it of moving) it.sectionId = sectionId;
-  const insertAt = staying.findIndex((it) => it.sectionId === sectionId);
-  const newOrder =
-    insertAt === -1 ? [...staying, ...moving] : [...staying.slice(0, insertAt), ...moving, ...staying.slice(insertAt)];
-  await submitReorder(newOrder);
+  await submitReorder(buildOrderWithWordsMovedToSection(wordIds, sectionId));
 }
 
 function openMoveToSectionModal() {
@@ -808,7 +817,7 @@ function attachTouchLongPressDrag(sourceEl, { findTargetEl, onDrop }) {
     dragging = false;
     clearTimeout(timer);
     timer = null;
-    sourceEl.classList.remove("dragging");
+    sourceEl.classList.remove("dragging", "touch-drag-armed");
     clearHover();
   }
 
@@ -819,6 +828,9 @@ function attachTouchLongPressDrag(sourceEl, { findTargetEl, onDrop }) {
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       clearTimeout(timer);
+      // 長押しがドラッグとして確定する前から文字選択を止めておく。
+      // (ブラウザの長押し=テキスト選択ジェスチャーとレースになり、選択メニューが同時に出てしまうため)
+      sourceEl.classList.add("touch-drag-armed");
       timer = setTimeout(() => {
         dragging = true;
         sourceEl.classList.add("dragging");
@@ -838,6 +850,7 @@ function attachTouchLongPressDrag(sourceEl, { findTargetEl, onDrop }) {
           Math.abs(touch.clientY - startY) > TOUCH_MOVE_TOLERANCE
         ) {
           clearTimeout(timer);
+          sourceEl.classList.remove("touch-drag-armed");
         }
         return;
       }
@@ -857,6 +870,7 @@ function attachTouchLongPressDrag(sourceEl, { findTargetEl, onDrop }) {
   sourceEl.addEventListener("touchend", (e) => {
     if (!dragging) {
       clearTimeout(timer);
+      sourceEl.classList.remove("touch-drag-armed");
       return;
     }
     e.preventDefault();
