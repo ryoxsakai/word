@@ -651,6 +651,13 @@ body {
 .word-table tbody tr.dragging { opacity: 0.4; }
 .word-table tbody tr.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
 
+/* タッチでの長押しドラッグ中は、ブラウザ標準の文字選択・選択メニューが同時に出ないようにする */
+.touch-drag-armed {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 .empty-msg {
   padding: 2rem 1.25rem;
   text-align: center;
