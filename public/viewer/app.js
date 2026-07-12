@@ -255,7 +255,7 @@ function renderEntry(w) {
     : "";
 
   const derivativesHtml = (w.derivatives || []).length
-    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="derivative-items">${w.derivatives
+    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="notes-content derivative-items">${w.derivatives
         .map(
           (d) => `<span class="derivative-item">${d.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(d.pos)}</span> ` : ""}<span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>${d.meaning ? ` <span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
         )
@@ -263,19 +263,19 @@ function renderEntry(w) {
     : "";
 
   const irregularFormsHtml = w.irregularForms
-    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge">不規則</span>${renderMarkup(w.irregularForms, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge">不規則</span><span class="notes-content">${renderMarkup(w.irregularForms, { resolve: resolveRef })}</span></div>`
     : "";
   const etymologyHtml = w.etymology
-    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span>${renderMarkup(w.etymology, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
     : "";
   const synonymsHtml = w.synonyms
-    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span>${renderWordListMarkup(w.synonyms)}</div>`
+    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span><span class="notes-content">${renderWordListMarkup(w.synonyms)}</span></div>`
     : "";
   const antonymsHtml = w.antonyms
-    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span>${renderWordListMarkup(w.antonyms)}</div>`
+    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms)}</span></div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span>${renderMarkup(w.notes, { resolve: resolveRef })}</div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${renderMarkup(w.notes, { resolve: resolveRef })}</span></div>`
     : "";
 
   const cautionHtml = [
