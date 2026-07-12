@@ -584,7 +584,21 @@ button { font-family: inherit; }
 
 /* バッジは左端に固定し、本文はバッジの右側で独立して折り返す(バッジに回り込まない)ようにする */
 .notes-block { display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.7rem; color: var(--text-muted); }
-.notes-label { flex: none; font-weight: 700; font-size: 1em; padding: 0.1em 0.5em; border-radius: 4px; white-space: nowrap; border: 1px solid currentColor; }
+/* 「語源」「メモ」のような2文字ラベルが3文字ラベル(派生語・類義語など)より
+   幅が狭く見えてしまうため、幅を揃えた上でtext-align(-last):justifyで文字を均等に散らす */
+.notes-label {
+  flex: none;
+  box-sizing: border-box;
+  width: 3.6em;
+  font-weight: 700;
+  font-size: 1em;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  text-align: justify;
+  text-align-last: justify;
+}
 .notes-content { flex: 1; min-width: 0; overflow-wrap: break-word; }
 .notes-block.notes-derivative { color: #00695c; }
 .notes-block.notes-irregular { color: #6d4c41; }
