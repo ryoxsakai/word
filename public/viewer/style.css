@@ -590,9 +590,11 @@ button { font-family: inherit; }
 .notes-label {
   flex: none;
   box-sizing: border-box;
-  width: 3.6em;
+  /* widthはem(自身のfont-size基準)ではなくrem固定にし、font-sizeだけを小さくしても
+     幅が一緒に縮まないようにする(文字サイズ設定に合わせた拡縮は.word-list側で行う) */
+  width: 2.52rem;
   font-weight: 700;
-  font-size: 1em;
+  font-size: 0.88em;
   padding: 0.1em 0.4em;
   border-radius: 4px;
   white-space: nowrap;
@@ -741,6 +743,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 .word-list .pos-badge.derivative-pos { font-size: calc(0.6rem * var(--font-scale)); }
 .word-list .example-line, .word-list .derivative-line { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .notes-block { font-size: calc(0.7rem * var(--font-scale)); }
+.word-list .notes-label { width: calc(2.52rem * var(--font-scale)); }
 .word-list .family-block { font-size: calc(0.82rem * var(--font-scale)); }
 
 /* ---- 印刷用スタイル ---- */
