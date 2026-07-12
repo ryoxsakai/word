@@ -486,7 +486,8 @@ button { font-family: inherit; }
   gap: 0.55rem;
 }
 
-.sense-line { display: flex; align-items: center; gap: 0.45rem; font-size: 0.98rem; }
+/* 意味が折り返して複数行になっても、品詞バッジは全体の中央ではなく1行目に揃える */
+.sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
 .sense-line.sense-primary { font-weight: 700; }
 .sense-line:not(.sense-primary) { font-size: 0.85rem; }
 .sense-line:not(.sense-primary) .sense-meaning { color: var(--text-muted); font-weight: 400; }
