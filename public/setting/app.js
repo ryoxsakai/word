@@ -123,6 +123,7 @@ const el = {
   accentCautionBtn: document.getElementById("accentCautionBtn"),
   polysemousCautionBtn: document.getElementById("polysemousCautionBtn"),
   conjugationCautionBtn: document.getElementById("conjugationCautionBtn"),
+  usageCautionBtn: document.getElementById("usageCautionBtn"),
   draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
@@ -289,6 +290,11 @@ function formatCautionBadgeCell(w, type) {
   if (type === "conjugation") {
     return w.conjugationCaution
       ? '<span class="caution-icon caution-conjugation" title="活用注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
+      : "";
+  }
+  if (type === "usage") {
+    return w.usageCaution
+      ? '<span class="caution-icon caution-usage" title="語法注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
       : "";
   }
   return "";
@@ -685,7 +691,7 @@ async function saveListSettings() {
 const LEVEL_COLUMNS_HEAD =
   '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
-  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th>';
+  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th>';
 
 function renderWordTableHead() {
   if (isMasterView()) {
@@ -1275,7 +1281,8 @@ function buildWordRow(w) {
     `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
     `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
     `<td class="col-caution-poly">${formatCautionBadgeCell(w, "poly")}</td>` +
-    `<td class="col-caution-conjugation">${formatCautionBadgeCell(w, "conjugation")}</td>`;
+    `<td class="col-caution-conjugation">${formatCautionBadgeCell(w, "conjugation")}</td>` +
+    `<td class="col-caution-usage">${formatCautionBadgeCell(w, "usage")}</td>`;
 
   const checked = state.selectedWordIds.has(w.id);
   const checkCell = `<td class="col-check"><input type="checkbox" class="word-check" ${checked ? "checked" : ""} aria-label="${escapeHtml(w.spelling)}を選択" /></td>`;
@@ -1627,6 +1634,7 @@ function openNewWordForm() {
   setCautionButton(el.accentCautionBtn, false);
   setCautionButton(el.polysemousCautionBtn, false);
   setCautionButton(el.conjugationCautionBtn, false);
+  setCautionButton(el.usageCautionBtn, false);
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
   clearRepeatList(el.sensesList);
@@ -1679,6 +1687,7 @@ async function openWordEditor(wordId) {
   setCautionButton(el.accentCautionBtn, detail.accentCaution);
   setCautionButton(el.polysemousCautionBtn, detail.polysemousCaution);
   setCautionButton(el.conjugationCautionBtn, detail.conjugationCaution);
+  setCautionButton(el.usageCautionBtn, detail.usageCaution);
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
 
@@ -1748,6 +1757,7 @@ async function saveWord() {
     accentCaution: isCautionButtonActive(el.accentCautionBtn),
     polysemousCaution: isCautionButtonActive(el.polysemousCautionBtn),
     conjugationCaution: isCautionButtonActive(el.conjugationCautionBtn),
+    usageCaution: isCautionButtonActive(el.usageCautionBtn),
     derivedFrom: el.fieldDerivedFrom.value.trim() || "",
     senses: collectRows("senses"),
     derivatives: collectRows("derivatives"),
@@ -2102,6 +2112,9 @@ el.polysemousCautionBtn.addEventListener("click", () =>
 );
 el.conjugationCautionBtn.addEventListener("click", () =>
   setCautionButton(el.conjugationCautionBtn, !isCautionButtonActive(el.conjugationCautionBtn))
+);
+el.usageCautionBtn.addEventListener("click", () =>
+  setCautionButton(el.usageCautionBtn, !isCautionButtonActive(el.usageCautionBtn))
 );
 
 el.listSelect.addEventListener("change", (e) => {

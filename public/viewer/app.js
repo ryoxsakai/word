@@ -294,6 +294,9 @@ function renderEntry(w) {
     w.conjugationCaution
       ? '<span class="caution-badge caution-conjugation" title="活用に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>活用</span>'
       : "",
+    w.usageCaution
+      ? '<span class="caution-badge caution-usage" title="語法に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>語法</span>'
+      : "",
   ].join("");
 
   return `
