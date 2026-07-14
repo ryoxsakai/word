@@ -1942,6 +1942,11 @@ async function moveChapterAboveSection(chapterId, targetSectionId) {
       method: "POST",
       body: JSON.stringify({ chapterIds: newOrder.map((c) => c.id) }),
     });
+    // buildOrderWithSectionsMovedToChapter()はstate.chaptersの並び順でsections.sort_orderを
+    // 組み立てるため、ここでstate.chaptersを更新しないと、直前に保存したchapters.sort_orderと
+    // 食い違ったsections.sort_orderが保存されてしまう(state.sectionsの並び順や
+    // sectionDisplayName()の番号が実際の表示順とずれる)。
+    state.chapters = newOrder;
   }
   await moveSectionToChapterStart(targetSectionId, chapterId);
 }
