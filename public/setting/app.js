@@ -61,6 +61,7 @@ const el = {
   chapterForm: document.getElementById("chapterForm"),
   chapterFieldSubtitle: document.getElementById("chapterFieldSubtitle"),
   chapterFieldDescription: document.getElementById("chapterFieldDescription"),
+  chapterFieldMoveBeforeSection: document.getElementById("chapterFieldMoveBeforeSection"),
   newChapterBtn: document.getElementById("newChapterBtn"),
   listSelect: document.getElementById("listSelect"),
   listManageBtn: document.getElementById("listManageBtn"),
@@ -1888,6 +1889,21 @@ function setChapterEditorOpen(open) {
   if (open) el.chapterEditPane.scrollTop = 0;
 }
 
+// チャプター編集モーダルの「帯の位置」プルダウン。全セクションを現在の表示順のまま列挙し、
+// 各セクションが今どのチャプターに属しているか([チャプター名])を添えて選びやすくする。
+function renderChapterMoveOptions() {
+  const select = el.chapterFieldMoveBeforeSection;
+  select.innerHTML = '<option value="">（移動しない）</option>';
+  state.sections.forEach((s) => {
+    const opt = document.createElement("option");
+    opt.value = String(s.id);
+    const ownerLabel = s.chapterId != null ? chapterDisplayName(s.chapterId) : "章なし";
+    const suffix = s.subtitle ? ` - ${s.subtitle}` : "";
+    opt.textContent = `[${ownerLabel}] ${sectionDisplayName(s.id)}${suffix}`;
+    select.appendChild(opt);
+  });
+}
+
 function openChapterEditor(chapterId) {
   const chapter = state.chapters.find((c) => c.id === chapterId);
   if (!chapter) return;
@@ -1895,6 +1911,8 @@ function openChapterEditor(chapterId) {
   el.chapterEditTitle.textContent = `チャプターを編集: ${chapterDisplayName(chapterId)}`;
   el.chapterFieldSubtitle.value = chapter.subtitle || "";
   el.chapterFieldDescription.value = chapter.description || "";
+  renderChapterMoveOptions();
+  el.chapterFieldMoveBeforeSection.value = "";
   setChapterEditorOpen(true);
 }
 
@@ -1905,8 +1923,10 @@ function closeChapterEditor() {
 
 async function saveChapterEdit() {
   if (!state.currentChapterId) return;
+  const chapterId = state.currentChapterId;
+  const moveBeforeSectionId = el.chapterFieldMoveBeforeSection.value ? Number(el.chapterFieldMoveBeforeSection.value) : null;
   try {
-    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/${encodeURIComponent(state.currentChapterId)}`, {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/${encodeURIComponent(chapterId)}`, {
       method: "PUT",
       body: JSON.stringify({
         subtitle: el.chapterFieldSubtitle.value.trim() || null,
@@ -1914,7 +1934,11 @@ async function saveChapterEdit() {
       }),
     });
     closeChapterEditor();
-    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+    if (moveBeforeSectionId != null) {
+      await moveSectionToChapterStart(moveBeforeSectionId, chapterId);
+    } else {
+      await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+    }
   } catch (err) {
     alert(`保存に失敗しました: ${err.message}`);
   }
