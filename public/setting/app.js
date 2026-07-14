@@ -19,6 +19,8 @@ const state = {
   words: [],
   sections: [],
   currentSectionId: null,
+  chapters: [],
+  currentChapterId: null,
   currentWord: null,
   isNew: false,
   currentAudioUrl: null,
@@ -50,6 +52,16 @@ const el = {
   sectionForm: document.getElementById("sectionForm"),
   sectionFieldSubtitle: document.getElementById("sectionFieldSubtitle"),
   sectionFieldDescription: document.getElementById("sectionFieldDescription"),
+  chapterModalOverlay: document.getElementById("chapterModalOverlay"),
+  chapterEditPane: document.getElementById("chapterEditPane"),
+  chapterEditTitle: document.getElementById("chapterEditTitle"),
+  chapterSaveBtn: document.getElementById("chapterSaveBtn"),
+  chapterDeleteBtn: document.getElementById("chapterDeleteBtn"),
+  chapterCloseBtn: document.getElementById("chapterCloseBtn"),
+  chapterForm: document.getElementById("chapterForm"),
+  chapterFieldSubtitle: document.getElementById("chapterFieldSubtitle"),
+  chapterFieldDescription: document.getElementById("chapterFieldDescription"),
+  newChapterBtn: document.getElementById("newChapterBtn"),
   listSelect: document.getElementById("listSelect"),
   listManageBtn: document.getElementById("listManageBtn"),
   listManageModalOverlay: document.getElementById("listManageModalOverlay"),
@@ -61,6 +73,7 @@ const el = {
   listSettingsModalOverlay: document.getElementById("listSettingsModalOverlay"),
   listSettingsCloseBtn: document.getElementById("listSettingsCloseBtn"),
   listSettingsSectionLabel: document.getElementById("listSettingsSectionLabel"),
+  listSettingsChapterLabel: document.getElementById("listSettingsChapterLabel"),
   listSettingsSaveBtn: document.getElementById("listSettingsSaveBtn"),
   newWordBtn: document.getElementById("newWordBtn"),
   newSectionBtn: document.getElementById("newSectionBtn"),
@@ -166,6 +179,17 @@ function sectionDisplayName(sectionId) {
   const index = state.sections.findIndex((s) => s.id === sectionId);
   if (index === -1) return "";
   return `${getSectionLabel()} ${index + 1}`;
+}
+
+function getChapterLabel() {
+  return getCurrentList()?.chapterLabel || "Chapter";
+}
+
+// チャプター名も同様に、呼び方(Chapter/Module/Volume)+並び順から常に計算する。
+function chapterDisplayName(chapterId) {
+  const index = state.chapters.findIndex((c) => c.id === chapterId);
+  if (index === -1) return "";
+  return `${getChapterLabel()} ${index + 1}`;
 }
 
 function setEditorOpen(open) {
@@ -283,6 +307,8 @@ function updateListModeUi() {
   el.masterToolbar.hidden = !master;
   el.addToNotebookBtn.hidden = !master;
   el.addToNotebookSettingsBtn.hidden = !master;
+  el.newChapterBtn.hidden = !notebook;
+  el.newChapterBtn.disabled = !notebook;
   el.newSectionBtn.hidden = !notebook;
   el.newSectionBtn.disabled = !notebook;
   el.moveToSectionBtn.hidden = !notebook;
@@ -526,16 +552,21 @@ function handleWordTableScroll() {
   }
 }
 
+// チャプターは常にセクションとセットで使うため、呼び出し側を増やさずここでまとめて読み込む。
 async function loadSectionsForList(listId) {
   if (isMasterView()) {
     state.sections = [];
+    state.chapters = [];
     return;
   }
-  state.sections = await api(`/lists/${encodeURIComponent(listId)}/sections`);
+  [state.sections, state.chapters] = await Promise.all([
+    api(`/lists/${encodeURIComponent(listId)}/sections`),
+    api(`/lists/${encodeURIComponent(listId)}/chapters`),
+  ]);
   renderSectionOptions();
   // loadWordsForListと並行して呼ばれることが多いため、こちらが後に解決した場合でも
-  // 単語一覧を再描画して最新のセクション帯を反映する(先に解決した側の描画が古いsectionsで
-  // 上書きされたままにならないようにするため)。
+  // 単語一覧を再描画して最新のセクション・チャプター帯を反映する(先に解決した側の描画が
+  // 古いsections/chaptersで上書きされたままにならないようにするため)。
   renderWordTable();
 }
 
@@ -601,9 +632,26 @@ async function createSectionInstant() {
   }
 }
 
+// 「チャプター」ボタンを押すと、名前入力なしで空のチャプターを末尾に追加し即座に帯を表示する。
+// サブタイトル・説明・並び順は帯をクリックして後から編集する(セクションと同じ流れ)。
+async function createChapterInstant() {
+  if (!isNotebookView()) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+    showToast("チャプターを追加しました");
+  } catch (err) {
+    alert(`チャプター作成に失敗しました: ${err.message}`);
+  }
+}
+
 function openListSettingsModal() {
   if (!isNotebookView()) return;
   const list = getCurrentList();
+  el.listSettingsChapterLabel.value = list?.chapterLabel || "Chapter";
   el.listSettingsSectionLabel.value = list?.sectionLabel || "Section";
   el.listSettingsModalOverlay.hidden = false;
 }
@@ -622,6 +670,7 @@ async function saveListSettings() {
         name: list.name,
         description: list.description,
         sectionLabel: el.listSettingsSectionLabel.value,
+        chapterLabel: el.listSettingsChapterLabel.value,
       }),
     });
     state.lists = await api("/lists");
@@ -781,38 +830,117 @@ async function confirmMoveToSection() {
   showToast(`${ids.length}語を移動しました`);
 }
 
-async function moveSectionBy(sectionId, direction) {
-  const idx = state.sections.findIndex((s) => s.id === sectionId);
-  if (idx === -1) return;
-  const targetIdx = idx + direction;
-  if (targetIdx < 0 || targetIdx >= state.sections.length) return;
-  const newSections = [...state.sections];
-  [newSections[idx], newSections[targetIdx]] = [newSections[targetIdx], newSections[idx]];
-  await submitSectionOrder(newSections);
+// state.sectionsの各要素を複製した配列を返す(呼び出し側が自由にchapterIdを書き換えても
+// サーバーへ送信するまではstate.sections自体を汚さないようにするため)。
+function getSectionOrder() {
+  return state.sections.map((s) => ({ ...s }));
 }
 
+// direction: -1(上へ) / +1(下へ)。moveWordByと同じ考え方で、同じチャプター内なら隣と単純に
+// 入れ替え、チャプターの端で隣が別チャプターの場合は所属チャプターだけ切り替える。
+async function moveSectionBy(sectionId, direction) {
+  const order = getSectionOrder();
+  const idx = order.findIndex((s) => s.id === sectionId);
+  if (idx === -1) return;
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= order.length) return;
+  const current = order[idx];
+  const neighbor = order[targetIdx];
+  if ((current.chapterId ?? null) === (neighbor.chapterId ?? null)) {
+    order[idx] = neighbor;
+    order[targetIdx] = current;
+  } else {
+    current.chapterId = neighbor.chapterId ?? null;
+  }
+  await submitSectionOrder(order);
+}
+
+// targetSectionIdの直前にsectionIdを挿入する(targetの所属チャプターに移る)。
 async function moveSectionBeforeTarget(sectionId, targetSectionId) {
   if (sectionId === targetSectionId) return;
-  const order = [...state.sections];
+  const order = getSectionOrder();
   const fromIdx = order.findIndex((s) => s.id === sectionId);
   const toIdx = order.findIndex((s) => s.id === targetSectionId);
   if (fromIdx === -1 || toIdx === -1) return;
   const [moved] = order.splice(fromIdx, 1);
   const insertAt = order.findIndex((s) => s.id === targetSectionId);
+  moved.chapterId = order[insertAt].chapterId ?? null;
   order.splice(insertAt, 0, moved);
   await submitSectionOrder(order);
+}
+
+// sectionIdsを指定チャプターの先頭へまとめて移動した並び順を組み立てる。
+// buildOrderWithWordsMovedToSectionと同じ理由(空チャプターだとinsertAtが見つからない問題を
+// 避けるため)で、チャプターの表示順を基準に全体を毎回組み直す。
+function buildOrderWithSectionsMovedToChapter(sectionIds, chapterId) {
+  const order = getSectionOrder();
+  const idSet = new Set(sectionIds);
+  const moving = order.filter((s) => idSet.has(s.id));
+  for (const s of moving) s.chapterId = chapterId;
+
+  const chapterOrder = [null, ...state.chapters.map((c) => c.id)];
+  const groups = new Map(chapterOrder.map((id) => [id, []]));
+  for (const s of order) {
+    if (idSet.has(s.id)) continue;
+    const key = s.chapterId ?? null;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  }
+  groups.get(chapterId ?? null).unshift(...moving);
+
+  return [...groups.values()].flat();
+}
+
+// sectionIdを指定チャプターの先頭へ移動する(chapterIdはnull=チャプターなしも可)。
+async function moveSectionToChapterStart(sectionId, chapterId) {
+  await submitSectionOrder(buildOrderWithSectionsMovedToChapter([sectionId], chapterId));
 }
 
 async function submitSectionOrder(orderedSections) {
   try {
     await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/reorder`, {
       method: "POST",
-      body: JSON.stringify({ sectionIds: orderedSections.map((s) => s.id) }),
+      body: JSON.stringify({ sections: orderedSections.map((s) => ({ id: s.id, chapterId: s.chapterId ?? null })) }),
     });
     await loadSectionsForList(state.currentListId);
     await loadWordsForList(state.currentListId);
   } catch (err) {
     alert(`セクションの並び替えに失敗しました: ${err.message}`);
+  }
+}
+
+async function moveChapterBy(chapterId, direction) {
+  const idx = state.chapters.findIndex((c) => c.id === chapterId);
+  if (idx === -1) return;
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= state.chapters.length) return;
+  const newChapters = [...state.chapters];
+  [newChapters[idx], newChapters[targetIdx]] = [newChapters[targetIdx], newChapters[idx]];
+  await submitChapterOrder(newChapters);
+}
+
+async function moveChapterBeforeTarget(chapterId, targetChapterId) {
+  if (chapterId === targetChapterId) return;
+  const order = [...state.chapters];
+  const fromIdx = order.findIndex((c) => c.id === chapterId);
+  const toIdx = order.findIndex((c) => c.id === targetChapterId);
+  if (fromIdx === -1 || toIdx === -1) return;
+  const [moved] = order.splice(fromIdx, 1);
+  const insertAt = order.findIndex((c) => c.id === targetChapterId);
+  order.splice(insertAt, 0, moved);
+  await submitChapterOrder(order);
+}
+
+async function submitChapterOrder(orderedChapters) {
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/reorder`, {
+      method: "POST",
+      body: JSON.stringify({ chapterIds: orderedChapters.map((c) => c.id) }),
+    });
+    await loadSectionsForList(state.currentListId);
+    await loadWordsForList(state.currentListId);
+  } catch (err) {
+    alert(`チャプターの並び替えに失敗しました: ${err.message}`);
   }
 }
 
@@ -966,6 +1094,55 @@ function attachSectionDragHandlers(sectionTr, sectionId) {
       moveWordToSectionStart(draggedId, sectionId);
     }
   });
+
+  attachTouchLongPressDrag(sectionTr, {
+    findTargetEl: (el2) => el2.closest("tr[data-section-id], tr[data-chapter-id]"),
+    onDrop: (targetEl) => {
+      if (targetEl.dataset.chapterId) {
+        moveSectionToChapterStart(sectionId, Number(targetEl.dataset.chapterId));
+      } else if (targetEl.dataset.sectionId && Number(targetEl.dataset.sectionId) !== sectionId) {
+        moveSectionBeforeTarget(sectionId, Number(targetEl.dataset.sectionId));
+      }
+    },
+  });
+}
+
+function attachChapterDragHandlers(chapterTr, chapterId) {
+  chapterTr.addEventListener("dragstart", (e) => {
+    dragState = { type: "chapter", id: chapterId };
+    e.dataTransfer.effectAllowed = "move";
+    chapterTr.classList.add("dragging");
+  });
+  chapterTr.addEventListener("dragend", () => {
+    chapterTr.classList.remove("dragging");
+    document.querySelectorAll(".drag-over").forEach((el2) => el2.classList.remove("drag-over"));
+  });
+  chapterTr.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    chapterTr.classList.add("drag-over");
+  });
+  chapterTr.addEventListener("dragleave", () => chapterTr.classList.remove("drag-over"));
+  chapterTr.addEventListener("drop", (e) => {
+    e.preventDefault();
+    chapterTr.classList.remove("drag-over");
+    if (dragState?.type === "chapter") {
+      const draggedId = dragState.id;
+      dragState = null;
+      if (draggedId !== chapterId) moveChapterBeforeTarget(draggedId, chapterId);
+    } else if (dragState?.type === "section") {
+      const draggedId = dragState.id;
+      dragState = null;
+      moveSectionToChapterStart(draggedId, chapterId);
+    }
+  });
+
+  attachTouchLongPressDrag(chapterTr, {
+    findTargetEl: (el2) => el2.closest("tr[data-chapter-id]"),
+    onDrop: (targetEl) => {
+      const targetChapterId = Number(targetEl.dataset.chapterId);
+      if (targetChapterId !== chapterId) moveChapterBeforeTarget(chapterId, targetChapterId);
+    },
+  });
 }
 
 // 意味・例文・派生語の行を上下ボタン/ドラッグ&ドロップで並び替える。
@@ -1045,6 +1222,37 @@ function buildSectionBandRow(sectionId, sectionSubtitle, wordCount) {
     attachSectionDragHandlers(sectionTr, sectionId);
   }
   return sectionTr;
+}
+
+function buildChapterBandRow(chapterId, chapterSubtitle, wordCount) {
+  const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
+  const chapterTr = document.createElement("tr");
+  chapterTr.className = "chapter-header-row";
+  const chapterIndex = state.chapters.findIndex((c) => c.id === chapterId);
+  const chapterName = chapterDisplayName(chapterId);
+  const isFirst = chapterIndex <= 0;
+  const isLast = chapterIndex === -1 || chapterIndex === state.chapters.length - 1;
+  const moveButtons = `<span class="section-move-btns">
+          <button type="button" class="move-btn" data-action="chapter-up" ${isFirst ? "disabled" : ""} aria-label="チャプターを上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+          <button type="button" class="move-btn" data-action="chapter-down" ${isLast ? "disabled" : ""} aria-label="チャプターを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        </span>`;
+  const nameHtml = `<span class="section-band-name">${escapeHtml(chapterName)}</span>${chapterSubtitle ? `<span class="section-band-subtitle">${escapeHtml(chapterSubtitle)}</span>` : ""}<span class="section-band-count">(${wordCount})</span>`;
+  chapterTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
+  chapterTr.draggable = true;
+  chapterTr.dataset.chapterId = String(chapterId);
+  chapterTr.classList.add("section-band-clickable");
+  chapterTr.title = "クリックしてサブタイトル・説明を編集";
+  chapterTr.addEventListener("click", () => openChapterEditor(chapterId));
+  chapterTr.querySelector('[data-action="chapter-up"]').addEventListener("click", (e) => {
+    e.stopPropagation();
+    moveChapterBy(chapterId, -1);
+  });
+  chapterTr.querySelector('[data-action="chapter-down"]').addEventListener("click", (e) => {
+    e.stopPropagation();
+    moveChapterBy(chapterId, 1);
+  });
+  attachChapterDragHandlers(chapterTr, chapterId);
+  return chapterTr;
 }
 
 function buildWordRow(w) {
@@ -1127,8 +1335,9 @@ function renderWordTable() {
       ? "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。"
       : "検索条件に一致する単語がありません。";
 
-  // セクションは単語が0件でも帯を表示する(新規作成直後に見えなくなるのを防ぐため)。
-  // セクションなしの単語は先頭、以降はstate.sectionsの並び順どおりに帯を出す。
+  // セクション・チャプターは中身が0件でも帯を表示する(新規作成直後に見えなくなるのを防ぐため)。
+  // セクションなしの単語・チャプターなしのセクションは先頭、以降はstate.chapters→state.sectionsの
+  // 並び順どおりに帯を出す(チャプター帯は各セクションの上に並ぶ)。
   const wordsBySection = new Map();
   for (const w of words) {
     const key = w.sectionId ?? null;
@@ -1136,16 +1345,32 @@ function renderWordTable() {
     wordsBySection.get(key).push(w);
   }
 
+  const sectionsByChapter = new Map();
+  for (const s of state.sections) {
+    const key = s.chapterId ?? null;
+    if (!sectionsByChapter.has(key)) sectionsByChapter.set(key, []);
+    sectionsByChapter.get(key).push(s);
+  }
+
+  const renderSectionBand = (section) => {
+    const wordsInSection = wordsBySection.get(section.id) || [];
+    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length));
+    for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
+  };
+
   const noSectionWords = wordsBySection.get(null) || [];
   if (noSectionWords.length > 0) {
     el.wordTableBody.appendChild(buildSectionBandRow(null, null, noSectionWords.length));
     for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
   }
 
-  for (const section of state.sections) {
-    const wordsInSection = wordsBySection.get(section.id) || [];
-    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length));
-    for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
+  for (const section of sectionsByChapter.get(null) || []) renderSectionBand(section);
+
+  for (const chapter of state.chapters) {
+    const sectionsInChapter = sectionsByChapter.get(chapter.id) || [];
+    const wordCountInChapter = sectionsInChapter.reduce((sum, s) => sum + (wordsBySection.get(s.id) || []).length, 0);
+    el.wordTableBody.appendChild(buildChapterBandRow(chapter.id, chapter.subtitle, wordCountInChapter));
+    for (const section of sectionsInChapter) renderSectionBand(section);
   }
 }
 
@@ -1646,6 +1871,60 @@ async function deleteSectionFromEditor() {
   }
 }
 
+// ---- チャプター編集(サブタイトル・説明) ----
+
+function setChapterEditorOpen(open) {
+  el.chapterModalOverlay.hidden = !open;
+  if (open) el.chapterEditPane.scrollTop = 0;
+}
+
+function openChapterEditor(chapterId) {
+  const chapter = state.chapters.find((c) => c.id === chapterId);
+  if (!chapter) return;
+  state.currentChapterId = chapterId;
+  el.chapterEditTitle.textContent = `チャプターを編集: ${chapterDisplayName(chapterId)}`;
+  el.chapterFieldSubtitle.value = chapter.subtitle || "";
+  el.chapterFieldDescription.value = chapter.description || "";
+  setChapterEditorOpen(true);
+}
+
+function closeChapterEditor() {
+  setChapterEditorOpen(false);
+  state.currentChapterId = null;
+}
+
+async function saveChapterEdit() {
+  if (!state.currentChapterId) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/${encodeURIComponent(state.currentChapterId)}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        subtitle: el.chapterFieldSubtitle.value.trim() || null,
+        description: el.chapterFieldDescription.value.trim() || null,
+      }),
+    });
+    closeChapterEditor();
+    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`保存に失敗しました: ${err.message}`);
+  }
+}
+
+async function deleteChapterFromEditor() {
+  if (!state.currentChapterId) return;
+  const label = chapterDisplayName(state.currentChapterId);
+  if (!confirm(`チャプター「${label}」を削除しますか？（所属するセクションはチャプターなしになります）`)) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/${encodeURIComponent(state.currentChapterId)}`, {
+      method: "DELETE",
+    });
+    closeChapterEditor();
+    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
+  }
+}
+
 async function createNewList(name) {
   try {
     const { id } = await api("/lists", { method: "POST", body: JSON.stringify({ name }) });
@@ -1785,6 +2064,7 @@ document.addEventListener("keydown", (e) => {
   if (!el.moveToSectionModalOverlay.hidden) { closeMoveToSectionModal(); return; }
   if (!el.editModalOverlay.hidden) { closeEditor(); return; }
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
+  if (!el.chapterModalOverlay.hidden) { closeChapterEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
 });
 el.editModalOverlay.addEventListener("click", (e) => {
@@ -1796,6 +2076,12 @@ el.sectionModalOverlay.addEventListener("click", (e) => {
 el.sectionSaveBtn.addEventListener("click", saveSectionEdit);
 el.sectionDeleteBtn.addEventListener("click", deleteSectionFromEditor);
 el.sectionCloseBtn.addEventListener("click", closeSectionEditor);
+el.chapterModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.chapterModalOverlay) closeChapterEditor();
+});
+el.chapterSaveBtn.addEventListener("click", saveChapterEdit);
+el.chapterDeleteBtn.addEventListener("click", deleteChapterFromEditor);
+el.chapterCloseBtn.addEventListener("click", closeChapterEditor);
 el.addNotebookModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.addNotebookModalOverlay) closeAddNotebookModal();
 });
@@ -1838,6 +2124,7 @@ el.listSettingsModalOverlay.addEventListener("click", (e) => {
 });
 el.listSettingsSaveBtn.addEventListener("click", saveListSettings);
 el.newWordBtn.addEventListener("click", openNewWordForm);
+el.newChapterBtn.addEventListener("click", createChapterInstant);
 el.newSectionBtn.addEventListener("click", createSectionInstant);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);

@@ -75,7 +75,8 @@
         <div class="pane-header-actions">
           <button id="addToNotebookBtn" type="button" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳</span></button>
           <button id="addToNotebookSettingsBtn" type="button" class="btn-icon-only" hidden title="追加先の単語帳・セクションを設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
-          <button id="newSectionBtn" type="button" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
+          <button id="newChapterBtn" type="button" class="btn-tight-label" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>チャプター</span></button>
+          <button id="newSectionBtn" type="button" class="btn-tight-label" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
           <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語</span></button>
           <button id="moveToSectionBtn" type="button" class="btn-ghost btn-icon-only" disabled hidden title="選択した単語をセクションへ移動"><i class="fa-solid fa-right-left" aria-hidden="true"></i></button>
           <button id="toggleSearchBtn" type="button" class="btn-ghost btn-icon-only" aria-expanded="false" aria-controls="tableSearchRow" title="検索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
@@ -247,6 +248,27 @@
   </section>
 </div>
 
+<div class="modal-overlay" id="chapterModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="chapterEditPane" role="dialog" aria-modal="true" aria-labelledby="chapterEditTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="chapterEditTitle">チャプターを編集</h2>
+      <div class="edit-actions">
+        <button id="chapterSaveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+        <button id="chapterDeleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
+        <button id="chapterCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <form id="chapterForm" class="word-form">
+      <label>サブタイトル <span class="hint">閲覧ページでタイトルの横に表示します</span>
+        <input type="text" id="chapterFieldSubtitle" placeholder="（任意）" />
+      </label>
+      <label>説明 <span class="hint">閲覧ページでタイトルの下に目立たない形で表示します</span>
+        <textarea id="chapterFieldDescription" rows="3" placeholder="（任意）"></textarea>
+      </label>
+    </form>
+  </section>
+</div>
+
 <div class="modal-overlay" id="sectionModalOverlay" hidden>
   <section class="edit-pane section-edit-pane" id="sectionEditPane" role="dialog" aria-modal="true" aria-labelledby="sectionEditTitle">
     <div class="pane-header pane-header--edit">
@@ -310,6 +332,13 @@
     <button id="listSettingsCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     <h2 id="listSettingsTitle">単語帳の設定</h2>
     <div class="word-form">
+      <label>チャプターの呼び方
+        <select id="listSettingsChapterLabel">
+          <option value="Chapter">Chapter</option>
+          <option value="Module">Module</option>
+          <option value="Volume">Volume</option>
+        </select>
+      </label>
       <label>セクションの呼び方
         <select id="listSettingsSectionLabel">
           <option value="Section">Section</option>

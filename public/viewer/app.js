@@ -324,16 +324,36 @@ function hasAnySection() {
   return state.words.some((w) => w.sectionId != null);
 }
 
+function hasAnyChapter() {
+  return state.words.some((w) => w.chapterId != null);
+}
+
 function renderWords() {
   const withSections = hasAnySection();
+  const withChapters = hasAnyChapter();
   const countByKey = new Map();
+  const countByChapterKey = new Map();
   for (const w of state.words) {
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     countByKey.set(key, (countByKey.get(key) || 0) + 1);
+    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
+    countByChapterKey.set(chapterKey, (countByChapterKey.get(chapterKey) || 0) + 1);
   }
   let lastKey;
+  let lastChapterKey;
   const parts = [];
   for (const w of state.words) {
+    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
+    if (withChapters && chapterKey !== lastChapterKey) {
+      lastChapterKey = chapterKey;
+      const titleLine = `<span class="chapter-title">${escapeHtml(w.chapterName || "その他")}</span>${
+        w.chapterSubtitle ? `<span class="chapter-subtitle">${escapeHtml(w.chapterSubtitle)}</span>` : ""
+      }<span class="chapter-count">(${countByChapterKey.get(chapterKey)})</span>`;
+      const descLine = w.chapterDescription ? `<div class="chapter-description">${escapeHtml(w.chapterDescription)}</div>` : "";
+      parts.push(
+        `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`
+      );
+    }
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     if (withSections && key !== lastKey) {
       lastKey = key;
