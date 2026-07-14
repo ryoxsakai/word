@@ -11,6 +11,8 @@ const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
 
 /** 単語帳ごとに選べるセクションの呼び方 */
 const SECTION_LABELS = ["Section", "Unit", "Part"];
+/** 単語帳ごとに選べるチャプター(セクションの上位概念)の呼び方 */
+const CHAPTER_LABELS = ["Chapter", "Module", "Volume"];
 
 function isNotebookListId(id) {
   return id && id !== MASTER_LIST_ID && !LEGACY_PRESET_LIST_PREFIXES.some((p) => id.startsWith(p));
@@ -144,7 +146,7 @@ async function loadListWordIndex(db, listId) {
 
 async function listLists(db) {
   const { results } = await db
-    .prepare("SELECT id, name, description, sort_order, section_label AS sectionLabel FROM lists ORDER BY sort_order, name")
+    .prepare("SELECT id, name, description, sort_order, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists ORDER BY sort_order, name")
     .all();
   const notebooks = results
     .filter((l) => isNotebookListId(l.id))
@@ -182,18 +184,23 @@ async function updateList(db, listId, body) {
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   if (!body.name) return badRequest("name is required");
+
+  const setClauses = ["name = ?", "description = ?"];
+  const binds = [body.name, body.description || null];
   if (body.sectionLabel !== undefined) {
     if (!SECTION_LABELS.includes(body.sectionLabel)) return badRequest(`invalid sectionLabel "${body.sectionLabel}"`);
-    await db
-      .prepare("UPDATE lists SET name = ?, description = ?, section_label = ? WHERE id = ?")
-      .bind(body.name, body.description || null, body.sectionLabel, listId)
-      .run();
-  } else {
-    await db
-      .prepare("UPDATE lists SET name = ?, description = ? WHERE id = ?")
-      .bind(body.name, body.description || null, listId)
-      .run();
+    setClauses.push("section_label = ?");
+    binds.push(body.sectionLabel);
   }
+  if (body.chapterLabel !== undefined) {
+    if (!CHAPTER_LABELS.includes(body.chapterLabel)) return badRequest(`invalid chapterLabel "${body.chapterLabel}"`);
+    setClauses.push("chapter_label = ?");
+    binds.push(body.chapterLabel);
+  }
+  await db
+    .prepare(`UPDATE lists SET ${setClauses.join(", ")} WHERE id = ?`)
+    .bind(...binds, listId)
+    .run();
   return json({ ok: true });
 }
 
@@ -203,6 +210,7 @@ async function deleteList(db, listId) {
   if (!list) return notFound("list not found");
   await db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM sections WHERE list_id = ?").bind(listId).run();
+  await db.prepare("DELETE FROM chapters WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM lists WHERE id = ?").bind(listId).run();
   return json({ ok: true });
 }
@@ -253,6 +261,7 @@ async function listWordsInList(db, listId) {
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
               s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder,
+              s.chapter_id AS chapterId, c.sort_order AS chapterSortOrder,
               w.derived_from_id AS derivedFromId,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
@@ -261,9 +270,10 @@ async function listWordsInList(db, listId) {
               ${PRIMARY_MEANING_SELECT}
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN chapters c ON c.id = s.chapter_id
        ${WORD_TAG_JOINS}
        WHERE li.list_id = ?
-       ORDER BY COALESCE(s.sort_order, -1), li.no, li.branch`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no, li.branch`
     )
     .bind(listId)
     .all();
@@ -350,7 +360,10 @@ function groupByWordId(rows) {
 // 閲覧ページ用: リスト内の全単語を、意味・派生語・例文・タグまで含めて1回のリクエストで返す。
 // (単語詳細を1件ずつ取得すると N+1 になってしまうため、子テーブルは word_id IN (...) でまとめて取得する)
 async function listWordsInListFull(db, listId) {
-  const list = await db.prepare("SELECT id, name, description, section_label AS sectionLabel FROM lists WHERE id = ?").bind(listId).first();
+  const list = await db
+    .prepare("SELECT id, name, description, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists WHERE id = ?")
+    .bind(listId)
+    .first();
   if (!list) return notFound("list not found");
 
   const { results: items } = await db
@@ -363,19 +376,21 @@ async function listWordsInListFull(db, listId) {
               w.conjugation_caution AS conjugationCaution,
               w.derived_from_id AS derivedFromId,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
-              s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder
+              s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
+              s.chapter_id AS chapterId, c.subtitle AS chapterSubtitle, c.description AS chapterDescription, c.sort_order AS chapterSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN chapters c ON c.id = s.chapter_id
        WHERE li.list_id = ?
-       ORDER BY COALESCE(s.sort_order, -1), li.no, li.branch`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no, li.branch`
     )
     .bind(listId)
     .all();
 
   if (items.length === 0) return json({ list, words: [] });
 
-  // セクション名は保存された文字列ではなく、単語帳の呼び方(Section/Unit/Part)+並び順から常に自動計算する。
-  // (並べ替えても番号がずれないようにするため)
+  // セクション名・チャプター名は保存された文字列ではなく、単語帳の呼び方(Section/Unit/Part、
+  // Chapter/Module/Volume)+並び順から常に自動計算する。(並べ替えても番号がずれないようにするため)
   const { results: orderedSections } = await db
     .prepare("SELECT id FROM sections WHERE list_id = ? ORDER BY sort_order, id")
     .bind(listId)
@@ -384,6 +399,15 @@ async function listWordsInListFull(db, listId) {
   const sectionLabel = list.sectionLabel || "Section";
   const sectionNameById = (sectionId) =>
     sectionId != null && sectionPositionById.has(sectionId) ? `${sectionLabel} ${sectionPositionById.get(sectionId)}` : null;
+
+  const { results: orderedChapters } = await db
+    .prepare("SELECT id FROM chapters WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
+  const chapterPositionById = new Map(orderedChapters.map((c, i) => [c.id, i + 1]));
+  const chapterLabel = list.chapterLabel || "Chapter";
+  const chapterNameById = (chapterId) =>
+    chapterId != null && chapterPositionById.has(chapterId) ? `${chapterLabel} ${chapterPositionById.get(chapterId)}` : null;
 
   const ids = items.map((r) => r.id);
   const [sensesRows, derivativesRows, examplesRows, tagsRows] = await Promise.all([
@@ -444,6 +468,11 @@ async function listWordsInListFull(db, listId) {
     sectionSubtitle: r.sectionSubtitle,
     sectionDescription: r.sectionDescription,
     sectionSortOrder: r.sectionSortOrder,
+    chapterId: r.chapterId,
+    chapterName: chapterNameById(r.chapterId),
+    chapterSubtitle: r.chapterSubtitle,
+    chapterDescription: r.chapterDescription,
+    chapterSortOrder: r.chapterSortOrder,
     derivedFromId: r.derivedFromId,
     derivedFromSpelling: r.derivedFromId ? spellingById.get(r.derivedFromId) || null : null,
     senses: sensesByWord.get(r.id) || [],
@@ -455,6 +484,92 @@ async function listWordsInListFull(db, listId) {
   return json({ list, words });
 }
 
+// ---- chapters ----
+// チャプターはセクションの上位概念で、複数のセクションをまとめる帯。
+// セクションと同様、名前は持たずsort_orderの並び順から番号を自動計算し、
+// 呼び方(Chapter/Module/Volume)は単語帳(lists.chapter_label)の設定に従う。
+
+async function listChapters(db, listId) {
+  if (listId === MASTER_LIST_ID) return json([]);
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const { results } = await db
+    .prepare("SELECT id, subtitle, description, sort_order AS sortOrder FROM chapters WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
+  return json(results);
+}
+
+async function createChapter(db, listId, body) {
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM chapters WHERE list_id = ?").bind(listId).first();
+  const sortOrder = (row?.m || 0) + 1;
+  const result = await db
+    .prepare("INSERT INTO chapters (list_id, subtitle, description, sort_order) VALUES (?, ?, ?, ?)")
+    .bind(listId, body.subtitle || null, body.description || null, sortOrder)
+    .run();
+  return json({ id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder }, { status: 201 });
+}
+
+async function updateChapter(db, listId, chapterId, body) {
+  const chapter = await db.prepare("SELECT id FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId).first();
+  if (!chapter) return notFound("chapter not found");
+  await db
+    .prepare("UPDATE chapters SET subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
+    .bind(body.subtitle || null, body.description || null, chapterId, listId)
+    .run();
+  return json({ id: Number(chapterId), subtitle: body.subtitle || null, description: body.description || null });
+}
+
+async function deleteChapter(db, listId, chapterId) {
+  await db.prepare("UPDATE sections SET chapter_id = NULL WHERE list_id = ? AND chapter_id = ?").bind(listId, chapterId).run();
+  await db.prepare("DELETE FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId).run();
+  // チャプター所属だったセクションが「チャプターなし」(表示上は先頭)へ移るため、
+  // 単語のnoも新しい表示順に合わせて振り直す(reorderChapters/reorderSectionsと同じ考え方)。
+  await renumberListItemsToMatchDisplayOrder(db, listId);
+  return json({ ok: true });
+}
+
+// チャプター自体の並び順(sort_order)を入れ替える。セクション・単語のnoが表示順とずれないよう、
+// 更新後のチャプター順で単語一覧を読み直してnoを振り直す(reorderSectionsと同じ考え方)。
+async function reorderChapters(db, listId, body) {
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const chapterIds = body.chapterIds;
+  if (!Array.isArray(chapterIds) || chapterIds.length === 0) return badRequest("chapterIds is required");
+
+  const stmts = chapterIds.map((id, index) =>
+    db.prepare("UPDATE chapters SET sort_order = ? WHERE id = ? AND list_id = ?").bind(index + 1, id, listId)
+  );
+  await runBatched(db, stmts);
+
+  // チャプターのsort_orderだけを変えるとsections.sort_order(セクション自体の並び順)は
+  // 古いままになり、フロント側(state.sections)がチャプター順とズレたままになってしまう
+  // (以後の単語移動がこのズレた並びを基準に再構築されてしまう)。
+  // そのため、チャプター並び替え後はセクションのsort_orderも新しいチャプター順に合わせて振り直す。
+  await renumberSectionsToMatchChapterOrder(db, listId);
+  await renumberListItemsToMatchDisplayOrder(db, listId);
+
+  return json({ ok: true });
+}
+
+async function renumberSectionsToMatchChapterOrder(db, listId) {
+  const { results: sections } = await db
+    .prepare(
+      `SELECT s.id AS id
+       FROM sections s
+       LEFT JOIN chapters c ON c.id = s.chapter_id
+       WHERE s.list_id = ?
+       ORDER BY COALESCE(c.sort_order, -1), s.sort_order, s.id`
+    )
+    .bind(listId)
+    .all();
+  if (sections.length === 0) return;
+  const stmts = sections.map((s, index) => db.prepare("UPDATE sections SET sort_order = ? WHERE id = ?").bind(index + 1, s.id));
+  await runBatched(db, stmts);
+}
+
 // ---- sections ----
 
 async function listSections(db, listId) {
@@ -463,7 +578,7 @@ async function listSections(db, listId) {
   if (!list) return notFound("list not found");
   const { results } = await db
     .prepare(
-      "SELECT id, name, subtitle, description, sort_order AS sortOrder FROM sections WHERE list_id = ? ORDER BY sort_order, id"
+      "SELECT id, name, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM sections WHERE list_id = ? ORDER BY sort_order, id"
     )
     .bind(listId)
     .all();
@@ -478,10 +593,13 @@ async function createSection(db, listId, body) {
   const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM sections WHERE list_id = ?").bind(listId).first();
   const sortOrder = (row?.m || 0) + 1;
   const result = await db
-    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order) VALUES (?, '', ?, ?, ?)")
-    .bind(listId, body.subtitle || null, body.description || null, sortOrder)
+    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order, chapter_id) VALUES (?, '', ?, ?, ?, ?)")
+    .bind(listId, body.subtitle || null, body.description || null, sortOrder, body.chapterId || null)
     .run();
-  return json({ id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder }, { status: 201 });
+  return json(
+    { id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder, chapterId: body.chapterId || null },
+    { status: 201 }
+  );
 }
 
 async function updateSection(db, listId, sectionId, body) {
@@ -500,34 +618,43 @@ async function deleteSection(db, listId, sectionId) {
   return json({ ok: true });
 }
 
-// セクション自体の並び順(sort_order)を入れ替える。list_itemsのno/section_idには一切触れない
-// (単語一覧の並び順はsections.sort_orderを最優先で見るため、これだけで並び替えが反映される)。
+// セクション自体の並び順(sort_order)とチャプター所属(chapter_id)をまとめて入れ替える。
+// list_itemsのnoには直接触れず、更新後の表示順に合わせて別途振り直す
+// (単語一覧の並び順はchapters.sort_order→sections.sort_orderを最優先で見るため)。
 async function reorderSections(db, listId, body) {
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
-  const sectionIds = body.sectionIds;
-  if (!Array.isArray(sectionIds) || sectionIds.length === 0) return badRequest("sectionIds is required");
+  const sections = body.sections;
+  if (!Array.isArray(sections) || sections.length === 0) return badRequest("sections is required");
 
-  const stmts = sectionIds.map((id, index) =>
-    db.prepare("UPDATE sections SET sort_order = ? WHERE id = ? AND list_id = ?").bind(index + 1, id, listId)
+  const stmts = sections.map((s, index) =>
+    db
+      .prepare("UPDATE sections SET sort_order = ?, chapter_id = ? WHERE id = ? AND list_id = ?")
+      .bind(index + 1, s.chapterId ?? null, s.id, listId)
   );
   await runBatched(db, stmts);
 
-  // セクションの並び順だけを変えてもlist_items.noは古いセクション順のまま残ってしまい、
-  // 画面の表示順(セクション順→no)とnoの値が食い違ってしまう。
-  // そのため、更新後のセクション順で単語一覧を読み直し、その表示順でnoを振り直す。
+  await renumberListItemsToMatchDisplayOrder(db, listId);
+
+  return json({ ok: true });
+}
+
+// チャプター・セクションの並び順だけを変えてもlist_items.noは古い順のまま残ってしまい、
+// 画面の表示順(チャプター順→セクション順→no)とnoの値が食い違ってしまう。
+// そのため、更新後の順で単語一覧を読み直し、その表示順でnoを振り直す。
+async function renumberListItemsToMatchDisplayOrder(db, listId) {
   const { results: headRows } = await db
     .prepare(
       `SELECT li.word_id AS wordId, li.section_id AS sectionId
-       FROM list_items li LEFT JOIN sections s ON s.id = li.section_id
+       FROM list_items li
+       LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN chapters c ON c.id = s.chapter_id
        WHERE li.list_id = ? AND li.branch = 0
-       ORDER BY COALESCE(s.sort_order, -1), li.no`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no`
     )
     .bind(listId)
     .all();
   await renumberListItemsByHeadOrder(db, listId, headRows);
-
-  return json({ ok: true });
 }
 
 // 単語帳内の並び順を丸ごと入れ替え、noを表示順の連番に振り直す。
@@ -1760,6 +1887,23 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/words/full （閲覧ページ用: 意味・例文・タグまで含めた一括取得）
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "words" && parts[4] === "full" && method === "GET") {
     return await listWordsInListFull(db, parts[2]);
+  }
+
+  // /api/lists/:listId/chapters
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "chapters") {
+    if (method === "GET") return await listChapters(db, parts[2]);
+    if (method === "POST") return await createChapter(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/chapters/:chapterId
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "chapters" && parts[4] !== "reorder") {
+    if (method === "DELETE") return await deleteChapter(db, parts[2], parts[4]);
+    if (method === "PUT") return await updateChapter(db, parts[2], parts[4], await request.json());
+  }
+
+  // /api/lists/:listId/chapters/reorder
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "chapters" && parts[4] === "reorder" && method === "POST") {
+    return await reorderChapters(db, parts[2], await request.json());
   }
 
   // /api/lists/:listId/sections

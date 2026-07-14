@@ -594,7 +594,7 @@ body {
   cursor: pointer;
   transition: background 0.12s;
 }
-.word-table tbody tr:not(.section-header-row):hover { background: var(--bg-soft); }
+.word-table tbody tr:not(.section-header-row):not(.chapter-header-row):hover { background: var(--bg-soft); }
 .word-table tbody tr.selected { background: var(--accent-soft); }
 .word-table tbody tr.selected td:first-child { color: var(--accent); font-weight: 600; }
 
@@ -614,6 +614,20 @@ body {
 }
 .word-table tbody tr.section-band-clickable:hover { background: var(--bg-muted); }
 .word-table tbody tr.section-header-row td {
+  font-weight: 650;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  padding: 0.45rem 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+/* チャプター帯はセクション帯より上位の概念なので、少し濃い目のグレーで区別する */
+.word-table tbody tr.chapter-header-row {
+  cursor: grab;
+  background: var(--bg-muted);
+}
+.word-table tbody tr.chapter-header-row.section-band-clickable:hover { filter: brightness(0.96); }
+.word-table tbody tr.chapter-header-row td {
   font-weight: 650;
   font-size: 0.78rem;
   color: var(--text-secondary);
@@ -752,6 +766,9 @@ button.danger:hover { background: var(--danger-soft); }
 }
 
 .btn-compact { padding: 0.45rem 0.65rem; white-space: nowrap; }
+
+/* チャプター追加・セクション追加はボタンが並ぶため、少し詰めてモバイルでも1列に収まるようにする */
+.btn-tight-label { padding: 0.45rem 0.55rem; font-size: 0.76rem; }
 
 i.fa-solid + span { margin-left: 0.4em; }
 
@@ -1261,6 +1278,16 @@ legend .hint {
     width: 100%;
   }
   .pane-header-actions button:not(.btn-icon-only) { flex: 1; min-width: 0; }
+  /* チャプター・セクション追加ボタンはラベルが長めなので、他のボタンより詰めて
+     ボタン内でラベルが折り返さないようにする(折り返すと不格好なため) */
+  .pane-header-actions .btn-tight-label {
+    flex: 1.15;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+  .pane-header-actions .btn-tight-label i { font-size: 0.66rem; }
 
   .master-filters select { flex: 1 1 100%; max-width: none; }
   .master-actions button { flex: 1; min-width: 0; }
@@ -1283,7 +1310,8 @@ legend .hint {
      セクション帯の行は独自のpaddingを持つ別ルールなので、ここでも揃えないと
      単語行のcol-moveボタンとセクション帯のボタンの右端がずれてしまう */
   .word-table td { padding: 0.5rem 0.5rem; }
-  .word-table tbody tr.section-header-row td { padding: 0.45rem 0.5rem; }
+  .word-table tbody tr.section-header-row td,
+  .word-table tbody tr.chapter-header-row td { padding: 0.45rem 0.5rem; }
   .col-move { width: 2.6rem; }
   .move-btn { min-width: 1.3rem; min-height: 1.3rem; font-size: 0.6rem; }
 

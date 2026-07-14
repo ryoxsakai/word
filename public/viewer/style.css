@@ -382,6 +382,31 @@ button { font-family: inherit; }
   line-height: 1.4;
 }
 
+/* チャプターはセクションより上位の概念なので、帯を濃く・枠を太くして区別する
+   (--title-bg-1/2, --title-borderと同系色でアルファ値だけ上げた濃い版) */
+.chapter-divider {
+  margin: 2rem 0 0.6rem;
+  padding: 0.65rem 0.9rem;
+  background: linear-gradient(135deg, rgba(74, 114, 217, 0.26), rgba(154, 95, 208, 0.26));
+  border: 2px solid rgba(110, 100, 200, 0.6);
+  border-radius: 6px;
+}
+.chapter-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+.chapter-title {
+  font-size: 1.28rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.chapter-subtitle { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
+.chapter-count { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
+.chapter-description {
+  margin-top: 0.25rem;
+  font-size: 0.74rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 .entry {
   display: grid;
   grid-template-columns: 1.8rem 1fr;
@@ -732,6 +757,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 .word-list .section-subtitle { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-count { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-description { font-size: calc(0.7rem * var(--font-scale)); }
+.word-list .chapter-title { font-size: calc(1.18rem * var(--font-scale)); }
+.word-list .chapter-subtitle { font-size: calc(0.95rem * var(--font-scale)); }
+.word-list .chapter-count { font-size: calc(0.95rem * var(--font-scale)); }
+.word-list .chapter-description { font-size: calc(0.74rem * var(--font-scale)); }
 .word-list .entry-no { font-size: calc(1.05rem * var(--font-scale)); }
 .word-list .entry.branch-entry .entry-no { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .headword { font-size: calc(1.3rem * var(--font-scale)); }
@@ -778,7 +807,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-divider, .chapter-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -791,6 +820,12 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .section-divider:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
+  }
+  /* チャプターの帯自体は改ページせず、直後の最初のセクションの改ページに委ねる
+     (両方に改ページを入れると、チャプター見出しだけが前ページに孤立してしまうため) */
+  .chapter-divider {
+    break-inside: avoid;
+    box-shadow: none;
   }
   /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
   .caution-badge.caution-spelling { background: #dcf3ee !important; color: #0f7b6c !important; }
