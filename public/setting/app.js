@@ -1921,6 +1921,36 @@ function closeChapterEditor() {
   state.currentChapterId = null;
 }
 
+// chapterIdの帯がtargetSectionIdの直前に来るようにする。
+// セクションの所属チャプターを付け替えるだけでは、チャプター同士の並び順(sort_order)は
+// 変わらないため、帯自体は元の位置から動かず、選択したセクションだけが逆に引き寄せられて
+// しまう。それを避けるため、対象セクションが今属しているチャプターの直後にchapterId自身の
+// 並び順も入れ替えてから、セクションをchapterIdの先頭に移動する
+// (対象セクションがどのチャプターにも属さない場合、チャプターより前には帯を置けないため、
+// chapterIdを一番先頭のチャプターに移動する)。
+async function moveChapterAboveSection(chapterId, targetSectionId) {
+  const targetSection = state.sections.find((s) => s.id === targetSectionId);
+  if (!targetSection) return;
+  const targetChapterId = targetSection.chapterId ?? null;
+  if (targetChapterId !== chapterId) {
+    const moving = state.chapters.find((c) => c.id === chapterId);
+    const remaining = state.chapters.filter((c) => c.id !== chapterId);
+    const insertAt = targetChapterId == null ? 0 : remaining.findIndex((c) => c.id === targetChapterId) + 1;
+    const newOrder = [...remaining];
+    newOrder.splice(insertAt, 0, moving);
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/reorder`, {
+      method: "POST",
+      body: JSON.stringify({ chapterIds: newOrder.map((c) => c.id) }),
+    });
+    // buildOrderWithSectionsMovedToChapter()はstate.chaptersの並び順でsections.sort_orderを
+    // 組み立てるため、ここでstate.chaptersを更新しないと、直前に保存したchapters.sort_orderと
+    // 食い違ったsections.sort_orderが保存されてしまう(state.sectionsの並び順や
+    // sectionDisplayName()の番号が実際の表示順とずれる)。
+    state.chapters = newOrder;
+  }
+  await moveSectionToChapterStart(targetSectionId, chapterId);
+}
+
 async function saveChapterEdit() {
   if (!state.currentChapterId) return;
   const chapterId = state.currentChapterId;
@@ -1935,7 +1965,7 @@ async function saveChapterEdit() {
     });
     closeChapterEditor();
     if (moveBeforeSectionId != null) {
-      await moveSectionToChapterStart(moveBeforeSectionId, chapterId);
+      await moveChapterAboveSection(chapterId, moveBeforeSectionId);
     } else {
       await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
     }
