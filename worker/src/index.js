@@ -525,6 +525,9 @@ async function updateChapter(db, listId, chapterId, body) {
 async function deleteChapter(db, listId, chapterId) {
   await db.prepare("UPDATE sections SET chapter_id = NULL WHERE list_id = ? AND chapter_id = ?").bind(listId, chapterId).run();
   await db.prepare("DELETE FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId).run();
+  // チャプター所属だったセクションが「チャプターなし」(表示上は先頭)へ移るため、
+  // 単語のnoも新しい表示順に合わせて振り直す(reorderChapters/reorderSectionsと同じ考え方)。
+  await renumberListItemsToMatchDisplayOrder(db, listId);
   return json({ ok: true });
 }
 
@@ -541,9 +544,30 @@ async function reorderChapters(db, listId, body) {
   );
   await runBatched(db, stmts);
 
+  // チャプターのsort_orderだけを変えるとsections.sort_order(セクション自体の並び順)は
+  // 古いままになり、フロント側(state.sections)がチャプター順とズレたままになってしまう
+  // (以後の単語移動がこのズレた並びを基準に再構築されてしまう)。
+  // そのため、チャプター並び替え後はセクションのsort_orderも新しいチャプター順に合わせて振り直す。
+  await renumberSectionsToMatchChapterOrder(db, listId);
   await renumberListItemsToMatchDisplayOrder(db, listId);
 
   return json({ ok: true });
+}
+
+async function renumberSectionsToMatchChapterOrder(db, listId) {
+  const { results: sections } = await db
+    .prepare(
+      `SELECT s.id AS id
+       FROM sections s
+       LEFT JOIN chapters c ON c.id = s.chapter_id
+       WHERE s.list_id = ?
+       ORDER BY COALESCE(c.sort_order, -1), s.sort_order, s.id`
+    )
+    .bind(listId)
+    .all();
+  if (sections.length === 0) return;
+  const stmts = sections.map((s, index) => db.prepare("UPDATE sections SET sort_order = ? WHERE id = ?").bind(index + 1, s.id));
+  await runBatched(db, stmts);
 }
 
 // ---- sections ----
