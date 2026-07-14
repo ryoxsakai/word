@@ -536,7 +536,7 @@ body {
   color: var(--text-secondary);
 }
 
-.word-table .col-caution-spelling, .word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly, .word-table .col-caution-conjugation {
+.word-table .col-caution-spelling, .word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly, .word-table .col-caution-conjugation, .word-table .col-caution-usage {
   width: 3.5rem;
   text-align: center;
 }
@@ -577,18 +577,21 @@ body {
 .caution-icon.caution-accent { color: #b3261e; }
 .caution-icon.caution-polysemous { color: #4527a0; }
 .caution-icon.caution-conjugation { color: #1565c0; }
+.caution-icon.caution-usage { color: #ad1457; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .caution-icon.caution-spelling { color: #6fe0cc; }
   :root:not([data-theme="light"]) .caution-icon.caution-pronunciation { color: #ffcf7a; }
   :root:not([data-theme="light"]) .caution-icon.caution-accent { color: #ff9a9a; }
   :root:not([data-theme="light"]) .caution-icon.caution-polysemous { color: #c9b3ff; }
   :root:not([data-theme="light"]) .caution-icon.caution-conjugation { color: #90caf9; }
+  :root:not([data-theme="light"]) .caution-icon.caution-usage { color: #f48fb1; }
 }
 :root[data-theme="dark"] .caution-icon.caution-spelling { color: #6fe0cc; }
 :root[data-theme="dark"] .caution-icon.caution-pronunciation { color: #ffcf7a; }
 :root[data-theme="dark"] .caution-icon.caution-accent { color: #ff9a9a; }
 :root[data-theme="dark"] .caution-icon.caution-polysemous { color: #c9b3ff; }
 :root[data-theme="dark"] .caution-icon.caution-conjugation { color: #90caf9; }
+:root[data-theme="dark"] .caution-icon.caution-usage { color: #f48fb1; }
 
 .word-table tbody tr:not(.section-header-row) {
   cursor: pointer;
@@ -965,6 +968,23 @@ legend .hint {
   border-color: #5c9bd8;
   color: #90caf9;
 }
+.caution-toggle-btn--usage.is-active {
+  background: #fce4ec;
+  border-color: #d0578f;
+  color: #ad1457;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-toggle-btn--usage.is-active {
+    background: #4a1f38;
+    border-color: #d0578f;
+    color: #f48fb1;
+  }
+}
+:root[data-theme="dark"] .caution-toggle-btn--usage.is-active {
+  background: #4a1f38;
+  border-color: #d0578f;
+  color: #f48fb1;
+}
 
 /* ---- repeat rows ---- */
 
@@ -1297,6 +1317,7 @@ legend .hint {
   .word-table .col-caution-accent,
   .word-table .col-caution-poly,
   .word-table .col-caution-conjugation,
+  .word-table .col-caution-usage,
   .word-table .col-awl,
   .word-table .col-oxford,
   .word-table .col-eiken,
@@ -1319,11 +1340,14 @@ legend .hint {
   #notebookFields { grid-template-columns: 1fr 1fr; }
   #notebookFields > label:nth-child(3) { grid-column: 1 / -1; }
 
-  /* 発音記号入力欄＋各種注意ボタンを1行に収める */
-  .field-pronunciation .input-with-btn { gap: 0.25rem; }
-  .field-pronunciation .input-with-btn input { min-width: 5rem; }
-  .field-pronunciation .input-with-btn button:not(.caution-toggle-btn) { min-width: 2.1rem; padding: 0.3rem 0.35rem; }
-  .caution-toggle-btn { min-width: 1.8rem; padding: 0.3rem; font-size: 0.74rem; }
+  /* 発音記号入力欄＋各種注意ボタン(6個)を1行に収める。
+     注意ボタンが増えるたびにここで詰め直す必要があるため、min-width/paddingを最小限にしてある。 */
+  .field-pronunciation .input-with-btn { gap: 0.2rem; }
+  .field-pronunciation .input-with-btn input { min-width: 4.5rem; }
+  .field-pronunciation .input-with-btn button:not(.caution-toggle-btn) { min-width: 1.9rem; padding: 0.28rem 0.3rem; }
+  /* .input-with-btn button { min-width: 2.5rem } (基本スタイル)より詳細度を上げないと
+     この上書きが効かないため、.field-pronunciation .input-with-btnまで含めて指定する */
+  .field-pronunciation .input-with-btn .caution-toggle-btn { min-width: 1.55rem; padding: 0.28rem 0.2rem; font-size: 0.7rem; }
 
   /* モバイル: 1行目に品詞＋意味（例文行は種別＋英文）を並べ、操作ボタン類は2行目にまとめる */
   .repeat-row.sense-row,

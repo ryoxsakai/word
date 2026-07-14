@@ -491,17 +491,20 @@ button { font-family: inherit; }
 .caution-badge.caution-accent { background: #fde3e3; color: #b3261e; }
 .caution-badge.caution-polysemous { background: #ede7f6; color: #4527a0; }
 .caution-badge.caution-conjugation { background: #e3f2fd; color: #1565c0; }
+.caution-badge.caution-usage { background: #fce4ec; color: #ad1457; }
 :root[data-theme="dark"] .caution-badge.caution-spelling { background: #163531; color: #6fe0cc; }
 :root[data-theme="dark"] .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
 :root[data-theme="dark"] .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
 :root[data-theme="dark"] .caution-badge.caution-polysemous { background: #362658; color: #c9b3ff; }
 :root[data-theme="dark"] .caution-badge.caution-conjugation { background: #1a2f45; color: #90caf9; }
+:root[data-theme="dark"] .caution-badge.caution-usage { background: #4a1f38; color: #f48fb1; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .caution-badge.caution-spelling { background: #163531; color: #6fe0cc; }
   :root:not([data-theme="light"]) .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
   :root:not([data-theme="light"]) .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
   :root:not([data-theme="light"]) .caution-badge.caution-polysemous { background: #362658; color: #c9b3ff; }
   :root:not([data-theme="light"]) .caution-badge.caution-conjugation { background: #1a2f45; color: #90caf9; }
+  :root:not([data-theme="light"]) .caution-badge.caution-usage { background: #4a1f38; color: #f48fb1; }
 }
 
 .entry-card {
@@ -833,6 +836,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .caution-badge.caution-accent { background: #fde3e3 !important; color: #b3261e !important; }
   .caution-badge.caution-polysemous { background: #ede7f6 !important; color: #4527a0 !important; }
   .caution-badge.caution-conjugation { background: #e3f2fd !important; color: #1565c0 !important; }
+  .caution-badge.caution-usage { background: #fce4ec !important; color: #ad1457 !important; }
   .notes-label.derivative-badge { background-color: #e0f2f1 !important; color: #00695c !important; }
   .notes-label.irregular-badge { background-color: #efebe9 !important; color: #6d4c41 !important; }
   .notes-label.etymology-badge { background-color: #e8f5e9 !important; color: #2e7d32 !important; }
