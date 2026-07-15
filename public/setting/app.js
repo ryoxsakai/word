@@ -698,6 +698,46 @@ const LEVEL_COLUMNS_HEAD =
 const PRON_COLUMNS_HEAD =
   '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th>';
 
+// 折りたたみ・検索フィルタを反映した「現在テーブルに表示されている単語」のIDだけを返す。
+// (renderWordTableと同じ絞り込み条件を独立に計算する。呼び出し順によってはDOMがまだ
+// 更新されていないことがあるため、DOMを読むのではなくstateから同じロジックで組み立てる)
+// ヘッダーの全選択チェックボックスが、畳んだ帯や検索で隠れている単語まで巻き込まないようにするために使う。
+function getVisibleWordIds() {
+  if (isMasterView()) return state.words.map((w) => w.id);
+
+  const query = state.notebookSearchQuery;
+  const words = query ? state.words.filter((w) => w.spelling.toLowerCase().includes(query)) : state.words;
+
+  const wordsBySection = new Map();
+  for (const w of words) {
+    const key = w.sectionId ?? null;
+    if (!wordsBySection.has(key)) wordsBySection.set(key, []);
+    wordsBySection.get(key).push(w);
+  }
+  const sectionsByChapter = new Map();
+  for (const s of state.sections) {
+    const key = s.chapterId ?? null;
+    if (!sectionsByChapter.has(key)) sectionsByChapter.set(key, []);
+    sectionsByChapter.get(key).push(s);
+  }
+
+  const ids = [];
+  const addSection = (section) => {
+    if (state.collapsedSectionIds.has(section.id)) return;
+    for (const w of wordsBySection.get(section.id) || []) ids.push(w.id);
+  };
+
+  if (!state.collapsedSectionIds.has(null)) {
+    for (const w of wordsBySection.get(null) || []) ids.push(w.id);
+  }
+  for (const section of sectionsByChapter.get(null) || []) addSection(section);
+  for (const chapter of state.chapters) {
+    if (state.collapsedChapterIds.has(chapter.id)) continue;
+    for (const section of sectionsByChapter.get(chapter.id) || []) addSection(section);
+  }
+  return ids;
+}
+
 function renderWordTableHead() {
   if (isMasterView()) {
     el.wordTableHead.innerHTML =
@@ -707,12 +747,16 @@ function renderWordTableHead() {
       `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並び替え</th></tr>`;
   }
   const checkAll = document.getElementById("checkAllWords");
-  checkAll.checked = state.words.length > 0 && state.words.every((w) => state.selectedWordIds.has(w.id));
-  checkAll.indeterminate =
-    state.selectedWordIds.size > 0 && !state.words.every((w) => state.selectedWordIds.has(w.id));
+  const visibleIds = getVisibleWordIds();
+  checkAll.checked = visibleIds.length > 0 && visibleIds.every((id) => state.selectedWordIds.has(id));
+  checkAll.indeterminate = !checkAll.checked && visibleIds.some((id) => state.selectedWordIds.has(id));
   checkAll.addEventListener("change", () => {
-    if (checkAll.checked) state.words.forEach((w) => state.selectedWordIds.add(w.id));
-    else state.words.forEach((w) => state.selectedWordIds.delete(w.id));
+    // 折りたたみ状態は帯クリックだけで変わり、その際ヘッダーまでは再描画しないため、
+    // ここでキャプチャ済みのvisibleIdsは古くなっている可能性がある。クリック時点の
+    // 表示状態で改めて計算し直す。
+    const currentVisibleIds = getVisibleWordIds();
+    if (checkAll.checked) currentVisibleIds.forEach((id) => state.selectedWordIds.add(id));
+    else currentVisibleIds.forEach((id) => state.selectedWordIds.delete(id));
     updateSelectionUi();
     renderWordTable();
   });
@@ -1203,12 +1247,16 @@ function attachRepeatRowReorder(row, kind) {
 function toggleSectionCollapse(sectionId) {
   if (state.collapsedSectionIds.has(sectionId)) state.collapsedSectionIds.delete(sectionId);
   else state.collapsedSectionIds.add(sectionId);
+  // 折りたたみで表示中の単語が変わるため、全選択チェックボックスのチェック/indeterminate表示も
+  // 更新する(内部のvisibleIds自体はクリック時に再計算するが、表示上のズレを防ぐため)。
+  renderWordTableHead();
   renderWordTable();
 }
 
 function toggleChapterCollapse(chapterId) {
   if (state.collapsedChapterIds.has(chapterId)) state.collapsedChapterIds.delete(chapterId);
   else state.collapsedChapterIds.add(chapterId);
+  renderWordTableHead();
   renderWordTable();
 }
 
