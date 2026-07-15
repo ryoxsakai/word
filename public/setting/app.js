@@ -25,6 +25,8 @@ const state = {
   isNew: false,
   currentAudioUrl: null,
   selectedWordIds: new Set(),
+  collapsedSectionIds: new Set(),
+  collapsedChapterIds: new Set(),
   masterFilter: { q: "", awl: "", oxford: "", target1900: "", target1400: "" },
   notebookSearchQuery: "",
   masterOffset: 0,
@@ -493,6 +495,8 @@ async function selectList(listId) {
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
   state.selectedWordIds.clear();
+  state.collapsedSectionIds.clear();
+  state.collapsedChapterIds.clear();
   updateSelectionUi();
   el.newWordBtn.disabled = !listId;
   updateListModeUi();
@@ -1193,7 +1197,26 @@ function attachRepeatRowReorder(row, kind) {
   row.querySelector('[data-action="row-down"]').addEventListener("click", () => moveRepeatRow(row, 1));
 }
 
-function buildSectionBandRow(sectionId, sectionSubtitle, wordCount) {
+// 折りたたみ状態はセクション/チャプターのidだけで管理し、単語データ自体は変えない
+// (再読み込みしても畳んだ帯は畳んだままにするため、renderWordTableの中でこれを見て
+// 単語行・子セクション帯の描画自体をスキップする)。
+function toggleSectionCollapse(sectionId) {
+  if (state.collapsedSectionIds.has(sectionId)) state.collapsedSectionIds.delete(sectionId);
+  else state.collapsedSectionIds.add(sectionId);
+  renderWordTable();
+}
+
+function toggleChapterCollapse(chapterId) {
+  if (state.collapsedChapterIds.has(chapterId)) state.collapsedChapterIds.delete(chapterId);
+  else state.collapsedChapterIds.add(chapterId);
+  renderWordTable();
+}
+
+function bandCollapseButtonHtml(collapsed) {
+  return `<button type="button" class="band-collapse-btn" data-action="toggle-collapse" aria-expanded="${!collapsed}" aria-label="${collapsed ? "展開する" : "折りたたむ"}"><i class="fa-solid fa-chevron-${collapsed ? "right" : "down"}" aria-hidden="true"></i></button>`;
+}
+
+function buildSectionBandRow(sectionId, sectionSubtitle, wordCount, collapsed) {
   // ヘッダーの実際の列数に合わせる(固定値だと列を追加・削除するたびにここがずれて、
   // セクション帯の右端が単語行のcol-move列の右端と合わなくなってしまうため)。
   const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
@@ -1211,7 +1234,11 @@ function buildSectionBandRow(sectionId, sectionSubtitle, wordCount) {
         </span>`
       : "";
   const nameHtml = `<span class="section-band-name">${escapeHtml(sectionName || "（セクションなし）")}</span>${sectionSubtitle ? `<span class="section-band-subtitle">${escapeHtml(sectionSubtitle)}</span>` : ""}<span class="section-band-count">(${wordCount})</span>`;
-  sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
+  sectionTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${bandCollapseButtonHtml(collapsed)}${nameHtml}</span>${moveButtons}</span></td>`;
+  sectionTr.querySelector('[data-action="toggle-collapse"]').addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleSectionCollapse(sectionId);
+  });
   if (sectionId != null) {
     sectionTr.draggable = true;
     sectionTr.dataset.sectionId = String(sectionId);
@@ -1231,7 +1258,7 @@ function buildSectionBandRow(sectionId, sectionSubtitle, wordCount) {
   return sectionTr;
 }
 
-function buildChapterBandRow(chapterId, chapterSubtitle, wordCount) {
+function buildChapterBandRow(chapterId, chapterSubtitle, wordCount, collapsed) {
   const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
   const chapterTr = document.createElement("tr");
   chapterTr.className = "chapter-header-row";
@@ -1244,12 +1271,16 @@ function buildChapterBandRow(chapterId, chapterSubtitle, wordCount) {
           <button type="button" class="move-btn" data-action="chapter-down" ${isLast ? "disabled" : ""} aria-label="チャプターを下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
         </span>`;
   const nameHtml = `<span class="section-band-name">${escapeHtml(chapterName)}</span>${chapterSubtitle ? `<span class="section-band-subtitle">${escapeHtml(chapterSubtitle)}</span>` : ""}<span class="section-band-count">(${wordCount})</span>`;
-  chapterTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${nameHtml}</span>${moveButtons}</span></td>`;
+  chapterTr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text">${bandCollapseButtonHtml(collapsed)}${nameHtml}</span>${moveButtons}</span></td>`;
   chapterTr.draggable = true;
   chapterTr.dataset.chapterId = String(chapterId);
   chapterTr.classList.add("section-band-clickable");
   chapterTr.title = "クリックしてサブタイトル・説明を編集";
   chapterTr.addEventListener("click", () => openChapterEditor(chapterId));
+  chapterTr.querySelector('[data-action="toggle-collapse"]').addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleChapterCollapse(chapterId);
+  });
   chapterTr.querySelector('[data-action="chapter-up"]').addEventListener("click", (e) => {
     e.stopPropagation();
     moveChapterBy(chapterId, -1);
@@ -1362,14 +1393,20 @@ function renderWordTable() {
 
   const renderSectionBand = (section) => {
     const wordsInSection = wordsBySection.get(section.id) || [];
-    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length));
-    for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
+    const collapsed = state.collapsedSectionIds.has(section.id);
+    el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length, collapsed));
+    if (!collapsed) {
+      for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
+    }
   };
 
   const noSectionWords = wordsBySection.get(null) || [];
   if (noSectionWords.length > 0) {
-    el.wordTableBody.appendChild(buildSectionBandRow(null, null, noSectionWords.length));
-    for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
+    const collapsed = state.collapsedSectionIds.has(null);
+    el.wordTableBody.appendChild(buildSectionBandRow(null, null, noSectionWords.length, collapsed));
+    if (!collapsed) {
+      for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
+    }
   }
 
   for (const section of sectionsByChapter.get(null) || []) renderSectionBand(section);
@@ -1377,8 +1414,11 @@ function renderWordTable() {
   for (const chapter of state.chapters) {
     const sectionsInChapter = sectionsByChapter.get(chapter.id) || [];
     const wordCountInChapter = sectionsInChapter.reduce((sum, s) => sum + (wordsBySection.get(s.id) || []).length, 0);
-    el.wordTableBody.appendChild(buildChapterBandRow(chapter.id, chapter.subtitle, wordCountInChapter));
-    for (const section of sectionsInChapter) renderSectionBand(section);
+    const chapterCollapsed = state.collapsedChapterIds.has(chapter.id);
+    el.wordTableBody.appendChild(buildChapterBandRow(chapter.id, chapter.subtitle, wordCountInChapter, chapterCollapsed));
+    if (!chapterCollapsed) {
+      for (const section of sectionsInChapter) renderSectionBand(section);
+    }
   }
 }
 
