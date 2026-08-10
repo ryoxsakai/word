@@ -1064,25 +1064,41 @@ async function importWordsFromRows(db, body) {
     if (!list) return notFound("list not found");
   }
 
-  const idBySpelling = await fetchExistingWordIdsBySpelling(db, cleaned.map((r) => r.spelling));
+  // CSV内で同じspellingが重複していたら最初の行だけを採用する
+  const uniqueRows = [];
+  const seenSpellings = new Set();
+  for (const row of cleaned) {
+    const key = row.spelling.toLowerCase();
+    if (seenSpellings.has(key)) continue;
+    seenSpellings.add(key);
+    uniqueRows.push(row);
+  }
+
+  const idBySpelling = await fetchExistingWordIdsBySpelling(db, uniqueRows.map((r) => r.spelling));
   const usedIds = new Set(idBySpelling.values());
+
+  // 新規作成する行のslugify候補idをまとめて衝突チェックする。1行ずつSELECTすると、大きめのCSV
+  // (1900語リストなど)を取り込んだ際にD1の1リクエストあたりのサブリクエスト数上限に達して
+  // インポート全体が失敗してしまうため、ここで一括取得し、衝突しない大多数の行はDBに問い合わせない。
+  const newRows = uniqueRows.filter((row) => !idBySpelling.has(row.spelling.toLowerCase()));
+  const candidateBaseBySpelling = new Map(newRows.map((row) => [row.spelling.toLowerCase(), slugify(row.spelling)]));
+  const takenIds = await fetchExistingIds(db, [...new Set(candidateBaseBySpelling.values())]);
 
   const wordInserts = [];
   const senseInserts = [];
   const tagInserts = [];
   const orderedWordIds = [];
-  const seenSpellings = new Set();
   let created = 0;
   let existed = 0;
 
-  for (const row of cleaned) {
+  for (const row of uniqueRows) {
     const key = row.spelling.toLowerCase();
-    if (seenSpellings.has(key)) continue;
-    seenSpellings.add(key);
-
     let wordId = idBySpelling.get(key);
     if (!wordId) {
-      wordId = await uniqueWordIdAvoiding(db, row.spelling, usedIds);
+      const base = candidateBaseBySpelling.get(key);
+      // 候補idが既存の単語(スペル違いでたまたま同じidになる場合)やこのバッチ内の他の行と
+      // 衝突していない、大多数のケースではDBに問い合わせずそのまま使う。
+      wordId = !takenIds.has(base) && !usedIds.has(base) ? base : await uniqueWordIdAvoiding(db, row.spelling, usedIds);
       usedIds.add(wordId);
       idBySpelling.set(key, wordId);
 
@@ -1255,6 +1271,17 @@ async function fetchExistingWordIdsBySpelling(db, spellings) {
     for (const row of results) map.set(row.spelling.toLowerCase(), row.id);
   }
   return map;
+}
+
+// idの配列のうち、既にwordsテーブルに存在するものだけをまとめて引く。
+async function fetchExistingIds(db, ids) {
+  const set = new Set();
+  for (const part of chunkArray(ids, 90)) {
+    const placeholders = part.map(() => "?").join(",");
+    const { results } = await db.prepare(`SELECT id FROM words WHERE id IN (${placeholders})`).bind(...part).all();
+    for (const row of results) set.add(row.id);
+  }
+  return set;
 }
 
 // word_idの配列のうち、指定tag_keyのタグが既についているものをまとめて引く。
