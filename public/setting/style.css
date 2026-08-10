@@ -252,6 +252,33 @@ body {
   margin-right: auto;
 }
 
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+
+.menu-section-title {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.menu-section-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
 /* ---- level badges ---- */
 
 .col-awl, .col-oxford, .col-eiken, .col-target1900, .col-target1400 {
