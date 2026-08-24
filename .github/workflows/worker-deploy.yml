@@ -46,11 +46,15 @@ jobs:
 
       - name: Verify MCP Streamable HTTP endpoint
         run: |
+          # Workerの新バージョンが既存Routeへ伝播する前に旧版へ当たることがある。
+          sleep 15
+
           curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json, text/event-stream" \
             --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"github-actions","version":"1.0.0"}}}' \
             --retry 5 --retry-delay 10 --retry-all-errors \
+            | tee /tmp/vocab-mcp-initialize.json \
             | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(p.result?.serverInfo?.name!=="vocab")process.exit(1)})'
 
           curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
@@ -58,6 +62,7 @@ jobs:
             -H "Accept: application/json, text/event-stream" \
             --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
             --retry 5 --retry-delay 10 --retry-all-errors \
+            | tee /tmp/vocab-mcp-tools.json \
             | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];if(!tools.some(t=>t.name==="vocab.list_notebooks")||tools.some(t=>t.name==="create_notebook"||t.name==="vocab.create_notebook"))process.exit(1)})'
 
           write_status=$(curl -sS -o /tmp/vocab-mcp-write.json -w "%{http_code}" -X POST "https://vocab.lrnr.jp/mcp-write" \
