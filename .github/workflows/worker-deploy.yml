@@ -30,6 +30,9 @@ jobs:
           node-version: 22
       - run: npm ci
 
+      - name: Test MCP read and authenticated write tools
+        run: npm run test:mcp-write
+
       - name: Create D1 database if it doesn't exist yet (bootstrap only)
         if: ${{ inputs.bootstrap_d1 == true }}
         run: |
@@ -55,4 +58,17 @@ jobs:
             -H "Accept: application/json, text/event-stream" \
             --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
             --retry 5 --retry-delay 10 --retry-all-errors \
-            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(!p.result?.tools?.some(t=>t.name==="vocab.list_notebooks"))process.exit(1)})'
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];if(!tools.some(t=>t.name==="vocab.list_notebooks")||tools.some(t=>t.name==="create_notebook"||t.name==="vocab.create_notebook"))process.exit(1)})'
+
+          write_status=$(curl -sS -o /tmp/vocab-mcp-write.json -w "%{http_code}" -X POST "https://vocab.lrnr.jp/mcp-write" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"create_notebook","arguments":{"name":"unauthorized-deploy-check"}}}' \
+            --retry 5 --retry-delay 10 --retry-all-errors)
+
+          if [ "$write_status" = "200" ]; then
+            node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-write.json","utf8"));if(p.result?.isError!==true)process.exit(1)'
+          elif [ "$write_status" != "401" ] && [ "$write_status" != "403" ]; then
+            cat /tmp/vocab-mcp-write.json
+            exit 1
+          fi
