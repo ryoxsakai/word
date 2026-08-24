@@ -6,10 +6,6 @@ import { Miniflare } from "miniflare";
 import { handleMcpRoute } from "../src/mcp.js";
 
 const stateDir = mkdtempSync(join(tmpdir(), "vocab-mcp-write-"));
-const issuer = "https://integration.cloudflareaccess.com";
-const audience = "integration-audience";
-const kid = "integration-key";
-const originalFetch = globalThis.fetch;
 const miniflare = new Miniflare({
   modules: true,
   script: 'export default { fetch() { return new Response("ok"); } }',
@@ -18,62 +14,33 @@ const miniflare = new Miniflare({
   d1Persist: stateDir,
 });
 
-function encode(value) {
-  return Buffer.from(typeof value === "string" ? value : JSON.stringify(value)).toString("base64url");
+async function pkceChallenge(verifier) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+  return Buffer.from(digest).toString("base64url");
 }
 
-async function signedJwt(privateKey, payload) {
-  const header = encode({ alg: "RS256", typ: "JWT", kid });
-  const body = encode(payload);
-  const input = header + "." + body;
-  const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", privateKey, new TextEncoder().encode(input));
-  return input + "." + Buffer.from(signature).toString("base64url");
-}
-
-async function rpc(env, accessToken, path, id, method, params = {}, authenticated = false) {
+async function rpc(env, accessToken, path, id, method, params = {}, authenticated = path === "/mcp-write") {
   const request = new Request("http://127.0.0.1" + path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
-      ...(authenticated ? { "Cf-Access-Jwt-Assertion": accessToken } : {}),
+      ...(authenticated ? { Authorization: "Bearer " + accessToken } : {}),
     },
     body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
   });
   const response = await handleMcpRoute(request, env);
-  assert.equal(response.status, 200);
-  return await response.json();
+  return { status: response.status, headers: response.headers, body: await response.json() };
 }
 
 function toolResult(message) {
+  message = message.body || message;
   assert.ok(message.result, JSON.stringify(message));
   assert.equal(message.result.isError, false, JSON.stringify(message));
   return message.result.structuredContent;
 }
 
 try {
-  const keyPair = await crypto.subtle.generateKey(
-    { name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
-    true,
-    ["sign", "verify"]
-  );
-  const jwk = await crypto.subtle.exportKey("jwk", keyPair.publicKey);
-  jwk.kid = kid;
-  jwk.alg = "RS256";
-  jwk.use = "sig";
-  const now = Math.floor(Date.now() / 1000);
-  const accessToken = await signedJwt(keyPair.privateKey, {
-    iss: issuer,
-    aud: audience,
-    sub: "integration-user",
-    email: "integration@example.com",
-    exp: now + 300,
-  });
-  globalThis.fetch = async (url) => {
-    assert.equal(String(url), issuer + "/cdn-cgi/access/certs");
-    return Response.json({ keys: [jwk] });
-  };
-
   const db = await miniflare.getD1Database("DB");
   const migrationDir = new URL("../migrations/", import.meta.url);
   for (const filename of readdirSync(migrationDir).filter((name) => name.endsWith(".sql")).sort()) {
@@ -86,23 +53,229 @@ try {
       .join("\n");
     await db.exec(statements);
   }
-  const env = { DB: db, CF_ACCESS_TEAM_DOMAIN: issuer, CF_ACCESS_AUD: audience };
+  const env = {
+    DB: db,
+    VOCAB_MCP_API_KEY: "integration-api-key",
+    VOCAB_MCP_SESSION_SECRET: "integration-session-secret-that-is-long-and-random",
+  };
+
+  const protectedMetadata = await handleMcpRoute(
+    new Request("http://127.0.0.1/.well-known/oauth-protected-resource/mcp-write"),
+    env
+  );
+  assert.equal(protectedMetadata.status, 200);
+  assert.deepEqual((await protectedMetadata.json()).scopes_supported, ["vocab:read", "vocab:write"]);
+
+  const authorizationMetadata = await handleMcpRoute(
+    new Request("http://127.0.0.1/.well-known/oauth-authorization-server"),
+    env
+  );
+  assert.equal(authorizationMetadata.status, 200);
+  assert.equal((await authorizationMetadata.json()).code_challenge_methods_supported[0], "S256");
+
+  const redirectUri = "https://chatgpt.com/connector/oauth/integration";
+  const registration = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ redirect_uris: [redirectUri], token_endpoint_auth_method: "none" }),
+    }),
+    env
+  );
+  assert.equal(registration.status, 201);
+  const { client_id: clientId } = await registration.json();
+  assert.ok(clientId);
+
+  const verifier = "integration-pkce-verifier-0123456789abcdefghijklmnopqrstuvwxyz";
+  const challenge = await pkceChallenge(verifier);
+  const authorizationParams = new URLSearchParams({
+    response_type: "code",
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    code_challenge: challenge,
+    code_challenge_method: "S256",
+    scope: "vocab:read vocab:write",
+    state: "integration-state",
+  });
+  const authorizationPage = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/authorize?" + authorizationParams),
+    env
+  );
+  assert.equal(authorizationPage.status, 200);
+  assert.match(await authorizationPage.text(), /Vocab MCP APIキー/);
+
+  const wrongKey = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/authorize", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ ...Object.fromEntries(authorizationParams), api_key: "wrong" }),
+    }),
+    env
+  );
+  assert.equal(wrongKey.status, 401);
+
+  const authorization = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/authorize", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ ...Object.fromEntries(authorizationParams), api_key: env.VOCAB_MCP_API_KEY }),
+    }),
+    env
+  );
+  assert.equal(authorization.status, 302);
+  const authorizationRedirect = new URL(authorization.headers.get("Location"));
+  assert.equal(authorizationRedirect.searchParams.get("state"), "integration-state");
+  const code = authorizationRedirect.searchParams.get("code");
+  assert.ok(code);
+
+  const invalidVerifier = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code_verifier: "wrong-verifier-that-is-long-enough-012345678901234567890",
+      }),
+    }),
+    env
+  );
+  assert.equal(invalidVerifier.status, 400);
+  assert.equal((await invalidVerifier.json()).error, "invalid_grant");
+
+  const tokenResponse = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code_verifier: verifier,
+      }),
+    }),
+    env
+  );
+  assert.equal(tokenResponse.status, 200);
+  const tokenDocument = await tokenResponse.json();
+  assert.equal(tokenDocument.expires_in, 3600);
+  const accessToken = tokenDocument.access_token;
+  assert.ok(accessToken);
+
+  const replay = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code_verifier: verifier,
+      }),
+    }),
+    env
+  );
+  assert.equal(replay.status, 400);
 
   const publicTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
-  assert.equal(publicTools.result.tools.length, 10);
-  assert.ok(publicTools.result.tools.every((tool) => tool.annotations.readOnlyHint === true));
+  assert.equal(publicTools.status, 200);
+  assert.equal(publicTools.body.result.tools.length, 10);
+  assert.ok(publicTools.body.result.tools.every((tool) => tool.annotations.readOnlyHint === true));
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
-  assert.equal(editableTools.result.tools.length, 40);
-  assert.ok(editableTools.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
-  assert.ok(editableTools.result.tools.some((tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint));
+  assert.equal(editableTools.status, 200);
+  assert.equal(editableTools.body.result.tools.length, 40);
+  assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
+  assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
+  assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint));
 
-  const unauthorized = await rpc(env, accessToken, "/mcp-write", 3, "tools/call", {
-    name: "create_notebook",
-    arguments: { name: "Unauthorized" },
+  const unauthorized = await rpc(
+    env,
+    accessToken,
+    "/mcp-write",
+    3,
+    "tools/call",
+    { name: "create_notebook", arguments: { name: "Unauthorized" } },
+    false
+  );
+  assert.equal(unauthorized.status, 401);
+  assert.equal(unauthorized.body.error, "invalid_token");
+  assert.match(unauthorized.headers.get("WWW-Authenticate"), /oauth-protected-resource\/mcp-write/);
+
+  const tokenParts = accessToken.split(".");
+  tokenParts[2] = (tokenParts[2][0] === "A" ? "B" : "A") + tokenParts[2].slice(1);
+  const tampered = await rpc(
+    env,
+    tokenParts.join("."),
+    "/mcp-write",
+    30,
+    "tools/call",
+    { name: "list_notebooks", arguments: {} }
+  );
+  assert.equal(tampered.status, 401);
+  assert.equal(tampered.body.error, "invalid_token");
+
+  const readVerifier = "read-only-pkce-verifier-0123456789abcdefghijklmnopqrstuvwxyz";
+  const readAuthorizationParams = new URLSearchParams({
+    response_type: "code",
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    code_challenge: await pkceChallenge(readVerifier),
+    code_challenge_method: "S256",
+    scope: "vocab:read",
+    state: "read-only-state",
+    api_key: env.VOCAB_MCP_API_KEY,
   });
-  assert.equal(unauthorized.result.isError, true);
-  assert.match(unauthorized.result.content[0].text, /not configured|authentication/i);
+  const readAuthorization = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/authorize", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: readAuthorizationParams,
+    }),
+    env
+  );
+  assert.equal(readAuthorization.status, 302);
+  const readCode = new URL(readAuthorization.headers.get("Location")).searchParams.get("code");
+  const readTokenResponse = await handleMcpRoute(
+    new Request("http://127.0.0.1/oauth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code: readCode,
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code_verifier: readVerifier,
+      }),
+    }),
+    env
+  );
+  assert.equal(readTokenResponse.status, 200);
+  const readAccessToken = (await readTokenResponse.json()).access_token;
+  const readOnlyCall = await rpc(
+    env,
+    readAccessToken,
+    "/mcp-write",
+    31,
+    "tools/call",
+    { name: "list_notebooks", arguments: {} }
+  );
+  assert.equal(readOnlyCall.status, 200);
+  assert.equal(readOnlyCall.body.result.isError, false);
+  const forbiddenWrite = await rpc(
+    env,
+    readAccessToken,
+    "/mcp-write",
+    32,
+    "tools/call",
+    { name: "create_notebook", arguments: { name: "Forbidden" } }
+  );
+  assert.equal(forbiddenWrite.status, 403);
+  assert.equal(forbiddenWrite.body.error, "insufficient_scope");
 
   const createdNotebook = toolResult(
     await rpc(
@@ -451,7 +624,7 @@ try {
     },
     true
   );
-  assert.equal(wrongConfirmation.result.isError, true);
+  assert.equal(wrongConfirmation.body.result.isError, true);
 
   const removed = toolResult(
     await rpc(
@@ -491,11 +664,10 @@ try {
     )
   );
   assert.ok(auditLog.changes.length >= 15);
-  assert.ok(auditLog.changes.every((change) => change.actor === "integration@example.com"));
+  assert.ok(auditLog.changes.every((change) => change.actor === "oauth:" + clientId));
 
   console.log("MCP write integration test passed");
 } finally {
-  globalThis.fetch = originalFetch;
   await miniflare.dispose();
   rmSync(stateDir, { recursive: true, force: true });
 }

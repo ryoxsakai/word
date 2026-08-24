@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "test:mcp-write": "node test/access-auth.test.mjs && node test/mcp-write.integration.mjs",
+    "test:mcp-write": "node test/mcp-write.integration.mjs",
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocab-db --remote",
     "deploy": "wrangler deploy"

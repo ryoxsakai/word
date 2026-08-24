@@ -30,7 +30,7 @@ jobs:
           node-version: 22
       - run: npm ci
 
-      - name: Test MCP read and authenticated write tools
+      - name: Test MCP OAuth, read, and authenticated write tools
         run: npm run test:mcp-write
 
       - name: Create D1 database if it doesn't exist yet (bootstrap only)
@@ -65,15 +65,23 @@ jobs:
             | tee /tmp/vocab-mcp-tools.json \
             | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];if(!tools.some(t=>t.name==="vocab.list_notebooks")||tools.some(t=>t.name==="create_notebook"||t.name==="vocab.create_notebook"))process.exit(1)})'
 
+          curl -sf "https://vocab.lrnr.jp/.well-known/oauth-protected-resource/mcp-write" \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(p.resource!=="https://vocab.lrnr.jp/mcp-write"||!p.scopes_supported?.includes("vocab:write"))process.exit(1)})'
+
+          curl -sf "https://vocab.lrnr.jp/.well-known/oauth-authorization-server" \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(p.authorization_endpoint!=="https://vocab.lrnr.jp/oauth/authorize"||p.token_endpoint!=="https://vocab.lrnr.jp/oauth/token"||p.registration_endpoint!=="https://vocab.lrnr.jp/oauth/register"||!p.code_challenge_methods_supported?.includes("S256"))process.exit(1)})'
+
           write_status=$(curl -sS -o /tmp/vocab-mcp-write.json -w "%{http_code}" -X POST "https://vocab.lrnr.jp/mcp-write" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json, text/event-stream" \
             --data '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"create_notebook","arguments":{"name":"unauthorized-deploy-check"}}}' \
             --retry 5 --retry-delay 10 --retry-all-errors)
 
-          if [ "$write_status" = "200" ]; then
-            node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-write.json","utf8"));if(p.result?.isError!==true)process.exit(1)'
-          elif [ "$write_status" != "401" ] && [ "$write_status" != "403" ]; then
+          if [ "$write_status" != "401" ]; then
             cat /tmp/vocab-mcp-write.json
             exit 1
           fi
+
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-write.json","utf8"));if(p.error!=="invalid_token")process.exit(1)'
