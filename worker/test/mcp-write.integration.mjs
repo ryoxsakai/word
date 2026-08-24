@@ -102,7 +102,9 @@ try {
     env
   );
   assert.equal(authorizationPage.status, 200);
-  assert.match(await authorizationPage.text(), /Vocab MCP APIキー/);
+  const authorizationHtml = await authorizationPage.text();
+  assert.match(authorizationHtml, /Vocab MCP APIキー/);
+  assert.doesNotMatch(authorizationHtml, /action="\/oauth\/authorize"/);
 
   const wrongKey = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/authorize", {
@@ -115,10 +117,10 @@ try {
   assert.equal(wrongKey.status, 401);
 
   const authorization = await handleMcpRoute(
-    new Request("http://127.0.0.1/oauth/authorize", {
+    new Request("http://127.0.0.1/oauth/authorize?" + authorizationParams, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ ...Object.fromEntries(authorizationParams), api_key: env.VOCAB_MCP_API_KEY }),
+      body: new URLSearchParams({ api_key: env.VOCAB_MCP_API_KEY }),
     }),
     env
   );
