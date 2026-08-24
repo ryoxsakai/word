@@ -11,7 +11,7 @@ The public endpoint intentionally exposes only read-only tools. The edit endpoin
 
 ## Write security
 
-Protect `vocab.lrnr.jp/mcp-write*` with a Cloudflare Access application and an allow policy for the intended account. A one-time PIN identity provider is sufficient for a single-user deployment.
+Protect `vocab.lrnr.jp/mcp-write*` with a Cloudflare Access MCP server application and an allow policy for the intended account. A one-time PIN identity provider is sufficient for a single-user deployment. In the application's **Advanced settings**, enable **Managed OAuth** so ChatGPT and other standards-compliant MCP clients can complete the browser authorization-code flow. Cloudflare then serves the OAuth discovery endpoints and authentication challenge before the request reaches the Worker.
 
 Set these Worker variables in the Cloudflare dashboard:
 
