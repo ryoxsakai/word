@@ -41,6 +41,22 @@ jobs:
       - name: Deploy Worker
         run: npx wrangler deploy
 
+      - name: Verify MCP Streamable HTTP endpoint
+        run: |
+          curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"github-actions","version":"1.0.0"}}}' \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(p.result?.serverInfo?.name!=="vocab")process.exit(1)})'
+
+          curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(!p.result?.tools?.some(t=>t.name==="vocab.list_notebooks"))process.exit(1)})'
+
       - name: Seed master vocabulary (AWL / Oxford 5000 / Target1900 / Target1400)
         run: |
           # デプロイ直後はCloudflareのエッジ伝播が完了しておらず、旧バージョンのWorkerが

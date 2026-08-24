@@ -1,4 +1,5 @@
 import { renderMarkup } from "../../public/shared/markup.js";
+import { handleMcpRoute } from "./mcp.js";
 import awlData from "./data/awl.json";
 import oxford5000Data from "./data/oxford5000.json";
 import target1900Data from "./data/target1900.json";
@@ -2027,6 +2028,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
+
+    const mcpResponse = await handleMcpRoute(request, env);
+    if (mcpResponse) return mcpResponse;
 
     if (!pathname.startsWith("/api/")) {
       return env.ASSETS.fetch(request);
