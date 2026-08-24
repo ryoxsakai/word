@@ -1,10 +1,8 @@
 name = "vocab-app"
 main = "src/index.js"
 compatibility_date = "2024-11-01"
-
-[[routes]]
-pattern = "vocab.lrnr.jp/mcp*"
-zone_name = "lrnr.jp"
+# vocab.lrnr.jp/mcp* is managed in the Cloudflare dashboard.
+workers_dev = false
 
 [assets]
 directory = "../public"
