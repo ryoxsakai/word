@@ -1,10 +1,13 @@
+import { MCP_READ_SCOPE, MCP_WRITE_SCOPE } from "./mcp-oauth.js";
+
 const MASTER_LIST_ID = "__master__";
 const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
 const SECTION_LABELS = ["Section", "Unit", "Part"];
 const CHAPTER_LABELS = ["Chapter", "Module", "Volume"];
 const MAX_BATCH_WORDS = 30;
 
-const OAUTH_SECURITY = [{ type: "oauth2", scopes: [] }];
+const READ_SECURITY = [{ type: "oauth2", scopes: [MCP_READ_SCOPE] }];
+const WRITE_SECURITY = [{ type: "oauth2", scopes: [MCP_READ_SCOPE, MCP_WRITE_SCOPE] }];
 
 const stringOrNull = { anyOf: [{ type: "string" }, { type: "null" }] };
 const senseSchema = {
@@ -68,7 +71,7 @@ const wordFields = {
 function writeTool(tool, destructive = false) {
   return {
     ...tool,
-    securitySchemes: OAUTH_SECURITY,
+    securitySchemes: WRITE_SECURITY,
     annotations: { readOnlyHint: false, destructiveHint: destructive, openWorldHint: false },
   };
 }
@@ -84,7 +87,7 @@ export const PROTECTED_READ_TOOLS = [
       properties: { limit: { type: "integer", minimum: 1, maximum: 100, default: 20 } },
       additionalProperties: false,
     },
-    securitySchemes: OAUTH_SECURITY,
+    securitySchemes: READ_SECURITY,
     annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
   },
 ];

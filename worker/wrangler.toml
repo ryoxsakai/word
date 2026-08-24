@@ -1,9 +1,10 @@
 name = "vocab-app"
 main = "src/index.js"
 compatibility_date = "2024-11-01"
-# vocab.lrnr.jp/mcp* is managed in the Cloudflare dashboard.
+# The dashboard routes only /mcp*, /oauth/*, and /.well-known/oauth-* to this Worker.
+# The rest of vocab.lrnr.jp remains on GitHub Pages.
 workers_dev = false
-# Preserve Cloudflare Access settings added in the dashboard for /mcp-write.
+# Preserve dashboard-managed VOCAB_MCP_API_KEY and VOCAB_MCP_SESSION_SECRET.
 keep_vars = true
 
 [assets]
