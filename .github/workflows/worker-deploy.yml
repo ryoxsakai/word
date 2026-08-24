@@ -62,12 +62,12 @@ jobs:
           # デプロイ直後はCloudflareのエッジ伝播が完了しておらず、旧バージョンのWorkerが
           # 応答してシードが不完全になることがあるため、少し待ってから実行する。
           sleep 15
-          curl -sf -X POST "https://vocab.lrnr.jp/api/seed-preset-lists" \
+          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/seed-preset-lists" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
 
       - name: Normalize part-of-speech tags (1字漢字へ統一)
         run: |
-          curl -sf -X POST "https://vocab.lrnr.jp/api/normalize-pos" \
+          curl -sf -X POST "https://vocab-app.ryoxsakai.workers.dev/api/normalize-pos" \
             -H "Content-Type: application/json" \
             --retry 5 --retry-delay 10 --retry-all-errors
