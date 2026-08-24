@@ -196,7 +196,7 @@ function authorizationForm(authorization, error = "") {
 <title>単語帳をChatGPTに接続</title>
 <style>body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7fb;color:#172033;margin:0;padding:32px 16px}.card{max-width:480px;margin:8vh auto;background:#fff;border:1px solid #dfe3ea;border-radius:16px;padding:28px;box-shadow:0 12px 36px #17203314}h1{font-size:1.45rem;margin:0 0 12px}p{line-height:1.65;color:#4a5568}.error{color:#b42318;background:#fef3f2;padding:10px 12px;border-radius:8px}label{display:block;font-weight:650;margin:22px 0 8px}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab2c0;border-radius:8px;font:inherit}button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:#2463eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}.note{font-size:.88rem}</style>
 </head><body><main class="card"><h1>単語帳をChatGPTに接続</h1><p>${escapeHtml(permission)}</p>${errorMessage}
-<form method="post" action="/oauth/authorize">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">接続を許可</button></form>
+<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">接続を許可</button></form>
 <p class="note">APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間1時間のトークンが使用されます。</p></main></body></html>`;
 }
 
@@ -236,10 +236,14 @@ async function registerClient(request, env) {
 }
 
 async function authorize(request, env) {
-  let params;
-  if (request.method === "GET") params = new URL(request.url).searchParams;
-  else if (request.method === "POST") params = new URLSearchParams(await request.text());
-  else return json({ error: "method_not_allowed" }, 405, { Allow: "GET, POST" });
+  if (request.method !== "GET" && request.method !== "POST") {
+    return json({ error: "method_not_allowed" }, 405, { Allow: "GET, POST" });
+  }
+  const params = new URLSearchParams(new URL(request.url).searchParams);
+  if (request.method === "POST") {
+    const submitted = new URLSearchParams(await request.text());
+    for (const [name, value] of submitted) params.set(name, value);
+  }
 
   let authorization;
   try {
