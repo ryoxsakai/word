@@ -669,9 +669,12 @@ async function mcp(request, env, allowWrites = false) {
       isError: true,
     };
     if (allowWrites && isProtectedTool(toolName) && /authentication|access|JWT|configured/i.test(text)) {
+      const origin = new URL(request.url).origin;
       result._meta = {
         "mcp/www_authenticate": [
-          'Bearer error="invalid_token", error_description="Cloudflare Access authentication is required"',
+          'Bearer resource_metadata="' +
+            origin +
+            '/.well-known/oauth-protected-resource/mcp-write", error="invalid_token", error_description="Cloudflare Access authentication is required"',
         ],
       };
     }
