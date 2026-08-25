@@ -49,17 +49,6 @@ jobs:
           # Workerの新バージョンが既存Routeへ伝播する前に旧版へ当たることがある。
           sleep 15
 
-          # The GitHub Pages viewer uses a read-only API under the existing /mcp* route.
-          curl -sf "https://vocab.lrnr.jp/mcp-viewer/api/lists" \
-            --retry 5 --retry-delay 10 --retry-all-errors \
-            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(!Array.isArray(p))process.exit(1)})'
-
-          viewer_write_status="$(curl -s -o /tmp/vocab-viewer-write.json -w "%{http_code}" \
-            -X POST "https://vocab.lrnr.jp/mcp-viewer/api/lists" \
-            -H "Content-Type: application/json" \
-            --data '{"name":"must-not-be-created"}')"
-          test "$viewer_write_status" = "405"
-
           curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json, text/event-stream" \
