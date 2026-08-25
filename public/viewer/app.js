@@ -1,9 +1,9 @@
 import { renderMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
-import { VIEWER_API_BASE } from "../shared/config.js";
+import { API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 
-const API = `${VIEWER_API_BASE}/api`;
+const API = `${API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
