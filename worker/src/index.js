@@ -1,5 +1,11 @@
 import { renderMarkup } from "../../public/shared/markup.js";
 import { handleMcpRoute } from "./mcp.js";
+import {
+  MCP_READ_SCOPE,
+  MCP_WRITE_SCOPE,
+  oauthErrorResponse,
+  verifyMcpAccess,
+} from "./mcp-oauth.js";
 import awlData from "./data/awl.json";
 import oxford5000Data from "./data/oxford5000.json";
 import target1900Data from "./data/target1900.json";
@@ -1850,7 +1856,7 @@ function corsHeaders(allowedOrigin) {
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type",
     Vary: "Origin",
   };
 }
@@ -2056,6 +2062,37 @@ export default {
         return json(
           { error: String(err && err.message ? err.message : err) },
           { status: 500 }
+        );
+      }
+    }
+
+    // GitHub Pages上の編集画面向け。既存のOAuthで認証し、
+    // GETには閲覧権限、それ以外には閲覧・編集の両権限を要求する。
+    if (pathname.startsWith("/mcp-editor/api/")) {
+      const allowedOrigin = resolveAllowedOrigin(request, env);
+      if (request.method === "OPTIONS") {
+        return new Response(null, { status: 204, headers: corsHeaders(allowedOrigin) });
+      }
+
+      const requiredScopes =
+        request.method === "GET"
+          ? [MCP_READ_SCOPE]
+          : [MCP_READ_SCOPE, MCP_WRITE_SCOPE];
+      try {
+        await verifyMcpAccess(request, env, requiredScopes);
+      } catch (error) {
+        return withCors(oauthErrorResponse(request, error, requiredScopes), allowedOrigin);
+      }
+
+      const apiPath = pathname.slice("/mcp-editor".length);
+      const parts = apiPath.split("/").filter(Boolean).map(decodeURIComponent);
+      try {
+        const response = await handleApi(request, env, parts, request.method);
+        return withCors(response, allowedOrigin);
+      } catch (err) {
+        return withCors(
+          json({ error: String(err && err.message ? err.message : err) }, { status: 500 }),
+          allowedOrigin
         );
       }
     }
