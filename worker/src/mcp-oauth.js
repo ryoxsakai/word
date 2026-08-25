@@ -183,6 +183,7 @@ function authorizationForm(authorization, error = "") {
   const isEditorLogin =
     redirect.hostname === "vocab.lrnr.jp" && redirect.pathname.startsWith("/setting");
   const title = isEditorLogin ? "単語帳の編集ページにログイン" : "単語帳をChatGPTに接続";
+  const actionLabel = isEditorLogin ? "編集ページにログイン" : "接続を許可";
   const hidden = Object.entries({
     response_type: "code",
     client_id: authorization.clientId,
@@ -208,7 +209,7 @@ function authorizationForm(authorization, error = "") {
 <title>${escapeHtml(title)}</title>
 <style>body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7fb;color:#172033;margin:0;padding:32px 16px}.card{max-width:480px;margin:8vh auto;background:#fff;border:1px solid #dfe3ea;border-radius:16px;padding:28px;box-shadow:0 12px 36px #17203314}h1{font-size:1.45rem;margin:0 0 12px}p{line-height:1.65;color:#4a5568}.error{color:#b42318;background:#fef3f2;padding:10px 12px;border-radius:8px}label{display:block;font-weight:650;margin:22px 0 8px}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab2c0;border-radius:8px;font:inherit}button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:#2463eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}.note{font-size:.88rem}</style>
 </head><body><main class="card"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(permission)}</p>${errorMessage}
-<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">接続を許可</button></form>
+<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">${escapeHtml(actionLabel)}</button></form>
 <p class="note">${escapeHtml(note)}</p></main></body></html>`;
 }
 
