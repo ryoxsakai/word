@@ -49,6 +49,11 @@ jobs:
           # Workerの新バージョンが既存Routeへ伝播する前に旧版へ当たることがある。
           sleep 15
 
+          # The viewer is hosted on GitHub Pages and fetches its API from workers.dev.
+          curl -sf "https://vocab-app.ryoxsakai.workers.dev/api/lists" \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(!Array.isArray(p))process.exit(1)})'
+
           curl -sf -X POST "https://vocab.lrnr.jp/mcp" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json, text/event-stream" \
