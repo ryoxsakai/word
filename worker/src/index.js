@@ -2032,6 +2032,34 @@ export default {
     const mcpResponse = await handleMcpRoute(request, env);
     if (mcpResponse) return mcpResponse;
 
+    // GitHub Pages上の閲覧画面向け。公開対象は画面表示に必要な
+    // 「単語帳一覧」と「1単語帳の全表示データ」のGETだけに限定する。
+    if (pathname.startsWith("/mcp-viewer/api/")) {
+      if (request.method !== "GET") {
+        return json({ error: "viewer API is read-only" }, { status: 405 });
+      }
+
+      try {
+        if (pathname === "/mcp-viewer/api/lists") {
+          return await listLists(env.DB);
+        }
+
+        const fullListMatch = pathname.match(
+          /^\/mcp-viewer\/api\/lists\/([^/]+)\/words\/full\/?$/
+        );
+        if (fullListMatch) {
+          return await listWordsInListFull(env.DB, decodeURIComponent(fullListMatch[1]));
+        }
+
+        return notFound("no such viewer route");
+      } catch (err) {
+        return json(
+          { error: String(err && err.message ? err.message : err) },
+          { status: 500 }
+        );
+      }
+    }
+
     if (!pathname.startsWith("/api/")) {
       return env.ASSETS.fetch(request);
     }
