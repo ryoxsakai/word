@@ -179,6 +179,11 @@ async function validateAuthorizationRequest(env, params) {
 }
 
 function authorizationForm(authorization, error = "") {
+  const redirect = new URL(authorization.redirectUri);
+  const isEditorLogin =
+    redirect.hostname === "vocab.lrnr.jp" && redirect.pathname.startsWith("/setting");
+  const title = isEditorLogin ? "単語帳の編集ページにログイン" : "単語帳をChatGPTに接続";
+  const actionLabel = isEditorLogin ? "編集ページにログイン" : "接続を許可";
   const hidden = Object.entries({
     response_type: "code",
     client_id: authorization.clientId,
@@ -190,17 +195,22 @@ function authorizationForm(authorization, error = "") {
   })
     .map(([name, value]) => `<input type="hidden" name="${name}" value="${escapeHtml(value)}">`)
     .join("");
-  const permission = authorization.scopes.includes(MCP_WRITE_SCOPE)
-    ? "単語帳の閲覧・作成・更新・並べ替えを許可します。完全削除は提供しません。"
-    : "単語帳の閲覧を許可します。";
+  const permission = isEditorLogin
+    ? "単語帳の閲覧・作成・更新・並べ替え・削除を許可します。"
+    : authorization.scopes.includes(MCP_WRITE_SCOPE)
+      ? "単語帳の閲覧・作成・更新・並べ替えを許可します。完全削除は提供しません。"
+      : "単語帳の閲覧を許可します。";
   const errorMessage = error ? `<p class="error" role="alert">${escapeHtml(error)}</p>` : "";
+  const note = isEditorLogin
+    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は有効期間1時間のトークンが使用されます。"
+    : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間1時間のトークンが使用されます。";
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>単語帳をChatGPTに接続</title>
+<title>${escapeHtml(title)}</title>
 <style>body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7fb;color:#172033;margin:0;padding:32px 16px}.card{max-width:480px;margin:8vh auto;background:#fff;border:1px solid #dfe3ea;border-radius:16px;padding:28px;box-shadow:0 12px 36px #17203314}h1{font-size:1.45rem;margin:0 0 12px}p{line-height:1.65;color:#4a5568}.error{color:#b42318;background:#fef3f2;padding:10px 12px;border-radius:8px}label{display:block;font-weight:650;margin:22px 0 8px}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab2c0;border-radius:8px;font:inherit}button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:#2463eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}.note{font-size:.88rem}</style>
-</head><body><main class="card"><h1>単語帳をChatGPTに接続</h1><p>${escapeHtml(permission)}</p>${errorMessage}
-<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">接続を許可</button></form>
-<p class="note">APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間1時間のトークンが使用されます。</p></main></body></html>`;
+</head><body><main class="card"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(permission)}</p>${errorMessage}
+<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">${escapeHtml(actionLabel)}</button></form>
+<p class="note">${escapeHtml(note)}</p></main></body></html>`;
 }
 
 function redirectWithAuthorizationResult(redirectUri, values) {

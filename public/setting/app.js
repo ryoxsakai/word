@@ -1,9 +1,10 @@
 import { renderMarkup } from "../shared/markup.js";
-import { API_BASE } from "../shared/config.js";
+import { EDITOR_API_BASE } from "../shared/config.js";
+import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 
-const API = `${API_BASE}/api`;
+const API = `${EDITOR_API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
 const MASTER_LIST_ID = "__master__";
 const LAST_LIST_KEY = "vocab-setting-last-list";
@@ -227,7 +228,7 @@ function toggleTopbarMenu() {
 }
 
 async function api(path, opts) {
-  const res = await fetch(`${API}${path}`, {
+  const res = await editorFetch(`${API}${path}`, {
     headers: { "content-type": "application/json" },
     ...opts,
   });
