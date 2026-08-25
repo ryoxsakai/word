@@ -105,6 +105,10 @@ try {
   const authorizationHtml = await authorizationPage.text();
   assert.match(authorizationHtml, /Vocab MCP APIキー/);
   assert.doesNotMatch(authorizationHtml, /action="\/oauth\/authorize"/);
+  assert.match(
+    authorizationPage.headers.get("Content-Security-Policy"),
+    /form-action 'self' https:\/\/chatgpt\.com/
+  );
 
   const wrongKey = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/authorize", {

@@ -28,14 +28,17 @@ function json(data, status = 200, extraHeaders = {}) {
   });
 }
 
-function html(document, status = 200) {
+function html(document, status = 200, redirectOrigin = "") {
+  const formActions = ["'self'", redirectOrigin].filter(Boolean).join(" ");
   return new Response(document, {
     status,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "no-store",
       "Content-Security-Policy":
-        "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+        "default-src 'none'; style-src 'unsafe-inline'; form-action " +
+        formActions +
+        "; base-uri 'none'; frame-ancestors 'none'",
       "Referrer-Policy": "no-referrer",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
@@ -252,12 +255,13 @@ async function authorize(request, env) {
     if (error instanceof McpOAuthError) return json({ error: error.code, error_description: error.message }, error.status);
     throw error;
   }
-  if (request.method === "GET") return html(authorizationForm(authorization));
+  const redirectOrigin = new URL(authorization.redirectUri).origin;
+  if (request.method === "GET") return html(authorizationForm(authorization), 200, redirectOrigin);
 
   const suppliedKey = String(params.get("api_key") || "");
   const configuredKey = configuredSecret(env, "VOCAB_MCP_API_KEY");
   if (!suppliedKey || !(await safeEqual(suppliedKey, configuredKey))) {
-    return html(authorizationForm(authorization, "APIキーが正しくありません。"), 401);
+    return html(authorizationForm(authorization, "APIキーが正しくありません。"), 401, redirectOrigin);
   }
 
   const code = randomToken(32);
