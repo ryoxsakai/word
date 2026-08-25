@@ -4,3 +4,5 @@
 // それ以外（GitHub Pagesなど別オリジンへのデプロイ時）はCloudflare WorkerのURLを使う。
 const isLocalhost = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 export const API_BASE = isLocalhost ? "" : "https://vocab-app.ryoxsakai.workers.dev";
+// 閲覧ページは既存の /mcp* Worker route 内にある読み取り専用APIを使う。
+export const VIEWER_API_BASE = isLocalhost ? "" : "https://vocab.lrnr.jp/mcp-viewer";
