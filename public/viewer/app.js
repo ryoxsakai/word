@@ -63,14 +63,14 @@ function renderRef(spelling) {
   return `<a href="#word-${escapeHtml(hit.id)}" class="ref" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(spelling)}</a>`;
 }
 
-// 類義語・対義語欄向け: カンマ区切りの単語リストを表示する。
+// 類義語・対義語欄向け: カンマ・セミコロン区切りの単語リストを表示する。
 // ##headword## で明示的にタグ付けされていればそれを尊重し、
 // 素の単語でもリスト内に見出し語として存在すれば自動でリンク化+no.を付与する
 // （見つからなければ、通常の ##参照## と違ってエラー表示はせずそのまま表示する）。
 function renderWordListMarkup(raw) {
   if (!raw) return "";
   return raw
-    .split(",")
+    .split(/[,;；]/)
     .map((part) => part.trim())
     .filter((part) => part.length > 0)
     .map((part) => {
