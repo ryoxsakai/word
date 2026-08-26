@@ -194,9 +194,11 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 40);
+  assert.equal(editableTools.body.result.tools.length, 44);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
+  assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
+  assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "update_label"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint));
 
   const unauthorized = await rpc(
