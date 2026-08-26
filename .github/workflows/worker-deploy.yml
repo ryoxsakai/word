@@ -80,7 +80,11 @@ jobs:
             --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
             --retry 5 --retry-delay 10 --retry-all-errors \
             | tee /tmp/vocab-mcp-tools.json \
-            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];if(!tools.some(t=>t.name==="vocab.list_notebooks")||tools.some(t=>t.name==="create_notebook"||t.name==="vocab.create_notebook"))process.exit(1)})'
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];const read=tools.find(t=>t.name==="list_notebooks");const write=tools.find(t=>t.name==="update_word");if(!read||read.securitySchemes?.[0]?.type!=="noauth"||!write||write.securitySchemes?.[0]?.type!=="oauth2"||!tools.some(t=>t.name==="vocab.create_notebook"))process.exit(1)})'
+
+          curl -sf "https://vocab.lrnr.jp/.well-known/oauth-protected-resource/mcp" \
+            --retry 5 --retry-delay 10 --retry-all-errors \
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);if(p.resource!=="https://vocab.lrnr.jp/mcp"||!p.scopes_supported?.includes("vocab:write"))process.exit(1)})'
 
           curl -sf "https://vocab.lrnr.jp/.well-known/oauth-protected-resource/mcp-write" \
             --retry 5 --retry-delay 10 --retry-all-errors \
@@ -102,3 +106,16 @@ jobs:
           fi
 
           node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-write.json","utf8"));if(p.error!=="invalid_token")process.exit(1)'
+
+          combined_write_status=$(curl -sS -o /tmp/vocab-mcp-combined-write.json -w "%{http_code}" -X POST "https://vocab.lrnr.jp/mcp" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"update_word","arguments":{"lookup_spelling":"must-not-be-updated","notes":"unauthorized-deploy-check"}}}' \
+            --retry 5 --retry-delay 10 --retry-all-errors)
+
+          if [ "$combined_write_status" != "401" ]; then
+            cat /tmp/vocab-mcp-combined-write.json
+            exit 1
+          fi
+
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-combined-write.json","utf8"));if(p.error!=="invalid_token")process.exit(1)'
