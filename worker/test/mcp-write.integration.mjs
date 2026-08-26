@@ -494,6 +494,40 @@ try {
   const abandonId = createdWords.created.find((word) => word.spelling === "abandon").id;
   const benignId = createdWords.created.find((word) => word.spelling === "benign").id;
 
+  const createdLabel = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 54, "tools/call", {
+      name: "create_label",
+      arguments: { list_id: listId, section_id: sectionId, name: "追加・適用" },
+    }, true)
+  );
+  assert.equal(createdLabel.created, true);
+  const labelId = createdLabel.label.id;
+
+  const labeled = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 55, "tools/call", {
+      name: "move_words",
+      arguments: { list_id: listId, word_ids: [abandonId], section_id: sectionId, label_id: labelId },
+    }, true)
+  );
+  assert.equal(labeled.labelId, labelId);
+
+  const labeledListing = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 56, "tools/call", {
+      name: "list_words",
+      arguments: { list_id: listId, query: "abandon" },
+    })
+  );
+  assert.equal(labeledListing.words[0].labelName, "追加・適用");
+
+  const labeledStructure = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 57, "tools/call", {
+      name: "get_notebook_structure",
+      arguments: { list_id: listId },
+    })
+  );
+  const labeledSection = labeledStructure.chapters.flatMap((chapter) => chapter.sections).find((section) => Number(section.id) === sectionId);
+  assert.equal(labeledSection.labels[0].name, "追加・適用");
+
   const derivedWord = toolResult(
     await rpc(
       env,
