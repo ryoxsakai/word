@@ -382,6 +382,21 @@ button { font-family: inherit; }
   line-height: 1.4;
 }
 
+.label-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.85rem 0 0.3rem 0.65rem;
+  padding: 0.28rem 0.55rem;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--title-bg-1) 55%, transparent);
+  border-radius: 0 4px 4px 0;
+  break-after: avoid;
+}
+.label-divider .fa-tag { color: var(--accent); font-size: 0.72rem; }
+.label-title { font-size: 0.84rem; font-weight: 700; color: var(--text); }
+.label-count { font-size: 0.76rem; color: var(--text-muted); }
+
 /* チャプターはセクションより上位の概念なので、帯を濃く・枠を太くして区別する
    (--title-bg-1/2, --title-borderと同系色でアルファ値だけ上げた濃い版) */
 .chapter-divider {
@@ -816,7 +831,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-divider, .chapter-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

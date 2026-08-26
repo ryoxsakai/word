@@ -185,7 +185,7 @@ async function getNotebookStructure(db, args) {
     };
   }
 
-  const [chapterRows, sectionRows, unassignedRow] = await Promise.all([
+  const [chapterRows, labelRows, sectionRows, unassignedRow] = await Promise.all([
     db
       .prepare(
         "SELECT c.id, c.subtitle, c.description, c.sort_order AS sortOrder, " +
@@ -194,6 +194,14 @@ async function getNotebookStructure(db, args) {
           "LEFT JOIN sections s ON s.chapter_id = c.id AND s.list_id = c.list_id " +
           "LEFT JOIN list_items li ON li.section_id = s.id AND li.list_id = c.list_id " +
           "WHERE c.list_id = ? GROUP BY c.id ORDER BY c.sort_order, c.id"
+      )
+      .bind(listId)
+      .all(),
+    db
+      .prepare(
+        "SELECT sl.id, sl.section_id AS sectionId, sl.name, sl.sort_order AS sortOrder, COUNT(li.word_id) AS wordCount " +
+          "FROM section_labels sl LEFT JOIN list_items li ON li.label_id = sl.id AND li.list_id = sl.list_id " +
+          "WHERE sl.list_id = ? GROUP BY sl.id ORDER BY sl.section_id, sl.sort_order, sl.id"
       )
       .bind(listId)
       .all(),
@@ -218,6 +226,9 @@ async function getNotebookStructure(db, args) {
     chapterId: row.chapterId === null ? null : Number(row.chapterId),
     wordCount: Number(row.wordCount || 0),
     displayName: (notebook.sectionLabel || "Section") + " " + (index + 1),
+    labels: labelRows.results
+      .filter((label) => Number(label.sectionId) === Number(row.id))
+      .map((label) => ({ ...label, sectionId: Number(label.sectionId), wordCount: Number(label.wordCount || 0) })),
   }));
   const sectionsByChapter = new Map();
   for (const section of sections) {
@@ -307,9 +318,9 @@ async function listWords(db, args) {
     sql += " ORDER BY w.spelling COLLATE NOCASE";
   } else {
     sql = "SELECT " + WORD_SUMMARY_SELECT + ", li.no AS no, li.branch AS branch, " +
-      "li.section_id AS sectionId, s.chapter_id AS chapterId " +
+      "li.section_id AS sectionId, s.chapter_id AS chapterId, li.label_id AS labelId, sl.name AS labelName " +
       "FROM list_items li JOIN words w ON w.id = li.word_id " +
-      "LEFT JOIN sections s ON s.id = li.section_id WHERE li.list_id = ?";
+      "LEFT JOIN sections s ON s.id = li.section_id LEFT JOIN section_labels sl ON sl.id = li.label_id WHERE li.list_id = ?";
     values.push(listId);
     if (query) {
       const pattern = likePattern(query);
@@ -326,7 +337,7 @@ async function listWords(db, args) {
       values.push(sectionId);
     }
     sql += " ORDER BY COALESCE((SELECT sort_order FROM chapters c WHERE c.id = s.chapter_id), -1), " +
-      "COALESCE(s.sort_order, -1), li.no, li.branch";
+      "COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch";
   }
 
   sql += " LIMIT ? OFFSET ?";
@@ -465,12 +476,12 @@ async function getWord(db, args) {
     db.prepare("SELECT tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id = ? ORDER BY tag_key").bind(word.id).all(),
     db
       .prepare(
-        "SELECT li.list_id AS listId, l.name AS listName, li.no, li.branch, li.section_id AS sectionId, " +
+        "SELECT li.list_id AS listId, l.name AS listName, li.no, li.branch, li.section_id AS sectionId, li.label_id AS labelId, sl.name AS labelName, " +
           "s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder, s.chapter_id AS chapterId, " +
           "c.subtitle AS chapterSubtitle, c.sort_order AS chapterSortOrder, " +
           "l.section_label AS sectionLabel, l.chapter_label AS chapterLabel " +
           "FROM list_items li JOIN lists l ON l.id = li.list_id " +
-          "LEFT JOIN sections s ON s.id = li.section_id LEFT JOIN chapters c ON c.id = s.chapter_id " +
+          "LEFT JOIN sections s ON s.id = li.section_id LEFT JOIN chapters c ON c.id = s.chapter_id LEFT JOIN section_labels sl ON sl.id = li.label_id " +
           "WHERE li.word_id = ? ORDER BY l.sort_order, l.name"
       )
       .bind(word.id)

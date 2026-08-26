@@ -55,6 +55,7 @@ GitHub Pagesで配信しているWeb画面を維持するため、ドメイン�
 | 単語帳 | `create_notebook`, `update_notebook`, `reorder_notebooks` |
 | チャプター | `create_chapter`, `update_chapter`, `reorder_chapters` |
 | セクション | `create_section`, `update_section`, `reorder_sections` |
+| ラベル | `create_label`, `update_label`（`move_words` の `label_id` で語を割り当て） |
 | 単語 | `create_words`, `update_word`, `add_words_to_notebook`, `move_words`, `remove_words_from_notebook` |
 | 監査 | `list_recent_changes` |
 

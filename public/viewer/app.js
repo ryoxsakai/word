@@ -331,19 +331,28 @@ function hasAnyChapter() {
   return state.words.some((w) => w.chapterId != null);
 }
 
+function hasAnyLabel() {
+  return state.words.some((w) => w.labelId != null);
+}
+
 function renderWords() {
   const withSections = hasAnySection();
   const withChapters = hasAnyChapter();
+  const withLabels = hasAnyLabel();
   const countByKey = new Map();
   const countByChapterKey = new Map();
+  const countByLabelKey = new Map();
   for (const w of state.words) {
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     countByKey.set(key, (countByKey.get(key) || 0) + 1);
     const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
     countByChapterKey.set(chapterKey, (countByChapterKey.get(chapterKey) || 0) + 1);
+    const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
+    countByLabelKey.set(labelKey, (countByLabelKey.get(labelKey) || 0) + 1);
   }
   let lastKey;
   let lastChapterKey;
+  let lastLabelKey;
   const parts = [];
   for (const w of state.words) {
     const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
@@ -360,6 +369,7 @@ function renderWords() {
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     if (withSections && key !== lastKey) {
       lastKey = key;
+      lastLabelKey = undefined;
       const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
         w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
       }<span class="section-count">(${countByKey.get(key)})</span>`;
@@ -367,6 +377,13 @@ function renderWords() {
       parts.push(
         `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
       );
+    }
+    const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
+    if (withLabels && w.labelId != null && labelKey !== lastLabelKey) {
+      lastLabelKey = labelKey;
+      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}"><i class="fa-solid fa-tag" aria-hidden="true"></i><span class="label-title">${escapeHtml(w.labelName || "")}</span><span class="label-count">(${countByLabelKey.get(labelKey)})</span></div>`);
+    } else if (w.labelId == null) {
+      lastLabelKey = labelKey;
     }
     parts.push(renderEntry(w));
   }
@@ -518,18 +535,23 @@ function applyFilters() {
     entry.hidden = !(!q || haystack.includes(q));
   });
 
-  let currentDivider = null;
-  let dividerHasVisible = false;
-  for (const child of el.wordList.children) {
-    if (child.classList.contains("section-divider")) {
-      if (currentDivider) currentDivider.hidden = !dividerHasVisible;
-      currentDivider = child;
-      dividerHasVisible = false;
-    } else if (child.classList.contains("entry") && !child.hidden) {
-      dividerHasVisible = true;
+  const children = [...el.wordList.children];
+  for (let i = 0; i < children.length; i += 1) {
+    const divider = children[i];
+    if (!divider.matches(".chapter-divider, .section-divider, .label-divider")) continue;
+    const level = divider.classList.contains("chapter-divider") ? 3 : divider.classList.contains("section-divider") ? 2 : 1;
+    let hasVisible = false;
+    for (let j = i + 1; j < children.length; j += 1) {
+      const next = children[j];
+      const nextLevel = next.classList.contains("chapter-divider") ? 3 : next.classList.contains("section-divider") ? 2 : next.classList.contains("label-divider") ? 1 : 0;
+      if (nextLevel >= level) break;
+      if (next.classList.contains("entry") && !next.hidden) {
+        hasVisible = true;
+        break;
+      }
     }
+    divider.hidden = !hasVisible;
   }
-  if (currentDivider) currentDivider.hidden = !dividerHasVisible;
 }
 
 // ---- 発音 / リンクコピー / 空所トグル ----

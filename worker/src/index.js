@@ -216,6 +216,7 @@ async function deleteList(db, listId) {
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
   await db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(listId).run();
+  await db.prepare("DELETE FROM section_labels WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM sections WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM chapters WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM lists WHERE id = ?").bind(listId).run();
@@ -267,6 +268,7 @@ async function listWordsInList(db, listId) {
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
+              li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder,
               s.chapter_id AS chapterId, c.sort_order AS chapterSortOrder,
               w.derived_from_id AS derivedFromId,
@@ -277,10 +279,11 @@ async function listWordsInList(db, listId) {
               ${PRIMARY_MEANING_SELECT}
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN section_labels sl ON sl.id = li.label_id
        LEFT JOIN chapters c ON c.id = s.chapter_id
        ${WORD_TAG_JOINS}
        WHERE li.list_id = ?
-       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no, li.branch`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
     )
     .bind(listId)
     .all();
@@ -310,6 +313,7 @@ async function listMasterWords(db, searchUrl) {
   let sql = `
     SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
            NULL AS no, 0 AS branch, NULL AS sectionId, NULL AS sectionName,
+           NULL AS labelId, NULL AS labelName, NULL AS labelSortOrder,
            w.derived_from_id AS derivedFromId,
            w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
@@ -385,13 +389,15 @@ async function listWordsInListFull(db, listId) {
               w.conjugation_caution AS conjugationCaution, w.usage_caution AS usageCaution,
               w.derived_from_id AS derivedFromId,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
+              li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
               s.chapter_id AS chapterId, c.subtitle AS chapterSubtitle, c.description AS chapterDescription, c.sort_order AS chapterSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN section_labels sl ON sl.id = li.label_id
        LEFT JOIN chapters c ON c.id = s.chapter_id
        WHERE li.list_id = ?
-       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no, li.branch`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
     )
     .bind(listId)
     .all();
@@ -478,6 +484,9 @@ async function listWordsInListFull(db, listId) {
     sectionSubtitle: r.sectionSubtitle,
     sectionDescription: r.sectionDescription,
     sectionSortOrder: r.sectionSortOrder,
+    labelId: r.labelId,
+    labelName: r.labelName,
+    labelSortOrder: r.labelSortOrder,
     chapterId: r.chapterId,
     chapterName: chapterNameById(r.chapterId),
     chapterSubtitle: r.chapterSubtitle,
@@ -623,9 +632,69 @@ async function updateSection(db, listId, sectionId, body) {
 }
 
 async function deleteSection(db, listId, sectionId) {
-  await db.prepare("UPDATE list_items SET section_id = NULL WHERE list_id = ? AND section_id = ?").bind(listId, sectionId).run();
+  await db.prepare("UPDATE list_items SET section_id = NULL, label_id = NULL WHERE list_id = ? AND section_id = ?").bind(listId, sectionId).run();
+  await db.prepare("DELETE FROM section_labels WHERE list_id = ? AND section_id = ?").bind(listId, sectionId).run();
   await db.prepare("DELETE FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).run();
   return json({ ok: true });
+}
+
+// ---- labels ----
+// ラベルはセクション内だけで有効な小分類。語に付くlabel_idは必ず同じ単語帳・セクションのものとする。
+async function listLabels(db, listId) {
+  if (listId === MASTER_LIST_ID) return json([]);
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const { results } = await db
+    .prepare("SELECT id, section_id AS sectionId, name, sort_order AS sortOrder FROM section_labels WHERE list_id = ? ORDER BY section_id, sort_order, id")
+    .bind(listId)
+    .all();
+  return json(results);
+}
+
+async function createLabel(db, listId, body) {
+  const name = String(body.name || "").trim();
+  if (!name) return badRequest("name is required");
+  const sectionId = Number(body.sectionId);
+  const section = await db.prepare("SELECT id FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+  if (!section) return badRequest("section does not belong to list");
+  const duplicate = await db.prepare("SELECT id FROM section_labels WHERE list_id = ? AND section_id = ? AND name = ? COLLATE NOCASE").bind(listId, sectionId, name).first();
+  if (duplicate) return badRequest("label already exists in section");
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM section_labels WHERE list_id = ? AND section_id = ?").bind(listId, sectionId).first();
+  const sortOrder = Number(row?.m || 0) + 1;
+  const result = await db.prepare("INSERT INTO section_labels (list_id, section_id, name, sort_order) VALUES (?, ?, ?, ?)").bind(listId, sectionId, name, sortOrder).run();
+  return json({ id: result.meta.last_row_id, sectionId, name, sortOrder }, { status: 201 });
+}
+
+async function updateLabel(db, listId, labelId, body) {
+  const label = await db.prepare("SELECT id, section_id AS sectionId, name FROM section_labels WHERE id = ? AND list_id = ?").bind(labelId, listId).first();
+  if (!label) return notFound("label not found");
+  const name = body.name === undefined ? label.name : String(body.name || "").trim();
+  if (!name) return badRequest("name is required");
+  const sectionId = body.sectionId === undefined ? Number(label.sectionId) : Number(body.sectionId);
+  const section = await db.prepare("SELECT id FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+  if (!section) return badRequest("section does not belong to list");
+  const duplicate = await db.prepare("SELECT id FROM section_labels WHERE list_id = ? AND section_id = ? AND name = ? COLLATE NOCASE AND id != ?").bind(listId, sectionId, name, labelId).first();
+  if (duplicate) return badRequest("label already exists in section");
+  await db.batch([
+    db.prepare("UPDATE section_labels SET section_id = ?, name = ? WHERE id = ? AND list_id = ?").bind(sectionId, name, labelId, listId),
+    db.prepare("UPDATE list_items SET section_id = ? WHERE list_id = ? AND label_id = ?").bind(sectionId, listId, labelId),
+  ]);
+  return json({ id: Number(labelId), sectionId, name });
+}
+
+async function deleteLabel(db, listId, labelId) {
+  await db.batch([
+    db.prepare("UPDATE list_items SET label_id = NULL WHERE list_id = ? AND label_id = ?").bind(listId, labelId),
+    db.prepare("DELETE FROM section_labels WHERE id = ? AND list_id = ?").bind(labelId, listId),
+  ]);
+  return json({ ok: true });
+}
+
+async function validateLabelForSection(db, listId, sectionId, labelId) {
+  if (labelId === undefined || labelId === null || labelId === "") return null;
+  if (sectionId === undefined || sectionId === null || sectionId === "") return false;
+  const row = await db.prepare("SELECT id FROM section_labels WHERE id = ? AND list_id = ? AND section_id = ?").bind(labelId, listId, sectionId).first();
+  return row ? Number(row.id) : false;
 }
 
 // セクション自体の並び順(sort_order)とチャプター所属(chapter_id)をまとめて入れ替える。
@@ -655,12 +724,13 @@ async function reorderSections(db, listId, body) {
 async function renumberListItemsToMatchDisplayOrder(db, listId) {
   const { results: headRows } = await db
     .prepare(
-      `SELECT li.word_id AS wordId, li.section_id AS sectionId
+      `SELECT li.word_id AS wordId, li.section_id AS sectionId, li.label_id AS labelId
        FROM list_items li
        LEFT JOIN sections s ON s.id = li.section_id
        LEFT JOIN chapters c ON c.id = s.chapter_id
+       LEFT JOIN section_labels sl ON sl.id = li.label_id
        WHERE li.list_id = ? AND li.branch = 0
-       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no`
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no`
     )
     .bind(listId)
     .all();
@@ -709,8 +779,8 @@ async function renumberListItemsByHeadOrder(db, listId, items) {
       );
       phase2.push(
         db
-          .prepare("UPDATE list_items SET no = ?, section_id = ? WHERE list_id = ? AND word_id = ?")
-          .bind(newNo, it.sectionId ?? null, listId, memberWordId)
+          .prepare("UPDATE list_items SET no = ?, section_id = ?, label_id = ? WHERE list_id = ? AND word_id = ?")
+          .bind(newNo, it.sectionId ?? null, it.labelId ?? null, listId, memberWordId)
       );
     }
   }
@@ -725,6 +795,19 @@ async function reorderListItems(db, listId, body) {
   if (!list) return notFound("list not found");
   const items = body.items;
   if (!Array.isArray(items) || items.length === 0) return badRequest("items is required");
+
+  const [{ results: sectionRows }, { results: labelRows }] = await Promise.all([
+    db.prepare("SELECT id FROM sections WHERE list_id = ?").bind(listId).all(),
+    db.prepare("SELECT id, section_id AS sectionId FROM section_labels WHERE list_id = ?").bind(listId).all(),
+  ]);
+  const sectionIds = new Set(sectionRows.map((row) => Number(row.id)));
+  const labelSectionById = new Map(labelRows.map((row) => [Number(row.id), Number(row.sectionId)]));
+  for (const item of items) {
+    const sectionId = item.sectionId == null ? null : Number(item.sectionId);
+    const labelId = item.labelId == null ? null : Number(item.labelId);
+    if (sectionId !== null && !sectionIds.has(sectionId)) return badRequest("section does not belong to list");
+    if (labelId !== null && labelSectionById.get(labelId) !== sectionId) return badRequest("label does not belong to section");
+  }
 
   const count = await renumberListItemsByHeadOrder(db, listId, items);
   return json({ ok: true, count });
@@ -753,8 +836,10 @@ async function loadWordDetail(db, id) {
     db.prepare("SELECT tag_key, tag_value FROM tags WHERE word_id = ?").bind(id).all(),
     db
       .prepare(
-        `SELECT li.list_id AS listId, l.name AS listName, li.no AS no, li.branch AS branch, li.section_id AS sectionId
+        `SELECT li.list_id AS listId, l.name AS listName, li.no AS no, li.branch AS branch, li.section_id AS sectionId,
+                li.label_id AS labelId, sl.name AS labelName
          FROM list_items li JOIN lists l ON l.id = li.list_id
+         LEFT JOIN section_labels sl ON sl.id = li.label_id
          WHERE li.word_id = ? ORDER BY l.sort_order, l.name`
       )
       .bind(id)
@@ -854,6 +939,13 @@ async function resolveDerivedFrom(db, body) {
 
 async function createWord(db, body) {
   if (!body.spelling) return badRequest("spelling is required");
+  let membershipSectionId = null;
+  let membershipLabelId = null;
+  if (body.listId && isNotebookListId(body.listId)) {
+    membershipSectionId = body.sectionId || null;
+    membershipLabelId = await validateLabelForSection(db, body.listId, membershipSectionId, body.labelId);
+    if (membershipLabelId === false) return badRequest("label does not belong to section");
+  }
   const derivedFromResolved = await resolveDerivedFrom(db, body);
   if (!derivedFromResolved.ok) return badRequest(`derivedFrom word "${body.derivedFrom}" not found`);
   const derivedFromId = derivedFromResolved.id || null;
@@ -890,8 +982,8 @@ async function createWord(db, body) {
     const parsed = parseBranchNo(body.no);
     const { no, branch } = parsed || (await computeNoForNewMembership(db, body.listId, id));
     await db
-      .prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)")
-      .bind(body.listId, id, no, branch, body.sectionId || null)
+      .prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id, label_id) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(body.listId, id, no, branch, membershipSectionId, membershipLabelId)
       .run();
   }
   return json(await loadWordDetail(db, id), { status: 201 });
@@ -969,12 +1061,15 @@ async function upsertListItem(db, listId, wordId, body) {
   const parsed = parseBranchNo(body.no);
   if (!parsed) return badRequest('no is required (e.g. "42" or "42-1")');
 
+  const sectionId = body.sectionId || null;
+  const labelId = await validateLabelForSection(db, listId, sectionId, body.labelId);
+  if (labelId === false) return badRequest("label does not belong to section");
   await db
     .prepare(
-      `INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, ?, ?)
-       ON CONFLICT(list_id, word_id) DO UPDATE SET no = excluded.no, branch = excluded.branch, section_id = excluded.section_id`
+      `INSERT INTO list_items (list_id, word_id, no, branch, section_id, label_id) VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT(list_id, word_id) DO UPDATE SET no = excluded.no, branch = excluded.branch, section_id = excluded.section_id, label_id = excluded.label_id`
     )
-    .bind(listId, wordId, parsed.no, parsed.branch, body.sectionId || null)
+    .bind(listId, wordId, parsed.no, parsed.branch, sectionId, labelId)
     .run();
   return json({ ok: true });
 }
@@ -1934,6 +2029,18 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/sections/reorder
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "sections" && parts[4] === "reorder" && method === "POST") {
     return await reorderSections(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/labels
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "labels") {
+    if (method === "GET") return await listLabels(db, parts[2]);
+    if (method === "POST") return await createLabel(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/labels/:labelId
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "labels") {
+    if (method === "PUT") return await updateLabel(db, parts[2], parts[4], await request.json());
+    if (method === "DELETE") return await deleteLabel(db, parts[2], parts[4]);
   }
 
   // /api/lists/:listId/reorder （単語帳内の並び順・セクション所属をまとめて更新）
