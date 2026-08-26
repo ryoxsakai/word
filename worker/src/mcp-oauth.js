@@ -393,12 +393,16 @@ export async function verifyMcpAccess(request, env, requiredScopes = [MCP_READ_S
 }
 
 export function oauthErrorResponse(request, error, requiredScopes = [MCP_READ_SCOPE]) {
-  const origin = new URL(request.url).origin;
+  const url = new URL(request.url);
+  const origin = url.origin;
+  const resourcePath = url.pathname.replace(/\/+$/, "") === "/mcp" ? "/mcp" : "/mcp-write";
   const oauthError = error instanceof McpOAuthError ? error : new McpOAuthError("invalid_token", "Authentication failed");
   const challenge =
     'Bearer resource_metadata="' +
     origin +
-    '/.well-known/oauth-protected-resource/mcp-write", scope="' +
+    '/.well-known/oauth-protected-resource' +
+    resourcePath +
+    '", scope="' +
     requiredScopes.join(" ") +
     '", error="' +
     oauthError.code +
@@ -414,9 +418,14 @@ export async function handleOAuthRoute(request, env) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const origin = url.origin;
-  if (path === "/.well-known/oauth-protected-resource" || path === "/.well-known/oauth-protected-resource/mcp-write") {
+  if (
+    path === "/.well-known/oauth-protected-resource" ||
+    path === "/.well-known/oauth-protected-resource/mcp" ||
+    path === "/.well-known/oauth-protected-resource/mcp-write"
+  ) {
+    const resourcePath = path.endsWith("/mcp") ? "/mcp" : "/mcp-write";
     return json({
-      resource: origin + "/mcp-write",
+      resource: origin + resourcePath,
       authorization_servers: [origin],
       scopes_supported: MCP_SUPPORTED_SCOPES,
       bearer_methods_supported: ["header"],

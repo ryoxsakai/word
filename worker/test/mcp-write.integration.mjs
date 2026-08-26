@@ -66,6 +66,13 @@ try {
   assert.equal(protectedMetadata.status, 200);
   assert.deepEqual((await protectedMetadata.json()).scopes_supported, ["vocab:read", "vocab:write"]);
 
+  const combinedMetadata = await handleMcpRoute(
+    new Request("http://127.0.0.1/.well-known/oauth-protected-resource/mcp"),
+    env
+  );
+  assert.equal(combinedMetadata.status, 200);
+  assert.equal((await combinedMetadata.json()).resource, "http://127.0.0.1/mcp");
+
   const authorizationMetadata = await handleMcpRoute(
     new Request("http://127.0.0.1/.well-known/oauth-authorization-server"),
     env
@@ -187,10 +194,50 @@ try {
   );
   assert.equal(replay.status, 400);
 
-  const publicTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
-  assert.equal(publicTools.status, 200);
-  assert.equal(publicTools.body.result.tools.length, 10);
-  assert.ok(publicTools.body.result.tools.every((tool) => tool.annotations.readOnlyHint === true));
+  const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
+  assert.equal(combinedTools.status, 200);
+  assert.equal(combinedTools.body.result.tools.length, 44);
+  assert.equal(
+    combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
+    "noauth"
+  );
+  assert.equal(
+    combinedTools.body.result.tools.find((tool) => tool.name === "update_word").securitySchemes[0].type,
+    "oauth2"
+  );
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_label"));
+  assert.ok(
+    combinedTools.body.result.tools.some(
+      (tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint
+    )
+  );
+
+  const anonymousRead = await rpc(
+    env,
+    accessToken,
+    "/mcp",
+    33,
+    "tools/call",
+    { name: "list_notebooks", arguments: {} },
+    false
+  );
+  assert.equal(anonymousRead.status, 200);
+  assert.equal(anonymousRead.body.result.isError, false);
+
+  const combinedUnauthorizedWrite = await rpc(
+    env,
+    accessToken,
+    "/mcp",
+    34,
+    "tools/call",
+    { name: "create_notebook", arguments: { name: "Unauthorized combined write" } },
+    false
+  );
+  assert.equal(combinedUnauthorizedWrite.status, 401);
+  assert.equal(combinedUnauthorizedWrite.body.error, "invalid_token");
+  assert.match(combinedUnauthorizedWrite.headers.get("WWW-Authenticate"), /oauth-protected-resource\/mcp/);
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
