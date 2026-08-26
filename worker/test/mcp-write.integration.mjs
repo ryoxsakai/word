@@ -40,19 +40,28 @@ function toolResult(message) {
   return message.result.structuredContent;
 }
 
+function normalizeMigrationSql(sql) {
+  return sql
+    .replace(/^\s*--.*$/gm, "")
+    .split(";")
+    .map((statement) => statement.trim().replace(/\s+/g, " "))
+    .filter(Boolean)
+    .map((statement) => statement + ";")
+    .join("\n");
+}
+
 try {
   const db = await miniflare.getD1Database("DB");
   const migrationDir = new URL("../migrations/", import.meta.url);
   for (const filename of readdirSync(migrationDir).filter((name) => name.endsWith(".sql")).sort()) {
-    const sql = readFileSync(new URL(filename, migrationDir), "utf8").replace(/^\s*--.*$/gm, "");
-    const statements = sql
-      .split(";")
-      .map((statement) => statement.trim().replace(/\s+/g, " "))
-      .filter(Boolean)
-      .map((statement) => statement + ";")
-      .join("\n");
-    await db.exec(statements);
+    const sql = readFileSync(new URL(filename, migrationDir), "utf8");
+    await db.exec(normalizeMigrationSql(sql));
   }
+
+  await db.prepare("INSERT OR IGNORE INTO words (id, spelling) VALUES (?, ?)").bind("charge", "charge").run();
+  await db.prepare("INSERT OR IGNORE INTO words (id, spelling) VALUES (?, ?)").bind("credit", "credit").run();
+  const entryMigration = readFileSync(new URL("0021_expand_charge_credit.sql", migrationDir), "utf8");
+  await db.exec(normalizeMigrationSql(entryMigration));
 
   const chargeNounSenses = await db
     .prepare("SELECT meaning FROM senses WHERE word_id = 'charge' AND pos = '名' ORDER BY sort_order")
