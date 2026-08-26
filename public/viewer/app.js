@@ -2,6 +2,12 @@ import { renderMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
+import {
+  registerVocabWebMCP,
+  registeredWebMCPTools,
+  unregisterVocabWebMCP,
+  webMCPSupported,
+} from "./webmcp.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -644,6 +650,16 @@ function navigateToWord(id) {
   revealAndScroll(target);
 }
 
+async function openWordFromWebMCP(listId, wordId) {
+  if (state.currentListId !== listId || !state.words.some((word) => String(word.id) === String(wordId))) {
+    const notebookExists = state.lists.some((list) => list.id === listId);
+    if (!notebookExists) throw new Error("指定された単語帳が見つかりません。");
+    el.listSelect.value = listId;
+    await selectList(listId);
+  }
+  navigateToWord(wordId);
+}
+
 function applyHashScroll() {
   if (!location.hash.startsWith("#word-")) return;
   let target;
@@ -807,9 +823,18 @@ if (el.ptrIndicator) {
 
 // ---- 起動 ----
 
-loadLists().catch((err) => {
-  console.error(err);
-  el.loadingMsg.hidden = true;
-  el.emptyMsg.hidden = false;
-  el.emptyMsg.textContent = `読み込みエラー: ${err.message}`;
-});
+window.VocabWebMCP = {
+  supported: webMCPSupported,
+  register: () => registerVocabWebMCP({ api, openWord: openWordFromWebMCP }),
+  unregister: unregisterVocabWebMCP,
+  registeredTools: registeredWebMCPTools,
+};
+
+loadLists()
+  .then(() => registerVocabWebMCP({ api, openWord: openWordFromWebMCP }))
+  .catch((err) => {
+    console.error(err);
+    el.loadingMsg.hidden = true;
+    el.emptyMsg.hidden = false;
+    el.emptyMsg.textContent = `読み込みエラー: ${err.message}`;
+  });
