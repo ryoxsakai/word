@@ -281,6 +281,37 @@ export const WRITE_TOOLS = [
     },
   }),
   writeTool({
+    name: "create_label",
+    title: "ラベルを作成",
+    description: "指定セクション内に、単語を小分類するラベルを作成します。同じセクション内の同名ラベルは再利用します。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        section_id: { type: "integer", minimum: 1 },
+        name: { type: "string", minLength: 1, maxLength: 120 },
+      },
+      required: ["list_id", "section_id", "name"],
+      additionalProperties: false,
+    },
+  }),
+  writeTool({
+    name: "update_label",
+    title: "ラベルを更新",
+    description: "ラベル名または所属セクションを更新します。所属語も新しいセクションへ一緒に移動します。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        label_id: { type: "integer", minimum: 1 },
+        section_id: { type: "integer", minimum: 1 },
+        name: { type: "string", minLength: 1, maxLength: 120 },
+      },
+      required: ["list_id", "label_id"],
+      additionalProperties: false,
+    },
+  }),
+  writeTool({
     name: "create_words",
     title: "単語を一括登録",
     description:
@@ -345,6 +376,7 @@ export const WRITE_TOOLS = [
         list_id: { type: "string" },
         word_ids: { type: "array", minItems: 1, maxItems: 100, uniqueItems: true, items: { type: "string" } },
         section_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
+        label_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }], description: "指定時はsection_idに属するラベルへ移動" },
       },
       required: ["list_id", "word_ids", "section_id"],
       additionalProperties: false,
@@ -472,6 +504,13 @@ async function requireSection(db, listId, sectionId) {
 async function validateOptionalSection(db, listId, sectionId) {
   if (sectionId === undefined || sectionId === null || sectionId === "") return null;
   return (await requireSection(db, listId, sectionId)).id;
+}
+
+async function requireLabel(db, listId, sectionId, labelId) {
+  const id = positiveInteger(labelId, "label_id");
+  const row = await db.prepare("SELECT id, section_id AS sectionId, name, sort_order AS sortOrder FROM section_labels WHERE id = ? AND list_id = ? AND section_id = ?").bind(id, listId, sectionId).first();
+  if (!row) throw new Error("Label not found in section: " + id);
+  return row;
 }
 
 async function audit(db, auth, action, targetType, targetId, details) {
@@ -695,9 +734,10 @@ async function updateChapter(db, args, auth) {
 async function renumberListItemsToDisplayOrder(db, listId) {
   const rows = await db
     .prepare(
-      "SELECT li.word_id AS wordId, li.no, li.branch, li.section_id AS sectionId " +
+      "SELECT li.word_id AS wordId, li.no, li.branch, li.section_id AS sectionId, li.label_id AS labelId " +
         "FROM list_items li LEFT JOIN sections s ON s.id = li.section_id LEFT JOIN chapters c ON c.id = s.chapter_id " +
-        "WHERE li.list_id = ? ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), li.no, li.branch"
+        "LEFT JOIN section_labels sl ON sl.id = li.label_id " +
+        "WHERE li.list_id = ? ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch"
     )
     .bind(listId)
     .all();
@@ -707,7 +747,7 @@ async function renumberListItemsToDisplayOrder(db, listId) {
   for (const row of rows.results) {
     if (!familyPosition.has(row.no)) {
       nextNo += 1;
-      familyPosition.set(row.no, { no: nextNo, sectionId: row.sectionId ?? null });
+      familyPosition.set(row.no, { no: nextNo, sectionId: row.sectionId ?? null, labelId: row.labelId ?? null });
     }
   }
   const phaseOne = [];
@@ -718,8 +758,8 @@ async function renumberListItemsToDisplayOrder(db, listId) {
     phaseOne.push(db.prepare("UPDATE list_items SET no = ? WHERE list_id = ? AND word_id = ?").bind(-(index + 1), listId, row.wordId));
     phaseTwo.push(
       db
-        .prepare("UPDATE list_items SET no = ?, section_id = ? WHERE list_id = ? AND word_id = ?")
-        .bind(target.no, target.sectionId, listId, row.wordId)
+        .prepare("UPDATE list_items SET no = ?, section_id = ?, label_id = ? WHERE list_id = ? AND word_id = ?")
+        .bind(target.no, target.sectionId, target.labelId, listId, row.wordId)
     );
   }
   await db.batch(phaseOne);
@@ -823,6 +863,39 @@ async function reorderSections(db, args, auth) {
     sections: sections.map((item) => ({ sectionId: item.section_id, chapterId: item.chapter_id ?? null })),
   });
   return { updated: true, sectionCount: sections.length };
+}
+
+async function createLabel(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const section = await requireSection(db, notebook.id, args.section_id);
+  const name = requiredText(args.name, "name", 120);
+  const existing = await db.prepare("SELECT id, section_id AS sectionId, name, sort_order AS sortOrder FROM section_labels WHERE list_id = ? AND section_id = ? AND name = ? COLLATE NOCASE").bind(notebook.id, section.id, name).first();
+  if (existing) return { created: false, reason: "same_label_exists", label: existing };
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS maxSort FROM section_labels WHERE list_id = ? AND section_id = ?").bind(notebook.id, section.id).first();
+  const sortOrder = Number(row?.maxSort || 0) + 1;
+  const result = await db.prepare("INSERT INTO section_labels (list_id, section_id, name, sort_order) VALUES (?, ?, ?, ?)").bind(notebook.id, section.id, name, sortOrder).run();
+  const label = { id: Number(result.meta.last_row_id), sectionId: section.id, name, sortOrder };
+  await audit(db, auth, "create_label", "label", label.id, { listId: notebook.id, sectionId: section.id, name });
+  return { created: true, label };
+}
+
+async function updateLabel(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const id = positiveInteger(args.label_id, "label_id");
+  const current = await db.prepare("SELECT id, section_id AS sectionId, name FROM section_labels WHERE id = ? AND list_id = ?").bind(id, notebook.id).first();
+  if (!current) throw new Error("Label not found: " + id);
+  const sectionId = args.section_id === undefined ? Number(current.sectionId) : (await requireSection(db, notebook.id, args.section_id)).id;
+  const name = args.name === undefined ? current.name : requiredText(args.name, "name", 120);
+  if (args.section_id === undefined && args.name === undefined) throw new Error("At least one field to update is required");
+  const duplicate = await db.prepare("SELECT id FROM section_labels WHERE list_id = ? AND section_id = ? AND name = ? COLLATE NOCASE AND id != ?").bind(notebook.id, sectionId, name, id).first();
+  if (duplicate) throw new Error("A label with the same name already exists in the section");
+  await db.batch([
+    db.prepare("UPDATE section_labels SET section_id = ?, name = ? WHERE id = ? AND list_id = ?").bind(sectionId, name, id, notebook.id),
+    db.prepare("UPDATE list_items SET section_id = ? WHERE list_id = ? AND label_id = ?").bind(sectionId, notebook.id, id),
+  ]);
+  await renumberListItemsToDisplayOrder(db, notebook.id);
+  await audit(db, auth, "update_label", "label", id, { listId: notebook.id, sectionId, name });
+  return { updated: true, label: { id, sectionId, name } };
 }
 
 function validateWordInput(item, index, requireSpelling) {
@@ -1179,6 +1252,7 @@ async function addWordsToNotebook(db, args, auth) {
 async function moveWords(db, args, auth) {
   const notebook = await requireNotebook(db, args.list_id);
   const sectionId = await validateOptionalSection(db, notebook.id, args.section_id);
+  const labelId = args.label_id === undefined || args.label_id === null ? null : (await requireLabel(db, notebook.id, sectionId, args.label_id)).id;
   const ids = Array.isArray(args.word_ids) ? [...new Set(args.word_ids.map(String))] : [];
   if (!ids.length || ids.length > 100) throw new Error("word_ids must contain between 1 and 100 items");
   const moved = new Set();
@@ -1196,13 +1270,13 @@ async function moveWords(db, args, auth) {
       .prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ? AND no = ?")
       .bind(notebook.id, membership.no)
       .all();
-    await db.prepare("UPDATE list_items SET section_id = ? WHERE list_id = ? AND no = ?").bind(sectionId, notebook.id, membership.no).run();
+    await db.prepare("UPDATE list_items SET section_id = ?, label_id = ? WHERE list_id = ? AND no = ?").bind(sectionId, labelId, notebook.id, membership.no).run();
     for (const row of family.results) moved.add(String(row.wordId));
   }
   await renumberListItemsToDisplayOrder(db, notebook.id);
   const movedWordIds = [...moved];
-  await audit(db, auth, "move_words", "notebook", notebook.id, { wordIds: movedWordIds, sectionId, missing });
-  return { movedCount: movedWordIds.length, movedWordIds, missingWordIds: missing, sectionId };
+  await audit(db, auth, "move_words", "notebook", notebook.id, { wordIds: movedWordIds, sectionId, labelId, missing });
+  return { movedCount: movedWordIds.length, movedWordIds, missingWordIds: missing, sectionId, labelId };
 }
 
 async function removeWordsFromNotebook(db, args, auth) {
@@ -1270,6 +1344,8 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "create_section") return createSection(env.DB, args, auth);
   if (name === "update_section") return updateSection(env.DB, args, auth);
   if (name === "reorder_sections") return reorderSections(env.DB, args, auth);
+  if (name === "create_label") return createLabel(env.DB, args, auth);
+  if (name === "update_label") return updateLabel(env.DB, args, auth);
   if (name === "create_words") return createWords(env.DB, args, auth);
   if (name === "update_word") return updateWord(env.DB, args, auth);
   if (name === "add_words_to_notebook") return addWordsToNotebook(env.DB, args, auth);
