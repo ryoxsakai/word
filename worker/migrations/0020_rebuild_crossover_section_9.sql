@@ -178,11 +178,21 @@ WHERE id = 93 AND list_id = 'crossover-v3';
 DELETE FROM section_labels
 WHERE list_id = 'crossover-v3' AND section_id = 93;
 
-INSERT INTO section_labels (list_id, section_id, name, sort_order) VALUES
-  ('crossover-v3', 93, '誤認・許し', 1),
-  ('crossover-v3', 93, '非難・評価・賞罰・感謝', 2),
-  ('crossover-v3', 93, '交換・代用', 3),
-  ('crossover-v3', 93, '補償・資格・捜索', 4);
+INSERT INTO section_labels (list_id, section_id, name, sort_order)
+SELECT 'crossover-v3', 93, '誤認・許し', 1
+WHERE EXISTS (SELECT 1 FROM sections WHERE id = 93 AND list_id = 'crossover-v3');
+
+INSERT INTO section_labels (list_id, section_id, name, sort_order)
+SELECT 'crossover-v3', 93, '非難・評価・賞罰・感謝', 2
+WHERE EXISTS (SELECT 1 FROM sections WHERE id = 93 AND list_id = 'crossover-v3');
+
+INSERT INTO section_labels (list_id, section_id, name, sort_order)
+SELECT 'crossover-v3', 93, '交換・代用', 3
+WHERE EXISTS (SELECT 1 FROM sections WHERE id = 93 AND list_id = 'crossover-v3');
+
+INSERT INTO section_labels (list_id, section_id, name, sort_order)
+SELECT 'crossover-v3', 93, '補償・資格・捜索', 4
+WHERE EXISTS (SELECT 1 FROM sections WHERE id = 93 AND list_id = 'crossover-v3');
 
 -- 20語のマスターレコードを文法・読解用に整える。
 UPDATE words AS target
