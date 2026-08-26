@@ -53,6 +53,19 @@ try {
       .join("\n");
     await db.exec(statements);
   }
+
+  const chargeNounSenses = await db
+    .prepare("SELECT meaning FROM senses WHERE word_id = 'charge' AND pos = '名' ORDER BY sort_order")
+    .all();
+  assert.deepEqual(
+    chargeNounSenses.results.map((sense) => sense.meaning),
+    ["責任", "料金", "告発", "電荷"]
+  );
+  const creditedPhrase = await db
+    .prepare("SELECT translation FROM examples WHERE word_id = 'credit' AND sentence = 'be credited with A'")
+    .first();
+  assert.equal(creditedPhrase.translation, "Aをもたらしたと評価される");
+
   const env = {
     DB: db,
     VOCAB_MCP_API_KEY: "integration-api-key",
