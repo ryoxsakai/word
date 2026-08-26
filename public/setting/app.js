@@ -20,6 +20,8 @@ const state = {
   words: [],
   sections: [],
   currentSectionId: null,
+  labels: [],
+  currentLabelId: null,
   chapters: [],
   currentChapterId: null,
   currentWord: null,
@@ -55,6 +57,14 @@ const el = {
   sectionForm: document.getElementById("sectionForm"),
   sectionFieldSubtitle: document.getElementById("sectionFieldSubtitle"),
   sectionFieldDescription: document.getElementById("sectionFieldDescription"),
+  labelModalOverlay: document.getElementById("labelModalOverlay"),
+  labelEditPane: document.getElementById("labelEditPane"),
+  labelEditTitle: document.getElementById("labelEditTitle"),
+  labelSaveBtn: document.getElementById("labelSaveBtn"),
+  labelDeleteBtn: document.getElementById("labelDeleteBtn"),
+  labelCloseBtn: document.getElementById("labelCloseBtn"),
+  labelFieldSection: document.getElementById("labelFieldSection"),
+  labelFieldName: document.getElementById("labelFieldName"),
   chapterModalOverlay: document.getElementById("chapterModalOverlay"),
   chapterEditPane: document.getElementById("chapterEditPane"),
   chapterEditTitle: document.getElementById("chapterEditTitle"),
@@ -66,6 +76,7 @@ const el = {
   chapterFieldDescription: document.getElementById("chapterFieldDescription"),
   chapterFieldMoveBeforeSection: document.getElementById("chapterFieldMoveBeforeSection"),
   newChapterBtn: document.getElementById("newChapterBtn"),
+  newLabelBtn: document.getElementById("newLabelBtn"),
   listSelect: document.getElementById("listSelect"),
   listManageBtn: document.getElementById("listManageBtn"),
   listManageModalOverlay: document.getElementById("listManageModalOverlay"),
@@ -131,6 +142,7 @@ const el = {
   draftFromDictionaryBtn: document.getElementById("draftFromDictionaryBtn"),
   fieldDerivedFrom: document.getElementById("fieldDerivedFrom"),
   fieldSection: document.getElementById("fieldSection"),
+  fieldLabel: document.getElementById("fieldLabel"),
   sensesList: document.getElementById("sensesList"),
   derivativesList: document.getElementById("derivativesList"),
   examplesList: document.getElementById("examplesList"),
@@ -321,6 +333,8 @@ function updateListModeUi() {
   el.newChapterBtn.disabled = !notebook;
   el.newSectionBtn.hidden = !notebook;
   el.newSectionBtn.disabled = !notebook;
+  el.newLabelBtn.hidden = !notebook;
+  el.newLabelBtn.disabled = !notebook || state.sections.length === 0;
   el.moveToSectionBtn.hidden = !notebook;
   el.listSettingsBtn.hidden = !notebook;
   document.body.classList.toggle("view-master", master);
@@ -569,13 +583,17 @@ async function loadSectionsForList(listId) {
   if (isMasterView()) {
     state.sections = [];
     state.chapters = [];
+    state.labels = [];
     return;
   }
-  [state.sections, state.chapters] = await Promise.all([
+  [state.sections, state.chapters, state.labels] = await Promise.all([
     api(`/lists/${encodeURIComponent(listId)}/sections`),
     api(`/lists/${encodeURIComponent(listId)}/chapters`),
+    api(`/lists/${encodeURIComponent(listId)}/labels`),
   ]);
   renderSectionOptions();
+  renderLabelOptions();
+  updateListModeUi();
   // loadWordsForListと並行して呼ばれることが多いため、こちらが後に解決した場合でも
   // 単語一覧を再描画して最新のセクション・チャプター帯を反映する(先に解決した側の描画が
   // 古いsections/chaptersで上書きされたままにならないようにするため)。
@@ -611,8 +629,24 @@ function renderSectionOptions() {
   if ([...el.fieldSection.options].some((o) => o.value === current)) el.fieldSection.value = current;
 }
 
+function renderLabelOptions(preferredValue) {
+  const current = preferredValue === undefined ? el.fieldLabel.value : String(preferredValue || "");
+  const sectionId = el.fieldSection.value && el.fieldSection.value !== NEW_SECTION_VALUE ? Number(el.fieldSection.value) : null;
+  el.fieldLabel.innerHTML = '<option value="">なし</option>';
+  for (const label of state.labels.filter((item) => item.sectionId === sectionId)) {
+    const opt = document.createElement("option");
+    opt.value = String(label.id);
+    opt.textContent = label.name;
+    el.fieldLabel.appendChild(opt);
+  }
+  if ([...el.fieldLabel.options].some((o) => o.value === current)) el.fieldLabel.value = current;
+}
+
 async function handleSectionSelectChange() {
-  if (el.fieldSection.value !== NEW_SECTION_VALUE) return;
+  if (el.fieldSection.value !== NEW_SECTION_VALUE) {
+    renderLabelOptions();
+    return;
+  }
   try {
     const section = await api(`/lists/${encodeURIComponent(state.currentListId)}/sections`, {
       method: "POST",
@@ -623,6 +657,73 @@ async function handleSectionSelectChange() {
   } catch (err) {
     alert(`セクション作成に失敗しました: ${err.message}`);
     el.fieldSection.value = "";
+  }
+}
+
+async function createLabelInstant() {
+  if (!isNotebookView() || state.sections.length === 0) return;
+  state.currentLabelId = null;
+  el.labelEditTitle.textContent = "ラベルを追加";
+  el.labelDeleteBtn.hidden = true;
+  renderLabelSectionOptions(state.sections[0].id);
+  el.labelFieldName.value = "";
+  el.labelModalOverlay.hidden = false;
+  el.labelFieldName.focus();
+}
+
+function renderLabelSectionOptions(selectedId) {
+  el.labelFieldSection.innerHTML = "";
+  state.sections.forEach((section) => {
+    const opt = document.createElement("option");
+    opt.value = String(section.id);
+    opt.textContent = section.subtitle ? `${sectionDisplayName(section.id)} - ${section.subtitle}` : sectionDisplayName(section.id);
+    el.labelFieldSection.appendChild(opt);
+  });
+  el.labelFieldSection.value = String(selectedId || state.sections[0]?.id || "");
+}
+
+function openLabelEditor(labelId) {
+  const label = state.labels.find((item) => item.id === labelId);
+  if (!label) return;
+  state.currentLabelId = labelId;
+  el.labelEditTitle.textContent = `ラベルを編集: ${label.name}`;
+  el.labelDeleteBtn.hidden = false;
+  renderLabelSectionOptions(label.sectionId);
+  el.labelFieldName.value = label.name;
+  el.labelModalOverlay.hidden = false;
+}
+
+function closeLabelEditor() {
+  el.labelModalOverlay.hidden = true;
+  state.currentLabelId = null;
+}
+
+async function saveLabelEdit() {
+  const name = el.labelFieldName.value.trim();
+  if (!name) return alert("ラベル名を入力してください");
+  const body = { name, sectionId: Number(el.labelFieldSection.value) };
+  const path = state.currentLabelId
+    ? `/lists/${encodeURIComponent(state.currentListId)}/labels/${state.currentLabelId}`
+    : `/lists/${encodeURIComponent(state.currentListId)}/labels`;
+  try {
+    await api(path, { method: state.currentLabelId ? "PUT" : "POST", body: JSON.stringify(body) });
+    closeLabelEditor();
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+    showToast("ラベルを保存しました");
+  } catch (err) {
+    alert(`保存に失敗しました: ${err.message}`);
+  }
+}
+
+async function deleteLabelFromEditor() {
+  const label = state.labels.find((item) => item.id === state.currentLabelId);
+  if (!label || !confirm(`ラベル「${label.name}」を削除しますか？（単語はラベルなしになります）`)) return;
+  try {
+    await api(`/lists/${encodeURIComponent(state.currentListId)}/labels/${label.id}`, { method: "DELETE" });
+    closeLabelEditor();
+    await Promise.all([loadSectionsForList(state.currentListId), loadWordsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`削除に失敗しました: ${err.message}`);
   }
 }
 
@@ -766,14 +867,14 @@ function renderWordTableHead() {
 // state.wordsは既にサーバー側で(セクションの並び順, no, branch)順に並んでいる。
 // branch=0(派生語ファミリーの見出し)のみを取り出し、現在の並び順+所属セクションを返す。
 function getHeadWordOrder() {
-  return state.words.filter((w) => !w.branch).map((w) => ({ wordId: w.id, sectionId: w.sectionId ?? null }));
+  return state.words.filter((w) => !w.branch).map((w) => ({ wordId: w.id, sectionId: w.sectionId ?? null, labelId: w.labelId ?? null }));
 }
 
 async function submitReorder(order) {
   try {
     await api(`/lists/${encodeURIComponent(state.currentListId)}/reorder`, {
       method: "POST",
-      body: JSON.stringify({ items: order.map((it) => ({ wordId: it.wordId, sectionId: it.sectionId })) }),
+      body: JSON.stringify({ items: order.map((it) => ({ wordId: it.wordId, sectionId: it.sectionId, labelId: it.labelId ?? null })) }),
     });
     await loadWordsForList(state.currentListId);
   } catch (err) {
@@ -797,6 +898,7 @@ async function moveWordBy(wordId, direction) {
     order[targetIdx] = current;
   } else {
     current.sectionId = neighbor.sectionId;
+    current.labelId = neighbor.labelId;
   }
   await submitReorder(order);
 }
@@ -811,6 +913,7 @@ async function moveWordBeforeTarget(wordId, targetWordId) {
   const [moved] = order.splice(fromIdx, 1);
   const insertAt = order.findIndex((it) => it.wordId === targetWordId);
   moved.sectionId = order[insertAt].sectionId;
+  moved.labelId = order[insertAt].labelId;
   order.splice(insertAt, 0, moved);
   await submitReorder(order);
 }
@@ -825,7 +928,10 @@ function buildOrderWithWordsMovedToSection(wordIds, sectionId) {
   const order = getHeadWordOrder();
   const idSet = new Set(wordIds);
   const moving = order.filter((it) => idSet.has(it.wordId));
-  for (const it of moving) it.sectionId = sectionId;
+  for (const it of moving) {
+    it.sectionId = sectionId;
+    it.labelId = null;
+  }
 
   const sectionOrder = [null, ...state.sections.map((s) => s.id)];
   const groups = new Map(sectionOrder.map((id) => [id, []]));
@@ -1307,6 +1413,17 @@ function buildSectionBandRow(sectionId, sectionSubtitle, wordCount, collapsed) {
   return sectionTr;
 }
 
+function buildLabelBandRow(label, wordCount) {
+  const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
+  const tr = document.createElement("tr");
+  tr.className = "label-header-row section-band-clickable";
+  tr.dataset.labelId = String(label.id);
+  tr.title = "クリックしてラベル名・所属セクションを編集";
+  tr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text"><i class="fa-solid fa-tag" aria-hidden="true"></i><span class="section-band-name">${escapeHtml(label.name)}</span><span class="section-band-count">(${wordCount})</span></span></span></td>`;
+  tr.addEventListener("click", () => openLabelEditor(label.id));
+  return tr;
+}
+
 function buildChapterBandRow(chapterId, chapterSubtitle, wordCount, collapsed) {
   const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
   const chapterTr = document.createElement("tr");
@@ -1445,7 +1562,14 @@ function renderWordTable() {
     const collapsed = state.collapsedSectionIds.has(section.id);
     el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length, collapsed));
     if (!collapsed) {
-      for (const w of wordsInSection) el.wordTableBody.appendChild(buildWordRow(w));
+      const labels = state.labels.filter((label) => label.sectionId === section.id);
+      const unlabeled = wordsInSection.filter((w) => w.labelId == null);
+      for (const w of unlabeled) el.wordTableBody.appendChild(buildWordRow(w));
+      for (const label of labels) {
+        const labeledWords = wordsInSection.filter((w) => w.labelId === label.id);
+        el.wordTableBody.appendChild(buildLabelBandRow(label, labeledWords.length));
+        for (const w of labeledWords) el.wordTableBody.appendChild(buildWordRow(w));
+      }
     }
   };
 
@@ -1727,6 +1851,7 @@ function openNewWordForm() {
   setCautionButton(el.usageCautionBtn, false);
   el.fieldDerivedFrom.value = "";
   el.fieldSection.value = "";
+  renderLabelOptions("");
   clearRepeatList(el.sensesList);
   clearRepeatList(el.derivativesList);
   clearRepeatList(el.examplesList);
@@ -1780,6 +1905,7 @@ async function openWordEditor(wordId) {
   setCautionButton(el.usageCautionBtn, detail.usageCaution);
   el.fieldDerivedFrom.value = detail.derivedFrom ? detail.derivedFrom.spelling : "";
   el.fieldSection.value = membership?.sectionId != null ? String(membership.sectionId) : "";
+  renderLabelOptions(membership?.labelId ?? "");
 
   clearRepeatList(el.sensesList);
   (detail.senses.length ? detail.senses : [{}]).forEach((s) => addRow("senses", s));
@@ -1838,6 +1964,7 @@ async function saveWord() {
     return;
   }
   const sectionId = el.fieldSection.value && el.fieldSection.value !== NEW_SECTION_VALUE ? Number(el.fieldSection.value) : null;
+  const labelId = el.fieldLabel.value ? Number(el.fieldLabel.value) : null;
   const body = {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
@@ -1867,6 +1994,7 @@ async function saveWord() {
         body.listId = state.currentListId;
         body.no = el.fieldNo.value.trim() || null;
         body.sectionId = sectionId;
+        body.labelId = labelId;
       }
       word = await api("/words", { method: "POST", body: JSON.stringify(body) });
     } else {
@@ -1876,7 +2004,7 @@ async function saveWord() {
         isNotebookView() && el.fieldNo.value.trim()
           ? api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(wordId)}`, {
               method: "PUT",
-              body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId }),
+              body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId, labelId }),
             })
           : null;
       [word] = await Promise.all([
@@ -2282,6 +2410,7 @@ el.listSettingsSaveBtn.addEventListener("click", saveListSettings);
 el.newWordBtn.addEventListener("click", openNewWordForm);
 el.newChapterBtn.addEventListener("click", createChapterInstant);
 el.newSectionBtn.addEventListener("click", createSectionInstant);
+el.newLabelBtn.addEventListener("click", createLabelInstant);
 el.selectAllMasterBtn.addEventListener("click", selectAllMasterWords);
 el.clearSelectionBtn.addEventListener("click", clearWordSelection);
 el.addToNotebookBtn.addEventListener("click", addSelectedToNotebook);
@@ -2319,6 +2448,12 @@ el.saveBtn.addEventListener("click", saveWord);
 el.deleteBtn.addEventListener("click", deleteCurrentWord);
 el.closeBtn.addEventListener("click", closeEditor);
 el.fieldSection.addEventListener("change", handleSectionSelectChange);
+el.labelSaveBtn.addEventListener("click", saveLabelEdit);
+el.labelDeleteBtn.addEventListener("click", deleteLabelFromEditor);
+el.labelCloseBtn.addEventListener("click", closeLabelEditor);
+el.labelModalOverlay.addEventListener("click", (e) => {
+  if (e.target === el.labelModalOverlay) closeLabelEditor();
+});
 el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
 el.fieldSpelling.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
