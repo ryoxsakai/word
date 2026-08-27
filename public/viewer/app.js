@@ -449,10 +449,11 @@ function buildAlphabeticalIndex() {
 }
 
 function renderIndexEntryHtml(e) {
+  const locTitle = e.isRef ? ` title="${escapeHtml(e.loc)}"` : "";
   return `
     <div class="index-entry${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-word-id="${escapeHtml(e.targetId)}">
       <span class="index-word">${escapeHtml(e.spelling)}</span>
-      <span class="index-loc">${escapeHtml(e.loc)}</span>
+      <span class="index-loc"${locTitle}>${escapeHtml(e.loc)}</span>
     </div>`;
 }
 
