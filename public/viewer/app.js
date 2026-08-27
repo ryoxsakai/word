@@ -30,8 +30,11 @@ const state = {
 const el = {
   listSelect: document.getElementById("listSelect"),
   themeToggleBtn: document.getElementById("themeToggleBtn"),
+  settingsToggle: document.getElementById("settingsToggle"),
+  settingsMenu: document.getElementById("settingsMenu"),
   menuToggle: document.getElementById("menuToggle"),
-  topbarMenu: document.getElementById("topbarMenu"),
+  contentsMenu: document.getElementById("contentsMenu"),
+  contentsNav: document.getElementById("contentsNav"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
@@ -126,6 +129,7 @@ async function selectList(listId) {
     buildIndex();
     renderSectionNav();
     renderWords();
+    renderContentsNav();
     renderAlphabeticalIndex();
     setupSectionObserver();
     el.emptyMsg.hidden = state.words.length > 0;
@@ -507,6 +511,80 @@ function renderSectionNav() {
     .join("");
 }
 
+function renderContentsNav() {
+  const withChapters = hasAnyChapter();
+  const withSections = hasAnySection();
+  if (!withChapters && !withSections) {
+    el.contentsNav.innerHTML = '<p class="contents-empty">チャプター・セクションはありません。</p>';
+    return;
+  }
+
+  const chapters = [];
+  const chapterByKey = new Map();
+
+  for (const w of state.words) {
+    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
+    let chapter = chapterByKey.get(chapterKey);
+    if (!chapter) {
+      chapter = {
+        key: chapterKey,
+        name: w.chapterName || "その他",
+        subtitle: w.chapterSubtitle || "",
+        count: 0,
+        sections: [],
+        sectionByKey: new Map(),
+      };
+      chapterByKey.set(chapterKey, chapter);
+      chapters.push(chapter);
+    }
+    chapter.count += 1;
+
+    if (!withSections) continue;
+    const sectionKey = w.sectionId != null ? String(w.sectionId) : "none";
+    let section = chapter.sectionByKey.get(sectionKey);
+    if (!section) {
+      section = {
+        key: sectionKey,
+        name: w.sectionName || "その他",
+        subtitle: w.sectionSubtitle || "",
+        count: 0,
+      };
+      chapter.sectionByKey.set(sectionKey, section);
+      chapter.sections.push(section);
+    }
+    section.count += 1;
+  }
+
+  if (chapters.length === 0) {
+    el.contentsNav.innerHTML = '<p class="contents-empty">チャプター・セクションはありません。</p>';
+    return;
+  }
+
+  el.contentsNav.innerHTML = chapters
+    .map((chapter) => {
+      const chapterButton = withChapters
+        ? `<button type="button" class="contents-chapter" data-nav-target="chapter-${escapeHtml(chapter.key)}">
+            <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
+              chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
+            }</span>
+            <span class="contents-item-count">(${chapter.count})</span>
+          </button>`
+        : "";
+      const sections = chapter.sections
+        .map(
+          (section) => `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}" data-nav-target="section-${escapeHtml(section.key)}">
+            <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
+              section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
+            }</span>
+            <span class="contents-item-count">(${section.count})</span>
+          </button>`
+        )
+        .join("");
+      return `<div class="contents-group">${chapterButton}${sections}</div>`;
+    })
+    .join("");
+}
+
 function setupSectionObserver() {
   if (sectionObserver) sectionObserver.disconnect();
   const dividers = el.wordList.querySelectorAll(".section-divider");
@@ -671,19 +749,34 @@ function applyHashScroll() {
   if (target) setTimeout(() => revealAndScroll(target), 60);
 }
 
-// ---- ハンバーガーメニュー(検索・ジャンプ) ----
+// ---- 設定メニュー / チャプター・セクション一覧 ----
 
-function closeTopbarMenu() {
-  el.topbarMenu.classList.remove("is-open");
-  el.menuToggle.setAttribute("aria-expanded", "false");
-  el.menuToggle.setAttribute("aria-label", "メニューを開く");
+function closeSettingsMenu() {
+  el.settingsMenu.classList.remove("is-open");
+  el.settingsToggle.setAttribute("aria-expanded", "false");
+  el.settingsToggle.setAttribute("aria-label", "設定を開く");
 }
 
-function toggleTopbarMenu() {
-  const open = !el.topbarMenu.classList.contains("is-open");
-  el.topbarMenu.classList.toggle("is-open", open);
+function closeContentsMenu() {
+  el.contentsMenu.classList.remove("is-open");
+  el.menuToggle.setAttribute("aria-expanded", "false");
+  el.menuToggle.setAttribute("aria-label", "チャプター・セクション一覧を開く");
+}
+
+function toggleSettingsMenu() {
+  const open = !el.settingsMenu.classList.contains("is-open");
+  closeContentsMenu();
+  el.settingsMenu.classList.toggle("is-open", open);
+  el.settingsToggle.setAttribute("aria-expanded", String(open));
+  el.settingsToggle.setAttribute("aria-label", open ? "設定を閉じる" : "設定を開く");
+}
+
+function toggleContentsMenu() {
+  const open = !el.contentsMenu.classList.contains("is-open");
+  closeSettingsMenu();
+  el.contentsMenu.classList.toggle("is-open", open);
   el.menuToggle.setAttribute("aria-expanded", String(open));
-  el.menuToggle.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
+  el.menuToggle.setAttribute("aria-label", open ? "チャプター・セクション一覧を閉じる" : "チャプター・セクション一覧を開く");
 }
 
 // ---- イベント委譲 ----
@@ -732,20 +825,36 @@ el.jumpForm.addEventListener("submit", (e) => {
   }
   history.pushState(null, "", `#word-${target.dataset.wordId}`);
   revealAndScroll(target);
-  closeTopbarMenu();
+  closeSettingsMenu();
 });
 
+el.settingsToggle.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleSettingsMenu();
+});
 el.menuToggle.addEventListener("click", (e) => {
   e.stopPropagation();
-  toggleTopbarMenu();
+  toggleContentsMenu();
+});
+el.contentsNav.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-nav-target]");
+  if (!btn) return;
+  const target = document.getElementById(btn.dataset.navTarget);
+  if (!target) return;
+  if (state.activeView !== "list") setActiveView("list");
+  closeContentsMenu();
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 document.addEventListener("click", (e) => {
-  if (!el.topbarMenu.classList.contains("is-open")) return;
-  if (el.topbarMenu.contains(e.target) || el.menuToggle.contains(e.target)) return;
-  closeTopbarMenu();
+  if (el.settingsMenu.contains(e.target) || el.settingsToggle.contains(e.target)) return;
+  if (el.contentsMenu.contains(e.target) || el.menuToggle.contains(e.target)) return;
+  closeSettingsMenu();
+  closeContentsMenu();
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
+  if (e.key !== "Escape") return;
+  closeSettingsMenu();
+  closeContentsMenu();
 });
 
 window.addEventListener(
@@ -817,7 +926,7 @@ if (el.ptrIndicator) {
     indicatorEl: el.ptrIndicator,
     getScrollTop: () => window.scrollY || document.documentElement.scrollTop || 0,
     onRefresh: refreshCurrentList,
-    isBlocked: (target) => !!target.closest("#topbarMenu, #sectionNav"),
+    isBlocked: (target) => !!target.closest("#settingsMenu, #contentsMenu, #sectionNav"),
   });
 }
 
