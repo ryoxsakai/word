@@ -1,7 +1,7 @@
 -- MCPで再編したSection 1・4・5・20の見出し語順を確定する。
 -- 派生語の枝がある場合も、見出し語と同じ番号へまとめて移動する。
 
-CREATE TEMP TABLE crossover_reorder_0022 (
+CREATE TABLE crossover_reorder_0022 (
   word_id TEXT PRIMARY KEY,
   new_no INTEGER NOT NULL
 );
@@ -88,7 +88,7 @@ INSERT INTO crossover_reorder_0022 (word_id, new_no) VALUES
   ('keep', 399),
   ('leave', 400);
 
-CREATE TEMP TABLE crossover_reorder_items_0022 (
+CREATE TABLE crossover_reorder_items_0022 (
   word_id TEXT PRIMARY KEY,
   new_no INTEGER NOT NULL
 );
