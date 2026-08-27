@@ -47,6 +47,11 @@ const el = {
   themeToggleBtn: document.getElementById("themeToggleBtn"),
   menuToggle: document.getElementById("menuToggle"),
   topbarMenu: document.getElementById("topbarMenu"),
+  downloadCsvTemplateBtn: document.getElementById("downloadCsvTemplateBtn"),
+  importCsvBtn: document.getElementById("importCsvBtn"),
+  exportCsvBtn: document.getElementById("exportCsvBtn"),
+  csvImportInput: document.getElementById("csvImportInput"),
+  csvTargetListName: document.getElementById("csvTargetListName"),
   editModalOverlay: document.getElementById("editModalOverlay"),
   sectionModalOverlay: document.getElementById("sectionModalOverlay"),
   sectionEditPane: document.getElementById("sectionEditPane"),
@@ -339,6 +344,7 @@ function updateListModeUi() {
   el.listSettingsBtn.hidden = !notebook;
   document.body.classList.toggle("view-master", master);
   document.body.classList.toggle("view-notebook", notebook);
+  el.csvTargetListName.textContent = state.lists.find((l) => l.id === state.currentListId)?.name || "";
   updateEditorListFields();
 }
 
@@ -2326,11 +2332,225 @@ function closeListManageModal() {
   el.listManageModalOverlay.hidden = true;
 }
 
+// ---- CSVインポート・エクスポート ----
+// リスト一覧テーブルに表示している列とほぼ同じ並びにしている(インポートのテンプレートと
+// エクスポート結果が一致していれば、そのまま再インポートできるため)。
+const CSV_COLUMNS = [
+  { key: "spelling", header: "スペル" },
+  { key: "pos", header: "品詞" },
+  { key: "meaning", header: "意味" },
+  { key: "awl", header: "AWL" },
+  { key: "oxford", header: "Oxford" },
+  { key: "eiken", header: "英検" },
+  { key: "target1900", header: "1900" },
+  { key: "target1400", header: "1400" },
+  { key: "pronunciation", header: "発音" },
+  { key: "spellingCaution", header: "スペル注意" },
+  { key: "pronunciationCaution", header: "発音注意" },
+  { key: "accentCaution", header: "アクセント注意" },
+  { key: "polysemousCaution", header: "多義語" },
+  { key: "conjugationCaution", header: "活用注意" },
+  { key: "usageCaution", header: "語法注意" },
+];
+const CSV_CAUTION_KEYS = new Set(
+  CSV_COLUMNS.filter((c) => c.key.endsWith("Caution")).map((c) => c.key)
+);
+
+function csvEscapeField(value) {
+  const s = value == null ? "" : String(value);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function buildCsv(columns, rows) {
+  const lines = [columns.map((c) => csvEscapeField(c.header)).join(",")];
+  for (const row of rows) lines.push(columns.map((c) => csvEscapeField(row[c.key])).join(","));
+  return lines.join("\r\n");
+}
+
+// RFC4180ライクな簡易CSVパーサ。ダブルクォートで囲んだフィールド内のカンマ・改行・
+// エスケープされた""(→")に対応する。
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  const BOM = String.fromCharCode(0xfeff);
+  const src = text.startsWith(BOM) ? text.slice(BOM.length) : text;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') {
+          field += '"';
+          i += 1;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && src[i + 1] === "\n") i += 1;
+      row.push(field);
+      field = "";
+      rows.push(row);
+      row = [];
+    } else {
+      field += ch;
+    }
+  }
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((r) => !(r.length === 1 && r[0].trim() === ""));
+}
+
+function sanitizeFilename(name) {
+  return String(name).replace(/[\\/:*?"<>|]+/g, "_").trim() || "word_list";
+}
+
+function triggerCsvDownload(filename, csvText) {
+  // ExcelでUTF-8として文字化けせず開けるようにBOMを付ける。
+  const blob = new Blob([String.fromCharCode(0xfeff), csvText], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadCsvTemplate() {
+  closeTopbarMenu();
+  const sampleRow = {
+    spelling: "abandon",
+    pos: "他",
+    meaning: "を捨てる",
+    awl: "8",
+    pronunciation: "/əbǽndən/",
+  };
+  triggerCsvDownload("word_import_template.csv", buildCsv(CSV_COLUMNS, [sampleRow]));
+}
+
+function wordToCsvRow(w) {
+  const row = {
+    spelling: w.spelling,
+    pos: w.primaryPos || "",
+    meaning: w.primaryMeaning || "",
+    awl: w.awlSublist || "",
+    oxford: w.oxfordLevel || "",
+    eiken: w.eiken || "",
+    target1900: w.target1900No || "",
+    target1400: w.target1400No || "",
+    pronunciation: w.pronunciation || "",
+  };
+  for (const key of CSV_CAUTION_KEYS) row[key] = w[key] ? "1" : "";
+  return row;
+}
+
+// マスター一覧はページング読み込みのため、エクスポート時は現在の絞り込み条件のまま
+// 全ページを辿って集める(state.wordsは読み込み済み分だけしか持っていないため)。
+async function fetchAllMasterWordsForExport() {
+  const all = [];
+  let offset = 0;
+  while (true) {
+    const result = await api(`/master/words?${buildMasterQuery(offset)}`);
+    all.push(...result.words);
+    offset += result.words.length;
+    if (!result.hasMore || result.words.length === 0) break;
+  }
+  return all;
+}
+
+async function exportCurrentListToCsv() {
+  if (!state.currentListId) return;
+  closeTopbarMenu();
+  try {
+    const words = isMasterView() ? await fetchAllMasterWordsForExport() : state.words;
+    if (words.length === 0) {
+      alert("エクスポートする単語がありません。");
+      return;
+    }
+    const rows = words.map(wordToCsvRow);
+    const listName = state.lists.find((l) => l.id === state.currentListId)?.name || "word_list";
+    triggerCsvDownload(`${sanitizeFilename(listName)}.csv`, buildCsv(CSV_COLUMNS, rows));
+  } catch (err) {
+    alert(`エクスポートに失敗しました: ${err.message}`);
+  }
+}
+
+function isTruthyCsvFlag(raw) {
+  const v = raw.trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes" || v === "○" || v === "y";
+}
+
+// ヘッダー行を見て列を対応付ける(テンプレートと列順・列数が変わっていても、
+// 見出しの文言さえ一致していれば正しく取り込めるようにするため)。
+function csvRowsToImportPayload(table) {
+  const header = table[0].map((h) => h.trim());
+  const keyByHeader = new Map(CSV_COLUMNS.map((c) => [c.header, c.key]));
+  const colKeys = header.map((h) => keyByHeader.get(h) || null);
+  return table
+    .slice(1)
+    .map((cells) => {
+      const obj = {};
+      colKeys.forEach((key, i) => {
+        if (!key) return;
+        const raw = (cells[i] ?? "").trim();
+        obj[key] = CSV_CAUTION_KEYS.has(key) ? isTruthyCsvFlag(raw) : raw;
+      });
+      return obj;
+    })
+    .filter((obj) => obj.spelling);
+}
+
+async function importCsvFile(file) {
+  try {
+    const text = await file.text();
+    const table = parseCsv(text);
+    if (table.length === 0) {
+      alert("CSVにデータがありません。");
+      return;
+    }
+    const rows = csvRowsToImportPayload(table);
+    if (rows.length === 0) {
+      alert("インポートできる行がありません。スペル列が空でないか、テンプレートの見出し行と一致しているか確認してください。");
+      return;
+    }
+    const listId = isNotebookView() ? state.currentListId : null;
+    const result = await api("/import-words", { method: "POST", body: JSON.stringify({ listId, rows }) });
+    const parts = [`新規作成 ${result.created}件`, `既存の単語 ${result.existed}件`];
+    if (listId) parts.push(`リストへ追加 ${result.added}件`, `リストに既存 ${result.alreadyInList}件`);
+    showToast(`インポート完了: ${parts.join(" / ")}`);
+    await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  } catch (err) {
+    alert(`インポートに失敗しました: ${err.message}`);
+  }
+}
+
 // ---- イベント登録 ----
 
 el.menuToggle.addEventListener("click", (e) => {
   e.stopPropagation();
   toggleTopbarMenu();
+});
+el.downloadCsvTemplateBtn.addEventListener("click", downloadCsvTemplate);
+el.exportCsvBtn.addEventListener("click", exportCurrentListToCsv);
+el.importCsvBtn.addEventListener("click", () => el.csvImportInput.click());
+el.csvImportInput.addEventListener("change", async () => {
+  const file = el.csvImportInput.files?.[0];
+  el.csvImportInput.value = "";
+  if (!file) return;
+  closeTopbarMenu();
+  await importCsvFile(file);
 });
 document.addEventListener("click", (e) => {
   if (!el.topbarMenu.classList.contains("is-open")) return;

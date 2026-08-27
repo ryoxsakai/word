@@ -74,6 +74,22 @@ async function uniqueWordId(db, spelling) {
   }
 }
 
+// uniqueWordIdと同様だが、まだDBへcommitしていない同一バッチ内のidとも衝突しないようにする
+// (CSV一括インポートなどでslugifyの結果が同じになる複数のspellingを一度に作るケース用)。
+async function uniqueWordIdAvoiding(db, spelling, usedIds) {
+  const base = slugify(spelling);
+  let id = base;
+  let n = 2;
+  while (true) {
+    if (!usedIds.has(id)) {
+      const row = await db.prepare("SELECT 1 FROM words WHERE id = ?").bind(id).first();
+      if (!row) return id;
+    }
+    id = `${base}-${n}`;
+    n += 1;
+  }
+}
+
 async function resolveWordIdBySpelling(db, spelling) {
   if (!spelling) return null;
   const row = await db.prepare("SELECT id FROM words WHERE spelling = ? COLLATE NOCASE").bind(spelling).first();
@@ -1117,6 +1133,140 @@ async function addWordsToList(db, listId, body) {
   return json({ added, skipped });
 }
 
+// ---- CSVインポート ----
+// spelling以外は全て任意。同じspellingの単語が既に存在する場合は内容を上書きせず、
+// (listIdが指定されていれば)そのリストへの追加だけ行う。CSV内で同じspellingが重複していたら
+// 最初の行だけを採用する。
+const IMPORT_CSV_TAG_COLUMNS = [
+  ["awl", "awl"],
+  ["oxford", "oxford5000"],
+  ["eiken", "eiken"],
+  ["target1900", "target1900"],
+  ["target1400", "target1400"],
+];
+const IMPORT_CSV_CAUTION_COLUMNS = [
+  ["spellingCaution", "spelling_caution"],
+  ["pronunciationCaution", "pronunciation_caution"],
+  ["accentCaution", "accent_caution"],
+  ["polysemousCaution", "polysemous_caution"],
+  ["conjugationCaution", "conjugation_caution"],
+  ["usageCaution", "usage_caution"],
+];
+
+async function importWordsFromRows(db, body) {
+  const rawRows = Array.isArray(body.rows) ? body.rows : [];
+  const cleaned = rawRows
+    .map((r) => ({ ...r, spelling: String(r.spelling || "").trim() }))
+    .filter((r) => r.spelling);
+  if (cleaned.length === 0) return badRequest("有効な行がありません(spellingが必須です)");
+
+  const listId = body.listId && isNotebookListId(body.listId) ? body.listId : null;
+  if (listId) {
+    const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+    if (!list) return notFound("list not found");
+  }
+
+  // CSV内で同じspellingが重複していたら最初の行だけを採用する
+  const uniqueRows = [];
+  const seenSpellings = new Set();
+  for (const row of cleaned) {
+    const key = row.spelling.toLowerCase();
+    if (seenSpellings.has(key)) continue;
+    seenSpellings.add(key);
+    uniqueRows.push(row);
+  }
+
+  const idBySpelling = await fetchExistingWordIdsBySpelling(db, uniqueRows.map((r) => r.spelling));
+  const usedIds = new Set(idBySpelling.values());
+
+  // 新規作成する行のslugify候補idをまとめて衝突チェックする。1行ずつSELECTすると、大きめのCSV
+  // (1900語リストなど)を取り込んだ際にD1の1リクエストあたりのサブリクエスト数上限に達して
+  // インポート全体が失敗してしまうため、ここで一括取得し、衝突しない大多数の行はDBに問い合わせない。
+  const newRows = uniqueRows.filter((row) => !idBySpelling.has(row.spelling.toLowerCase()));
+  const candidateBaseBySpelling = new Map(newRows.map((row) => [row.spelling.toLowerCase(), slugify(row.spelling)]));
+  const takenIds = await fetchExistingIds(db, [...new Set(candidateBaseBySpelling.values())]);
+
+  const wordInserts = [];
+  const senseInserts = [];
+  const tagInserts = [];
+  const orderedWordIds = [];
+  let created = 0;
+  let existed = 0;
+
+  for (const row of uniqueRows) {
+    const key = row.spelling.toLowerCase();
+    let wordId = idBySpelling.get(key);
+    if (!wordId) {
+      const base = candidateBaseBySpelling.get(key);
+      // 候補idが既存の単語(スペル違いでたまたま同じidになる場合)やこのバッチ内の他の行と
+      // 衝突していない、大多数のケースではDBに問い合わせずそのまま使う。
+      wordId = !takenIds.has(base) && !usedIds.has(base) ? base : await uniqueWordIdAvoiding(db, row.spelling, usedIds);
+      usedIds.add(wordId);
+      idBySpelling.set(key, wordId);
+
+      wordInserts.push(
+        db
+          .prepare(
+            `INSERT INTO words (id, spelling, pronunciation, notes,
+                                 spelling_caution, pronunciation_caution, accent_caution,
+                                 polysemous_caution, conjugation_caution, usage_caution)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+          .bind(
+            wordId,
+            row.spelling,
+            row.pronunciation || null,
+            row.notes || null,
+            ...IMPORT_CSV_CAUTION_COLUMNS.map(([field]) => (row[field] ? 1 : 0))
+          )
+      );
+      if (row.meaning) {
+        senseInserts.push(
+          db
+            .prepare("INSERT INTO senses (word_id, pos, meaning, is_primary, sort_order) VALUES (?, ?, ?, 1, 0)")
+            .bind(wordId, row.pos || null, row.meaning)
+        );
+      }
+      for (const [field, tagKey] of IMPORT_CSV_TAG_COLUMNS) {
+        const value = String(row[field] ?? "").trim();
+        if (value) tagInserts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)").bind(wordId, tagKey, value));
+      }
+      created += 1;
+    } else {
+      existed += 1;
+    }
+    orderedWordIds.push(wordId);
+  }
+  await runBatched(db, wordInserts);
+  await runBatched(db, senseInserts);
+  await runBatched(db, tagInserts);
+
+  let added = 0;
+  let alreadyInList = 0;
+  if (listId) {
+    const { results: existingItems } = await db.prepare("SELECT word_id AS wordId FROM list_items WHERE list_id = ?").bind(listId).all();
+    const existingSet = new Set(existingItems.map((r) => r.wordId));
+    const row = await db.prepare("SELECT COALESCE(MAX(no), 0) AS maxNo FROM list_items WHERE list_id = ?").bind(listId).first();
+    let nextNo = (row?.maxNo || 0) + 1;
+    const listInserts = [];
+    for (const wordId of orderedWordIds) {
+      if (existingSet.has(wordId)) {
+        alreadyInList += 1;
+        continue;
+      }
+      existingSet.add(wordId);
+      listInserts.push(
+        db.prepare("INSERT INTO list_items (list_id, word_id, no, branch, section_id) VALUES (?, ?, ?, 0, NULL)").bind(listId, wordId, nextNo)
+      );
+      nextNo += 1;
+      added += 1;
+    }
+    await runBatched(db, listInserts);
+  }
+
+  return json({ created, existed, added, alreadyInList });
+}
+
 // ---- 単語帳(リスト)の作成方法: 範囲コピー / タグ一括抽出 ----
 
 async function copyRange(db, targetListId, body) {
@@ -1223,6 +1373,17 @@ async function fetchExistingWordIdsBySpelling(db, spellings) {
     for (const row of results) map.set(row.spelling.toLowerCase(), row.id);
   }
   return map;
+}
+
+// idの配列のうち、既にwordsテーブルに存在するものだけをまとめて引く。
+async function fetchExistingIds(db, ids) {
+  const set = new Set();
+  for (const part of chunkArray(ids, 90)) {
+    const placeholders = part.map(() => "?").join(",");
+    const { results } = await db.prepare(`SELECT id FROM words WHERE id IN (${placeholders})`).bind(...part).all();
+    for (const row of results) set.add(row.id);
+  }
+  return set;
 }
 
 // word_idの配列のうち、指定tag_keyのタグが既についているものをまとめて引く。
@@ -2108,6 +2269,11 @@ async function handleApi(request, env, parts, method) {
   // /api/words
   if (parts.length === 2 && parts[1] === "words" && method === "POST") {
     return await createWord(db, await request.json());
+  }
+
+  // /api/import-words （CSVインポート）
+  if (parts.length === 2 && parts[1] === "import-words" && method === "POST") {
+    return await importWordsFromRows(db, await request.json());
   }
 
   // /api/words/:id
