@@ -394,12 +394,13 @@ function renderWords() {
       lastLabelKey = undefined;
       const sectionTone = `section-tone-${toneBySectionKey.get(key)}`;
       const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
+      const chapterFrameId = chapterMarkup ? ` id="chapter-frame-${escapeHtml(chapterKey)}"` : "";
       const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
         w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
       }<span class="section-count">(${countByKey.get(key)})</span>`;
       const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
       parts.push(
-        `<section class="section-group ${sectionTone}${chapterClass}" data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" aria-labelledby="section-${escapeHtml(key)}">`,
+        `<section class="section-group ${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" aria-labelledby="section-${escapeHtml(key)}">`,
         chapterMarkup,
         `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
       );
@@ -582,8 +583,9 @@ function renderContentsNav() {
 
   el.contentsNav.innerHTML = chapters
     .map((chapter) => {
+      const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
       const chapterButton = withChapters
-        ? `<button type="button" class="contents-chapter" data-nav-target="chapter-${escapeHtml(chapter.key)}">
+        ? `<button type="button" class="contents-chapter" data-nav-target="${escapeHtml(chapterTarget)}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
               chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
             }</span>
