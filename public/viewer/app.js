@@ -198,7 +198,7 @@ function wordHaystack(w) {
   return parts.filter(Boolean).join(" ").toLowerCase();
 }
 
-function renderEntry(w, sectionTone = "") {
+function renderEntry(w) {
   const isBranch = w.branch > 0;
   const haystack = wordHaystack(w);
 
@@ -310,7 +310,7 @@ function renderEntry(w, sectionTone = "") {
   ].join("");
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}${sectionTone ? ` ${sectionTone}` : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
@@ -367,9 +367,18 @@ function renderWords() {
   let lastKey;
   let lastChapterKey;
   let lastLabelKey;
+  let sectionOpen = false;
   const parts = [];
   for (const w of state.words) {
     const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
+    const key = w.sectionId != null ? String(w.sectionId) : "none";
+    const sectionChanged = withSections && key !== lastKey;
+
+    if (sectionChanged && sectionOpen) {
+      parts.push("</section>");
+      sectionOpen = false;
+    }
+
     if (withChapters && chapterKey !== lastChapterKey) {
       lastChapterKey = chapterKey;
       const titleLine = `<span class="chapter-title">${escapeHtml(w.chapterName || "その他")}</span>${
@@ -380,17 +389,19 @@ function renderWords() {
         `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`
       );
     }
-    const key = w.sectionId != null ? String(w.sectionId) : "none";
-    if (withSections && key !== lastKey) {
+    if (sectionChanged) {
       lastKey = key;
       lastLabelKey = undefined;
+      const sectionTone = `section-tone-${toneBySectionKey.get(key)}`;
       const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
         w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
       }<span class="section-count">(${countByKey.get(key)})</span>`;
       const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
       parts.push(
+        `<section class="section-group ${sectionTone}" data-section-key="${escapeHtml(key)}" aria-labelledby="section-${escapeHtml(key)}">`,
         `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
       );
+      sectionOpen = true;
     }
     const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
     if (withLabels && w.labelId != null && labelKey !== lastLabelKey) {
@@ -399,9 +410,9 @@ function renderWords() {
     } else if (w.labelId == null) {
       lastLabelKey = labelKey;
     }
-    const sectionTone = withSections ? `section-tone-${toneBySectionKey.get(key)}` : "";
-    parts.push(renderEntry(w, sectionTone));
+    parts.push(renderEntry(w));
   }
+  if (sectionOpen) parts.push("</section>");
   el.wordList.innerHTML = parts.join("");
   applyFilters();
 }
@@ -623,6 +634,50 @@ function applyFilters() {
     const haystack = entry.dataset.haystack || "";
     entry.hidden = !(!q || haystack.includes(q));
   });
+
+  const sectionGroups = [...el.wordList.querySelectorAll(".section-group")];
+  if (sectionGroups.length > 0) {
+    for (const group of sectionGroups) {
+      const groupChildren = [...group.children];
+      const hasVisibleEntry = groupChildren.some((child) => child.classList.contains("entry") && !child.hidden);
+      const sectionDivider = group.querySelector(":scope > .section-divider");
+      if (sectionDivider) sectionDivider.hidden = !hasVisibleEntry;
+
+      for (let i = 0; i < groupChildren.length; i += 1) {
+        const labelDivider = groupChildren[i];
+        if (!labelDivider.classList.contains("label-divider")) continue;
+        let labelHasVisibleEntry = false;
+        for (let j = i + 1; j < groupChildren.length; j += 1) {
+          const next = groupChildren[j];
+          if (next.classList.contains("label-divider")) break;
+          if (next.classList.contains("entry") && !next.hidden) {
+            labelHasVisibleEntry = true;
+            break;
+          }
+        }
+        labelDivider.hidden = !labelHasVisibleEntry;
+      }
+
+      group.hidden = !hasVisibleEntry;
+    }
+
+    const topLevelChildren = [...el.wordList.children];
+    for (let i = 0; i < topLevelChildren.length; i += 1) {
+      const chapterDivider = topLevelChildren[i];
+      if (!chapterDivider.classList.contains("chapter-divider")) continue;
+      let chapterHasVisibleSection = false;
+      for (let j = i + 1; j < topLevelChildren.length; j += 1) {
+        const next = topLevelChildren[j];
+        if (next.classList.contains("chapter-divider")) break;
+        if (next.classList.contains("section-group") && !next.hidden) {
+          chapterHasVisibleSection = true;
+          break;
+        }
+      }
+      chapterDivider.hidden = !chapterHasVisibleSection;
+    }
+    return;
+  }
 
   const children = [...el.wordList.children];
   for (let i = 0; i < children.length; i += 1) {

@@ -452,8 +452,20 @@ button { font-family: inherit; }
 .index-entry.is-ref .index-loc { font-style: italic; }
 .index-empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
 
+.section-group {
+  margin: 1.4rem -0.55rem 0;
+  padding: 0.01rem 0.55rem 0.4rem;
+  border-radius: 8px;
+}
+.section-group.section-tone-1 { background: var(--section-bg-1); }
+.section-group.section-tone-2 { background: var(--section-bg-2); }
+.section-group.section-tone-3 { background: var(--section-bg-3); }
+.section-group.section-tone-4 { background: var(--section-bg-4); }
+.section-group.section-tone-5 { background: var(--section-bg-5); }
+.section-group.section-tone-6 { background: var(--section-bg-6); }
+
 .section-divider {
-  margin: 1.4rem 0 0.6rem;
+  margin: 0 0 0.6rem;
   padding: 0.55rem 0.85rem;
   background: linear-gradient(135deg, var(--title-bg-1), var(--title-bg-2));
   border: 1px solid var(--title-border);
@@ -525,12 +537,6 @@ button { font-family: inherit; }
   border-bottom: 1px dashed var(--border);
   scroll-margin-top: 6.2rem;
 }
-.entry.section-tone-1 { background: var(--section-bg-1); }
-.entry.section-tone-2 { background: var(--section-bg-2); }
-.entry.section-tone-3 { background: var(--section-bg-3); }
-.entry.section-tone-4 { background: var(--section-bg-4); }
-.entry.section-tone-5 { background: var(--section-bg-5); }
-.entry.section-tone-6 { background: var(--section-bg-6); }
 .entry.branch-entry .entry-no { color: var(--text-muted); font-size: 0.9rem; }
 .entry.flash { animation: flash-highlight 1.6s ease; }
 @keyframes flash-highlight {
@@ -938,7 +944,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-group, .section-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -948,7 +954,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     break-inside: avoid;
     box-shadow: none;
   }
-  .section-divider:not(:first-of-type) {
+  .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
   }
