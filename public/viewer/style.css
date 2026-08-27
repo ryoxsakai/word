@@ -17,13 +17,13 @@
   --mark-bg: #ffe58a;
   --danger: #c0392b;
   --pos-border: #2f8fae;
-  /* セクションごとに循環させる、ごく薄いパステル背景 */
-  --section-bg-1: #fffdf7;
-  --section-bg-2: #f7fcfa;
-  --section-bg-3: #f7faff;
-  --section-bg-4: #fbf8ff;
-  --section-bg-5: #fff8fa;
-  --section-bg-6: #f9fcf5;
+  /* セクションごとに循環させる、淡いパステル背景 */
+  --section-bg-1: #fff8e8;
+  --section-bg-2: #eef9f4;
+  --section-bg-3: #eef5ff;
+  --section-bg-4: #f5efff;
+  --section-bg-5: #fff0f4;
+  --section-bg-6: #f2f9e9;
   /* 設定ページと色味を揃えたトップバー専用のパレット */
   --topbar-bg: #ffffff;
   --topbar-border: #e2e6ef;
@@ -50,12 +50,12 @@
   --accent-strong: #ff9a6a;
   --mark-bg: #6b5a20;
   --pos-border: #4fa8c9;
-  --section-bg-1: #1b1915;
-  --section-bg-2: #141c19;
-  --section-bg-3: #151a20;
-  --section-bg-4: #1b1720;
-  --section-bg-5: #1e171a;
-  --section-bg-6: #181d14;
+  --section-bg-1: #211c14;
+  --section-bg-2: #14231e;
+  --section-bg-3: #16212c;
+  --section-bg-4: #21192b;
+  --section-bg-5: #28181e;
+  --section-bg-6: #1d2616;
   --topbar-bg: #1a1d26;
   --topbar-border: #2e3340;
   --topbar-text: #eceef3;
@@ -81,12 +81,12 @@
     --accent-strong: #ff9a6a;
     --mark-bg: #6b5a20;
     --pos-border: #4fa8c9;
-    --section-bg-1: #1b1915;
-    --section-bg-2: #141c19;
-    --section-bg-3: #151a20;
-    --section-bg-4: #1b1720;
-    --section-bg-5: #1e171a;
-    --section-bg-6: #181d14;
+    --section-bg-1: #211c14;
+    --section-bg-2: #14231e;
+    --section-bg-3: #16212c;
+    --section-bg-4: #21192b;
+    --section-bg-5: #28181e;
+    --section-bg-6: #1d2616;
     --topbar-bg: #1a1d26;
     --topbar-border: #2e3340;
     --topbar-text: #eceef3;
@@ -453,9 +453,8 @@ button { font-family: inherit; }
 .index-empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
 
 .section-group {
-  margin: 1.4rem -0.55rem 0;
-  padding: 0.01rem 0.55rem 0.4rem;
-  border-radius: 8px;
+  margin: 1.4rem -0.9rem 0;
+  padding: 0;
 }
 .section-group.section-tone-1 { background: var(--section-bg-1); }
 .section-group.section-tone-2 { background: var(--section-bg-2); }
@@ -463,6 +462,11 @@ button { font-family: inherit; }
 .section-group.section-tone-4 { background: var(--section-bg-4); }
 .section-group.section-tone-5 { background: var(--section-bg-5); }
 .section-group.section-tone-6 { background: var(--section-bg-6); }
+
+/* 背景だけを一覧の端まで広げ、各要素の読み始める位置は従来どおりに保つ */
+.section-group > .section-divider { margin-right: 0.9rem; margin-left: 0.9rem; }
+.section-group > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
+.section-group > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
 
 .section-divider {
   margin: 0 0 0.6rem;
@@ -936,6 +940,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   body { padding: 0 !important; background: #fff !important; }
   .word-list { max-width: 100%; padding: 0; }
   .index-list { max-width: 100%; padding: 0; }
+  .section-group { margin-right: 0; margin-left: 0; }
+  .section-group > .section-divider { margin-right: 0; margin-left: 0; }
+  .section-group > .label-divider { margin-right: 0; margin-left: 0.65rem; }
+  .section-group > .entry { margin-right: 0; margin-left: 0; }
   .index-columns {
     columns: 2 !important;
     column-gap: 1.1rem;
