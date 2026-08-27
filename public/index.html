@@ -21,13 +21,16 @@
     <div class="toolbar-controls">
       <select id="listSelect" aria-label="リストを選択"></select>
     </div>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
+    <button type="button" class="icon-toggle settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsMenu" aria-label="設定を開く">
+      <i class="fa-solid fa-gear" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="contentsMenu" aria-label="チャプター・セクション一覧を開く">
       <span class="menu-toggle-bar"></span>
       <span class="menu-toggle-bar"></span>
       <span class="menu-toggle-bar"></span>
     </button>
   </div>
-  <div class="topbar-row topbar-row--secondary" id="topbarMenu">
+  <div class="topbar-row topbar-row--secondary" id="settingsMenu">
     <div class="search-row">
       <input id="searchInput" type="search" placeholder="スペル・意味・タグで検索" autocomplete="off" />
     </div>
@@ -50,6 +53,10 @@
       <span class="theme-label">テーマ</span>
       <button id="themeToggleBtn" type="button" class="chip-toggle" title="ダーク/ライト切り替え">ダーク</button>
     </div>
+  </div>
+  <div class="topbar-row topbar-row--contents" id="contentsMenu">
+    <div class="contents-menu-heading">チャプター・セクション</div>
+    <nav id="contentsNav" class="contents-nav" aria-label="チャプター・セクション一覧"></nav>
   </div>
 </header>
 
