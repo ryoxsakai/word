@@ -456,6 +456,8 @@ button { font-family: inherit; }
   margin: 0 -0.9rem;
   padding: 0;
 }
+.section-group + .section-group { padding-top: 1.4rem; }
+.section-group.has-chapter-divider { padding-top: 2rem; }
 .section-group.section-tone-1 { background: var(--section-bg-1); }
 .section-group.section-tone-2 { background: var(--section-bg-2); }
 .section-group.section-tone-3 { background: var(--section-bg-3); }
@@ -464,6 +466,7 @@ button { font-family: inherit; }
 .section-group.section-tone-6 { background: var(--section-bg-6); }
 
 /* 背景だけを一覧の端まで広げ、各要素の読み始める位置は従来どおりに保つ */
+.section-group > .chapter-divider { margin: 0 0.9rem 0.6rem; }
 .section-group > .section-divider { margin-right: 0.9rem; margin-left: 0.9rem; }
 .section-group > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
 .section-group > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
@@ -940,7 +943,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   body { padding: 0 !important; background: #fff !important; }
   .word-list { max-width: 100%; padding: 0; }
   .index-list { max-width: 100%; padding: 0; }
-  .section-group { margin-right: 0; margin-left: 0; }
+  .section-group { margin-right: 0; margin-left: 0; padding-top: 0; }
+  .section-group > .chapter-divider { margin-right: 0; margin-left: 0; }
   .section-group > .section-divider { margin-right: 0; margin-left: 0; }
   .section-group > .label-divider { margin-right: 0; margin-left: 0.65rem; }
   .section-group > .entry { margin-right: 0; margin-left: 0; }

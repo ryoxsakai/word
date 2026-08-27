@@ -372,36 +372,40 @@ function renderWords() {
   for (const w of state.words) {
     const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
     const key = w.sectionId != null ? String(w.sectionId) : "none";
-    const sectionChanged = withSections && key !== lastKey;
+    const chapterChanged = withChapters && chapterKey !== lastChapterKey;
+    const sectionChanged = withSections && (key !== lastKey || chapterChanged);
 
     if (sectionChanged && sectionOpen) {
       parts.push("</section>");
       sectionOpen = false;
     }
 
-    if (withChapters && chapterKey !== lastChapterKey) {
+    let chapterMarkup = "";
+    if (chapterChanged) {
       lastChapterKey = chapterKey;
       const titleLine = `<span class="chapter-title">${escapeHtml(w.chapterName || "その他")}</span>${
         w.chapterSubtitle ? `<span class="chapter-subtitle">${escapeHtml(w.chapterSubtitle)}</span>` : ""
       }<span class="chapter-count">(${countByChapterKey.get(chapterKey)})</span>`;
       const descLine = w.chapterDescription ? `<div class="chapter-description">${escapeHtml(w.chapterDescription)}</div>` : "";
-      parts.push(
-        `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`
-      );
+      chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`;
     }
     if (sectionChanged) {
       lastKey = key;
       lastLabelKey = undefined;
       const sectionTone = `section-tone-${toneBySectionKey.get(key)}`;
+      const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
       const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
         w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
       }<span class="section-count">(${countByKey.get(key)})</span>`;
       const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
       parts.push(
-        `<section class="section-group ${sectionTone}" data-section-key="${escapeHtml(key)}" aria-labelledby="section-${escapeHtml(key)}">`,
+        `<section class="section-group ${sectionTone}${chapterClass}" data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" aria-labelledby="section-${escapeHtml(key)}">`,
+        chapterMarkup,
         `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
       );
       sectionOpen = true;
+    } else if (chapterMarkup) {
+      parts.push(chapterMarkup);
     }
     const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
     if (withLabels && w.labelId != null && labelKey !== lastLabelKey) {
@@ -637,9 +641,11 @@ function applyFilters() {
 
   const sectionGroups = [...el.wordList.querySelectorAll(".section-group")];
   if (sectionGroups.length > 0) {
+    const groupHasVisibleEntry = new Map();
     for (const group of sectionGroups) {
       const groupChildren = [...group.children];
       const hasVisibleEntry = groupChildren.some((child) => child.classList.contains("entry") && !child.hidden);
+      groupHasVisibleEntry.set(group, hasVisibleEntry);
       const sectionDivider = group.querySelector(":scope > .section-divider");
       if (sectionDivider) sectionDivider.hidden = !hasVisibleEntry;
 
@@ -657,8 +663,17 @@ function applyFilters() {
         }
         labelDivider.hidden = !labelHasVisibleEntry;
       }
+    }
 
-      group.hidden = !hasVisibleEntry;
+    const visibleChapterKeys = new Set(
+      sectionGroups
+        .filter((group) => groupHasVisibleEntry.get(group))
+        .map((group) => group.dataset.chapterKey)
+    );
+    for (const group of sectionGroups) {
+      const chapterDivider = group.querySelector(":scope > .chapter-divider");
+      if (chapterDivider) chapterDivider.hidden = !visibleChapterKeys.has(group.dataset.chapterKey);
+      group.hidden = !groupHasVisibleEntry.get(group) && (!chapterDivider || chapterDivider.hidden);
     }
 
     const topLevelChildren = [...el.wordList.children];
