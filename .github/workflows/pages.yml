@@ -27,9 +27,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test WebMCP tools
         run: node .github/tests/webmcp.integration.mjs
+      - name: Prepare cache-safe Pages artifact
+        env:
+          ASSET_VERSION: ${{ github.sha }}
+        run: |
+          cp -R public pages-dist
+          node .github/scripts/version-pages-assets.mjs pages-dist "$ASSET_VERSION"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: pages-dist
       - id: deployment
         uses: actions/deploy-pages@v4
