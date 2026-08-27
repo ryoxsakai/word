@@ -198,7 +198,7 @@ function wordHaystack(w) {
   return parts.filter(Boolean).join(" ").toLowerCase();
 }
 
-function renderEntry(w) {
+function renderEntry(w, sectionTone = "") {
   const isBranch = w.branch > 0;
   const haystack = wordHaystack(w);
 
@@ -310,7 +310,7 @@ function renderEntry(w) {
   ].join("");
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}${sectionTone ? ` ${sectionTone}` : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
@@ -352,9 +352,13 @@ function renderWords() {
   const countByKey = new Map();
   const countByChapterKey = new Map();
   const countByLabelKey = new Map();
+  const toneBySectionKey = new Map();
   for (const w of state.words) {
     const key = w.sectionId != null ? String(w.sectionId) : "none";
     countByKey.set(key, (countByKey.get(key) || 0) + 1);
+    if (withSections && !toneBySectionKey.has(key)) {
+      toneBySectionKey.set(key, (toneBySectionKey.size % 6) + 1);
+    }
     const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
     countByChapterKey.set(chapterKey, (countByChapterKey.get(chapterKey) || 0) + 1);
     const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
@@ -395,7 +399,8 @@ function renderWords() {
     } else if (w.labelId == null) {
       lastLabelKey = labelKey;
     }
-    parts.push(renderEntry(w));
+    const sectionTone = withSections ? `section-tone-${toneBySectionKey.get(key)}` : "";
+    parts.push(renderEntry(w, sectionTone));
   }
   el.wordList.innerHTML = parts.join("");
   applyFilters();

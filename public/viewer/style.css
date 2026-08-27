@@ -17,6 +17,13 @@
   --mark-bg: #ffe58a;
   --danger: #c0392b;
   --pos-border: #2f8fae;
+  /* セクションごとに循環させる、ごく薄いパステル背景 */
+  --section-bg-1: #fffdf7;
+  --section-bg-2: #f7fcfa;
+  --section-bg-3: #f7faff;
+  --section-bg-4: #fbf8ff;
+  --section-bg-5: #fff8fa;
+  --section-bg-6: #f9fcf5;
   /* 設定ページと色味を揃えたトップバー専用のパレット */
   --topbar-bg: #ffffff;
   --topbar-border: #e2e6ef;
@@ -43,6 +50,12 @@
   --accent-strong: #ff9a6a;
   --mark-bg: #6b5a20;
   --pos-border: #4fa8c9;
+  --section-bg-1: #1b1915;
+  --section-bg-2: #141c19;
+  --section-bg-3: #151a20;
+  --section-bg-4: #1b1720;
+  --section-bg-5: #1e171a;
+  --section-bg-6: #181d14;
   --topbar-bg: #1a1d26;
   --topbar-border: #2e3340;
   --topbar-text: #eceef3;
@@ -68,6 +81,12 @@
     --accent-strong: #ff9a6a;
     --mark-bg: #6b5a20;
     --pos-border: #4fa8c9;
+    --section-bg-1: #1b1915;
+    --section-bg-2: #141c19;
+    --section-bg-3: #151a20;
+    --section-bg-4: #1b1720;
+    --section-bg-5: #1e171a;
+    --section-bg-6: #181d14;
     --topbar-bg: #1a1d26;
     --topbar-border: #2e3340;
     --topbar-text: #eceef3;
@@ -506,6 +525,12 @@ button { font-family: inherit; }
   border-bottom: 1px dashed var(--border);
   scroll-margin-top: 6.2rem;
 }
+.entry.section-tone-1 { background: var(--section-bg-1); }
+.entry.section-tone-2 { background: var(--section-bg-2); }
+.entry.section-tone-3 { background: var(--section-bg-3); }
+.entry.section-tone-4 { background: var(--section-bg-4); }
+.entry.section-tone-5 { background: var(--section-bg-5); }
+.entry.section-tone-6 { background: var(--section-bg-6); }
 .entry.branch-entry .entry-no { color: var(--text-muted); font-size: 0.9rem; }
 .entry.flash { animation: flash-highlight 1.6s ease; }
 @keyframes flash-highlight {
@@ -894,6 +919,12 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     --accent-strong: #b3441a !important;
     --pos-border: #155e8a !important;
     --mark-bg: #ffe58a !important;
+    --section-bg-1: #ffffff !important;
+    --section-bg-2: #ffffff !important;
+    --section-bg-3: #ffffff !important;
+    --section-bg-4: #ffffff !important;
+    --section-bg-5: #ffffff !important;
+    --section-bg-6: #ffffff !important;
   }
   .topbar, .subbar, .section-nav, .back-to-top, .toast, .speak-btn { display: none !important; }
   body { padding: 0 !important; background: #fff !important; }
