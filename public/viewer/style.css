@@ -455,6 +455,7 @@ button { font-family: inherit; }
 .section-group {
   margin: 0 -0.9rem;
   padding: 0;
+  scroll-margin-top: 6.2rem;
 }
 .section-group + .section-group { padding-top: 1.4rem; }
 .section-group.has-chapter-divider { padding-top: 2rem; }
