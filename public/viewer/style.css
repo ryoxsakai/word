@@ -398,7 +398,7 @@ button { font-family: inherit; }
 
 /* ---- word list ---- */
 
-.word-list { max-width: 640px; margin: 0 auto; padding: 0.6rem 0.9rem 2rem; }
+.word-list { max-width: 640px; margin: 0 auto; padding: 0 0.9rem 2rem; }
 
 /* ---- 索引（abc順） ---- */
 
