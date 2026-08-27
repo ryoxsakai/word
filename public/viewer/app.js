@@ -156,9 +156,31 @@ function assignSequentialNumbers() {
 
 function buildIndex() {
   state.wordIndex = new Map();
+
+  // 同じスペルが複数の形で現れる場合も、独立した見出し語を優先する。
   for (const w of state.words) {
+    if (w.branch !== 0) continue;
     state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
   }
+  for (const w of state.words) {
+    const key = w.spelling.toLowerCase();
+    if (state.wordIndex.has(key)) continue;
+    state.wordIndex.set(key, { id: w.id, no: w.seqNo });
+  }
+}
+
+function renderDerivativeWord(raw) {
+  if (!raw) return "";
+
+  // ##headword## が明示されている場合は、既存の記法をそのまま尊重する。
+  if (raw.includes("##")) return renderMarkup(raw, { resolve: resolveRef });
+
+  // 派生語と同じスペルの見出し語が現在の単語帳にあれば、自動でリンクする。
+  const plain = stripMarkup(raw);
+  const hit = resolveRef(plain);
+  if (!hit.found) return renderMarkup(raw, { resolve: resolveRef });
+
+  return `<a href="#word-${escapeHtml(hit.id)}" class="ref derivative-ref" data-headword="${escapeHtml(plain)}" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(plain)}</a>`;
 }
 
 // ---- レンダリング ----
@@ -261,7 +283,7 @@ function renderEntry(w) {
   const derivativesHtml = (w.derivatives || []).length
     ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="notes-content derivative-items">${w.derivatives
         .map(
-          (d) => `<span class="derivative-item">${d.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(d.pos)}</span> ` : ""}<span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>${d.meaning ? ` <span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
+          (d) => `<span class="derivative-item">${d.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(d.pos)}</span> ` : ""}<span class="derivative-word">${renderDerivativeWord(d.word)}</span>${d.meaning ? ` <span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
         )
         .join("")}</span></div>`
     : "";
