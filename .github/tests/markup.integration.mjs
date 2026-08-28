@@ -4,6 +4,8 @@ import { createAutoCrossRefRenderer } from "../../public/shared/markup.js";
 
 const entries = new Map([
   ["0", { id: "zero", no: 1 }],
+  ["in", { id: "in", no: 10 }],
+  ["like", { id: "like", no: 15 }],
   ["record", { id: "record", no: 20 }],
   ["take off", { id: "take-off", no: 30 }],
 ]);
@@ -18,7 +20,7 @@ assert.match(longestMatch, /data-headword="take off"/);
 assert.match(longestMatch, /<strong>take<\/strong>を確認する/);
 assert.doesNotMatch(longestMatch, /<strong>take<\/strong> off/);
 
-const urls = "see https://a.example and https://b.example";
+const urls = "see https://a.example/to/in-spite-of/ and https://in.example";
 assert.equal(render(urls), urls);
 
 const pronunciation = render("//təˈdeɪ//", { currentHeadword: "record" });
@@ -60,9 +62,23 @@ const grammarFalsePositives = render("第10節、節約、語句");
 assert.match(grammarFalsePositives, /^第10節、節約、<strong>語句<\/strong>$/);
 assert.doesNotMatch(grammarFalsePositives, /第10<strong>節<\/strong>|<strong>節<\/strong>約|語<strong>句<\/strong>/);
 
-const protectedGrammar = render("//that Ving// と ##record##");
+const prepositions = render("depend on A、prevent A from Ving、in spite of O、For A、within O、sound like O");
+for (const term of ["on", "from", "in spite of", "For", "within", "like"]) {
+  assert.match(prepositions, new RegExp(`<strong>${term}</strong>`));
+}
+assert.doesNotMatch(prepositions, /data-headword="in"|data-headword="like"/);
+
+const prepositionBoundaries = render("information platform beforehand format");
+assert.equal(prepositionBoundaries, "information platform beforehand format");
+
+const phrasalVerbLink = render("take off");
+assert.match(phrasalVerbLink, /data-headword="take off"/);
+assert.doesNotMatch(phrasalVerbLink, /<strong>off<\/strong>/);
+
+const protectedGrammar = render("//that Ving// と ##record## と ##like##");
 assert.match(protectedGrammar, /^<span class="pronunciation-inline">/);
 assert.doesNotMatch(protectedGrammar, /pronunciation-inline[^<]*<strong>|<strong>that<\/strong>|<strong>Ving<\/strong>/);
 assert.match(protectedGrammar, /data-headword="record"/);
+assert.match(protectedGrammar, /data-headword="like"/);
 
 console.log("Markup integration tests passed");
