@@ -73,12 +73,32 @@ export function renderWordListMarkup(raw, opts = {}) {
     .split(/[,;；]/)
     .map((part) => part.trim())
     .filter(Boolean)
-    .map((part) => {
-      if (part.includes("##")) return renderMarkup(part, opts);
-      const result = resolve ? resolve(part) : null;
-      if (!result?.found) return renderMarkup(part, opts);
-      return renderMarkup(`##${part}##`, opts);
+    .map((part, index) => {
+      const explicitRef = new RegExp(CROSSREF_RE.source).exec(part);
+      const headword = explicitRef ? explicitRef[1].trim() : part;
+      const result = resolve ? resolve(headword) : null;
+      const displayNo = result?.found && result.no != null ? String(result.no) : "";
+      const sortKey = /^\d+(?:-\d+)*$/.test(displayNo) ? displayNo.split("-").map(Number) : null;
+      const html = part.includes("##")
+        ? renderMarkup(part, opts)
+        : result?.found
+          ? renderMarkup(`##${part}##`, opts)
+          : renderMarkup(part, opts);
+      return { html, index, sortKey };
     })
+    .sort((a, b) => {
+      if (!a.sortKey && !b.sortKey) return a.index - b.index;
+      if (!a.sortKey) return 1;
+      if (!b.sortKey) return -1;
+      const length = Math.max(a.sortKey.length, b.sortKey.length);
+      for (let i = 0; i < length; i += 1) {
+        if (a.sortKey[i] == null) return -1;
+        if (b.sortKey[i] == null) return 1;
+        if (a.sortKey[i] !== b.sortKey[i]) return a.sortKey[i] - b.sortKey[i];
+      }
+      return a.index - b.index;
+    })
+    .map((item) => item.html)
     .join(", ");
 }
 
