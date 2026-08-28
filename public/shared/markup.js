@@ -32,24 +32,110 @@ export function escapeHtml(str) {
 export function renderMarkup(raw, opts = {}) {
   if (!raw) return "";
   const { resolve } = opts;
-  let html = escapeHtml(raw);
-
-  html = html.replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
+  const renderedRefs = [];
+  const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
     const label = (displayRaw ? displayRaw.trim() : headword);
     const result = resolve ? resolve(headword) : null;
 
+    let refHtml;
     if (!result || !result.found) {
-      return `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${escapeHtml(label)}</span>`;
+      refHtml = `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${escapeHtml(label)}</span>`;
+    } else {
+      const noSuffix = result.no != null ? ` (no.${result.no})` : "";
+      refHtml = `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${escapeHtml(label)}${escapeHtml(noSuffix)}</a>`;
     }
-    const noSuffix = result.no != null ? ` (no.${result.no})` : "";
-    return `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${escapeHtml(label)}${escapeHtml(noSuffix)}</a>`;
+    const token = `\uE100${renderedRefs.length}\uE101`;
+    renderedRefs.push(refHtml);
+    return token;
   });
 
+  let html = escapeHtml(protectedText);
   html = html.replace(HIGHLIGHT_RE, (_m, inner) => `<mark>${inner}</mark>`);
   html = html.replace(ITALIC_RE, (_m, inner) => `<em>${inner}</em>`);
+  html = html.replace(/\uE100(\d+)\uE101/g, (_match, index) => renderedRefs[Number(index)] || "");
 
   return html;
+}
+
+/**
+ * 類義語・対義語欄のカンマ/セミコロン区切り項目を表示する。
+ * 明示的な ##参照## はそのまま扱い、素の項目が見出し語と完全一致する場合も
+ * ##で囲んだ場合と同じリンク・番号表示にする。
+ * @param {string} raw
+ * @param {object} [opts] renderMarkup と同じオプション
+ * @returns {string}
+ */
+export function renderWordListMarkup(raw, opts = {}) {
+  if (!raw) return "";
+  const { resolve } = opts;
+  return String(raw)
+    .split(/[,;；]/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      if (part.includes("##")) return renderMarkup(part, opts);
+      const result = resolve ? resolve(part) : null;
+      if (!result?.found) return renderMarkup(part, opts);
+      return renderMarkup(`##${part}##`, opts);
+    })
+    .join(", ");
+}
+
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * 本文中に現れる登録済み見出し語を、明示的な ##参照## と同じ表示にする
+ * レンダラーを作る。長い見出し語を優先し、英数字の途中では一致させない。
+ * 見出し語一覧から正規表現を作る処理は初回だけなので、入力ごとのプレビューにも使える。
+ * @param {Iterable<string>} headwords
+ * @param {object} [opts] renderMarkup と同じオプション
+ * @returns {(raw: string) => string}
+ */
+export function createAutoCrossRefRenderer(headwords, opts = {}) {
+  const canonicalByLower = new Map();
+  for (const rawHeadword of headwords || []) {
+    const headword = String(rawHeadword).trim();
+    if (!headword || headword.includes("#") || headword.includes("|")) continue;
+    const key = headword.toLowerCase();
+    if (!canonicalByLower.has(key)) canonicalByLower.set(key, headword);
+  }
+
+  const alternatives = [...canonicalByLower.values()]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp);
+  if (alternatives.length === 0) return (raw) => renderMarkup(raw, opts);
+
+  // 日本語の助詞が直後に続く「importも参照」のような文でも一致させつつ、
+  // enacted 内の act のようなラテン文字列の途中には一致させない。
+  const plainHeadwordRe = new RegExp(
+    `(^|[^\\p{Script=Latin}\\p{N}_])(${alternatives.join("|")})(?=$|[^\\p{Script=Latin}\\p{N}_])`,
+    "giu"
+  );
+
+  return (raw) => {
+    if (!raw) return "";
+
+    // 明示済みの参照は一時退避し、その中を二重に自動参照しない。
+    const explicitRefs = [];
+    const protectedText = String(raw).replace(CROSSREF_RE, (match) => {
+      const token = `\uE000${explicitRefs.length}\uE001`;
+      explicitRefs.push(match);
+      return token;
+    });
+
+    const withAutoRefs = protectedText.replace(plainHeadwordRe, (_match, prefix, matched) => {
+      const canonical = canonicalByLower.get(matched.toLowerCase());
+      if (!canonical) return `${prefix}${matched}`;
+      const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
+      return `${prefix}${marker}`;
+    });
+
+    const restored = withAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
+    return renderMarkup(restored, opts);
+  };
 }
 
 /**

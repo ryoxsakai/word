@@ -1,4 +1,4 @@
-import { renderMarkup } from "../shared/markup.js";
+import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup } from "../shared/markup.js";
 import { EDITOR_API_BASE } from "../shared/config.js";
 import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
@@ -27,6 +27,7 @@ const state = {
   currentWord: null,
   isNew: false,
   currentAudioUrl: null,
+  renderNotesMarkup: null,
   selectedWordIds: new Set(),
   collapsedSectionIds: new Set(),
   collapsedChapterIds: new Set(),
@@ -258,7 +259,19 @@ function resolveRef(headword) {
 }
 
 function updatePreview(textarea, previewEl) {
-  previewEl.innerHTML = renderMarkup(textarea.value, { resolve: resolveRef }) || '<span style="color:#999">（プレビュー）</span>';
+  let html;
+  if (textarea === el.fieldSynonyms || textarea === el.fieldAntonyms) {
+    html = renderWordListMarkup(textarea.value, { resolve: resolveRef });
+  } else if (textarea === el.fieldNotes && state.renderNotesMarkup) {
+    html = state.renderNotesMarkup(textarea.value);
+  } else {
+    html = renderMarkup(textarea.value, { resolve: resolveRef });
+  }
+  previewEl.innerHTML = html || '<span style="color:#999">（プレビュー）</span>';
+}
+
+function rebuildAutoCrossRefRenderer() {
+  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), { resolve: resolveRef });
 }
 
 function escapeHtml(s) {
@@ -546,6 +559,7 @@ async function loadWordsForList(listId) {
     state.masterHasMore = false;
     state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
   }
+  rebuildAutoCrossRefRenderer();
   renderWordTableHead();
   renderWordTable();
 }
@@ -557,6 +571,7 @@ async function loadMoreMasterWords() {
   try {
     const result = await api(`/master/words?${buildMasterQuery(state.masterOffset)}`);
     for (const w of result.words) state.listWordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: null });
+    rebuildAutoCrossRefRenderer();
     state.words = state.words.concat(result.words);
     state.masterOffset += result.words.length;
     state.masterHasMore = result.hasMore;
