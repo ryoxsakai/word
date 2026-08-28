@@ -1,6 +1,7 @@
 import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
+import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import {
   registerVocabWebMCP,
@@ -291,6 +292,16 @@ function renderEntry(w) {
       : "",
   ].join("");
 
+  const cefrLevel = effectiveCefrLevel(w.tags);
+  const cefrBadge = cefrLevel
+    ? `<span class="learning-badge badge-cefr ${cefrLevelClass(cefrLevel)}" title="CEFR ${escapeHtml(cefrLevel)}">${escapeHtml(cefrLevel)}</span>`
+    : "";
+  const hasAwlTag = Object.prototype.hasOwnProperty.call(w.tags || {}, "awl");
+  const awlSublist = String(w.tags?.awl || "").trim();
+  const awlBadge = hasAwlTag
+    ? `<span class="learning-badge badge-awl" title="Academic Word List${awlSublist ? ` Sublist ${escapeHtml(awlSublist)}` : ""}">AWL</span>`
+    : "";
+
   return `
   <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
@@ -298,6 +309,8 @@ function renderEntry(w) {
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
         ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
+        ${cefrBadge}
+        ${awlBadge}
         ${cautionHtml}
       </div>
       ${familyLine}

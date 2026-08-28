@@ -608,6 +608,43 @@ button { font-family: inherit; }
 @media print { .speak-btn { display: none; } }
 .pron { font-size: 0.9rem; color: var(--text-muted); font-family: "Charis SIL", "Times New Roman", serif; display: flex; align-items: center; overflow-wrap: break-word; min-width: 0; }
 
+.learning-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  padding: 0.06rem 0.38rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 750;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.learning-badge.cefr-a1 { background: #e0f2f1; color: #00695c; }
+.learning-badge.cefr-a2 { background: #e8f5e9; color: #2e7d32; }
+.learning-badge.cefr-b1 { background: #e3f2fd; color: #1565c0; }
+.learning-badge.cefr-b2 { background: #e8eaf6; color: #3949ab; }
+.learning-badge.cefr-c1 { background: #f3e5f5; color: #7b1fa2; }
+.learning-badge.cefr-c2 { background: #fce4ec; color: #ad1457; }
+.learning-badge.badge-awl { background: #fff3cd; color: #7a4f00; }
+:root[data-theme="dark"] .learning-badge.cefr-a1 { background: #123f3b; color: #7ddbd0; }
+:root[data-theme="dark"] .learning-badge.cefr-a2 { background: #193b25; color: #9ad69f; }
+:root[data-theme="dark"] .learning-badge.cefr-b1 { background: #17324a; color: #90caf9; }
+:root[data-theme="dark"] .learning-badge.cefr-b2 { background: #282f57; color: #b8c2ff; }
+:root[data-theme="dark"] .learning-badge.cefr-c1 { background: #41244d; color: #e1a6ef; }
+:root[data-theme="dark"] .learning-badge.cefr-c2 { background: #4a1f38; color: #f48fb1; }
+:root[data-theme="dark"] .learning-badge.badge-awl { background: #4a3500; color: #ffd166; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .learning-badge.cefr-a1 { background: #123f3b; color: #7ddbd0; }
+  :root:not([data-theme="light"]) .learning-badge.cefr-a2 { background: #193b25; color: #9ad69f; }
+  :root:not([data-theme="light"]) .learning-badge.cefr-b1 { background: #17324a; color: #90caf9; }
+  :root:not([data-theme="light"]) .learning-badge.cefr-b2 { background: #282f57; color: #b8c2ff; }
+  :root:not([data-theme="light"]) .learning-badge.cefr-c1 { background: #41244d; color: #e1a6ef; }
+  :root:not([data-theme="light"]) .learning-badge.cefr-c2 { background: #4a1f38; color: #f48fb1; }
+  :root:not([data-theme="light"]) .learning-badge.badge-awl { background: #4a3500; color: #ffd166; }
+}
+
 .caution-badge {
   display: inline-flex;
   align-items: center;

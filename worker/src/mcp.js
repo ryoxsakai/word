@@ -273,6 +273,7 @@ const WORD_SUMMARY_SELECT = [
   "(SELECT se.pos FROM senses se WHERE se.word_id = w.id AND se.is_primary = 1 ORDER BY se.sort_order, se.id LIMIT 1) AS primaryPos",
   "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'awl') AS awlSublist",
   "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'oxford5000') AS oxfordLevel",
+  "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'cefr_provisional') AS provisionalCefr",
   "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'eiken') AS eiken",
   "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'target1900') AS target1900No",
   "(SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'target1400') AS target1400No",

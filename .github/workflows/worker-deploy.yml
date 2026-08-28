@@ -33,6 +33,9 @@ jobs:
       - name: Test MCP OAuth, read, and authenticated write tools
         run: npm run test:mcp-write
 
+      - name: Test data migrations
+        run: npm run test:migrations
+
       - name: Create D1 database if it doesn't exist yet (bootstrap only)
         if: ${{ inputs.bootstrap_d1 == true }}
         run: |
