@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS examples (
 
 CREATE INDEX IF NOT EXISTS idx_examples_word ON examples(word_id);
 
--- タグ（oxford5000 / awl / eiken:準1級 / custom:医学部頻出 など、name=value形式で自由に追加）
+-- タグ（oxford5000 / cefr_provisional / awl / eiken:準1級 / custom:医学部頻出 など、name=value形式で自由に追加）
 CREATE TABLE IF NOT EXISTS tags (
   word_id TEXT NOT NULL REFERENCES words(id),
   tag_key TEXT NOT NULL,

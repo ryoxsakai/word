@@ -4,6 +4,7 @@ import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import { fetchCompleteWordIndex } from "../shared/word-index.js";
+import { cefrLevelClass, normalizeCefrLevel } from "../shared/learning-tags.js";
 
 const API = `${EDITOR_API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -160,6 +161,7 @@ const el = {
   fieldNotes: document.getElementById("fieldNotes"),
   notesPreview: document.getElementById("notesPreview"),
   tagOxford5000: document.getElementById("tagOxford5000"),
+  tagCefrProvisional: document.getElementById("tagCefrProvisional"),
   tagAwl: document.getElementById("tagAwl"),
   tagEiken: document.getElementById("tagEiken"),
   tagTarget1900Display: document.getElementById("tagTarget1900Display"),
@@ -284,8 +286,12 @@ function formatLevelBadgeCell(w, type) {
   switch (type) {
     case "awl":
       return w.awlSublist ? `<span class="level-badge badge-awl">${escapeHtml(String(w.awlSublist))}</span>` : "";
-    case "oxford":
-      return w.oxfordLevel ? `<span class="level-badge badge-oxford">${escapeHtml(w.oxfordLevel)}</span>` : "";
+    case "cefr": {
+      const level = normalizeCefrLevel(w.oxfordLevel || w.provisionalCefr);
+      if (!level) return "";
+      const source = w.oxfordLevel ? "Oxford 5000" : "暫定CEFR";
+      return `<span class="level-badge badge-cefr ${cefrLevelClass(level)}" title="${source}">${escapeHtml(level)}</span>`;
+    }
     case "eiken":
       return w.eiken ? `<span class="level-badge badge-eiken">${escapeHtml(w.eiken)}</span>` : "";
     case "target1900":
@@ -824,7 +830,7 @@ async function saveListSettings() {
 }
 
 const LEVEL_COLUMNS_HEAD =
-  '<th class="col-awl">AWL</th><th class="col-oxford">Oxford</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
+  '<th class="col-awl">AWL</th><th class="col-cefr">CEFR</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
   '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th>';
 
@@ -1497,7 +1503,7 @@ function buildWordRow(w) {
   const meaningCell = `<td class="col-meaning">${w.primaryPos ? `<span class="meaning-pos">${escapeHtml(w.primaryPos)}</span>` : ""}${escapeHtml(w.primaryMeaning || "")}</td>`;
   const levelCells =
     `<td class="col-awl">${formatLevelBadgeCell(w, "awl")}</td>` +
-    `<td class="col-oxford">${formatLevelBadgeCell(w, "oxford")}</td>` +
+    `<td class="col-cefr">${formatLevelBadgeCell(w, "cefr")}</td>` +
     `<td class="col-eiken">${formatLevelBadgeCell(w, "eiken")}</td>` +
     `<td class="col-target1900">${formatLevelBadgeCell(w, "target1900")}</td>` +
     `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
@@ -1892,6 +1898,7 @@ function openNewWordForm() {
   el.fieldAntonyms.value = "";
   el.fieldNotes.value = "";
   el.tagOxford5000.value = "";
+  el.tagCefrProvisional.value = "";
   el.tagAwl.value = "";
   el.tagEiken.value = "";
   el.tagCustom.value = "";
@@ -1948,6 +1955,7 @@ async function openWordEditor(wordId) {
   el.fieldAntonyms.value = detail.antonyms || "";
   el.fieldNotes.value = detail.notes || "";
   el.tagOxford5000.value = detail.tags.oxford5000 || "";
+  el.tagCefrProvisional.value = detail.tags.cefr_provisional || "";
   el.tagAwl.value = detail.tags.awl || "";
   el.tagEiken.value = detail.tags.eiken || "";
   el.tagCustom.value = Object.entries(detail.tags)
@@ -1977,6 +1985,7 @@ function closeEditor() {
 function collectTags() {
   const tags = {};
   if (el.tagOxford5000.value) tags.oxford5000 = el.tagOxford5000.value;
+  if (el.tagCefrProvisional.value) tags.cefr_provisional = el.tagCefrProvisional.value;
   if (el.tagAwl.value) tags.awl = el.tagAwl.value;
   if (el.tagEiken.value) tags.eiken = el.tagEiken.value;
   for (const raw of el.tagCustom.value.split(",")) {

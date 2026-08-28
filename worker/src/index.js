@@ -239,6 +239,7 @@ async function reorderLists(db, body) {
 const WORD_TAG_SELECT = `
   ta.tag_value AS awlSublist,
   to5.tag_value AS oxfordLevel,
+  tcp.tag_value AS provisionalCefr,
   te.tag_value AS eiken,
   t19.tag_value AS target1900No,
   t14.tag_value AS target1400No
@@ -253,6 +254,7 @@ const PRIMARY_MEANING_SELECT = `
 const WORD_TAG_JOINS = `
   LEFT JOIN tags ta ON ta.word_id = w.id AND ta.tag_key = 'awl'
   LEFT JOIN tags to5 ON to5.word_id = w.id AND to5.tag_key = 'oxford5000'
+  LEFT JOIN tags tcp ON tcp.word_id = w.id AND tcp.tag_key = 'cefr_provisional'
   LEFT JOIN tags te ON te.word_id = w.id AND te.tag_key = 'eiken'
   LEFT JOIN tags t19 ON t19.word_id = w.id AND t19.tag_key = 'target1900'
   LEFT JOIN tags t14 ON t14.word_id = w.id AND t14.tag_key = 'target1400'
@@ -900,15 +902,26 @@ async function replaceChildRows(db, table, columns, wordId, rows) {
 // 単語編集フォームが管理するtag_keyのみを対象にする。
 // target1900/target1400など一括インポートでのみ設定されるタグは対象外にし、
 // 保存のたびに消えてしまわないようにする。
+const CEFR_LEVELS = new Set(["A1", "A2", "B1", "B2", "C1", "C2"]);
+
+function validateProvisionalCefr(tags) {
+  const value = tags?.cefr_provisional;
+  if (value === undefined || value === null || value === "" || value === false) return null;
+  const level = String(value).trim().toUpperCase();
+  return CEFR_LEVELS.has(level) ? null : "cefr_provisional must be one of A1, A2, B1, B2, C1, C2";
+}
+
 function buildReplaceTagsStatements(db, wordId, tags) {
   const stmts = [
     db
-      .prepare("DELETE FROM tags WHERE word_id = ? AND (tag_key IN ('oxford5000', 'awl', 'eiken') OR tag_key LIKE 'custom:%')")
+      .prepare("DELETE FROM tags WHERE word_id = ? AND (tag_key IN ('oxford5000', 'cefr_provisional', 'awl', 'eiken') OR tag_key LIKE 'custom:%')")
       .bind(wordId),
   ];
   for (const [key, value] of Object.entries(tags || {})) {
     if (value === false || value === null || value === undefined) continue;
-    stmts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)").bind(wordId, key, value === true ? null : String(value)));
+    const storedValue = key === "cefr_provisional" ? String(value).trim().toUpperCase() : value;
+    if (storedValue === "") continue;
+    stmts.push(db.prepare("INSERT INTO tags (word_id, tag_key, tag_value) VALUES (?, ?, ?)").bind(wordId, key, storedValue === true ? null : String(storedValue)));
   }
   return stmts;
 }
@@ -939,6 +952,8 @@ async function resolveDerivedFrom(db, body) {
 
 async function createWord(db, body) {
   if (!body.spelling) return badRequest("spelling is required");
+  const provisionalCefrError = validateProvisionalCefr(body.tags);
+  if (provisionalCefrError) return badRequest(provisionalCefrError);
   let membershipSectionId = null;
   let membershipLabelId = null;
   if (body.listId && isNotebookListId(body.listId)) {
@@ -990,6 +1005,8 @@ async function createWord(db, body) {
 }
 
 async function updateWord(db, id, body) {
+  const provisionalCefrError = validateProvisionalCefr(body.tags);
+  if (provisionalCefrError) return badRequest(provisionalCefrError);
   const existing = await db.prepare("SELECT id FROM words WHERE id = ?").bind(id).first();
   if (!existing) return notFound("word not found");
   const derivedFromResolved = await resolveDerivedFrom(db, body);
