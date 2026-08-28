@@ -17,6 +17,150 @@ const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301)/g;
 
+const GRAMMAR_TERMS = [
+  "to be V-ed",
+  "to be Vpp",
+  "to have V-ed",
+  "having V-ed",
+  "being V-ed",
+  "have V-ed",
+  "be Ving",
+  "be V-ed",
+  "to V",
+  "S V",
+  "Ving",
+  "V-ed",
+  "Vpp",
+  "Ved",
+  "that",
+  "whether",
+  "should",
+  "if",
+  "A",
+  "B",
+  "C",
+  "O",
+  "S",
+  "V",
+  "動詞の原形",
+  "動詞原形",
+  "原形不定詞",
+  "独立分詞構文",
+  "分詞構文",
+  "比較構文",
+  "関係代名詞",
+  "関係副詞",
+  "関係詞節",
+  "疑問代名詞",
+  "疑問副詞",
+  "疑問詞節",
+  "疑問詞",
+  "不可算名詞",
+  "可算名詞",
+  "集合名詞",
+  "抽象名詞",
+  "普通名詞",
+  "固有名詞",
+  "状態動詞",
+  "知覚動詞",
+  "使役動詞",
+  "再帰動詞",
+  "自動詞",
+  "他動詞",
+  "現在分詞",
+  "過去分詞",
+  "動名詞",
+  "不定詞",
+  "代名詞",
+  "形容詞",
+  "助動詞",
+  "前置詞",
+  "接続詞",
+  "間投詞",
+  "副詞",
+  "名詞",
+  "動詞",
+  "冠詞",
+  "動詞句",
+  "名詞句",
+  "形容詞句",
+  "副詞句",
+  "前置詞句",
+  "分詞句",
+  "不定詞句",
+  "動名詞句",
+  "語句",
+  "that節",
+  "whether節",
+  "if節",
+  "what節",
+  "名詞節",
+  "形容詞節",
+  "副詞節",
+  "主節",
+  "従属節",
+  "条件節",
+  "譲歩節",
+  "目的節",
+  "結果節",
+  "理由節",
+  "時の節",
+  "主語",
+  "目的語",
+  "補語",
+  "修飾語",
+  "先行詞",
+  "受動態",
+  "能動態",
+  "仮定法現在",
+  "仮定法過去完了",
+  "仮定法過去",
+  "仮定法",
+  "直説法",
+  "命令法",
+  "命令文",
+  "現在形",
+  "過去形",
+  "未来形",
+  "完了形",
+  "進行形",
+  "単数形",
+  "複数形",
+  "単数",
+  "複数",
+  "比較級",
+  "最上級",
+  "原級",
+  "叙述用法",
+  "限定用法",
+  "名詞用法",
+  "副詞用法",
+  "不可算用法",
+  "前置修飾",
+  "後置修飾",
+  "文型",
+  "時制",
+  "語順",
+  "倒置",
+  "省略",
+  "一致",
+  "語法",
+  "構文",
+  "原形",
+];
+
+const GRAMMAR_TERM_RE = new RegExp(
+  `(^|[^\\p{Script=Latin}\\p{N}_])((?:第[1-5]文型|${GRAMMAR_TERMS
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join("|")}))(?=$|[^\\p{Script=Latin}\\p{N}_])`,
+  "gu"
+);
+const BARE_GRAMMAR_TERM_RES = [
+  /(^|[^\p{Script=Latin}\p{N}_語])(句)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
+  /(^|[^\p{Script=Latin}\p{N}_第])(節)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
+];
+
 export function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -181,6 +325,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       explicitRefs.push(match);
       return token;
     });
+
+    // 文法記号・文法用語は、見出し語の自動参照より先に太字として退避する。
+    // 発音記号と明示的な相互参照はすでに保護されているため、その内部は変更しない。
+    protectedText = replaceOutsideProtectedTokens(protectedText, GRAMMAR_TERM_RE, (_match, prefix, term) =>
+      `${prefix}${boldToken(term)}`
+    );
+    for (const bareGrammarTermRe of BARE_GRAMMAR_TERM_RES) {
+      protectedText = replaceOutsideProtectedTokens(protectedText, bareGrammarTermRe, (_match, prefix, term) =>
+        `${prefix}${boldToken(term)}`
+      );
+    }
 
     // 新規作成中の見出し語も登録済み語と同じ最長一致の候補へ加える。
     // 先に単独で太字化すると、take off より draft の take が先に一致してしまうため。
