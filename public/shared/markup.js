@@ -8,295 +8,25 @@ import { formatPronunciationWithAccents } from "./pronunciation.js";
 //   ##headword##            他の見出し語への相互参照。今のリストでの no. を自動解決する。
 //   ##headword|表示文言##   参照先は headword だが、表示する文言を変えたい場合。
 //   ==text==                キーワード強調（ハイライト）。
+//   **text**                任意の太字。
 //   *text*                  語根・接辞などの強調（イタリック）。
-//   //text//                IPA発音記号用フォント（メモ欄）。
+//   //text//                /text/ としてIPA発音記号用フォントで表示（メモ欄）。
 
 const CROSSREF_RE = /##([^#|]+?)(?:\|([^#]+?))?##/g;
 const HIGHLIGHT_RE = /==(.+?)==/g;
+const BOLD_RE = /\*\*(.+?)\*\*/g;
 const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
-const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501)/g;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601)/g;
 
-const GRAMMAR_TERMS = [
-  "to be V-ed",
-  "to be Vpp",
-  "to have V-ed",
-  "having V-ed",
-  "being V-ed",
-  "have V-ed",
-  "be Ving",
-  "be V-ed",
-  "to V",
-  "S V",
-  "Ving",
-  "V-ed",
-  "Vpp",
-  "Ved",
-  "that",
-  "whether",
-  "should",
-  "if",
-  "A",
-  "B",
-  "C",
-  "O",
-  "S",
-  "V",
-  "動詞の原形",
-  "動詞原形",
-  "原形不定詞",
-  "独立分詞構文",
-  "分詞構文",
-  "比較構文",
-  "関係代名詞",
-  "関係副詞",
-  "関係詞節",
-  "疑問代名詞",
-  "疑問副詞",
-  "疑問詞節",
-  "疑問詞",
-  "不可算名詞",
-  "可算名詞",
-  "集合名詞",
-  "抽象名詞",
-  "普通名詞",
-  "固有名詞",
-  "状態動詞",
-  "知覚動詞",
-  "使役動詞",
-  "再帰動詞",
-  "自動詞",
-  "他動詞",
-  "現在分詞",
-  "過去分詞",
-  "動名詞",
-  "不定詞",
-  "代名詞",
-  "形容詞",
-  "助動詞",
-  "前置詞",
-  "接続詞",
-  "間投詞",
-  "副詞",
-  "名詞",
-  "動詞",
-  "冠詞",
-  "動詞句",
-  "名詞句",
-  "形容詞句",
-  "副詞句",
-  "前置詞句",
-  "分詞句",
-  "不定詞句",
-  "動名詞句",
-  "語句",
-  "that節",
-  "whether節",
-  "if節",
-  "what節",
-  "名詞節",
-  "形容詞節",
-  "副詞節",
-  "主節",
-  "従属節",
-  "条件節",
-  "譲歩節",
-  "目的節",
-  "結果節",
-  "理由節",
-  "時の節",
-  "主語",
-  "目的語",
-  "補語",
-  "修飾語",
-  "先行詞",
-  "受動態",
-  "能動態",
-  "仮定法現在",
-  "仮定法過去完了",
-  "仮定法過去",
-  "仮定法",
-  "直説法",
-  "命令法",
-  "命令文",
-  "現在形",
-  "過去形",
-  "未来形",
-  "完了形",
-  "進行形",
-  "単数形",
-  "複数形",
-  "単数",
-  "複数",
-  "比較級",
-  "最上級",
-  "原級",
-  "叙述用法",
-  "限定用法",
-  "名詞用法",
-  "副詞用法",
-  "不可算用法",
-  "前置修飾",
-  "後置修飾",
-  "文型",
-  "時制",
-  "語順",
-  "倒置",
-  "省略",
-  "一致",
-  "語法",
-  "構文",
-  "原形",
-];
-
-const GRAMMAR_TERM_RE = new RegExp(
-  `(^|[^\\p{Script=Latin}\\p{N}_])((?:第[1-5]文型|${GRAMMAR_TERMS
-    .sort((a, b) => b.length - a.length)
-    .map(escapeRegExp)
-    .join("|")}))(?=$|[^\\p{Script=Latin}\\p{N}_])`,
-  "gu"
-);
-const BARE_GRAMMAR_TERM_RES = [
-  /(^|[^\p{Script=Latin}\p{N}_語])(句)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
-  /(^|[^\p{Script=Latin}\p{N}_第])(節)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
-];
-
-const PREPOSITION_TERMS = [
-  "in accordance with",
-  "in comparison with",
-  "in connection with",
-  "with respect to",
-  "in comparison to",
-  "in contrast with",
-  "in exchange for",
-  "in relation to",
-  "in response to",
-  "with regard to",
-  "in addition to",
-  "on account of",
-  "on behalf of",
-  "by means of",
-  "by way of",
-  "in case of",
-  "in contrast to",
-  "in favor of",
-  "in front of",
-  "in place of",
-  "in spite of",
-  "in terms of",
-  "according to",
-  "apart from",
-  "as a result of",
-  "because of",
-  "close to",
-  "contrary to",
-  "depending on",
-  "due to",
-  "except for",
-  "far from",
-  "in lieu of",
-  "in line with",
-  "instead of",
-  "next to",
-  "on top of",
-  "owing to",
-  "prior to",
-  "regardless of",
-  "thanks to",
-  "together with",
-  "ahead of",
-  "as for",
-  "as of",
-  "as to",
-  "up to",
-  "aboard",
-  "about",
-  "above",
-  "across",
-  "after",
-  "against",
-  "along",
-  "alongside",
-  "amid",
-  "amidst",
-  "among",
-  "amongst",
-  "around",
-  "as",
-  "at",
-  "before",
-  "behind",
-  "below",
-  "beneath",
-  "beside",
-  "besides",
-  "between",
-  "beyond",
-  "but",
-  "by",
-  "concerning",
-  "considering",
-  "despite",
-  "down",
-  "during",
-  "except",
-  "excepting",
-  "excluding",
-  "following",
-  "for",
-  "from",
-  "in",
-  "inside",
-  "into",
-  "like",
-  "minus",
-  "near",
-  "notwithstanding",
-  "of",
-  "off",
-  "on",
-  "onto",
-  "opposite",
-  "outside",
-  "over",
-  "past",
-  "pending",
-  "per",
-  "plus",
-  "regarding",
-  "round",
-  "save",
-  "since",
-  "than",
-  "through",
-  "throughout",
-  "till",
-  "to",
-  "toward",
-  "towards",
-  "under",
-  "underneath",
-  "unlike",
-  "until",
-  "unto",
-  "up",
-  "upon",
-  "versus",
-  "via",
-  "with",
-  "within",
-  "without",
-];
-const PREPOSITION_TERM_SET = new Set(PREPOSITION_TERMS.map((term) => term.toLowerCase()));
-const PREPOSITION_TERM_RE = new RegExp(
-  `(^|[^\\p{Script=Latin}\\p{N}_])(${PREPOSITION_TERMS
-    .sort((a, b) => b.length - a.length)
-    .map(escapeRegExp)
-    .join("|")})(?=$|[^\\p{Script=Latin}\\p{N}_])`,
-  "giu"
-);
-
+const ENGLISH_WORD_RE =
+  /(^|[^\p{Script=Latin}\p{N}_])(\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/gu;
+const GRAMMAR_PLACEHOLDER_RE = /^[SVOC]$/;
+const JAPANESE_CONTEXT_LEFT_RE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}][\s、。，．・：:；;!?！？（）「」『』【】［］〈〉《》]*$/u;
+const JAPANESE_CONTEXT_RIGHT_RE = /^[\s、。，．・：:；;!?！？（）「」『』【】［］〈〉《》]*[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
+const FORMULA_LEFT_RE = /(?:\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?:\s+|[\/=＝])(?:\([^)]*\)\s*)?$/u;
+const FORMULA_RIGHT_RE = /^(?:\s+|[\/=＝])(?:\([^)]*\)\s*)?(?:\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/u;
 export function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -316,7 +46,7 @@ export function escapeHtml(str) {
  */
 export function renderMarkup(raw, opts = {}) {
   if (!raw) return "";
-  const { resolve } = opts;
+  const { resolve, boldRefs = false } = opts;
   const renderedRefs = [];
   const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
@@ -331,11 +61,15 @@ export function renderMarkup(raw, opts = {}) {
       refHtml = `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${escapeHtml(label)}${escapeHtml(noSuffix)}</a>`;
     }
     const token = `\uE100${renderedRefs.length}\uE101`;
+    if (boldRefs && /\p{Script=Latin}/u.test(label)) {
+      refHtml = "<strong>" + refHtml + "</strong>";
+    }
     renderedRefs.push(refHtml);
     return token;
   });
 
   let html = escapeHtml(protectedText);
+  html = html.replace(BOLD_RE, (_m, inner) => "<strong>" + inner + "</strong>");
   html = html.replace(HIGHLIGHT_RE, (_m, inner) => `<mark>${inner}</mark>`);
   html = html.replace(ITALIC_RE, (_m, inner) => `<em>${inner}</em>`);
   html = html.replace(/\uE100(\d+)\uE101/g, (_match, index) => renderedRefs[Number(index)] || "");
@@ -402,6 +136,17 @@ function replaceOutsideProtectedTokens(text, re, replacer) {
   return output + String(text).slice(lastIndex).replace(re, replacer);
 }
 
+function shouldBoldEnglishWord(source, wordStart, word) {
+  if (!GRAMMAR_PLACEHOLDER_RE.test(word)) return true;
+  const wordEnd = wordStart + word.length;
+  const left = source.slice(0, wordStart);
+  const right = source.slice(wordEnd);
+  const embeddedInJapanese =
+    JAPANESE_CONTEXT_LEFT_RE.test(left) || JAPANESE_CONTEXT_RIGHT_RE.test(right);
+  if (!embeddedInJapanese) return true;
+  return FORMULA_LEFT_RE.test(left) || FORMULA_RIGHT_RE.test(right);
+}
+
 /**
  * 本文中に現れる登録済み見出し語を、明示的な ##参照## と同じ表示にする
  * レンダラーを作る。長い見出し語を優先し、英数字の途中では一致させない。
@@ -442,7 +187,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     };
 
-    // URLは先に退避し、前置詞や見出し語の自動処理でパス・ドメインを変更しない。
+    // URLは先に退避し、英単語や見出し語の自動処理でパス・ドメインを変更しない。
     const urls = [];
     const urlProtectedText = String(raw).replace(URL_RE, (url) => {
       const token = `\uE500${urls.length}\uE501`;
@@ -460,7 +205,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
 
     // 明示済みの参照は一時退避する。現在の見出し語自身ならリンクにせず太字にする。
     const explicitRefs = [];
-    let protectedText = pronunciationProtectedText.replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
+    const protectedText = pronunciationProtectedText.replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
       const headword = headwordRaw.trim();
       if (currentHeadwordLower && headword.toLowerCase() === currentHeadwordLower) {
         return boldToken(displayRaw ? displayRaw.trim() : headword);
@@ -469,17 +214,6 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       explicitRefs.push(match);
       return token;
     });
-
-    // 文法記号・文法用語は、見出し語の自動参照より先に太字として退避する。
-    // 発音記号と明示的な相互参照はすでに保護されているため、その内部は変更しない。
-    protectedText = replaceOutsideProtectedTokens(protectedText, GRAMMAR_TERM_RE, (_match, prefix, term) =>
-      `${prefix}${boldToken(term)}`
-    );
-    for (const bareGrammarTermRe of BARE_GRAMMAR_TERM_RES) {
-      protectedText = replaceOutsideProtectedTokens(protectedText, bareGrammarTermRe, (_match, prefix, term) =>
-        `${prefix}${boldToken(term)}`
-      );
-    }
 
     // 新規作成中の見出し語も登録済み語と同じ最長一致の候補へ加える。
     // 先に単独で太字化すると、take off より draft の take が先に一致してしまうため。
@@ -499,7 +233,6 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
           }
           const canonical = canonicalByLower.get(matched.toLowerCase());
           if (!canonical) return `${prefix}${matched}`;
-          if (PREPOSITION_TERM_SET.has(matched.toLowerCase())) return `${prefix}${matched}`;
           const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
           const token = `\uE400${autoRefs.length}\uE401`;
           autoRefs.push(marker);
@@ -507,21 +240,45 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
         })
       : protectedText;
 
-    const withPrepositions = replaceOutsideProtectedTokens(
-      withAutoRefs,
-      PREPOSITION_TERM_RE,
-      (_match, prefix, term) => `${prefix}${boldToken(term)}`
+    // **...** は任意太字として先に退避し、内部を英単語単位で二重に太字化しない。
+    const manualBoldLabels = [];
+    const withManualBoldProtected = withAutoRefs.replace(BOLD_RE, (_match, inner) => {
+      const token = "\uE600" + manualBoldLabels.length + "\uE601";
+      manualBoldLabels.push(inner);
+      return token;
+    });
+
+    // 残った英単語を太字化する。S/V/O/Cだけは、日本語中で孤立している場合は通常表示にする。
+    const withEnglishBold = replaceOutsideProtectedTokens(
+      withManualBoldProtected,
+      ENGLISH_WORD_RE,
+      (_match, prefix, word, offset, source) => {
+        const wordStart = offset + prefix.length;
+        return shouldBoldEnglishWord(source, wordStart, word)
+          ? prefix + boldToken(word)
+          : prefix + word;
+      }
     );
-    const restoredAutoRefs = withPrepositions.replace(
+    const restoredManualBold = withEnglishBold.replace(
+      /\uE600(\d+)\uE601/g,
+      (_match, index) => "**" + (manualBoldLabels[Number(index)] || "") + "**"
+    );
+    const restoredAutoRefs = restoredManualBold.replace(
       /\uE400(\d+)\uE401/g,
       (_match, index) => autoRefs[Number(index)] || ""
     );
-    const restored = restoredAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
-    let html = renderMarkup(restored, opts);
-    html = html.replace(/\uE200(\d+)\uE201/g, (_match, index) => `<strong>${escapeHtml(boldLabels[Number(index)] || "")}</strong>`);
+    const restored = restoredAutoRefs.replace(
+      /\uE000(\d+)\uE001/g,
+      (_match, index) => explicitRefs[Number(index)] || ""
+    );
+    let html = renderMarkup(restored, { ...opts, boldRefs: true });
+    html = html.replace(
+      /\uE200(\d+)\uE201/g,
+      (_match, index) => "<strong>" + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
+    );
     html = html.replace(
       /\uE300(\d+)\uE301/g,
-      (_match, index) => `<span class="pronunciation-inline">${escapeHtml(pronunciations[Number(index)] || "")}</span>`
+      (_match, index) => '<span class="pronunciation-inline">/' + escapeHtml(pronunciations[Number(index)] || "") + "/</span>"
     );
     return html.replace(/\uE500(\d+)\uE501/g, (_match, index) => escapeHtml(urls[Number(index)] || ""));
   };
@@ -537,6 +294,7 @@ export function stripMarkup(raw) {
   if (!raw) return "";
   return String(raw)
     .replace(CROSSREF_RE, (_m, headwordRaw, displayRaw) => (displayRaw ? displayRaw.trim() : headwordRaw.trim()))
+    .replace(BOLD_RE, (_m, inner) => inner)
     .replace(HIGHLIGHT_RE, (_m, inner) => inner)
     .replace(ITALIC_RE, (_m, inner) => inner)
     .trim();
