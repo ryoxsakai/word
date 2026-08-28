@@ -263,7 +263,7 @@ function updatePreview(textarea, previewEl) {
   if (textarea === el.fieldSynonyms || textarea === el.fieldAntonyms) {
     html = renderWordListMarkup(textarea.value, { resolve: resolveRef });
   } else if (textarea === el.fieldNotes && state.renderNotesMarkup) {
-    html = state.renderNotesMarkup(textarea.value);
+    html = state.renderNotesMarkup(textarea.value, { currentHeadword: el.fieldSpelling.value });
   } else {
     html = renderMarkup(textarea.value, { resolve: resolveRef });
   }
@@ -2470,6 +2470,7 @@ el.labelModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.labelModalOverlay) closeLabelEditor();
 });
 el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
+el.fieldSpelling.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 el.fieldSpelling.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();

@@ -267,7 +267,7 @@ function renderEntry(w) {
     ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${state.renderNotesMarkup(w.notes)}</span></div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling })}</span></div>`
     : "";
 
   const cautionHtml = [
