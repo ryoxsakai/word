@@ -1,4 +1,4 @@
-import { renderMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
+import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
@@ -23,6 +23,7 @@ const state = {
   currentListId: null,
   words: [],
   wordIndex: new Map(), // spelling(lower) -> {id, no}
+  renderNotesMarkup: null,
   search: "",
   activeView: "list", // "list" | "index"
 };
@@ -70,26 +71,6 @@ function renderRef(spelling) {
   const hit = resolveRef(spelling);
   if (!hit.found) return escapeHtml(spelling);
   return `<a href="#word-${escapeHtml(hit.id)}" class="ref" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(spelling)}</a>`;
-}
-
-// 類義語・対義語欄向け: カンマ・セミコロン区切りの単語リストを表示する。
-// ##headword## で明示的にタグ付けされていればそれを尊重し、
-// 素の単語でもリスト内に見出し語として存在すれば自動でリンク化+no.を付与する
-// （見つからなければ、通常の ##参照## と違ってエラー表示はせずそのまま表示する）。
-function renderWordListMarkup(raw) {
-  if (!raw) return "";
-  return raw
-    .split(/[,;；]/)
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0)
-    .map((part) => {
-      if (part.includes("##")) return renderMarkup(part, { resolve: resolveRef });
-      const hit = resolveRef(part);
-      if (!hit.found) return escapeHtml(part);
-      const noSuffix = hit.no != null ? ` (no.${escapeHtml(String(hit.no))})` : "";
-      return `<a href="#word-${escapeHtml(hit.id)}" class="ref" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(part)}</a>${noSuffix}`;
-    })
-    .join(", ");
 }
 
 // ---- リスト読み込み ----
@@ -165,6 +146,7 @@ function buildIndex() {
   for (const w of state.words) {
     state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
   }
+  state.renderNotesMarkup = createAutoCrossRefRenderer(state.wordIndex.keys(), { resolve: resolveRef });
 }
 
 // ---- レンダリング ----
@@ -279,13 +261,13 @@ function renderEntry(w) {
     ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
     : "";
   const synonymsHtml = w.synonyms
-    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span><span class="notes-content">${renderWordListMarkup(w.synonyms)}</span></div>`
+    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span><span class="notes-content">${renderWordListMarkup(w.synonyms, { resolve: resolveRef })}</span></div>`
     : "";
   const antonymsHtml = w.antonyms
-    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms)}</span></div>`
+    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${renderMarkup(w.notes, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${state.renderNotesMarkup(w.notes)}</span></div>`
     : "";
 
   const cautionHtml = [
