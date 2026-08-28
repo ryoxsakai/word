@@ -3,6 +3,7 @@ import { EDITOR_API_BASE } from "../shared/config.js";
 import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
+import { fetchCompleteWordIndex } from "../shared/word-index.js";
 
 const API = `${EDITOR_API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -17,6 +18,7 @@ const state = {
   lists: [],
   currentListId: null,
   listWordIndex: new Map(),
+  masterWordIndex: null,
   words: [],
   sections: [],
   currentSectionId: null,
@@ -547,13 +549,25 @@ function buildMasterQuery(offset) {
   return qs.toString();
 }
 
+async function loadCompleteMasterWordIndex() {
+  if (state.masterWordIndex) return state.masterWordIndex;
+  state.masterWordIndex = await fetchCompleteWordIndex((offset, limit) => {
+    const qs = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    return api(`/master/words?${qs.toString()}`);
+  });
+  return state.masterWordIndex;
+}
+
 async function loadWordsForList(listId) {
   if (isMasterView()) {
-    const result = await api(`/master/words?${buildMasterQuery(0)}`);
+    const [result, completeWordIndex] = await Promise.all([
+      api(`/master/words?${buildMasterQuery(0)}`),
+      loadCompleteMasterWordIndex(),
+    ]);
     state.words = result.words;
     state.masterOffset = result.words.length;
     state.masterHasMore = result.hasMore;
-    state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: null }]));
+    state.listWordIndex = completeWordIndex;
   } else {
     state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
     state.masterHasMore = false;
@@ -570,8 +584,6 @@ async function loadMoreMasterWords() {
   el.masterLoadingMore.hidden = false;
   try {
     const result = await api(`/master/words?${buildMasterQuery(state.masterOffset)}`);
-    for (const w of result.words) state.listWordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: null });
-    rebuildAutoCrossRefRenderer();
     state.words = state.words.concat(result.words);
     state.masterOffset += result.words.length;
     state.masterHasMore = result.hasMore;
@@ -620,6 +632,7 @@ async function loadSectionsForList(listId) {
 // 単語の削除などでできた欠番も一緒に詰める。
 async function refreshCurrentList() {
   if (!state.currentListId) return;
+  if (isMasterView()) state.masterWordIndex = null;
   await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
   if (isNotebookView()) {
     const order = getHeadWordOrder();
@@ -2027,6 +2040,7 @@ async function saveWord() {
         listItemUpdate,
       ]);
     }
+    state.masterWordIndex = null;
     await loadWordsForList(state.currentListId);
     closeEditor();
     showToast("保存しました");
@@ -2041,6 +2055,7 @@ async function deleteCurrentWord() {
     if (!confirm(`「${state.currentWord.spelling}」をマスターから完全に削除しますか？（全単語帳からも消えます）`)) return;
     try {
       await api(`/words/${encodeURIComponent(state.currentWord.id)}`, { method: "DELETE" });
+      state.masterWordIndex = null;
       closeEditor();
       await loadWordsForList(state.currentListId);
     } catch (err) {
