@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { createAutoCrossRefRenderer } from "../../public/shared/markup.js";
+import { createAutoCrossRefRenderer, stripMarkup } from "../../public/shared/markup.js";
 
 const entries = new Map([
   ["0", { id: "zero", no: 1 }],
@@ -16,69 +16,68 @@ const resolve = (headword) => {
 const render = createAutoCrossRefRenderer(entries.keys(), { resolve });
 
 const longestMatch = render("take offの用法とtakeを確認する。", { currentHeadword: "take" });
-assert.match(longestMatch, /data-headword="take off"/);
+assert.match(longestMatch, /<strong><a [^>]*data-headword="take off"/);
 assert.match(longestMatch, /<strong>take<\/strong>を確認する/);
-assert.doesNotMatch(longestMatch, /<strong>take<\/strong> off/);
+assert.doesNotMatch(longestMatch, /<strong>take<\/strong> off|<strong>off<\/strong>/);
 
-const urls = "see https://a.example/to/in-spite-of/ and https://in.example";
-assert.equal(render(urls), urls);
+const url = "https://a.example/to/in-spite-of/";
+assert.equal(render(url), url);
 
-const pronunciation = render("//təˈdeɪ//", { currentHeadword: "record" });
-assert.match(pronunciation, /^<span class="pronunciation-inline">.*<\/span>$/);
-assert.doesNotMatch(pronunciation, /data-headword="0"|[\uE000-\uF8FF]/u);
+const pronunciation = render("動 //ɹɪfjúz//、名 //ɹɛ́fjus//。");
+assert.match(
+  pronunciation,
+  /^動 <span class="pronunciation-inline">\/ɹɪfjúz\/<\/span>、名 <span class="pronunciation-inline">\/ɹɛ́fjus\/<\/span>。$/
+);
+assert.doesNotMatch(pronunciation, /\/\/|<strong>/);
 
 const protectedHeadword = render("record //record//", { currentHeadword: "record" });
-assert.match(protectedHeadword, /^<strong>record<\/strong> <span class="pronunciation-inline">/);
-assert.doesNotMatch(protectedHeadword, /data-headword="record"/);
+assert.match(protectedHeadword, /^<strong>record<\/strong> <span class="pronunciation-inline">\/record\/<\/span>$/);
+assert.doesNotMatch(protectedHeadword, /data-headword="record"|[\uE000-\uF8FF]/u);
 
-const grammar = render(
-  "to V、Ving、V-ed、to be V-ed、that、whether、if、should、動詞の原形、名詞節、句、節、第4文型、目的語。"
+const requestedExamples = render(
+  "at/byは出来事・結果。keep O C。OをCのままにする。動詞の原形、名詞節。"
 );
-for (const term of [
-  "to V",
-  "Ving",
-  "V-ed",
-  "to be V-ed",
-  "that",
-  "whether",
-  "if",
-  "should",
-  "動詞の原形",
-  "名詞節",
-  "句",
-  "節",
-  "第4文型",
-  "目的語",
-]) {
-  assert.match(grammar, new RegExp(`<strong>${term}</strong>`));
-}
+assert.equal(
+  requestedExamples,
+  "<strong>at</strong>/<strong>by</strong>は出来事・結果。<strong>keep</strong> <strong>O</strong> <strong>C</strong>。OをCのままにする。動詞の原形、名詞節。"
+);
 
-const grammarBoundaries = render("a different shoulder if should");
-assert.match(grammarBoundaries, /^a different shoulder <strong>if<\/strong> <strong>should<\/strong>$/);
-assert.doesNotMatch(grammarBoundaries, /<strong>if<\/strong>ferent|<strong>should<\/strong>er/);
-assert.doesNotMatch(grammarBoundaries, /<strong>a<\/strong>/);
+const placeholderContext = render("turn O Cは第5文型。S Vとする。O/Vingを取る。Cには形容詞を置く。");
+assert.match(placeholderContext, /^<strong>turn<\/strong> <strong>O<\/strong> <strong>C<\/strong>は/);
+assert.match(placeholderContext, /<strong>S<\/strong> <strong>V<\/strong>とする/);
+assert.match(placeholderContext, /<strong>O<\/strong>\/<strong>Ving<\/strong>を取る/);
+assert.match(placeholderContext, /。Cには形容詞を置く。$/);
+assert.doesNotMatch(placeholderContext, /<strong>第5文型|<strong>形容詞|<strong>C<\/strong>には/);
 
-const grammarFalsePositives = render("第10節、節約、語句");
-assert.match(grammarFalsePositives, /^第10節、節約、<strong>語句<\/strong>$/);
-assert.doesNotMatch(grammarFalsePositives, /第10<strong>節<\/strong>|<strong>節<\/strong>約|語<strong>句<\/strong>/);
+const allEnglishWords = render("a different shoulder if should");
+assert.equal(
+  allEnglishWords,
+  "<strong>a</strong> <strong>different</strong> <strong>shoulder</strong> <strong>if</strong> <strong>should</strong>"
+);
 
-const prepositions = render("depend on A、prevent A from Ving、in spite of O、For A、within O、sound like O");
-for (const term of ["on", "from", "in spite of", "For", "within", "like"]) {
-  assert.match(prepositions, new RegExp(`<strong>${term}</strong>`));
-}
-assert.doesNotMatch(prepositions, /data-headword="in"|data-headword="like"/);
+const manualBold = render("これは**重要語**。**very important**。**O**を使う。");
+assert.equal(
+  manualBold,
+  "これは<strong>重要語</strong>。<strong>very important</strong>。<strong>O</strong>を使う。"
+);
+assert.equal(stripMarkup("**重要**と*語根*"), "重要と語根");
 
-const prepositionBoundaries = render("information platform beforehand format");
-assert.equal(prepositionBoundaries, "information platform beforehand format");
+const linkedWords = render("like と ##record##");
+assert.match(linkedWords, /<strong><a [^>]*data-headword="like"/);
+assert.match(linkedWords, /<strong><a [^>]*data-headword="record"/);
+
+const japaneseLinkLabel = render("##record|記録##");
+assert.match(japaneseLinkLabel, /^<a [^>]*data-headword="record"[^>]*>記録 \(no\.20\)<\/a>$/);
+assert.doesNotMatch(japaneseLinkLabel, /<strong>/);
 
 const phrasalVerbLink = render("take off");
-assert.match(phrasalVerbLink, /data-headword="take off"/);
+assert.match(phrasalVerbLink, /^<strong><a [^>]*data-headword="take off"/);
 assert.doesNotMatch(phrasalVerbLink, /<strong>off<\/strong>/);
 
-const protectedGrammar = render("//that Ving// と ##record## と ##like##");
-assert.match(protectedGrammar, /^<span class="pronunciation-inline">/);
-assert.doesNotMatch(protectedGrammar, /pronunciation-inline[^<]*<strong>|<strong>that<\/strong>|<strong>Ving<\/strong>/);
-assert.match(protectedGrammar, /data-headword="record"/);
-assert.match(protectedGrammar, /data-headword="like"/);
+const protectedMarkup = render("//that Ving// と ##like##");
+assert.match(protectedMarkup, /^<span class="pronunciation-inline">\/.*\/<\/span>/);
+assert.doesNotMatch(protectedMarkup, /pronunciation-inline[^<]*<strong>|<strong>that<\/strong>|<strong>Ving<\/strong>/);
+assert.match(protectedMarkup, /<strong><a [^>]*data-headword="like"/);
+assert.doesNotMatch(protectedMarkup, /[\uE000-\uF8FF]/u);
 
 console.log("Markup integration tests passed");
