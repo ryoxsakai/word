@@ -15,7 +15,8 @@ const CROSSREF_RE = /##([^#|]+?)(?:\|([^#]+?))?##/g;
 const HIGHLIGHT_RE = /==(.+?)==/g;
 const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
-const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301)/g;
+const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501)/g;
 
 const GRAMMAR_TERMS = [
   "to be V-ed",
@@ -160,6 +161,141 @@ const BARE_GRAMMAR_TERM_RES = [
   /(^|[^\p{Script=Latin}\p{N}_語])(句)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
   /(^|[^\p{Script=Latin}\p{N}_第])(節)(?=$|[\s、。，．・：:；;!?！？）」』】はがをにでとのもなかま])/gu,
 ];
+
+const PREPOSITION_TERMS = [
+  "in accordance with",
+  "in comparison with",
+  "in connection with",
+  "with respect to",
+  "in comparison to",
+  "in contrast with",
+  "in exchange for",
+  "in relation to",
+  "in response to",
+  "with regard to",
+  "in addition to",
+  "on account of",
+  "on behalf of",
+  "by means of",
+  "by way of",
+  "in case of",
+  "in contrast to",
+  "in favor of",
+  "in front of",
+  "in place of",
+  "in spite of",
+  "in terms of",
+  "according to",
+  "apart from",
+  "as a result of",
+  "because of",
+  "close to",
+  "contrary to",
+  "depending on",
+  "due to",
+  "except for",
+  "far from",
+  "in lieu of",
+  "in line with",
+  "instead of",
+  "next to",
+  "on top of",
+  "owing to",
+  "prior to",
+  "regardless of",
+  "thanks to",
+  "together with",
+  "ahead of",
+  "as for",
+  "as of",
+  "as to",
+  "up to",
+  "aboard",
+  "about",
+  "above",
+  "across",
+  "after",
+  "against",
+  "along",
+  "alongside",
+  "amid",
+  "amidst",
+  "among",
+  "amongst",
+  "around",
+  "as",
+  "at",
+  "before",
+  "behind",
+  "below",
+  "beneath",
+  "beside",
+  "besides",
+  "between",
+  "beyond",
+  "but",
+  "by",
+  "concerning",
+  "considering",
+  "despite",
+  "down",
+  "during",
+  "except",
+  "excepting",
+  "excluding",
+  "following",
+  "for",
+  "from",
+  "in",
+  "inside",
+  "into",
+  "like",
+  "minus",
+  "near",
+  "notwithstanding",
+  "of",
+  "off",
+  "on",
+  "onto",
+  "opposite",
+  "outside",
+  "over",
+  "past",
+  "pending",
+  "per",
+  "plus",
+  "regarding",
+  "round",
+  "save",
+  "since",
+  "than",
+  "through",
+  "throughout",
+  "till",
+  "to",
+  "toward",
+  "towards",
+  "under",
+  "underneath",
+  "unlike",
+  "until",
+  "unto",
+  "up",
+  "upon",
+  "versus",
+  "via",
+  "with",
+  "within",
+  "without",
+];
+const PREPOSITION_TERM_SET = new Set(PREPOSITION_TERMS.map((term) => term.toLowerCase()));
+const PREPOSITION_TERM_RE = new RegExp(
+  `(^|[^\\p{Script=Latin}\\p{N}_])(${PREPOSITION_TERMS
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join("|")})(?=$|[^\\p{Script=Latin}\\p{N}_])`,
+  "giu"
+);
 
 export function escapeHtml(str) {
   return String(str)
@@ -306,9 +442,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     };
 
+    // URLは先に退避し、前置詞や見出し語の自動処理でパス・ドメインを変更しない。
+    const urls = [];
+    const urlProtectedText = String(raw).replace(URL_RE, (url) => {
+      const token = `\uE500${urls.length}\uE501`;
+      urls.push(url);
+      return token;
+    });
+
     // 発音記号は先に退避し、見出し語の自動リンクや他の記法の対象にしない。
     const pronunciations = [];
-    const pronunciationProtectedText = String(raw).replace(PRONUNCIATION_RE, (_match, prefix, pronunciationRaw) => {
+    const pronunciationProtectedText = urlProtectedText.replace(PRONUNCIATION_RE, (_match, prefix, pronunciationRaw) => {
       const token = `\uE300${pronunciations.length}\uE301`;
       pronunciations.push(formatPronunciationWithAccents(pronunciationRaw.trim()));
       return `${prefix}${token}`;
@@ -347,6 +491,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       autoHeadwordRe = new RegExp(boundaryPattern(draftAlternatives.join("|")), "giu");
     }
 
+    const autoRefs = [];
     const withAutoRefs = autoHeadwordRe
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
           if (currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
@@ -354,18 +499,31 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
           }
           const canonical = canonicalByLower.get(matched.toLowerCase());
           if (!canonical) return `${prefix}${matched}`;
+          if (PREPOSITION_TERM_SET.has(matched.toLowerCase())) return `${prefix}${matched}`;
           const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
-          return `${prefix}${marker}`;
+          const token = `\uE400${autoRefs.length}\uE401`;
+          autoRefs.push(marker);
+          return `${prefix}${token}`;
         })
       : protectedText;
 
-    const restored = withAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
+    const withPrepositions = replaceOutsideProtectedTokens(
+      withAutoRefs,
+      PREPOSITION_TERM_RE,
+      (_match, prefix, term) => `${prefix}${boldToken(term)}`
+    );
+    const restoredAutoRefs = withPrepositions.replace(
+      /\uE400(\d+)\uE401/g,
+      (_match, index) => autoRefs[Number(index)] || ""
+    );
+    const restored = restoredAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
     let html = renderMarkup(restored, opts);
     html = html.replace(/\uE200(\d+)\uE201/g, (_match, index) => `<strong>${escapeHtml(boldLabels[Number(index)] || "")}</strong>`);
-    return html.replace(
+    html = html.replace(
       /\uE300(\d+)\uE301/g,
       (_match, index) => `<span class="pronunciation-inline">${escapeHtml(pronunciations[Number(index)] || "")}</span>`
     );
+    return html.replace(/\uE500(\d+)\uE501/g, (_match, index) => escapeHtml(urls[Number(index)] || ""));
   };
 }
 
