@@ -112,7 +112,7 @@ function escapeRegExp(str) {
  * 見出し語一覧から正規表現を作る処理は初回だけなので、入力ごとのプレビューにも使える。
  * @param {Iterable<string>} headwords
  * @param {object} [opts] renderMarkup と同じオプション
- * @returns {(raw: string) => string}
+ * @returns {(raw: string, context?: {currentHeadword?: string}) => string}
  */
 export function createAutoCrossRefRenderer(headwords, opts = {}) {
   const canonicalByLower = new Map();
@@ -126,35 +126,59 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
   const alternatives = [...canonicalByLower.values()]
     .sort((a, b) => b.length - a.length)
     .map(escapeRegExp);
-  if (alternatives.length === 0) return (raw) => renderMarkup(raw, opts);
 
   // 日本語の助詞が直後に続く「importも参照」のような文でも一致させつつ、
   // enacted 内の act のようなラテン文字列の途中には一致させない。
-  const plainHeadwordRe = new RegExp(
-    `(^|[^\\p{Script=Latin}\\p{N}_])(${alternatives.join("|")})(?=$|[^\\p{Script=Latin}\\p{N}_])`,
-    "giu"
-  );
+  const boundaryPattern = (headwordPattern) =>
+    `(^|[^\\p{Script=Latin}\\p{N}_])(${headwordPattern})(?=$|[^\\p{Script=Latin}\\p{N}_])`;
+  const plainHeadwordRe = alternatives.length
+    ? new RegExp(boundaryPattern(alternatives.join("|")), "giu")
+    : null;
 
-  return (raw) => {
+  return (raw, context = {}) => {
     if (!raw) return "";
+    const currentHeadword = String(context.currentHeadword || "").trim();
+    const currentHeadwordLower = currentHeadword.toLowerCase();
+    const boldLabels = [];
+    const boldToken = (label) => {
+      const token = `\uE200${boldLabels.length}\uE201`;
+      boldLabels.push(label);
+      return token;
+    };
 
-    // 明示済みの参照は一時退避し、その中を二重に自動参照しない。
+    // 明示済みの参照は一時退避する。現在の見出し語自身ならリンクにせず太字にする。
     const explicitRefs = [];
-    const protectedText = String(raw).replace(CROSSREF_RE, (match) => {
+    let protectedText = String(raw).replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
+      const headword = headwordRaw.trim();
+      if (currentHeadwordLower && headword.toLowerCase() === currentHeadwordLower) {
+        return boldToken(displayRaw ? displayRaw.trim() : headword);
+      }
       const token = `\uE000${explicitRefs.length}\uE001`;
       explicitRefs.push(match);
       return token;
     });
 
-    const withAutoRefs = protectedText.replace(plainHeadwordRe, (_match, prefix, matched) => {
-      const canonical = canonicalByLower.get(matched.toLowerCase());
-      if (!canonical) return `${prefix}${matched}`;
-      const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
-      return `${prefix}${marker}`;
-    });
+    // 新規作成中など、現在の見出し語がまだ一覧にない場合も単独の出現を太字にする。
+    if (currentHeadword && !canonicalByLower.has(currentHeadwordLower)) {
+      const currentHeadwordRe = new RegExp(boundaryPattern(escapeRegExp(currentHeadword)), "giu");
+      protectedText = protectedText.replace(currentHeadwordRe, (_match, prefix, matched) => `${prefix}${boldToken(matched)}`);
+    }
+
+    const withAutoRefs = plainHeadwordRe
+      ? protectedText.replace(plainHeadwordRe, (_match, prefix, matched) => {
+          const canonical = canonicalByLower.get(matched.toLowerCase());
+          if (!canonical) return `${prefix}${matched}`;
+          if (currentHeadwordLower && canonical.toLowerCase() === currentHeadwordLower) {
+            return `${prefix}${boldToken(matched)}`;
+          }
+          const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
+          return `${prefix}${marker}`;
+        })
+      : protectedText;
 
     const restored = withAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
-    return renderMarkup(restored, opts);
+    const html = renderMarkup(restored, opts);
+    return html.replace(/\uE200(\d+)\uE201/g, (_match, index) => `<strong>${escapeHtml(boldLabels[Number(index)] || "")}</strong>`);
   };
 }
 
