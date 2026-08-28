@@ -1,3 +1,5 @@
+import { formatPronunciationWithAccents } from "./pronunciation.js";
+
 // 単語帳編集用の独自記法パーサー。
 // 設定ページ（プレビュー）とWorker（保存前検証・印刷/閲覧時のレンダリング）の両方から
 // 同じ実装を読み込んで使う。
@@ -7,10 +9,12 @@
 //   ##headword|表示文言##   参照先は headword だが、表示する文言を変えたい場合。
 //   ==text==                キーワード強調（ハイライト）。
 //   *text*                  語根・接辞などの強調（イタリック）。
+//   //text//                IPA発音記号用フォント（メモ欄）。
 
 const CROSSREF_RE = /##([^#|]+?)(?:\|([^#]+?))?##/g;
 const HIGHLIGHT_RE = /==(.+?)==/g;
 const ITALIC_RE = /\*(.+?)\*/g;
+const PRONUNCIATION_RE = /\/\/([^/\n]+?)\/\//g;
 
 export function escapeHtml(str) {
   return String(str)
@@ -146,9 +150,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     };
 
+    // 発音記号は先に退避し、見出し語の自動リンクや他の記法の対象にしない。
+    const pronunciations = [];
+    const pronunciationProtectedText = String(raw).replace(PRONUNCIATION_RE, (_match, pronunciationRaw) => {
+      const token = `\uE300${pronunciations.length}\uE301`;
+      pronunciations.push(formatPronunciationWithAccents(pronunciationRaw.trim()));
+      return token;
+    });
+
     // 明示済みの参照は一時退避する。現在の見出し語自身ならリンクにせず太字にする。
     const explicitRefs = [];
-    let protectedText = String(raw).replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
+    let protectedText = pronunciationProtectedText.replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
       const headword = headwordRaw.trim();
       if (currentHeadwordLower && headword.toLowerCase() === currentHeadwordLower) {
         return boldToken(displayRaw ? displayRaw.trim() : headword);
@@ -177,8 +189,12 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       : protectedText;
 
     const restored = withAutoRefs.replace(/\uE000(\d+)\uE001/g, (_match, index) => explicitRefs[Number(index)] || "");
-    const html = renderMarkup(restored, opts);
-    return html.replace(/\uE200(\d+)\uE201/g, (_match, index) => `<strong>${escapeHtml(boldLabels[Number(index)] || "")}</strong>`);
+    let html = renderMarkup(restored, opts);
+    html = html.replace(/\uE200(\d+)\uE201/g, (_match, index) => `<strong>${escapeHtml(boldLabels[Number(index)] || "")}</strong>`);
+    return html.replace(
+      /\uE300(\d+)\uE301/g,
+      (_match, index) => `<span class="pronunciation-inline">${escapeHtml(pronunciations[Number(index)] || "")}</span>`
+    );
   };
 }
 
