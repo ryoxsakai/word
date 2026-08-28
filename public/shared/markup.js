@@ -14,7 +14,8 @@ import { formatPronunciationWithAccents } from "./pronunciation.js";
 const CROSSREF_RE = /##([^#|]+?)(?:\|([^#]+?))?##/g;
 const HIGHLIGHT_RE = /==(.+?)==/g;
 const ITALIC_RE = /\*(.+?)\*/g;
-const PRONUNCIATION_RE = /\/\/([^/\n]+?)\/\//g;
+const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301)/g;
 
 export function escapeHtml(str) {
   return String(str)
@@ -110,6 +111,17 @@ function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function replaceOutsideProtectedTokens(text, re, replacer) {
+  let output = "";
+  let lastIndex = 0;
+  for (const match of String(text).matchAll(PROTECTED_TOKEN_RE)) {
+    output += String(text).slice(lastIndex, match.index).replace(re, replacer);
+    output += match[0];
+    lastIndex = match.index + match[0].length;
+  }
+  return output + String(text).slice(lastIndex).replace(re, replacer);
+}
+
 /**
  * 本文中に現れる登録済み見出し語を、明示的な ##参照## と同じ表示にする
  * レンダラーを作る。長い見出し語を優先し、英数字の途中では一致させない。
@@ -152,10 +164,10 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
 
     // 発音記号は先に退避し、見出し語の自動リンクや他の記法の対象にしない。
     const pronunciations = [];
-    const pronunciationProtectedText = String(raw).replace(PRONUNCIATION_RE, (_match, pronunciationRaw) => {
+    const pronunciationProtectedText = String(raw).replace(PRONUNCIATION_RE, (_match, prefix, pronunciationRaw) => {
       const token = `\uE300${pronunciations.length}\uE301`;
       pronunciations.push(formatPronunciationWithAccents(pronunciationRaw.trim()));
-      return token;
+      return `${prefix}${token}`;
     });
 
     // 明示済みの参照は一時退避する。現在の見出し語自身ならリンクにせず太字にする。
@@ -170,19 +182,23 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     });
 
-    // 新規作成中など、現在の見出し語がまだ一覧にない場合も単独の出現を太字にする。
+    // 新規作成中の見出し語も登録済み語と同じ最長一致の候補へ加える。
+    // 先に単独で太字化すると、take off より draft の take が先に一致してしまうため。
+    let autoHeadwordRe = plainHeadwordRe;
     if (currentHeadword && !canonicalByLower.has(currentHeadwordLower)) {
-      const currentHeadwordRe = new RegExp(boundaryPattern(escapeRegExp(currentHeadword)), "giu");
-      protectedText = protectedText.replace(currentHeadwordRe, (_match, prefix, matched) => `${prefix}${boldToken(matched)}`);
+      const draftAlternatives = [...canonicalByLower.values(), currentHeadword]
+        .sort((a, b) => b.length - a.length)
+        .map(escapeRegExp);
+      autoHeadwordRe = new RegExp(boundaryPattern(draftAlternatives.join("|")), "giu");
     }
 
-    const withAutoRefs = plainHeadwordRe
-      ? protectedText.replace(plainHeadwordRe, (_match, prefix, matched) => {
-          const canonical = canonicalByLower.get(matched.toLowerCase());
-          if (!canonical) return `${prefix}${matched}`;
-          if (currentHeadwordLower && canonical.toLowerCase() === currentHeadwordLower) {
+    const withAutoRefs = autoHeadwordRe
+      ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
+          if (currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
             return `${prefix}${boldToken(matched)}`;
           }
+          const canonical = canonicalByLower.get(matched.toLowerCase());
+          if (!canonical) return `${prefix}${matched}`;
           const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
           return `${prefix}${marker}`;
         })
