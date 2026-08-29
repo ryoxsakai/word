@@ -11,7 +11,7 @@ function normalizeMigrationSql(sql) {
   const protectedSql = withoutComments.replace(/CREATE\s+TRIGGER[\s\S]*?END\s*;/gi, (trigger) => {
     const marker = `__TRIGGER_${triggers.length}__`;
     triggers.push(trigger.replace(/;\s*$/, "").replace(/\s+/g, " "));
-    return marker;
+    return `${marker};`;
   });
   return protectedSql
     .split(";")
