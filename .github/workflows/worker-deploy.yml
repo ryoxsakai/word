@@ -30,7 +30,7 @@ jobs:
           node-version: 22
       - run: npm ci
 
-      - name: Test MCP OAuth, read, and authenticated write tools
+      - name: Test MCP OAuth and temporary anonymous write mode
         run: npm run test:mcp-write
 
       - name: Test ElevenLabs pronunciation generation
@@ -90,7 +90,7 @@ jobs:
             --data '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
             --retry 5 --retry-delay 10 --retry-all-errors \
             | tee /tmp/vocab-mcp-tools.json \
-            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];const read=tools.find(t=>t.name==="list_notebooks");const write=tools.find(t=>t.name==="update_word");if(!read||read.securitySchemes?.[0]?.type!=="noauth"||!write||write.securitySchemes?.[0]?.type!=="oauth2"||!tools.some(t=>t.name==="vocab.create_notebook"))process.exit(1)})'
+            | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const p=JSON.parse(s);const tools=p.result?.tools||[];const read=tools.find(t=>t.name==="list_notebooks");const write=tools.find(t=>t.name==="update_word");if(!read||read.securitySchemes?.[0]?.type!=="noauth"||!write||write.securitySchemes?.[0]?.type!=="noauth"||!tools.some(t=>t.name==="vocab.create_notebook"))process.exit(1)})'
 
           curl -sf "https://vocab.lrnr.jp/.well-known/oauth-protected-resource/mcp" \
             --retry 5 --retry-delay 10 --retry-all-errors \
@@ -123,9 +123,10 @@ jobs:
             --data '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"update_word","arguments":{"lookup_spelling":"must-not-be-updated","notes":"unauthorized-deploy-check"}}}' \
             --retry 5 --retry-delay 10 --retry-all-errors)
 
-          if [ "$combined_write_status" != "401" ]; then
+          if [ "$combined_write_status" != "200" ]; then
             cat /tmp/vocab-mcp-combined-write.json
             exit 1
           fi
 
-          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-combined-write.json","utf8"));if(p.error!=="invalid_token")process.exit(1)'
+          # Authentication must not block the call. The nonexistent spelling keeps this deploy check non-mutating.
+          node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync("/tmp/vocab-mcp-combined-write.json","utf8"));if(p.result?.isError!==true||!p.result?.content?.[0]?.text?.includes("Word not found"))process.exit(1)'
