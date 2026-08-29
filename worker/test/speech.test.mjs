@@ -44,6 +44,20 @@ function fakeButton() {
 }
 
 {
+  const remoteUsVoice = { lang: "en-US", localService: false, name: "Remote English" };
+  const localGbVoice = { lang: "en-GB", localService: true, name: "System British" };
+  const calls = [];
+  const synthesis = {
+    cancel: () => {},
+    getVoices: () => [remoteUsVoice, localGbVoice],
+    speak: (utterance) => calls.push(utterance),
+  };
+
+  assert.equal(speakEnglish("permit", { synthesis, Utterance: StubUtterance }), true);
+  assert.equal(calls[0].voice, localGbVoice);
+}
+
+{
   let unsupported = false;
   assert.equal(
     speakEnglish("permit", {

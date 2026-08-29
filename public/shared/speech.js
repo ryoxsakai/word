@@ -10,8 +10,8 @@ function preferredEnglishVoice(synthesis) {
   const voices = synthesis.getVoices?.() || [];
   return (
     voices.find((voice) => voice.localService && /^en-US$/i.test(voice.lang || "")) ||
-    voices.find((voice) => /^en-US$/i.test(voice.lang || "")) ||
     voices.find((voice) => voice.localService && /^en(?:-|_)/i.test(voice.lang || "")) ||
+    voices.find((voice) => /^en-US$/i.test(voice.lang || "")) ||
     voices.find((voice) => /^en(?:-|_)/i.test(voice.lang || "")) ||
     null
   );
