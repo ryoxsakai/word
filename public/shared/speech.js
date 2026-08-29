@@ -1,6 +1,9 @@
 let activeUtterance = null;
 let activeAudio = null;
 let activeButton = null;
+let audioContext = null;
+
+const GENERATED_AUDIO_GAIN = 1.4;
 
 function clearActiveButton() {
   activeButton?.classList?.remove("speaking");
@@ -11,6 +14,24 @@ function stopActiveAudio() {
   if (!activeAudio) return;
   activeAudio.pause?.();
   activeAudio = null;
+}
+
+// 生成音声は試聴で採用した約+3 dB（1.4倍）で再生する。
+// Web Audio APIが使えない環境では通常音量のAudio再生へ安全に戻る。
+function boostGeneratedAudio(audio, AudioContextCtor) {
+  const ContextClass =
+    AudioContextCtor || globalThis.AudioContext || globalThis.webkitAudioContext;
+  if (!ContextClass) return;
+  try {
+    audioContext ||= new ContextClass();
+    const source = audioContext.createMediaElementSource(audio);
+    const gain = audioContext.createGain();
+    gain.gain.value = GENERATED_AUDIO_GAIN;
+    source.connect(gain).connect(audioContext.destination);
+    audioContext.resume?.();
+  } catch {
+    // 再生自体を優先し、Web Audioの初期化失敗は無視する。
+  }
 }
 
 function preferredEnglishVoice(synthesis) {
@@ -63,7 +84,15 @@ export function speakEnglish(text, { button = null, onUnsupported = null, synthe
 // ElevenLabsで生成済みの音声を優先し、取得・再生できない場合だけ端末音声へ戻す。
 export function playPronunciation(
   text,
-  { audioUrl = null, button = null, onUnsupported = null, synthesis, Utterance, AudioCtor } = {}
+  {
+    audioUrl = null,
+    button = null,
+    onUnsupported = null,
+    synthesis,
+    Utterance,
+    AudioCtor,
+    AudioContextCtor,
+  } = {}
 ) {
   const normalizedAudioUrl = String(audioUrl || "").trim();
   const AudioClass = AudioCtor || globalThis.Audio;
@@ -77,6 +106,7 @@ export function playPronunciation(
   clearActiveButton();
 
   const audio = new AudioClass(normalizedAudioUrl);
+  boostGeneratedAudio(audio, AudioContextCtor);
   activeAudio = audio;
   activeButton = button;
   activeButton?.classList?.add("speaking");

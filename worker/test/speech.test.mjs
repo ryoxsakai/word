@@ -45,6 +45,7 @@ function fakeButton() {
 
 {
   const calls = [];
+  let appliedGain = null;
   class StubAudio {
     constructor(url) {
       this.url = url;
@@ -58,6 +59,20 @@ function fakeButton() {
       calls.push(["pause", this.url]);
     }
   }
+  class StubAudioContext {
+    constructor() {
+      this.destination = {};
+    }
+    createMediaElementSource() {
+      return { connect: () => ({ connect: () => {} }) };
+    }
+    createGain() {
+      const gain = { value: 1 };
+      appliedGain = gain;
+      return { gain };
+    }
+    resume() {}
+  }
   const synthesis = { cancel: () => calls.push(["cancel"]) };
   const button = fakeButton();
   assert.equal(
@@ -66,6 +81,7 @@ function fakeButton() {
       button,
       synthesis,
       AudioCtor: StubAudio,
+      AudioContextCtor: StubAudioContext,
       Utterance: StubUtterance,
     }),
     true
@@ -76,6 +92,7 @@ function fakeButton() {
     ["play", "/mcp-viewer/api/audio/permit/primary"],
   ]);
   assert.equal(button.classes.has("speaking"), true);
+  assert.equal(appliedGain.value, 1.4);
 }
 
 {
