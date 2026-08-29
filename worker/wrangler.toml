@@ -21,6 +21,8 @@ ELEVENLABS_VOICE_ID = "Sq93GQT4X1lKDXsQcixO"
 ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
 # 毎分この件数まで、IPA登録済みで音声がない見出し語を自動生成する。
 AUDIO_AUTO_BATCH_SIZE = "5"
+# サンプル確認後、ユーザーの承認を得てから true に戻す。
+AUDIO_AUTO_ENABLED = "false"
 
 [triggers]
 crons = ["* * * * *"]

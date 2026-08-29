@@ -127,6 +127,7 @@ const audioEnv = {
 };
 const status = await automaticAudioStatus(audioEnv);
 assert.deepEqual(status, {
+  enabled: true,
   voiceId: "test-voice",
   modelId: "test-model",
   eligible: 2,
