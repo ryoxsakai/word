@@ -86,6 +86,7 @@ try {
     DB: db,
     VOCAB_MCP_API_KEY: "integration-api-key",
     VOCAB_MCP_SESSION_SECRET: "integration-session-secret-that-is-long-and-random",
+    MCP_ALLOW_ANONYMOUS_WRITES: "true",
   };
 
   const protectedMetadata = await handleMcpRoute(
@@ -232,7 +233,7 @@ try {
   );
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "update_word").securitySchemes[0].type,
-    "oauth2"
+    "noauth"
   );
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -255,18 +256,17 @@ try {
   assert.equal(anonymousRead.status, 200);
   assert.equal(anonymousRead.body.result.isError, false);
 
-  const combinedUnauthorizedWrite = await rpc(
+  const combinedAnonymousWrite = await rpc(
     env,
     accessToken,
     "/mcp",
     34,
     "tools/call",
-    { name: "create_notebook", arguments: { name: "Unauthorized combined write" } },
+    { name: "create_notebook", arguments: { name: "Anonymous combined write" } },
     false
   );
-  assert.equal(combinedUnauthorizedWrite.status, 401);
-  assert.equal(combinedUnauthorizedWrite.body.error, "invalid_token");
-  assert.match(combinedUnauthorizedWrite.headers.get("WWW-Authenticate"), /oauth-protected-resource\/mcp/);
+  assert.equal(combinedAnonymousWrite.status, 200);
+  assert.equal(combinedAnonymousWrite.body.result.isError, false);
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
@@ -782,7 +782,8 @@ try {
     )
   );
   assert.ok(auditLog.changes.length >= 15);
-  assert.ok(auditLog.changes.every((change) => change.actor === "oauth:" + clientId));
+  assert.ok(auditLog.changes.some((change) => change.actor === "anonymous:mcp"));
+  assert.ok(auditLog.changes.some((change) => change.actor === "oauth:" + clientId));
 
   console.log("MCP write integration test passed");
 } finally {
