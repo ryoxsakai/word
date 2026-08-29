@@ -4,6 +4,7 @@ const DEFAULT_BATCH_SIZE = 5;
 const MAX_BATCH_SIZE = 20;
 const MAX_RETRY_DELAY_SECONDS = 24 * 60 * 60;
 const STUCK_JOB_MINUTES = 15;
+const AUTOMATIC_AUDIO_LIST_ID = "crossover-v3";
 
 function batchSize(raw) {
   const parsed = Number.parseInt(String(raw ?? ""), 10);
@@ -19,7 +20,7 @@ function retryDelaySeconds(attempts) {
   return Math.min(MAX_RETRY_DELAY_SECONDS, 60 * 2 ** Math.min(Math.max(attempts, 0), 11));
 }
 
-// 手動生成や旧データも含め、現在のwords/word_audioを正として待ち行列を整える。
+// crossoverの収録語と現在のwords/word_audioを正として待ち行列を整える。
 export async function reconcileAutomaticAudioJobs(env) {
   await env.DB.batch([
     env.DB.prepare(
@@ -30,6 +31,11 @@ export async function reconcileAutomaticAudioJobs(env) {
              SELECT 1 FROM words w
              WHERE w.id = word_audio_jobs.word_id
                AND TRIM(COALESCE(w.pronunciation, '')) <> ''
+           )
+           OR NOT EXISTS (
+             SELECT 1 FROM list_items li
+             WHERE li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+               AND li.word_id = word_audio_jobs.word_id
            )
            OR EXISTS (
              SELECT 1 FROM word_audio a
@@ -49,6 +55,9 @@ export async function reconcileAutomaticAudioJobs(env) {
       `INSERT OR IGNORE INTO word_audio_jobs (word_id, variant_key)
        SELECT w.id, 'primary'
        FROM words w
+       JOIN list_items li
+         ON li.word_id = w.id
+        AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
        LEFT JOIN word_audio a
          ON a.word_id = w.id
         AND a.variant_key = 'primary'
@@ -62,25 +71,39 @@ export async function reconcileAutomaticAudioJobs(env) {
 export async function automaticAudioStatus(env) {
   const [eligible, generated, jobs, recentErrors] = await env.DB.batch([
     env.DB.prepare(
-      "SELECT COUNT(*) AS count FROM words WHERE TRIM(COALESCE(pronunciation, '')) <> ''"
+      `SELECT COUNT(*) AS count
+       FROM words w
+       JOIN list_items li
+         ON li.word_id = w.id
+        AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+       WHERE TRIM(COALESCE(w.pronunciation, '')) <> ''`
     ),
     env.DB.prepare(
       `SELECT COUNT(*) AS count
-       FROM word_audio
-       WHERE variant_key = 'primary' AND is_stale = 0`
+       FROM word_audio a
+       JOIN list_items li
+         ON li.word_id = a.word_id
+        AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+       WHERE a.variant_key = 'primary' AND a.is_stale = 0`
     ),
     env.DB.prepare(
       `SELECT COUNT(*) AS queued,
-              SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending,
-              SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) AS processing,
-              SUM(CASE WHEN status = 'retry' THEN 1 ELSE 0 END) AS retrying
-       FROM word_audio_jobs`
+              SUM(CASE WHEN j.status = 'pending' THEN 1 ELSE 0 END) AS pending,
+              SUM(CASE WHEN j.status = 'processing' THEN 1 ELSE 0 END) AS processing,
+              SUM(CASE WHEN j.status = 'retry' THEN 1 ELSE 0 END) AS retrying
+       FROM word_audio_jobs j
+       JOIN list_items li
+         ON li.word_id = j.word_id
+        AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'`
     ),
     env.DB.prepare(
-      `SELECT word_id AS wordId, attempts, last_error AS error, updated_at AS updatedAt
-       FROM word_audio_jobs
-       WHERE last_error IS NOT NULL
-       ORDER BY updated_at DESC, word_id
+      `SELECT j.word_id AS wordId, j.attempts, j.last_error AS error, j.updated_at AS updatedAt
+       FROM word_audio_jobs j
+       JOIN list_items li
+         ON li.word_id = j.word_id
+        AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+       WHERE j.last_error IS NOT NULL
+       ORDER BY j.updated_at DESC, j.word_id
        LIMIT 10`
     ),
   ]);

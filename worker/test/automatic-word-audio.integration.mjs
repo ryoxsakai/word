@@ -60,8 +60,14 @@ sqlite.exec(`
     is_stale INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (word_id, variant_key)
   );
+  CREATE TABLE list_items (
+    list_id TEXT NOT NULL,
+    word_id TEXT NOT NULL,
+    PRIMARY KEY (list_id, word_id)
+  );
 `);
 sqlite.exec(readFileSync(new URL("../migrations/0025_automatic_word_audio.sql", import.meta.url), "utf8"));
+sqlite.exec(readFileSync(new URL("../migrations/0026_crossover_audio_scope.sql", import.meta.url), "utf8"));
 
 const db = d1Adapter(sqlite);
 await db.prepare("INSERT INTO words (id, spelling, pronunciation) VALUES (?, ?, ?)")
@@ -69,6 +75,15 @@ await db.prepare("INSERT INTO words (id, spelling, pronunciation) VALUES (?, ?, 
   .run();
 await db.prepare("INSERT INTO words (id, spelling, pronunciation) VALUES (?, ?, ?)")
   .bind("broken", "broken", "動 /x/、名 /y/")
+  .run();
+await db.prepare("INSERT INTO words (id, spelling, pronunciation) VALUES (?, ?, ?)")
+  .bind("outside", "outside", "/ˌaʊtˈsaɪd/")
+  .run();
+await db.prepare("INSERT INTO list_items (list_id, word_id) VALUES (?, ?)")
+  .bind("crossover-v3", "alpha")
+  .run();
+await db.prepare("INSERT INTO list_items (list_id, word_id) VALUES (?, ?)")
+  .bind("crossover-v3", "broken")
   .run();
 
 const calls = [];
