@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 
-import { createAutoCrossRefRenderer, stripMarkup } from "../../public/shared/markup.js";
+import {
+  collectPhraseCrossReferences,
+  createAutoCrossRefRenderer,
+  stripMarkup,
+} from "../../public/shared/markup.js";
 
 const entries = new Map([
   ["0", { id: "zero", no: 1 }],
@@ -8,12 +12,41 @@ const entries = new Map([
   ["like", { id: "like", no: 15 }],
   ["record", { id: "record", no: 20 }],
   ["take off", { id: "take-off", no: 30 }],
+  ["have", { id: "have", no: 122 }],
+  ["bearing", { id: "bearing", no: 776 }],
 ]);
 const resolve = (headword) => {
   const hit = entries.get(headword.toLowerCase());
   return hit ? { found: true, ...hit } : { found: false };
 };
 const render = createAutoCrossRefRenderer(entries.keys(), { resolve });
+
+const phraseReferences = collectPhraseCrossReferences([
+  {
+    spelling: "bearing",
+    examples: [
+      { type: "phrase", sentence: "have a bearing on O" },
+      { type: "example", sentence: "It has a bearing on the result." },
+    ],
+  },
+  { spelling: "record", phrases: ["keep a record of O"] },
+  { spelling: "alpha", phrases: ["shared phrase"] },
+  { spelling: "beta", phrases: ["shared phrase"] },
+]);
+assert.deepEqual(phraseReferences, [
+  { phrase: "have a bearing on O", target: "bearing" },
+  { phrase: "keep a record of O", target: "record" },
+]);
+
+const renderWithPhrases = createAutoCrossRefRenderer(entries.keys(), { resolve, phraseReferences });
+const phraseLink = renderWithPhrases("have a bearing on Oは『Oに関係がある』。", {
+  currentHeadword: "bearing",
+});
+assert.match(
+  phraseLink,
+  /^<strong><a [^>]*data-headword="bearing"[^>]*>have a bearing on O \(no\.776\)<\/a><\/strong>は/
+);
+assert.doesNotMatch(phraseLink, /data-headword="have"|have \(no\.122\)/);
 
 const longestMatch = render("take offの用法とtakeを確認する。", { currentHeadword: "take" });
 assert.match(longestMatch, /<strong><a [^>]*data-headword="take off"/);
