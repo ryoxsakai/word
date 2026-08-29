@@ -3,7 +3,11 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Miniflare } from "miniflare";
-import { generateWordAudio, serveWordAudio } from "../src/word-audio.js";
+import { generateWordAudio, punctuatedHeadword, serveWordAudio } from "../src/word-audio.js";
+
+assert.equal(punctuatedHeadword("come"), "Come.");
+assert.equal(punctuatedHeadword("respectable."), "Respectable.");
+assert.equal(punctuatedHeadword("AIDS"), "AIDS.");
 
 function normalizeMigrationSql(sql) {
   const triggers = [];
@@ -35,6 +39,7 @@ const miniflare = new Miniflare({
 
 const originalFetch = globalThis.fetch;
 let dictionaryCounter = 0;
+const speechBodies = [];
 
 try {
   const db = await miniflare.getD1Database("DB");
@@ -70,6 +75,7 @@ try {
       return Response.json({ id: `dictionary-${dictionaryCounter}`, version_id: `version-${dictionaryCounter}` });
     }
     if (url.includes("/text-to-speech/")) {
+      speechBodies.push(JSON.parse(init.body));
       return new Response(new Uint8Array([7, 8, 9, dictionaryCounter]), {
         headers: { "content-type": "audio/mpeg" },
       });
@@ -89,6 +95,7 @@ try {
   };
 
   const first = await generateWordAudio(env, "permit");
+  assert.equal(speechBodies[0].text, "Permit.");
   assert.equal(first.ipa, "pəˈmɪt");
   assert.equal(first.pos, "他");
   assert.match(first.url, /^\/mcp-viewer\/api\/audio\/permit\/primary\?v=/);
@@ -97,7 +104,7 @@ try {
     .prepare("SELECT object_key AS objectKey, voice_id AS voiceId, provider FROM word_audio WHERE word_id = 'permit'")
     .first();
   assert.equal(stored.voiceId, "test-voice");
-  assert.equal(stored.provider, "elevenlabs-native");
+  assert.equal(stored.provider, "elevenlabs-native-period");
   assert.ok(await bucket.head(stored.objectKey));
   assert.equal(
     (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,

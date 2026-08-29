@@ -3,8 +3,15 @@ import { ElevenLabsError, synthesizeWordWithIpa } from "./elevenlabs.js";
 const PRIMARY_VARIANT = "primary";
 export const DEFAULT_VOICE_ID = "Sq93GQT4X1lKDXsQcixO";
 export const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
-export const NATIVE_PROVIDER = "elevenlabs-native";
+// 先頭大文字＋ピリオドの生成方式を旧・単語単体方式と区別し、全件を確実に再生成する。
+export const NATIVE_PROVIDER = "elevenlabs-native-period";
 export const IPA_PROVIDER = "elevenlabs-ipa";
+
+export function punctuatedHeadword(spelling) {
+  const value = String(spelling || "").trim().replace(/[.!?]+$/u, "");
+  if (!value) return "";
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}.`;
+}
 
 function variantKey(raw) {
   const value = String(raw || PRIMARY_VARIANT).trim().toLowerCase();
@@ -61,6 +68,8 @@ export async function generateWordAudio(env, wordId, body = {}) {
     body.forcePronunciation == null
       ? variant !== PRIMARY_VARIANT
       : Boolean(body.forcePronunciation);
+  const spokenText =
+    body.spokenText ?? (variant === PRIMARY_VARIANT ? punctuatedHeadword(word.spelling) : undefined);
   const audio = await synthesizeWordWithIpa({
     apiKey: env.ELEVENLABS_API_KEY,
     voiceId,
@@ -68,7 +77,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
     spelling: word.spelling,
     ipa,
     forcePronunciation,
-    spokenText: body.spokenText,
+    spokenText,
     previousText: body.previousText,
     nextText: body.nextText,
   });

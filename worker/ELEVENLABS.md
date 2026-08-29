@@ -1,6 +1,6 @@
 # ElevenLabs pronunciation audio
 
-The editor can generate a pronunciation clip from a headword and one IPA value. Ordinary words use ElevenLabs' native English pronunciation. Words with the pronunciation-caution flag use a temporary IPA pronunciation dictionary so heteronyms such as verb `permit` retain the intended stress. The generated MP3 is stored in the `vocab-audio` R2 bucket, and temporary dictionaries are deleted after generation. The viewer serves the saved clip and falls back to the Web Speech API when no saved clip is available or playback fails.
+The editor can generate a pronunciation clip from a headword and one IPA value. Primary clips use ElevenLabs' native English pronunciation without a pronunciation dictionary. To make isolated-word intonation more stable, the spelling is sent in sentence case with a final period, such as `Come.` or `Respectable.`. The generated MP3 is stored in the `vocab-audio` R2 bucket. The viewer serves the saved clip and falls back to the Web Speech API when no saved clip is available or playback fails.
 
 ## Required secret
 
