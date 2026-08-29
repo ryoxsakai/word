@@ -12,6 +12,12 @@ npx wrangler secret put ELEVENLABS_API_KEY
 
 The deploy workflow creates the `vocab-audio` R2 bucket if it does not exist. The default voice and model are configured in `wrangler.toml` and can be overridden with `ELEVENLABS_VOICE_ID` and `ELEVENLABS_MODEL_ID`.
 
+## Automatic generation
+
+A scheduled Worker run processes up to `AUDIO_AUTO_BATCH_SIZE` headwords every minute.  Existing headwords with one IPA value are queued by the migration, and new or pronunciation-updated headwords are queued automatically.  Successfully generated clips leave the queue.  Failed entries use exponential backoff, so one malformed IPA or a temporary ElevenLabs failure does not block later headwords.
+
+The authenticated editor status endpoint is `GET /mcp-editor/api/audio-generation/status`.  It reports eligible, generated, queued, processing, and retrying counts.  Manual generation remains available and removes the corresponding automatic job after success.
+
 ## Editorial workflow
 
 1. Save the headword and one primary IPA value.

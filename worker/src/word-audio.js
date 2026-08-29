@@ -102,6 +102,9 @@ export async function generateWordAudio(env, wordId, body = {}) {
               .bind(generatedAudioUrl(wordId, variant, generatedAt), wordId),
           ]
         : []),
+      env.DB
+        .prepare("DELETE FROM word_audio_jobs WHERE word_id = ? AND variant_key = ?")
+        .bind(wordId, variant),
     ]);
   } catch (error) {
     await env.AUDIO_BUCKET.delete(objectKey);

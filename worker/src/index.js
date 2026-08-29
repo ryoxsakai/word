@@ -16,6 +16,11 @@ import {
   loadGeneratedAudio,
   serveWordAudio,
 } from "./word-audio.js";
+import {
+  automaticAudioStatus,
+  processAutomaticAudio,
+  reconcileAutomaticAudioJobs,
+} from "./audio-auto-generation.js";
 
 /** 仮想の親リスト（全単語マスター）の ID */
 const MASTER_LIST_ID = "__master__";
@@ -1096,6 +1101,7 @@ async function deleteWord(env, id) {
     .all();
   await db.batch([
     db.prepare("UPDATE words SET derived_from_id = NULL WHERE derived_from_id = ?").bind(id),
+    db.prepare("DELETE FROM word_audio_jobs WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM word_audio WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM senses WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM derivatives WHERE word_id = ?").bind(id),
@@ -2273,6 +2279,14 @@ export default {
       const apiPath = pathname.slice("/mcp-editor".length);
       const parts = apiPath.split("/").filter(Boolean).map(decodeURIComponent);
       try {
+        if (pathname === "/mcp-editor/api/audio-generation/status") {
+          if (request.method !== "GET") {
+            return withCors(json({ error: "method not allowed" }, { status: 405 }), allowedOrigin);
+          }
+          await reconcileAutomaticAudioJobs(env);
+          return withCors(json(await automaticAudioStatus(env)), allowedOrigin);
+        }
+
         const editorAudioMatch = pathname.match(
           /^\/mcp-editor\/api\/words\/([^/]+)\/audio\/?$/
         );
@@ -2322,5 +2336,12 @@ export default {
         allowedOrigin
       );
     }
+  },
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(
+      processAutomaticAudio(env)
+        .then((summary) => console.log("Automatic pronunciation generation", summary))
+        .catch((error) => console.error("Automatic pronunciation generation failed", error))
+    );
   },
 };
