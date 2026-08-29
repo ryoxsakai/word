@@ -48,6 +48,14 @@ try {
     .bind("permit", "permit", "/pəˈmɪt/")
     .run();
   await db
+    .prepare("INSERT OR IGNORE INTO lists (id, name) VALUES (?, ?)")
+    .bind("crossover-v3", "crossover")
+    .run();
+  await db
+    .prepare("INSERT INTO list_items (list_id, word_id, no, branch) VALUES (?, ?, ?, ?)")
+    .bind("crossover-v3", "permit", 1, 0)
+    .run();
+  await db
     .prepare("INSERT INTO senses (word_id, pos, meaning, is_primary) VALUES (?, ?, ?, 1)")
     .bind("permit", "他", "Oを許可する")
     .run();
