@@ -4,14 +4,16 @@
 
 | 接続先 | 用途 | 認証 |
 | --- | --- | --- |
-| `https://vocab.lrnr.jp/mcp` | 単語帳の検索・閲覧・編集・監査 | 閲覧は認証なし、編集・監査はWorker内蔵OAuth 2.1 |
+| `https://vocab.lrnr.jp/mcp` | 単語帳の検索・閲覧・編集・監査 | 現在は一時的にすべて認証なし |
 | `https://vocab.lrnr.jp/mcp-write` | 単語帳の閲覧・編集・監査（従来の完全認証型接続） | Worker内蔵OAuth 2.1 |
 
-通常は `/mcp` だけを接続します。検索・閲覧は従来どおり認証なしで利用でき、編集・監査ツールを初めて実行するとOAuth認証が始まります。`/mcp-write` は閲覧を含むすべての操作に認証を要求する従来の接続として残します。各ツールには互換性のため `vocab.` 接頭辞付きの別名もあります。
+通常は `/mcp` だけを接続します。現在は `MCP_ALLOW_ANONYMOUS_WRITES = "true"` により、検索・閲覧に加えて編集・監査ツールも認証なしで利用できます。`/mcp-write` は閲覧を含むすべての操作に認証を要求する従来の接続として残します。各ツールには互換性のため `vocab.` 接頭辞付きの別名もあります。
+
+この一時運用を終了するときは、`wrangler.toml` の `MCP_ALLOW_ANONYMOUS_WRITES` を `"false"` に変更してデプロイします。OAuth実装とSecretは残してあるため、パスワード保護をすぐに復元できます。
 
 ## 編集接続の認証
 
-認証方式は `works.lrnr.jp` と `exam.lrnr.jp` のMCPと同じです。Cloudflare Zero TrustやGitHub OAuthは使用しません。
+以下は `/mcp-write` と、一時公開を終了した後の `/mcp` に適用されます。認証方式は `works.lrnr.jp` と `exam.lrnr.jp` のMCPと同じです。Cloudflare Zero TrustやGitHub OAuthは使用しません。
 
 1. `/mcp` で編集・監査ツールを初めて実行すると、ChatGPTが動的クライアント登録を行います。
 2. Workerの認可画面で `VOCAB_MCP_API_KEY` を入力します。
