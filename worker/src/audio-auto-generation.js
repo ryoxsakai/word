@@ -60,7 +60,7 @@ export async function reconcileAutomaticAudioJobs(env) {
 }
 
 export async function automaticAudioStatus(env) {
-  const [eligible, generated, jobs] = await env.DB.batch([
+  const [eligible, generated, jobs, recentErrors] = await env.DB.batch([
     env.DB.prepare(
       "SELECT COUNT(*) AS count FROM words WHERE TRIM(COALESCE(pronunciation, '')) <> ''"
     ),
@@ -71,9 +71,17 @@ export async function automaticAudioStatus(env) {
     ),
     env.DB.prepare(
       `SELECT COUNT(*) AS queued,
+              SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending,
               SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) AS processing,
               SUM(CASE WHEN status = 'retry' THEN 1 ELSE 0 END) AS retrying
        FROM word_audio_jobs`
+    ),
+    env.DB.prepare(
+      `SELECT word_id AS wordId, attempts, last_error AS error, updated_at AS updatedAt
+       FROM word_audio_jobs
+       WHERE last_error IS NOT NULL
+       ORDER BY updated_at DESC, word_id
+       LIMIT 10`
     ),
   ]);
   const first = (result) => result?.results?.[0] || {};
@@ -81,8 +89,10 @@ export async function automaticAudioStatus(env) {
     eligible: Number(first(eligible).count || 0),
     generated: Number(first(generated).count || 0),
     queued: Number(first(jobs).queued || 0),
+    pending: Number(first(jobs).pending || 0),
     processing: Number(first(jobs).processing || 0),
     retrying: Number(first(jobs).retrying || 0),
+    recentErrors: (recentErrors?.results || []).map((row) => ({ ...row })),
   };
 }
 

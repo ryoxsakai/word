@@ -91,7 +91,7 @@ assert.deepEqual(
 );
 
 const retry = await db.prepare(
-  "SELECT status, attempts, last_error AS lastError, next_attempt_at AS nextAttemptAt FROM word_audio_jobs WHERE word_id = 'broken'"
+  "SELECT status, attempts, last_error AS lastError, next_attempt_at AS nextAttemptAt, updated_at AS updatedAt FROM word_audio_jobs WHERE word_id = 'broken'"
 ).first();
 assert.equal(retry.status, "retry");
 assert.equal(retry.attempts, 1);
@@ -103,8 +103,17 @@ assert.deepEqual(status, {
   eligible: 2,
   generated: 0,
   queued: 1,
+  pending: 0,
   processing: 0,
   retrying: 1,
+  recentErrors: [
+    {
+      wordId: "broken",
+      attempts: 1,
+      error: "発音記号が複数あります",
+      updatedAt: retry.updatedAt,
+    },
+  ],
 });
 
 console.log("automatic word audio integration tests passed");

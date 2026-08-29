@@ -2214,6 +2214,13 @@ export default {
     // GitHub Pages上の閲覧画面向け。公開対象は画面表示に必要な
     // 「単語帳一覧」と「1単語帳の全表示データ」のGETだけに限定する。
     if (pathname.startsWith("/mcp-viewer/api/")) {
+      if (
+        pathname === "/mcp-viewer/api/audio-generation/status" &&
+        request.method === "GET"
+      ) {
+        return json(await automaticAudioStatus(env));
+      }
+
       const viewerAudioMatch = pathname.match(
         /^\/mcp-viewer\/api\/audio\/([^/]+)(?:\/([^/]+))?\/?$/
       );

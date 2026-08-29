@@ -16,7 +16,7 @@ The deploy workflow creates the `vocab-audio` R2 bucket if it does not exist. Th
 
 A scheduled Worker run processes up to `AUDIO_AUTO_BATCH_SIZE` headwords every minute.  Existing headwords with one IPA value are queued by the migration, and new or pronunciation-updated headwords are queued automatically.  Successfully generated clips leave the queue.  Failed entries use exponential backoff, so one malformed IPA or a temporary ElevenLabs failure does not block later headwords.
 
-The authenticated editor status endpoint is `GET /mcp-editor/api/audio-generation/status`.  It reports eligible, generated, queued, processing, and retrying counts.  Manual generation remains available and removes the corresponding automatic job after success.
+The authenticated editor status endpoint is `GET /mcp-editor/api/audio-generation/status`.  A read-only operational status is also available at `GET /mcp-viewer/api/audio-generation/status`.  They report eligible, generated, queued, processing, and retrying counts together with recent generation errors.  Manual generation remains available and removes the corresponding automatic job after success.
 
 ## Editorial workflow
 
