@@ -18,7 +18,8 @@ const BOLD_RE = /\*\*(.+?)\*\*/g;
 const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
-const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601)/g;
+const REFERENCE_NUMBER_RE = /[（(]\s*no[.．]\s*\d+(?:-\d+)*\s*[)）]/gi;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701)/g;
 
 const ENGLISH_WORD_RE =
   /(^|[^\p{Script=Latin}\p{N}_])(\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/gu;
@@ -53,23 +54,30 @@ export function renderMarkup(raw, opts = {}) {
     const label = (displayRaw ? displayRaw.trim() : headword);
     const result = resolve ? resolve(headword) : null;
 
+    const labelHtml = escapeHtml(label);
+    const emphasizedLabel = boldRefs && /\p{Script=Latin}/u.test(label)
+      ? `<strong class="memo-english">${labelHtml}</strong>`
+      : labelHtml;
     let refHtml;
     if (!result || !result.found) {
-      refHtml = `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${escapeHtml(label)}</span>`;
+      refHtml = `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${emphasizedLabel}</span>`;
     } else {
-      const noSuffix = result.no != null ? ` (no.${result.no})` : "";
-      refHtml = `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${escapeHtml(label)}${escapeHtml(noSuffix)}</a>`;
+      const noSuffix = result.no != null
+        ? `<span class="ref-no"> (no.${escapeHtml(result.no)})</span>`
+        : "";
+      refHtml = `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${emphasizedLabel}${noSuffix}</a>`;
     }
     const token = `\uE100${renderedRefs.length}\uE101`;
-    if (boldRefs && /\p{Script=Latin}/u.test(label)) {
-      refHtml = "<strong>" + refHtml + "</strong>";
-    }
     renderedRefs.push(refHtml);
     return token;
   });
 
   let html = escapeHtml(protectedText);
-  html = html.replace(BOLD_RE, (_m, inner) => "<strong>" + inner + "</strong>");
+  html = html.replace(BOLD_RE, (_m, inner) => {
+    const visibleInner = inner.replace(/&(?:amp|lt|gt|quot|#39);/g, "");
+    const className = /\p{Script=Latin}/u.test(visibleInner) ? ' class="memo-english"' : "";
+    return "<strong" + className + ">" + inner + "</strong>";
+  });
   html = html.replace(HIGHLIGHT_RE, (_m, inner) => `<mark>${inner}</mark>`);
   html = html.replace(ITALIC_RE, (_m, inner) => `<em>${inner}</em>`);
   html = html.replace(/\uE100(\d+)\uE101/g, (_match, index) => renderedRefs[Number(index)] || "");
@@ -244,9 +252,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     });
 
+    // (no. 221) のような参照番号は、英単語の自動強調から除外する。
+    const referenceNumbers = [];
+    const referenceNumberProtectedText = urlProtectedText.replace(REFERENCE_NUMBER_RE, (referenceNumber) => {
+      const token = `\uE700${referenceNumbers.length}\uE701`;
+      referenceNumbers.push(referenceNumber);
+      return token;
+    });
+
     // 発音記号は先に退避し、見出し語の自動リンクや他の記法の対象にしない。
     const pronunciations = [];
-    const pronunciationProtectedText = urlProtectedText.replace(PRONUNCIATION_RE, (_match, prefix, pronunciationRaw) => {
+    const pronunciationProtectedText = referenceNumberProtectedText.replace(PRONUNCIATION_RE, (_match, prefix, pronunciationRaw) => {
       const token = `\uE300${pronunciations.length}\uE301`;
       pronunciations.push(formatPronunciationWithAccents(pronunciationRaw.trim()));
       return `${prefix}${token}`;
@@ -331,13 +347,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     let html = renderMarkup(restored, { ...opts, boldRefs: true });
     html = html.replace(
       /\uE200(\d+)\uE201/g,
-      (_match, index) => "<strong>" + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
+      (_match, index) => '<strong class="memo-english">' + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
     );
     html = html.replace(
       /\uE300(\d+)\uE301/g,
       (_match, index) => '<span class="pronunciation-inline">/' + escapeHtml(pronunciations[Number(index)] || "") + "/</span>"
     );
-    return html.replace(/\uE500(\d+)\uE501/g, (_match, index) => escapeHtml(urls[Number(index)] || ""));
+    html = html.replace(/\uE500(\d+)\uE501/g, (_match, index) => escapeHtml(urls[Number(index)] || ""));
+    return html.replace(
+      /\uE700(\d+)\uE701/g,
+      (_match, index) => '<span class="ref-no">' + escapeHtml(referenceNumbers[Number(index)] || "") + "</span>"
+    );
   };
 }
 

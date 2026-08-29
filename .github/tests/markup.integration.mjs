@@ -44,14 +44,21 @@ const phraseLink = renderWithPhrases("have a bearing on Oは『Oに関係があ�
 });
 assert.match(
   phraseLink,
-  /^<strong><a [^>]*data-headword="bearing"[^>]*>have a bearing on O \(no\.776\)<\/a><\/strong>は/
+  /^<a [^>]*data-headword="bearing"[^>]*><strong class="memo-english">have a bearing on O<\/strong><span class="ref-no"> \(no\.776\)<\/span><\/a>は/
 );
 assert.doesNotMatch(phraseLink, /data-headword="have"|have \(no\.122\)/);
 
 const longestMatch = render("take offの用法とtakeを確認する。", { currentHeadword: "take" });
-assert.match(longestMatch, /<strong><a [^>]*data-headword="take off"/);
-assert.match(longestMatch, /<strong>take<\/strong>を確認する/);
-assert.doesNotMatch(longestMatch, /<strong>take<\/strong> off|<strong>off<\/strong>/);
+assert.match(longestMatch, /<a [^>]*data-headword="take off"[^>]*><strong class="memo-english">/);
+assert.match(longestMatch, /<strong class="memo-english">take<\/strong>を確認する/);
+assert.doesNotMatch(longestMatch, /<strong class="memo-english">take<\/strong> off|>off<\/strong>/);
+
+const referenceNumbers = render("(no. 221)と（No．221-1）は参照番号。");
+assert.equal(
+  referenceNumbers,
+  '<span class="ref-no">(no. 221)</span>と<span class="ref-no">（No．221-1）</span>は参照番号。'
+);
+assert.doesNotMatch(referenceNumbers, /memo-english[^>]*>no|memo-english[^>]*>No/);
 
 const url = "https://a.example/to/in-spite-of/";
 assert.equal(render(url), url);
@@ -64,7 +71,7 @@ assert.match(
 assert.doesNotMatch(pronunciation, /\/\/|<strong>/);
 
 const protectedHeadword = render("record //record//", { currentHeadword: "record" });
-assert.match(protectedHeadword, /^<strong>record<\/strong> <span class="pronunciation-inline">\/record\/<\/span>$/);
+assert.match(protectedHeadword, /^<strong class="memo-english">record<\/strong> <span class="pronunciation-inline">\/record\/<\/span>$/);
 assert.doesNotMatch(protectedHeadword, /data-headword="record"|[\uE000-\uF8FF]/u);
 
 const requestedExamples = render(
@@ -72,51 +79,51 @@ const requestedExamples = render(
 );
 assert.equal(
   requestedExamples,
-  "<strong>at</strong>/<strong>by</strong>は出来事・結果。<strong>keep</strong> <strong>O</strong> <strong>C</strong>。OをCのままにする。動詞の原形、名詞節。"
+  '<strong class="memo-english">at</strong>/<strong class="memo-english">by</strong>は出来事・結果。<strong class="memo-english">keep</strong> <strong class="memo-english">O</strong> <strong class="memo-english">C</strong>。OをCのままにする。動詞の原形、名詞節。'
 );
 
 const placeholderContext = render("turn O Cは第5文型。S Vとする。O/Vingを取る。Cには形容詞を置く。");
-assert.match(placeholderContext, /^<strong>turn<\/strong> <strong>O<\/strong> <strong>C<\/strong>は/);
-assert.match(placeholderContext, /<strong>S<\/strong> <strong>V<\/strong>とする/);
-assert.match(placeholderContext, /<strong>O<\/strong>\/<strong>Ving<\/strong>を取る/);
+assert.match(placeholderContext, /^<strong class="memo-english">turn<\/strong> <strong class="memo-english">O<\/strong> <strong class="memo-english">C<\/strong>は/);
+assert.match(placeholderContext, /<strong class="memo-english">S<\/strong> <strong class="memo-english">V<\/strong>とする/);
+assert.match(placeholderContext, /<strong class="memo-english">O<\/strong>\/<strong class="memo-english">Ving<\/strong>を取る/);
 assert.match(placeholderContext, /。Cには形容詞を置く。$/);
 assert.doesNotMatch(placeholderContext, /<strong>第5文型|<strong>形容詞|<strong>C<\/strong>には/);
 
 const objectPlaceholders = render("Aに利益をもたらす。Bから奪う。give A B。A/B。");
 assert.equal(
   objectPlaceholders,
-  "Aに利益をもたらす。Bから奪う。<strong>give</strong> <strong>A</strong> <strong>B</strong>。<strong>A</strong>/<strong>B</strong>。"
+  'Aに利益をもたらす。Bから奪う。<strong class="memo-english">give</strong> <strong class="memo-english">A</strong> <strong class="memo-english">B</strong>。<strong class="memo-english">A</strong>/<strong class="memo-english">B</strong>。'
 );
 
 const allEnglishWords = render("a different shoulder if should");
 assert.equal(
   allEnglishWords,
-  "<strong>a</strong> <strong>different</strong> <strong>shoulder</strong> <strong>if</strong> <strong>should</strong>"
+  '<strong class="memo-english">a</strong> <strong class="memo-english">different</strong> <strong class="memo-english">shoulder</strong> <strong class="memo-english">if</strong> <strong class="memo-english">should</strong>'
 );
 
 const manualBold = render("これは**重要語**。**very important**。**O**を使う。**A**に。");
 assert.equal(
   manualBold,
-  "これは<strong>重要語</strong>。<strong>very important</strong>。<strong>O</strong>を使う。<strong>A</strong>に。"
+  'これは<strong>重要語</strong>。<strong class="memo-english">very important</strong>。<strong class="memo-english">O</strong>を使う。<strong class="memo-english">A</strong>に。'
 );
 assert.equal(stripMarkup("**重要**と*語根*"), "重要と語根");
 
 const linkedWords = render("like と ##record##");
-assert.match(linkedWords, /<strong><a [^>]*data-headword="like"/);
-assert.match(linkedWords, /<strong><a [^>]*data-headword="record"/);
+assert.match(linkedWords, /<a [^>]*data-headword="like"[^>]*><strong class="memo-english">/);
+assert.match(linkedWords, /<a [^>]*data-headword="record"[^>]*><strong class="memo-english">/);
 
 const japaneseLinkLabel = render("##record|記録##");
-assert.match(japaneseLinkLabel, /^<a [^>]*data-headword="record"[^>]*>記録 \(no\.20\)<\/a>$/);
+assert.match(japaneseLinkLabel, /^<a [^>]*data-headword="record"[^>]*>記録<span class="ref-no"> \(no\.20\)<\/span><\/a>$/);
 assert.doesNotMatch(japaneseLinkLabel, /<strong>/);
 
 const phrasalVerbLink = render("take off");
-assert.match(phrasalVerbLink, /^<strong><a [^>]*data-headword="take off"/);
-assert.doesNotMatch(phrasalVerbLink, /<strong>off<\/strong>/);
+assert.match(phrasalVerbLink, /^<a [^>]*data-headword="take off"[^>]*><strong class="memo-english">/);
+assert.doesNotMatch(phrasalVerbLink, />off<\/strong>/);
 
 const protectedMarkup = render("//that Ving// と ##like##");
 assert.match(protectedMarkup, /^<span class="pronunciation-inline">\/.*\/<\/span>/);
 assert.doesNotMatch(protectedMarkup, /pronunciation-inline[^<]*<strong>|<strong>that<\/strong>|<strong>Ving<\/strong>/);
-assert.match(protectedMarkup, /<strong><a [^>]*data-headword="like"/);
+assert.match(protectedMarkup, /<a [^>]*data-headword="like"[^>]*><strong class="memo-english">/);
 assert.doesNotMatch(protectedMarkup, /[\uE000-\uF8FF]/u);
 
 console.log("Markup integration tests passed");
