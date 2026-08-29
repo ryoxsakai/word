@@ -52,11 +52,14 @@ sqlite.exec(`
   CREATE TABLE words (
     id TEXT PRIMARY KEY,
     spelling TEXT NOT NULL,
-    pronunciation TEXT
+    pronunciation TEXT,
+    pronunciation_caution INTEGER NOT NULL DEFAULT 0,
+    audio_url TEXT
   );
   CREATE TABLE word_audio (
     word_id TEXT NOT NULL,
     variant_key TEXT NOT NULL DEFAULT 'primary',
+    provider TEXT NOT NULL DEFAULT 'elevenlabs',
     is_stale INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (word_id, variant_key)
   );
@@ -68,6 +71,7 @@ sqlite.exec(`
 `);
 sqlite.exec(readFileSync(new URL("../migrations/0025_automatic_word_audio.sql", import.meta.url), "utf8"));
 sqlite.exec(readFileSync(new URL("../migrations/0026_crossover_audio_scope.sql", import.meta.url), "utf8"));
+sqlite.exec(readFileSync(new URL("../migrations/0027_pronunciation_generation_mode.sql", import.meta.url), "utf8"));
 
 const db = d1Adapter(sqlite);
 await db.prepare("INSERT INTO words (id, spelling, pronunciation) VALUES (?, ?, ?)")

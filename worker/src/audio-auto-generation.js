@@ -5,6 +5,8 @@ const MAX_BATCH_SIZE = 20;
 const MAX_RETRY_DELAY_SECONDS = 24 * 60 * 60;
 const STUCK_JOB_MINUTES = 15;
 const AUTOMATIC_AUDIO_LIST_ID = "crossover-v3";
+const NATIVE_PROVIDER = "elevenlabs-native";
+const IPA_PROVIDER = "elevenlabs-ipa";
 
 function batchSize(raw) {
   const parsed = Number.parseInt(String(raw ?? ""), 10);
@@ -24,6 +26,41 @@ function retryDelaySeconds(attempts) {
 export async function reconcileAutomaticAudioJobs(env) {
   await env.DB.batch([
     env.DB.prepare(
+      `UPDATE word_audio
+       SET is_stale = 1
+       WHERE variant_key = 'primary'
+         AND is_stale = 0
+         AND EXISTS (
+           SELECT 1
+           FROM words w
+           JOIN list_items li ON li.word_id = w.id
+           WHERE w.id = word_audio.word_id
+             AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+             AND word_audio.provider <> CASE
+               WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+               ELSE '${NATIVE_PROVIDER}'
+             END
+         )`
+    ),
+    env.DB.prepare(
+      `UPDATE words
+       SET audio_url = NULL
+       WHERE EXISTS (
+         SELECT 1 FROM list_items li
+         WHERE li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}' AND li.word_id = words.id
+       )
+       AND NOT EXISTS (
+         SELECT 1 FROM word_audio a
+         WHERE a.word_id = words.id
+           AND a.variant_key = 'primary'
+           AND a.is_stale = 0
+           AND a.provider = CASE
+             WHEN words.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+             ELSE '${NATIVE_PROVIDER}'
+           END
+       )`
+    ),
+    env.DB.prepare(
       `DELETE FROM word_audio_jobs
        WHERE variant_key = 'primary'
          AND (
@@ -42,6 +79,13 @@ export async function reconcileAutomaticAudioJobs(env) {
              WHERE a.word_id = word_audio_jobs.word_id
                AND a.variant_key = 'primary'
                AND a.is_stale = 0
+               AND a.provider = (
+                 SELECT CASE
+                   WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+                   ELSE '${NATIVE_PROVIDER}'
+                 END
+                 FROM words w WHERE w.id = word_audio_jobs.word_id
+               )
            )
          )`
     ),
@@ -62,6 +106,10 @@ export async function reconcileAutomaticAudioJobs(env) {
          ON a.word_id = w.id
         AND a.variant_key = 'primary'
         AND a.is_stale = 0
+        AND a.provider = CASE
+          WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+          ELSE '${NATIVE_PROVIDER}'
+        END
        WHERE TRIM(COALESCE(w.pronunciation, '')) <> ''
          AND a.word_id IS NULL`
     ),
@@ -84,7 +132,13 @@ export async function automaticAudioStatus(env) {
        JOIN list_items li
          ON li.word_id = a.word_id
         AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
-       WHERE a.variant_key = 'primary' AND a.is_stale = 0`
+       JOIN words w ON w.id = a.word_id
+       WHERE a.variant_key = 'primary'
+         AND a.is_stale = 0
+         AND a.provider = CASE
+           WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+           ELSE '${NATIVE_PROVIDER}'
+         END`
     ),
     env.DB.prepare(
       `SELECT COUNT(*) AS queued,
