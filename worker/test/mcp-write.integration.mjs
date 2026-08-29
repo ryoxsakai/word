@@ -267,6 +267,7 @@ try {
   );
   assert.equal(combinedAnonymousWrite.status, 200);
   assert.equal(combinedAnonymousWrite.body.result.isError, false);
+  const anonymousListId = JSON.parse(combinedAnonymousWrite.body.result.content[0].text).notebook.id;
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
@@ -526,11 +527,11 @@ try {
       "/mcp-write",
       48,
       "tools/call",
-      { name: "reorder_notebooks", arguments: { list_ids: [listId] } },
+      { name: "reorder_notebooks", arguments: { list_ids: [anonymousListId, listId] } },
       true
     )
   );
-  assert.deepEqual(reorderedNotebooks.listIds, [listId]);
+  assert.deepEqual(reorderedNotebooks.listIds, [anonymousListId, listId]);
 
   const structure = toolResult(
     await rpc(env, accessToken, "/mcp-write", 49, "tools/call", {
