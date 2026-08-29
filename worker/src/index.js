@@ -2347,19 +2347,21 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
+    const reviewSamples = generatePronunciationReviewSamples(env)
+      .then((samples) => console.log("Pronunciation review samples", samples.length))
+      .catch((error) => console.error("Pronunciation review sample generation failed", error));
     if (!automaticAudioEnabled(env)) {
       console.log("Automatic pronunciation generation is paused");
-      ctx.waitUntil(
-        generatePronunciationReviewSamples(env)
-          .then((samples) => console.log("Pronunciation review samples", samples.length))
-          .catch((error) => console.error("Pronunciation review sample generation failed", error))
-      );
+      ctx.waitUntil(reviewSamples);
       return;
     }
     ctx.waitUntil(
-      processAutomaticAudio(env)
-        .then((summary) => console.log("Automatic pronunciation generation", summary))
-        .catch((error) => console.error("Automatic pronunciation generation failed", error))
+      Promise.all([
+        reviewSamples,
+        processAutomaticAudio(env)
+          .then((summary) => console.log("Automatic pronunciation generation", summary))
+          .catch((error) => console.error("Automatic pronunciation generation failed", error)),
+      ])
     );
   },
 };

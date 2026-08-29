@@ -133,24 +133,38 @@ export async function generateWordAudio(env, wordId, body = {}) {
   return await loadGeneratedAudio(env.DB, wordId, variant);
 }
 
-// 全件生成を止めた状態でも、確認用のtransfer 2種類だけを一度生成する。
+// 確認ページ専用の音声だけを、未生成の場合に一度生成する。
 export async function generatePronunciationReviewSamples(env) {
   const samples = [
     {
+      wordId: "transfer",
       variantKey: "sample-native",
       forcePronunciation: false,
     },
     {
+      wordId: "transfer",
       variantKey: "sample-context",
       forcePronunciation: false,
       previousText: "They will",
       nextText: "the patient to another hospital.",
     },
+    {
+      wordId: "come",
+      variantKey: "sample-period",
+      forcePronunciation: false,
+      spokenText: "Come.",
+    },
+    {
+      wordId: "respectable",
+      variantKey: "sample-period",
+      forcePronunciation: false,
+      spokenText: "Respectable.",
+    },
   ];
   const generated = [];
   for (const sample of samples) {
-    if (await loadGeneratedAudio(env.DB, "transfer", sample.variantKey)) continue;
-    generated.push(await generateWordAudio(env, "transfer", sample));
+    if (await loadGeneratedAudio(env.DB, sample.wordId, sample.variantKey)) continue;
+    generated.push(await generateWordAudio(env, sample.wordId, sample));
   }
   return generated;
 }
