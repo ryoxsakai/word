@@ -9,7 +9,7 @@
 <body>
   <main>
     <h1>発音音声サンプル</h1>
-    <p>同じ音声を音量別に比較し、transferは生成方法も比較できます。</p>
+    <p>生成条件による発音・イントネーションの違いを比較できます。</p>
     <section>
       <h2>音量比較：turn</h2>
       <div class="buttons" data-url="/mcp-viewer/api/audio/turn/primary">
@@ -20,9 +20,16 @@
     </section>
     <section>
       <h2>transfer：生成方法比較</h2>
-      <div class="sample"><span>現在のIPA指定</span><button data-url="/mcp-viewer/api/audio/transfer/primary" data-gain="1.25">再生</button></div>
-      <div class="sample"><span>辞書指定なし</span><button data-url="/mcp-viewer/api/audio/transfer/sample-native" data-gain="1.25">再生</button></div>
-      <div class="sample"><span>動詞文脈あり（文脈自体は無音）</span><button data-url="/mcp-viewer/api/audio/transfer/sample-context" data-gain="1.25">再生</button></div>
+      <div class="sample"><span>現在の主音声（辞書なし）</span><button data-url="/mcp-viewer/api/audio/transfer/primary" data-gain="1.4">再生</button></div>
+      <div class="sample"><span>以前の辞書なしサンプル</span><button data-url="/mcp-viewer/api/audio/transfer/sample-native" data-gain="1.4">再生</button></div>
+      <div class="sample"><span>動詞文脈あり（文脈自体は無音）</span><button data-url="/mcp-viewer/api/audio/transfer/sample-context" data-gain="1.4">再生</button></div>
+    </section>
+    <section>
+      <h2>ピリオドによるイントネーション比較</h2>
+      <div class="sample"><span>come（現在の主音声）</span><button data-url="/mcp-viewer/api/audio/come/primary" data-gain="1.4">再生</button></div>
+      <div class="sample"><span>Come.</span><button data-url="/mcp-viewer/api/audio/come/sample-period" data-gain="1.4">再生</button></div>
+      <div class="sample"><span>respectable（現在の主音声）</span><button data-url="/mcp-viewer/api/audio/respectable/primary" data-gain="1.4">再生</button></div>
+      <div class="sample"><span>Respectable.</span><button data-url="/mcp-viewer/api/audio/respectable/sample-period" data-gain="1.4">再生</button></div>
     </section>
     <p id="status" role="status"></p>
   </main>
