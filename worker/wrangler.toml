@@ -15,8 +15,16 @@ binding = "ASSETS"
 # GitHub PagesなどAPIと別オリジンからアクセスするフロントエンドのURLをカンマ区切りで指定。
 # 例: "https://ryoxsakai.github.io"
 ALLOWED_ORIGINS = "https://ryoxsakai.github.io,https://vocab.lrnr.jp"
+# ElevenLabsのAPIキーはWorker Secretとして別途設定する。
+# 音声・モデルはダッシュボード側の変数で上書きできる。
+ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
+ELEVENLABS_MODEL_ID = "eleven_turbo_v2"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "vocab-db"
 database_id = "5bb1bc51-a169-4686-bc34-97e181d536f6"
+
+[[r2_buckets]]
+binding = "AUDIO_BUCKET"
+bucket_name = "vocab-audio"

@@ -935,6 +935,16 @@ legend .hint {
   padding: 0.35rem 0.55rem;
 }
 
+.generate-audio-btn {
+  color: #5b3ab5;
+}
+.generate-audio-btn.is-generating i {
+  animation: audio-generate-spin 0.8s linear infinite;
+}
+@keyframes audio-generate-spin {
+  to { transform: rotate(360deg); }
+}
+
 .caution-toggle-btn {
   font-size: 0.82rem;
   font-weight: 700;
