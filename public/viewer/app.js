@@ -10,7 +10,7 @@ import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
-import { speakEnglish } from "../shared/speech.js";
+import { playPronunciation } from "../shared/speech.js";
 import {
   registerVocabWebMCP,
   registeredWebMCPTools,
@@ -319,7 +319,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" title="端末の英語音声で発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
+        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="${w.audioUrl ? "登録済み音声で発音を聞く" : "端末の英語音声で発音を聞く"}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cefrBadge}
         ${awlBadge}
         ${cautionHtml}
@@ -724,8 +724,9 @@ function applyFilters() {
 
 // ---- 発音 / リンクコピー / 空所トグル ----
 
-function speak(text, btn) {
-  speakEnglish(text, {
+function speak(text, audioUrl, btn) {
+  playPronunciation(text, {
+    audioUrl,
     button: btn,
     onUnsupported: () => showToast("この端末は音声読み上げに対応していません"),
   });
@@ -845,7 +846,7 @@ el.wordList.addEventListener("click", (e) => {
   const actionEl = e.target.closest("[data-action]");
   if (!actionEl) return;
   const action = actionEl.dataset.action;
-  if (action === "speak") speak(actionEl.dataset.text, actionEl);
+  if (action === "speak") speak(actionEl.dataset.text, actionEl.dataset.audioUrl, actionEl);
   else if (action === "copy-link") copyLink(actionEl.dataset.wordId);
   else if (action === "toggle-blank") toggleBlank(actionEl);
 });

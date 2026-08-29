@@ -10,7 +10,7 @@ import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import { fetchCompleteWordIndex } from "../shared/word-index.js";
 import { cefrLevelClass, normalizeCefrLevel } from "../shared/learning-tags.js";
-import { speakEnglish } from "../shared/speech.js";
+import { playPronunciation } from "../shared/speech.js";
 
 const API = `${EDITOR_API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -143,6 +143,7 @@ const el = {
   fieldPronunciation: document.getElementById("fieldPronunciation"),
   lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
   playAudioBtn: document.getElementById("playAudioBtn"),
+  generateAudioBtn: document.getElementById("generateAudioBtn"),
   spellingCautionBtn: document.getElementById("spellingCautionBtn"),
   pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
   accentCautionBtn: document.getElementById("accentCautionBtn"),
@@ -403,13 +404,56 @@ async function fetchWordInfo(spelling) {
 
 function updatePlayAudioButton() {
   el.playAudioBtn.disabled = !el.fieldSpelling.value.trim();
+  el.generateAudioBtn.disabled =
+    state.isNew || !state.currentWord?.id || !el.fieldSpelling.value.trim() || !el.fieldPronunciation.value.trim();
+  el.playAudioBtn.title = state.currentAudioUrl
+    ? "登録済みのElevenLabs音声を再生"
+    : "端末の英語音声で発音を再生";
 }
 
 function playCurrentPronunciation() {
-  speakEnglish(el.fieldSpelling.value, {
+  playPronunciation(el.fieldSpelling.value, {
+    audioUrl: state.currentAudioUrl,
     button: el.playAudioBtn,
     onUnsupported: () => alert("この端末は音声読み上げに対応していません"),
   });
+}
+
+async function generateCurrentAudio() {
+  if (state.isNew || !state.currentWord?.id) {
+    alert("先に単語を保存してください");
+    return;
+  }
+  const ipa = el.fieldPronunciation.value.trim();
+  if (!ipa) {
+    alert("先にIPAを登録してください");
+    return;
+  }
+  if (ipa !== String(state.currentWord.pronunciation || "").trim()) {
+    alert("変更したIPAを保存してから音声を生成してください");
+    return;
+  }
+
+  el.generateAudioBtn.disabled = true;
+  el.generateAudioBtn.classList.add("is-generating");
+  try {
+    const generated = await api(`/words/${encodeURIComponent(state.currentWord.id)}/audio`, {
+      method: "POST",
+      body: JSON.stringify({
+        variantKey: "primary",
+      }),
+    });
+    state.currentAudioUrl = generated.url;
+    state.currentWord.generatedAudio = generated;
+    updatePlayAudioButton();
+    showToast("ElevenLabs音声を生成しました");
+    playCurrentPronunciation();
+  } catch (error) {
+    alert(`音声を生成できませんでした: ${error.message}`);
+  } finally {
+    el.generateAudioBtn.classList.remove("is-generating");
+    updatePlayAudioButton();
+  }
 }
 
 async function autoFillPronunciationOnBlur() {
@@ -1928,7 +1972,7 @@ async function openWordEditor(wordId) {
   el.fieldNo.value = membership ? membership.displayNo : "";
   el.fieldSpelling.value = detail.spelling;
   el.fieldPronunciation.value = detail.pronunciation || "";
-  state.currentAudioUrl = detail.audioUrl || null;
+  state.currentAudioUrl = detail.generatedAudio?.url || null;
   updatePlayAudioButton();
   setCautionButton(el.spellingCautionBtn, detail.spellingCaution);
   setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
@@ -2496,6 +2540,7 @@ el.fieldSpelling.addEventListener("input", () => {
   updatePreview(el.fieldNotes, el.notesPreview);
   updatePlayAudioButton();
 });
+el.fieldPronunciation.addEventListener("input", updatePlayAudioButton);
 el.fieldSpelling.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
@@ -2503,6 +2548,7 @@ el.fieldSpelling.addEventListener("keydown", (e) => {
 });
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
 el.playAudioBtn.addEventListener("click", playCurrentPronunciation);
+el.generateAudioBtn.addEventListener("click", generateCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
 el.fieldIrregularForms.addEventListener("input", () => updatePreview(el.fieldIrregularForms, el.irregularFormsPreview));
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));

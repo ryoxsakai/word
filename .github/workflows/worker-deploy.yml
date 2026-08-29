@@ -33,6 +33,9 @@ jobs:
       - name: Test MCP OAuth, read, and authenticated write tools
         run: npm run test:mcp-write
 
+      - name: Test ElevenLabs pronunciation generation
+        run: npm run test:elevenlabs && npm run test:audio && npm run test:speech
+
       - name: Test data migrations
         run: npm run test:migrations
 
@@ -43,6 +46,10 @@ jobs:
 
       - name: Apply D1 migrations
         run: npx wrangler d1 migrations apply vocab-db --remote
+
+      - name: Ensure pronunciation audio bucket exists
+        continue-on-error: true
+        run: npx wrangler r2 bucket create vocab-audio
 
       - name: Deploy Worker
         run: npx wrangler deploy

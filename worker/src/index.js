@@ -10,6 +10,12 @@ import awlData from "./data/awl.json";
 import oxford5000Data from "./data/oxford5000.json";
 import target1900Data from "./data/target1900.json";
 import target1400Data from "./data/target1400.json";
+import {
+  generateWordAudio,
+  generatedAudioUrl,
+  loadGeneratedAudio,
+  serveWordAudio,
+} from "./word-audio.js";
 
 /** 仮想の親リスト（全単語マスター）の ID */
 const MASTER_LIST_ID = "__master__";
@@ -437,7 +443,7 @@ async function listWordsInListFull(db, listId) {
     chapterId != null && chapterPositionById.has(chapterId) ? `${chapterLabel} ${chapterPositionById.get(chapterId)}` : null;
 
   const ids = items.map((r) => r.id);
-  const [sensesRows, derivativesRows, examplesRows, tagsRows] = await Promise.all([
+  const [sensesRows, derivativesRows, examplesRows, tagsRows, audioRows] = await Promise.all([
     selectInChunks(
       db,
       (ph) => `SELECT word_id AS wordId, pos, meaning, pronunciation, is_primary AS isPrimary, sort_order AS sortOrder FROM senses WHERE word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
@@ -454,11 +460,26 @@ async function listWordsInListFull(db, listId) {
       ids
     ),
     selectInChunks(db, (ph) => `SELECT word_id AS wordId, tag_key AS tagKey, tag_value AS tagValue FROM tags WHERE word_id IN (${ph})`, ids),
+    selectInChunks(
+      db,
+      (ph) =>
+        `SELECT word_id AS wordId, variant_key AS variantKey, pos, ipa, provider,
+                voice_id AS voiceId, model_id AS modelId, content_type AS contentType,
+                generated_at AS generatedAt
+         FROM word_audio WHERE variant_key = 'primary' AND is_stale = 0 AND word_id IN (${ph})`,
+      ids
+    ),
   ]);
 
   const sensesByWord = groupByWordId(sensesRows);
   const derivativesByWord = groupByWordId(derivativesRows);
   const examplesByWord = groupByWordId(examplesRows);
+  const audioByWord = new Map(
+    audioRows.map(({ wordId, ...audio }) => [
+      wordId,
+      { ...audio, url: generatedAudioUrl(wordId, audio.variantKey, audio.generatedAt) },
+    ])
+  );
   const tagsByWord = new Map();
   for (const t of tagsRows) {
     if (!tagsByWord.has(t.wordId)) tagsByWord.set(t.wordId, {});
@@ -476,7 +497,8 @@ async function listWordsInListFull(db, listId) {
     id: r.id,
     spelling: r.spelling,
     pronunciation: r.pronunciation,
-    audioUrl: r.audioUrl,
+    audioUrl: audioByWord.get(r.id)?.url || null,
+    generatedAudio: audioByWord.get(r.id) || null,
     etymology: r.etymology,
     notes: r.notes,
     synonyms: r.synonyms,
@@ -841,7 +863,7 @@ async function loadWordDetail(db, id) {
     .first();
   if (!word) return null;
 
-  const [senses, derivatives, examples, tags, memberships, children, parent] = await Promise.all([
+  const [senses, derivatives, examples, tags, memberships, children, parent, generatedAudio] = await Promise.all([
     db.prepare("SELECT id, pos, meaning, pronunciation, is_primary, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, pos, word, meaning, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
     db.prepare("SELECT id, sentence, answer, translation, type, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
@@ -860,6 +882,7 @@ async function loadWordDetail(db, id) {
     word.derivedFromId
       ? db.prepare("SELECT id, spelling FROM words WHERE id = ?").bind(word.derivedFromId).first()
       : Promise.resolve(null),
+    loadGeneratedAudio(db, id),
   ]);
 
   const tagMap = {};
@@ -880,6 +903,7 @@ async function loadWordDetail(db, id) {
     lists: memberships.results.map((m) => ({ ...m, displayNo: formatNo(m.no, m.branch) })),
     derivedFrom: parent,
     derivedWords: children.results,
+    generatedAudio,
   };
 }
 
@@ -1062,11 +1086,17 @@ async function updateWord(db, id, body) {
   return json(await loadWordDetail(db, id));
 }
 
-async function deleteWord(db, id) {
+async function deleteWord(env, id) {
+  const db = env.DB;
   const existing = await db.prepare("SELECT id FROM words WHERE id = ?").bind(id).first();
   if (!existing) return notFound("word not found");
+  const { results: audioObjects } = await db
+    .prepare("SELECT object_key AS objectKey FROM word_audio WHERE word_id = ?")
+    .bind(id)
+    .all();
   await db.batch([
     db.prepare("UPDATE words SET derived_from_id = NULL WHERE derived_from_id = ?").bind(id),
+    db.prepare("DELETE FROM word_audio WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM senses WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM derivatives WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM examples WHERE word_id = ?").bind(id),
@@ -1074,6 +1104,9 @@ async function deleteWord(db, id) {
     db.prepare("DELETE FROM list_items WHERE word_id = ?").bind(id),
     db.prepare("DELETE FROM words WHERE id = ?").bind(id),
   ]);
+  if (env.AUDIO_BUCKET && audioObjects.length) {
+    await Promise.allSettled(audioObjects.map(({ objectKey }) => env.AUDIO_BUCKET.delete(objectKey)));
+  }
   return json({ ok: true });
 }
 
@@ -2142,7 +2175,7 @@ async function handleApi(request, env, parts, method) {
     const id = parts[2];
     if (method === "GET") return await getWord(db, id);
     if (method === "PUT") return await updateWord(db, id, await request.json());
-    if (method === "DELETE") return await deleteWord(db, id);
+    if (method === "DELETE") return await deleteWord(env, id);
   }
 
   // /api/render
@@ -2175,6 +2208,25 @@ export default {
     // GitHub Pages上の閲覧画面向け。公開対象は画面表示に必要な
     // 「単語帳一覧」と「1単語帳の全表示データ」のGETだけに限定する。
     if (pathname.startsWith("/mcp-viewer/api/")) {
+      const viewerAudioMatch = pathname.match(
+        /^\/mcp-viewer\/api\/audio\/([^/]+)(?:\/([^/]+))?\/?$/
+      );
+      if (viewerAudioMatch && (request.method === "GET" || request.method === "HEAD")) {
+        try {
+          return await serveWordAudio(
+            request,
+            env,
+            decodeURIComponent(viewerAudioMatch[1]),
+            viewerAudioMatch[2] ? decodeURIComponent(viewerAudioMatch[2]) : "primary"
+          );
+        } catch (err) {
+          return json(
+            { error: String(err && err.message ? err.message : err) },
+            { status: Number(err?.status) || 500 }
+          );
+        }
+      }
+
       if (request.method !== "GET") {
         return json({ error: "viewer API is read-only" }, { status: 405 });
       }
@@ -2221,11 +2273,29 @@ export default {
       const apiPath = pathname.slice("/mcp-editor".length);
       const parts = apiPath.split("/").filter(Boolean).map(decodeURIComponent);
       try {
+        const editorAudioMatch = pathname.match(
+          /^\/mcp-editor\/api\/words\/([^/]+)\/audio\/?$/
+        );
+        if (editorAudioMatch) {
+          if (request.method !== "POST") {
+            return withCors(json({ error: "method not allowed" }, { status: 405 }), allowedOrigin);
+          }
+          const result = await generateWordAudio(
+            env,
+            decodeURIComponent(editorAudioMatch[1]),
+            await request.json().catch(() => ({}))
+          );
+          return withCors(json(result, { status: 201 }), allowedOrigin);
+        }
+
         const response = await handleApi(request, env, parts, request.method);
         return withCors(response, allowedOrigin);
       } catch (err) {
         return withCors(
-          json({ error: String(err && err.message ? err.message : err) }, { status: 500 }),
+          json(
+            { error: String(err && err.message ? err.message : err) },
+            { status: Number(err?.status) || 500 }
+          ),
           allowedOrigin
         );
       }

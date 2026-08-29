@@ -41,11 +41,18 @@ function toolResult(message) {
 }
 
 function normalizeMigrationSql(sql) {
-  return sql
-    .replace(/^\s*--.*$/gm, "")
+  const triggers = [];
+  const withoutComments = sql.replace(/^\s*--.*$/gm, "");
+  const protectedSql = withoutComments.replace(/CREATE\s+TRIGGER[\s\S]*?END\s*;/gi, (trigger) => {
+    const marker = `__TRIGGER_${triggers.length}__`;
+    triggers.push(trigger.replace(/;\s*$/, "").replace(/\s+/g, " "));
+    return marker;
+  });
+  return protectedSql
     .split(";")
     .map((statement) => statement.trim().replace(/\s+/g, " "))
     .filter(Boolean)
+    .map((statement) => statement.replace(/__TRIGGER_(\d+)__/g, (_match, index) => triggers[Number(index)]))
     .map((statement) => statement + ";")
     .join("\n");
 }
