@@ -22,7 +22,7 @@ const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\
 
 const ENGLISH_WORD_RE =
   /(^|[^\p{Script=Latin}\p{N}_])(\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/gu;
-const GRAMMAR_PLACEHOLDER_RE = /^[SVOC]$/;
+const GRAMMAR_PLACEHOLDER_RE = /^[ABCOSV]$/;
 const JAPANESE_CONTEXT_LEFT_RE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}][\s、。，．・：:；;!?！？（）「」『』【】［］〈〉《》]*$/u;
 const JAPANESE_CONTEXT_RIGHT_RE = /^[\s、。，．・：:；;!?！？（）「」『』【】［］〈〉《》]*[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 const FORMULA_LEFT_RE = /(?:\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?:\s+|[\/=＝])(?:\([^)]*\)\s*)?$/u;
@@ -248,7 +248,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     });
 
-    // 残った英単語を太字化する。S/V/O/Cだけは、日本語中で孤立している場合は通常表示にする。
+    // 残った英単語を太字化する。A/B/S/V/O/Cだけは、日本語中で孤立している場合は通常表示にする。
     const withEnglishBold = replaceOutsideProtectedTokens(
       withManualBoldProtected,
       ENGLISH_WORD_RE,
