@@ -44,7 +44,7 @@ try {
     await db.exec(normalizeMigrationSql(readFileSync(new URL(filename, migrationDir), "utf8")));
   }
   await db
-    .prepare("INSERT OR IGNORE INTO words (id, spelling, pronunciation) VALUES (?, ?, ?)")
+    .prepare("INSERT OR IGNORE INTO words (id, spelling, pronunciation, pronunciation_caution) VALUES (?, ?, ?, 1)")
     .bind("permit", "permit", "/pəˈmɪt/")
     .run();
   await db
@@ -94,9 +94,10 @@ try {
   assert.match(first.url, /^\/mcp-viewer\/api\/audio\/permit\/primary\?v=/);
 
   const stored = await db
-    .prepare("SELECT object_key AS objectKey, voice_id AS voiceId FROM word_audio WHERE word_id = 'permit'")
+    .prepare("SELECT object_key AS objectKey, voice_id AS voiceId, provider FROM word_audio WHERE word_id = 'permit'")
     .first();
   assert.equal(stored.voiceId, "test-voice");
+  assert.equal(stored.provider, "elevenlabs-ipa");
   assert.ok(await bucket.head(stored.objectKey));
   assert.equal(
     (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,

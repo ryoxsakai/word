@@ -58,6 +58,7 @@ export async function synthesizeWordWithIpa({
   modelId = "eleven_turbo_v2",
   spelling,
   ipa: rawIpa,
+  forcePronunciation = true,
   outputFormat = "mp3_44100_128",
   apiBase = DEFAULT_API_BASE,
   fetchImpl = fetch,
@@ -70,34 +71,37 @@ export async function synthesizeWordWithIpa({
 
   const dictionaryName = `vocab-${normalizedSpelling.replace(/[^a-z0-9]+/gi, "-").slice(0, 40) || "word"}-${Date.now()}`;
   let dictionaryId = null;
+  let versionId = null;
   try {
-    const dictionaryResponse = await elevenLabsRequest(
-      fetchImpl,
-      `${apiBase}/pronunciation-dictionaries/add-from-rules`,
-      apiKey,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          name: dictionaryName,
-          description: "Temporary crossover pronunciation",
-          rules: [
-            {
-              type: "phoneme",
-              alphabet: "ipa",
-              string_to_replace: normalizedSpelling,
-              phoneme: ipa,
-            },
-          ],
-        }),
-      },
-      "発音辞書を作成できませんでした"
-    );
-    const dictionary = await dictionaryResponse.json();
-    dictionaryId = dictionary.id || dictionary.pronunciation_dictionary_id;
-    const versionId = dictionary.version_id;
-    if (!dictionaryId || !versionId) {
-      throw new ElevenLabsError("ElevenLabsから発音辞書IDを取得できませんでした");
+    if (forcePronunciation) {
+      const dictionaryResponse = await elevenLabsRequest(
+        fetchImpl,
+        `${apiBase}/pronunciation-dictionaries/add-from-rules`,
+        apiKey,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            name: dictionaryName,
+            description: "Temporary crossover pronunciation",
+            rules: [
+              {
+                type: "phoneme",
+                alphabet: "ipa",
+                string_to_replace: normalizedSpelling,
+                phoneme: ipa,
+              },
+            ],
+          }),
+        },
+        "発音辞書を作成できませんでした"
+      );
+      const dictionary = await dictionaryResponse.json();
+      dictionaryId = dictionary.id || dictionary.pronunciation_dictionary_id;
+      versionId = dictionary.version_id;
+      if (!dictionaryId || !versionId) {
+        throw new ElevenLabsError("ElevenLabsから発音辞書IDを取得できませんでした");
+      }
     }
 
     const audioResponse = await elevenLabsRequest(
@@ -113,12 +117,16 @@ export async function synthesizeWordWithIpa({
         body: JSON.stringify({
           text: normalizedSpelling,
           model_id: modelId,
-          pronunciation_dictionary_locators: [
-            {
-              pronunciation_dictionary_id: dictionaryId,
-              version_id: versionId,
-            },
-          ],
+          ...(dictionaryId
+            ? {
+                pronunciation_dictionary_locators: [
+                  {
+                    pronunciation_dictionary_id: dictionaryId,
+                    version_id: versionId,
+                  },
+                ],
+              }
+            : {}),
         }),
       },
       "音声を生成できませんでした"
@@ -128,6 +136,7 @@ export async function synthesizeWordWithIpa({
       bytes: new Uint8Array(await audioResponse.arrayBuffer()),
       contentType: audioResponse.headers.get("content-type") || "audio/mpeg",
       ipa,
+      pronunciationMode: forcePronunciation ? "ipa" : "native",
     };
   } finally {
     if (dictionaryId) {

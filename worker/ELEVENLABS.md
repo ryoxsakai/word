@@ -1,6 +1,6 @@
 # ElevenLabs pronunciation audio
 
-The editor can generate a pronunciation clip from a headword and one IPA value. The Worker creates a temporary ElevenLabs pronunciation dictionary, generates an MP3, stores it in the `vocab-audio` R2 bucket, and deletes the temporary dictionary. The viewer serves the saved clip and falls back to the Web Speech API when no saved clip is available or playback fails.
+The editor can generate a pronunciation clip from a headword and one IPA value. Ordinary words use ElevenLabs' native English pronunciation. Words with the pronunciation-caution flag use a temporary IPA pronunciation dictionary so heteronyms such as verb `permit` retain the intended stress. The generated MP3 is stored in the `vocab-audio` R2 bucket, and temporary dictionaries are deleted after generation. The viewer serves the saved clip and falls back to the Web Speech API when no saved clip is available or playback fails.
 
 ## Required secret
 
@@ -20,7 +20,7 @@ The authenticated editor status endpoint is `GET /mcp-editor/api/audio-generatio
 
 ## Editorial workflow
 
-1. Save the headword and one primary IPA value.
+1. Save the headword and one primary IPA value. Enable the pronunciation-caution flag only when the selected sense requires an explicit IPA override.
 2. Reopen the word editor and select the wand button beside the pronunciation controls.
 3. Confirm the generated pronunciation. Regenerating replaces the primary clip and removes the previous R2 object.
 4. The public viewer automatically prefers the generated clip.

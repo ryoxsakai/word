@@ -31,6 +31,7 @@ const result = await synthesizeWordWithIpa({
 
 assert.deepEqual([...result.bytes], [1, 2, 3]);
 assert.equal(result.ipa, "pəˈmɪt");
+assert.equal(result.pronunciationMode, "ipa");
 assert.equal(calls.length, 3);
 const dictionaryBody = JSON.parse(calls[0].init.body);
 assert.deepEqual(dictionaryBody.rules[0], {
@@ -47,5 +48,20 @@ assert.deepEqual(speechBody.pronunciation_dictionary_locators[0], {
   version_id: "version-1",
 });
 assert.equal(calls[2].init.method, "DELETE");
+
+const nativeResult = await synthesizeWordWithIpa({
+  apiKey: "secret",
+  voiceId: "voice-1",
+  spelling: "come",
+  ipa: "/kʌm/",
+  forcePronunciation: false,
+  apiBase: "https://example.test/v1",
+  fetchImpl,
+});
+assert.equal(nativeResult.pronunciationMode, "native");
+assert.equal(calls.length, 4);
+const nativeSpeechBody = JSON.parse(calls[3].init.body);
+assert.equal(nativeSpeechBody.text, "come");
+assert.equal(nativeSpeechBody.pronunciation_dictionary_locators, undefined);
 
 console.log("ElevenLabs tests passed");

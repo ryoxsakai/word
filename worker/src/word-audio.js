@@ -3,6 +3,8 @@ import { ElevenLabsError, synthesizeWordWithIpa } from "./elevenlabs.js";
 const PRIMARY_VARIANT = "primary";
 const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
 const DEFAULT_MODEL_ID = "eleven_turbo_v2";
+const NATIVE_PROVIDER = "elevenlabs-native";
+const IPA_PROVIDER = "elevenlabs-ipa";
 
 function variantKey(raw) {
   const value = String(raw || PRIMARY_VARIANT).trim().toLowerCase();
@@ -35,6 +37,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
   const word = await env.DB
     .prepare(
       `SELECT w.id, w.spelling, w.pronunciation,
+              w.pronunciation_caution AS pronunciationCaution,
               (SELECT s.pos FROM senses s WHERE s.word_id = w.id AND s.is_primary = 1
                ORDER BY s.sort_order, s.id LIMIT 1) AS primaryPos
        FROM words w WHERE w.id = ?`
@@ -54,13 +57,16 @@ export async function generateWordAudio(env, wordId, body = {}) {
     .bind(wordId, variant)
     .first();
 
+  const forcePronunciation = variant !== PRIMARY_VARIANT || Boolean(word.pronunciationCaution);
   const audio = await synthesizeWordWithIpa({
     apiKey: env.ELEVENLABS_API_KEY,
     voiceId,
     modelId,
     spelling: word.spelling,
     ipa,
+    forcePronunciation,
   });
+  const provider = audio.pronunciationMode === "ipa" ? IPA_PROVIDER : NATIVE_PROVIDER;
 
   const generatedAt = new Date().toISOString();
   const objectKey = `words/${encodeURIComponent(wordId)}/${variant}-${Date.now()}-${crypto.randomUUID()}.mp3`;
@@ -69,7 +75,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
     customMetadata: {
       wordId,
       variant,
-      provider: "elevenlabs",
+      provider,
       voiceId,
       modelId,
     },
@@ -81,7 +87,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
         .prepare(
           `INSERT INTO word_audio
              (word_id, variant_key, pos, ipa, source_spelling, provider, voice_id, model_id, object_key, content_type, generated_at)
-           VALUES (?, ?, ?, ?, ?, 'elevenlabs', ?, ?, ?, ?, ?)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT(word_id, variant_key) DO UPDATE SET
              pos = excluded.pos,
              ipa = excluded.ipa,
@@ -94,7 +100,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
              generated_at = excluded.generated_at,
              is_stale = 0`
         )
-        .bind(wordId, variant, pos, audio.ipa, word.spelling, voiceId, modelId, objectKey, audio.contentType, generatedAt),
+        .bind(wordId, variant, pos, audio.ipa, word.spelling, provider, voiceId, modelId, objectKey, audio.contentType, generatedAt),
       ...(variant === PRIMARY_VARIANT
         ? [
             env.DB
