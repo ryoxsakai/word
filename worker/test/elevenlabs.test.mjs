@@ -55,6 +55,8 @@ const nativeResult = await synthesizeWordWithIpa({
   spelling: "come",
   ipa: "/kʌm/",
   forcePronunciation: false,
+  previousText: "They will",
+  nextText: "the patient.",
   apiBase: "https://example.test/v1",
   fetchImpl,
 });
@@ -62,6 +64,8 @@ assert.equal(nativeResult.pronunciationMode, "native");
 assert.equal(calls.length, 4);
 const nativeSpeechBody = JSON.parse(calls[3].init.body);
 assert.equal(nativeSpeechBody.text, "come");
+assert.equal(nativeSpeechBody.previous_text, "They will");
+assert.equal(nativeSpeechBody.next_text, "the patient.");
 assert.equal(nativeSpeechBody.pronunciation_dictionary_locators, undefined);
 
 console.log("ElevenLabs tests passed");

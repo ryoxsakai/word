@@ -12,6 +12,7 @@ import target1900Data from "./data/target1900.json";
 import target1400Data from "./data/target1400.json";
 import {
   generateWordAudio,
+  generatePronunciationReviewSamples,
   generatedAudioUrl,
   loadGeneratedAudio,
   serveWordAudio,
@@ -2348,6 +2349,11 @@ export default {
   async scheduled(_controller, env, ctx) {
     if (!automaticAudioEnabled(env)) {
       console.log("Automatic pronunciation generation is paused");
+      ctx.waitUntil(
+        generatePronunciationReviewSamples(env)
+          .then((samples) => console.log("Pronunciation review samples", samples.length))
+          .catch((error) => console.error("Pronunciation review sample generation failed", error))
+      );
       return;
     }
     ctx.waitUntil(
