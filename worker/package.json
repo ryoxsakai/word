@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "test:speech": "node test/speech.test.mjs",
     "test:mcp-write": "node test/mcp-write.integration.mjs",
     "test:migrations": "node test/migration-0020.smoke.mjs && node test/migration-0023.smoke.mjs",
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
