@@ -19,7 +19,7 @@ const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
 const REFERENCE_NUMBER_RE = /[（(]\s*no[.．]\s*\d+(?:-\d+)*\s*[)）]/gi;
-const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701)/g;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701|\uE800\d+\uE801)/g;
 
 const ENGLISH_WORD_RE =
   /(^|[^\p{Script=Latin}\p{N}_])(\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/gu;
@@ -56,7 +56,7 @@ export function renderMarkup(raw, opts = {}) {
 
     const labelHtml = escapeHtml(label);
     const emphasizedLabel = boldRefs && /\p{Script=Latin}/u.test(label)
-      ? `<strong class="memo-english">${labelHtml}</strong>`
+      ? `<strong>${labelHtml}</strong>`
       : labelHtml;
     let refHtml;
     if (!result || !result.found) {
@@ -73,11 +73,7 @@ export function renderMarkup(raw, opts = {}) {
   });
 
   let html = escapeHtml(protectedText);
-  html = html.replace(BOLD_RE, (_m, inner) => {
-    const visibleInner = inner.replace(/&(?:amp|lt|gt|quot|#39);/g, "");
-    const className = /\p{Script=Latin}/u.test(visibleInner) ? ' class="memo-english"' : "";
-    return "<strong" + className + ">" + inner + "</strong>";
-  });
+  html = html.replace(BOLD_RE, (_m, inner) => `<strong>${inner}</strong>`);
   html = html.replace(HIGHLIGHT_RE, (_m, inner) => `<mark>${inner}</mark>`);
   html = html.replace(ITALIC_RE, (_m, inner) => `<em>${inner}</em>`);
   html = html.replace(/\uE100(\d+)\uE101/g, (_match, index) => renderedRefs[Number(index)] || "");
@@ -243,6 +239,28 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       boldLabels.push(label);
       return token;
     };
+    const currentHeadwordLabels = [];
+    const currentHeadwordToken = (label) => {
+      const token = `\uE800${currentHeadwordLabels.length}\uE801`;
+      currentHeadwordLabels.push(label);
+      return token;
+    };
+    const markCurrentHeadword = (text) => {
+      if (!currentHeadword) return String(text);
+      const currentHeadwordRe = new RegExp(
+        boundaryPattern(escapeRegExp(currentHeadword)),
+        "giu"
+      );
+      return String(text).replace(
+        currentHeadwordRe,
+        (_match, prefix, matched) => `${prefix}${currentHeadwordToken(matched)}`
+      );
+    };
+    const markSelfReference = (text) => replaceOutsideProtectedTokens(
+      markCurrentHeadword(text),
+      ENGLISH_WORD_RE,
+      (_match, prefix, word) => `${prefix}${boldToken(word)}`
+    );
 
     // URLは先に退避し、英単語や見出し語の自動処理でパス・ドメインを変更しない。
     const urls = [];
@@ -273,7 +291,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     const protectedText = pronunciationProtectedText.replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
       const headword = headwordRaw.trim();
       if (currentHeadwordLower && headword.toLowerCase() === currentHeadwordLower) {
-        return boldToken(displayRaw ? displayRaw.trim() : headword);
+        return markSelfReference(displayRaw ? displayRaw.trim() : headword);
       }
       const token = `\uE000${explicitRefs.length}\uE001`;
       explicitRefs.push(match);
@@ -298,11 +316,11 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
           const reference = referenceByLower.get(matched.toLowerCase());
           if (!reference && currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
-            return `${prefix}${boldToken(matched)}`;
+            return `${prefix}${currentHeadwordToken(matched)}`;
           }
           if (!reference) return `${prefix}${matched}`;
-          if (reference.isHeadword && currentHeadwordLower && reference.target.toLowerCase() === currentHeadwordLower) {
-            return `${prefix}${boldToken(matched)}`;
+          if (currentHeadwordLower && reference.target.toLowerCase() === currentHeadwordLower) {
+            return `${prefix}${markSelfReference(matched)}`;
           }
           const marker = reference.target === matched
             ? `##${reference.target}##`
@@ -347,7 +365,11 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     let html = renderMarkup(restored, { ...opts, boldRefs: true });
     html = html.replace(
       /\uE200(\d+)\uE201/g,
-      (_match, index) => '<strong class="memo-english">' + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
+      (_match, index) => "<strong>" + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
+    );
+    html = html.replace(
+      /\uE800(\d+)\uE801/g,
+      (_match, index) => '<strong class="memo-current-headword">' + escapeHtml(currentHeadwordLabels[Number(index)] || "") + "</strong>"
     );
     html = html.replace(
       /\uE300(\d+)\uE301/g,
