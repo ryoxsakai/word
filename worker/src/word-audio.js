@@ -59,7 +59,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
 
   const forcePronunciation =
     body.forcePronunciation == null
-      ? variant !== PRIMARY_VARIANT || Boolean(word.pronunciationCaution)
+      ? variant !== PRIMARY_VARIANT
       : Boolean(body.forcePronunciation);
   const audio = await synthesizeWordWithIpa({
     apiKey: env.ELEVENLABS_API_KEY,

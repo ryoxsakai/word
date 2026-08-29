@@ -97,7 +97,7 @@ try {
     .prepare("SELECT object_key AS objectKey, voice_id AS voiceId, provider FROM word_audio WHERE word_id = 'permit'")
     .first();
   assert.equal(stored.voiceId, "test-voice");
-  assert.equal(stored.provider, "elevenlabs-ipa");
+  assert.equal(stored.provider, "elevenlabs-native");
   assert.ok(await bucket.head(stored.objectKey));
   assert.equal(
     (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,
@@ -112,7 +112,7 @@ try {
   );
   assert.equal(served.status, 200);
   assert.equal(served.headers.get("content-type"), "audio/mpeg");
-  assert.deepEqual([...new Uint8Array(await served.arrayBuffer())], [7, 8, 9, 1]);
+  assert.deepEqual([...new Uint8Array(await served.arrayBuffer())], [7, 8, 9, 0]);
 
   const previousObjectKey = stored.objectKey;
   await db.prepare("UPDATE words SET pronunciation = ? WHERE id = 'permit'").bind("/pɚˈmɪt/").run();
