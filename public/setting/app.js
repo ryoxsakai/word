@@ -1,11 +1,15 @@
-import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup } from "../shared/markup.js";
+import {
+  collectPhraseCrossReferences,
+  createAutoCrossRefRenderer,
+  renderMarkup,
+  renderWordListMarkup,
+} from "../shared/markup.js";
 import { EDITOR_API_BASE } from "../shared/config.js";
 import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import { fetchCompleteWordIndex } from "../shared/word-index.js";
 import { cefrLevelClass, normalizeCefrLevel } from "../shared/learning-tags.js";
-import { speakEnglish } from "../shared/speech.js";
 
 const API = `${EDITOR_API_BASE}/api`;
 const NEW_SECTION_VALUE = "__new__";
@@ -276,7 +280,10 @@ function updatePreview(textarea, previewEl) {
 }
 
 function rebuildAutoCrossRefRenderer() {
-  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), { resolve: resolveRef });
+  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), {
+    resolve: resolveRef,
+    phraseReferences: collectPhraseCrossReferences(state.words),
+  });
 }
 
 function escapeHtml(s) {
@@ -394,14 +401,12 @@ async function fetchWordInfo(spelling) {
 }
 
 function updatePlayAudioButton() {
-  el.playAudioBtn.disabled = !el.fieldSpelling.value.trim();
+  el.playAudioBtn.disabled = !state.currentAudioUrl;
 }
 
-function playCurrentPronunciation() {
-  speakEnglish(el.fieldSpelling.value, {
-    button: el.playAudioBtn,
-    onUnsupported: () => alert("この端末は音声読み上げに対応していません"),
-  });
+function playCurrentAudio() {
+  if (!state.currentAudioUrl) return;
+  new Audio(state.currentAudioUrl).play().catch((err) => console.error("音声再生に失敗しました:", err));
 }
 
 async function autoFillPronunciationOnBlur() {
@@ -409,6 +414,10 @@ async function autoFillPronunciationOnBlur() {
   if (!spelling || el.fieldPronunciation.value.trim()) return;
   const info = await fetchWordInfo(spelling);
   if (info?.pronunciation) el.fieldPronunciation.value = info.pronunciation;
+  if (info?.audio) {
+    state.currentAudioUrl = info.audio;
+    updatePlayAudioButton();
+  }
 }
 
 async function lookupPronunciationManually() {
@@ -421,7 +430,11 @@ async function lookupPronunciationManually() {
   try {
     const info = await fetchWordInfo(spelling);
     if (info?.pronunciation) el.fieldPronunciation.value = info.pronunciation;
-    if (!info?.pronunciation) {
+    if (info?.audio) {
+      state.currentAudioUrl = info.audio;
+      updatePlayAudioButton();
+    }
+    if (!info || (!info.pronunciation && !info.audio)) {
       const reason = info?.error ? `（エラー: ${info.error}）` : "";
       alert(`「${spelling}」の発音記号が辞書から見つかりませんでした${reason}。`);
     }
@@ -446,6 +459,11 @@ async function draftFromDictionary() {
     let filledAnything = false;
     if (info.pronunciation && !el.fieldPronunciation.value.trim()) {
       el.fieldPronunciation.value = info.pronunciation;
+      filledAnything = true;
+    }
+    if (info.audio) {
+      state.currentAudioUrl = info.audio;
+      updatePlayAudioButton();
       filledAnything = true;
     }
     const hasExample = collectRows("examples").length > 0;
@@ -2484,17 +2502,14 @@ el.labelModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.labelModalOverlay) closeLabelEditor();
 });
 el.fieldSpelling.addEventListener("blur", autoFillPronunciationOnBlur);
-el.fieldSpelling.addEventListener("input", () => {
-  updatePreview(el.fieldNotes, el.notesPreview);
-  updatePlayAudioButton();
-});
+el.fieldSpelling.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 el.fieldSpelling.addEventListener("keydown", (e) => {
   if (e.key !== "Enter") return;
   e.preventDefault();
   autoFillPronunciationOnBlur();
 });
 el.lookupPronunciationBtn.addEventListener("click", lookupPronunciationManually);
-el.playAudioBtn.addEventListener("click", playCurrentPronunciation);
+el.playAudioBtn.addEventListener("click", playCurrentAudio);
 el.draftFromDictionaryBtn.addEventListener("click", draftFromDictionary);
 el.fieldIrregularForms.addEventListener("input", () => updatePreview(el.fieldIrregularForms, el.irregularFormsPreview));
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
