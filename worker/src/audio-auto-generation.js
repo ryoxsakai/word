@@ -1,0 +1,140 @@
+import { generateWordAudio } from "./word-audio.js";
+
+const DEFAULT_BATCH_SIZE = 5;
+const MAX_BATCH_SIZE = 20;
+const MAX_RETRY_DELAY_SECONDS = 24 * 60 * 60;
+const STUCK_JOB_MINUTES = 15;
+
+function batchSize(raw) {
+  const parsed = Number.parseInt(String(raw ?? ""), 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_BATCH_SIZE;
+  return Math.min(parsed, MAX_BATCH_SIZE);
+}
+
+function errorText(error) {
+  return String(error?.message || error || "unknown audio generation error").slice(0, 500);
+}
+
+function retryDelaySeconds(attempts) {
+  return Math.min(MAX_RETRY_DELAY_SECONDS, 60 * 2 ** Math.min(Math.max(attempts, 0), 11));
+}
+
+// 手動生成や旧データも含め、現在のwords/word_audioを正として待ち行列を整える。
+export async function reconcileAutomaticAudioJobs(env) {
+  await env.DB.batch([
+    env.DB.prepare(
+      `DELETE FROM word_audio_jobs
+       WHERE variant_key = 'primary'
+         AND (
+           NOT EXISTS (
+             SELECT 1 FROM words w
+             WHERE w.id = word_audio_jobs.word_id
+               AND TRIM(COALESCE(w.pronunciation, '')) <> ''
+           )
+           OR EXISTS (
+             SELECT 1 FROM word_audio a
+             WHERE a.word_id = word_audio_jobs.word_id
+               AND a.variant_key = 'primary'
+               AND a.is_stale = 0
+           )
+         )`
+    ),
+    env.DB.prepare(
+      `UPDATE word_audio_jobs
+       SET status = 'retry', next_attempt_at = unixepoch(), updated_at = datetime('now')
+       WHERE status = 'processing'
+         AND updated_at <= datetime('now', '-${STUCK_JOB_MINUTES} minutes')`
+    ),
+    env.DB.prepare(
+      `INSERT OR IGNORE INTO word_audio_jobs (word_id, variant_key)
+       SELECT w.id, 'primary'
+       FROM words w
+       LEFT JOIN word_audio a
+         ON a.word_id = w.id
+        AND a.variant_key = 'primary'
+        AND a.is_stale = 0
+       WHERE TRIM(COALESCE(w.pronunciation, '')) <> ''
+         AND a.word_id IS NULL`
+    ),
+  ]);
+}
+
+export async function automaticAudioStatus(env) {
+  const [eligible, generated, jobs] = await env.DB.batch([
+    env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM words WHERE TRIM(COALESCE(pronunciation, '')) <> ''"
+    ),
+    env.DB.prepare(
+      `SELECT COUNT(*) AS count
+       FROM word_audio
+       WHERE variant_key = 'primary' AND is_stale = 0`
+    ),
+    env.DB.prepare(
+      `SELECT COUNT(*) AS queued,
+              SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) AS processing,
+              SUM(CASE WHEN status = 'retry' THEN 1 ELSE 0 END) AS retrying
+       FROM word_audio_jobs`
+    ),
+  ]);
+  const first = (result) => result?.results?.[0] || {};
+  return {
+    eligible: Number(first(eligible).count || 0),
+    generated: Number(first(generated).count || 0),
+    queued: Number(first(jobs).queued || 0),
+    processing: Number(first(jobs).processing || 0),
+    retrying: Number(first(jobs).retrying || 0),
+  };
+}
+
+export async function processAutomaticAudio(
+  env,
+  { generate = generateWordAudio, limit = batchSize(env.AUDIO_AUTO_BATCH_SIZE), now = Date.now } = {}
+) {
+  await reconcileAutomaticAudioJobs(env);
+  const { results: jobs } = await env.DB
+    .prepare(
+      `SELECT word_id AS wordId, attempts
+       FROM word_audio_jobs
+       WHERE status IN ('pending', 'retry')
+         AND next_attempt_at <= unixepoch()
+       ORDER BY next_attempt_at, created_at, word_id
+       LIMIT ?`
+    )
+    .bind(batchSize(limit))
+    .all();
+
+  const summary = { selected: jobs.length, generated: 0, failed: 0, failures: [] };
+  for (const job of jobs) {
+    const claim = await env.DB
+      .prepare(
+        `UPDATE word_audio_jobs
+         SET status = 'processing', updated_at = datetime('now')
+         WHERE word_id = ? AND variant_key = 'primary'
+           AND status IN ('pending', 'retry')`
+      )
+      .bind(job.wordId)
+      .run();
+    if (!claim.meta?.changes) continue;
+
+    try {
+      await generate(env, job.wordId, { variantKey: "primary" });
+      summary.generated += 1;
+    } catch (error) {
+      const message = errorText(error);
+      const attempts = Number(job.attempts || 0) + 1;
+      const nextAttemptAt = Math.floor(now() / 1000) + retryDelaySeconds(attempts);
+      await env.DB
+        .prepare(
+          `UPDATE word_audio_jobs
+           SET status = 'retry', attempts = ?, last_error = ?, next_attempt_at = ?,
+               updated_at = datetime('now')
+           WHERE word_id = ? AND variant_key = 'primary'`
+        )
+        .bind(attempts, message, nextAttemptAt, job.wordId)
+        .run();
+      summary.failed += 1;
+      summary.failures.push({ wordId: job.wordId, error: message });
+    }
+  }
+  return summary;
+}

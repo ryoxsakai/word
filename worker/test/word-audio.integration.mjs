@@ -51,6 +51,10 @@ try {
     .prepare("INSERT INTO senses (word_id, pos, meaning, is_primary) VALUES (?, ?, ?, 1)")
     .bind("permit", "他", "Oを許可する")
     .run();
+  assert.equal(
+    (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,
+    1
+  );
 
   globalThis.fetch = async (url, init) => {
     if (url.endsWith("/pronunciation-dictionaries/add-from-rules")) {
@@ -86,6 +90,10 @@ try {
     .first();
   assert.equal(stored.voiceId, "test-voice");
   assert.ok(await bucket.head(stored.objectKey));
+  assert.equal(
+    (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,
+    0
+  );
 
   const served = await serveWordAudio(
     new Request("https://vocab.lrnr.jp/mcp-viewer/api/audio/permit/primary"),
@@ -103,11 +111,19 @@ try {
     (await db.prepare("SELECT is_stale AS isStale FROM word_audio WHERE word_id = 'permit'").first()).isStale,
     1
   );
+  assert.equal(
+    (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,
+    1
+  );
   await generateWordAudio(env, "permit");
   assert.equal(await bucket.head(previousObjectKey), null);
   assert.equal(
     (await db.prepare("SELECT ipa FROM word_audio WHERE word_id = 'permit'").first()).ipa,
     "pɚˈmɪt"
+  );
+  assert.equal(
+    (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'permit'").first()).count,
+    0
   );
 } finally {
   globalThis.fetch = originalFetch;

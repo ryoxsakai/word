@@ -6,9 +6,9 @@
     "dev": "wrangler dev",
     "test:speech": "node test/speech.test.mjs",
     "test:elevenlabs": "node test/elevenlabs.test.mjs",
-    "test:audio": "node test/word-audio.integration.mjs",
+    "test:audio": "node test/word-audio.integration.mjs && node test/automatic-word-audio.integration.mjs",
     "test:mcp-write": "node test/mcp-write.integration.mjs",
-    "test:migrations": "node test/migration-0020.smoke.mjs && node test/migration-0023.smoke.mjs",
+    "test:migrations": "node test/migration-0020.smoke.mjs && node test/migration-0023.smoke.mjs && node test/migration-0025.smoke.mjs",
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocab-db --remote",
     "deploy": "wrangler deploy"
