@@ -2,7 +2,6 @@ import {
   DEFAULT_MODEL_ID,
   DEFAULT_VOICE_ID,
   generateWordAudio,
-  IPA_PROVIDER,
   NATIVE_PROVIDER,
 } from "./word-audio.js";
 
@@ -47,10 +46,7 @@ export async function reconcileAutomaticAudioJobs(env) {
            WHERE w.id = word_audio.word_id
              AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
              AND (
-               word_audio.provider <> CASE
-                 WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-                 ELSE '${NATIVE_PROVIDER}'
-               END
+               word_audio.provider <> '${NATIVE_PROVIDER}'
                OR word_audio.voice_id <> ?
                OR word_audio.model_id <> ?
              )
@@ -68,10 +64,7 @@ export async function reconcileAutomaticAudioJobs(env) {
          WHERE a.word_id = words.id
            AND a.variant_key = 'primary'
            AND a.is_stale = 0
-           AND a.provider = CASE
-             WHEN words.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-             ELSE '${NATIVE_PROVIDER}'
-           END
+           AND a.provider = '${NATIVE_PROVIDER}'
            AND a.voice_id = ?
            AND a.model_id = ?
        )`
@@ -95,13 +88,7 @@ export async function reconcileAutomaticAudioJobs(env) {
              WHERE a.word_id = word_audio_jobs.word_id
                AND a.variant_key = 'primary'
                AND a.is_stale = 0
-               AND a.provider = (
-                 SELECT CASE
-                   WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-                   ELSE '${NATIVE_PROVIDER}'
-                 END
-                 FROM words w WHERE w.id = word_audio_jobs.word_id
-               )
+               AND a.provider = '${NATIVE_PROVIDER}'
                AND a.voice_id = ?
                AND a.model_id = ?
            )
@@ -124,10 +111,7 @@ export async function reconcileAutomaticAudioJobs(env) {
          ON a.word_id = w.id
         AND a.variant_key = 'primary'
         AND a.is_stale = 0
-        AND a.provider = CASE
-          WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-          ELSE '${NATIVE_PROVIDER}'
-        END
+        AND a.provider = '${NATIVE_PROVIDER}'
         AND a.voice_id = ?
         AND a.model_id = ?
        WHERE TRIM(COALESCE(w.pronunciation, '')) <> ''
@@ -157,10 +141,7 @@ export async function automaticAudioStatus(env) {
        JOIN words w ON w.id = a.word_id
        WHERE a.variant_key = 'primary'
          AND a.is_stale = 0
-         AND a.provider = CASE
-           WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-           ELSE '${NATIVE_PROVIDER}'
-         END
+         AND a.provider = '${NATIVE_PROVIDER}'
          AND a.voice_id = ?
          AND a.model_id = ?`
     ).bind(voiceId, modelId),
