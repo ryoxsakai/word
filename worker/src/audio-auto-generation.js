@@ -12,6 +12,10 @@ const MAX_RETRY_DELAY_SECONDS = 24 * 60 * 60;
 const STUCK_JOB_MINUTES = 15;
 const AUTOMATIC_AUDIO_LIST_ID = "crossover-v3";
 
+export function automaticAudioEnabled(env) {
+  return String(env?.AUDIO_AUTO_ENABLED ?? "true").trim().toLowerCase() !== "false";
+}
+
 function batchSize(raw) {
   const parsed = Number.parseInt(String(raw ?? ""), 10);
   if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_BATCH_SIZE;
@@ -183,6 +187,7 @@ export async function automaticAudioStatus(env) {
   ]);
   const first = (result) => result?.results?.[0] || {};
   return {
+    enabled: automaticAudioEnabled(env),
     voiceId,
     modelId,
     eligible: Number(first(eligible).count || 0),

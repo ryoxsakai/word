@@ -17,6 +17,7 @@ import {
   serveWordAudio,
 } from "./word-audio.js";
 import {
+  automaticAudioEnabled,
   automaticAudioStatus,
   processAutomaticAudio,
   reconcileAutomaticAudioJobs,
@@ -2345,6 +2346,10 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
+    if (!automaticAudioEnabled(env)) {
+      console.log("Automatic pronunciation generation is paused");
+      return;
+    }
     ctx.waitUntil(
       processAutomaticAudio(env)
         .then((summary) => console.log("Automatic pronunciation generation", summary))
