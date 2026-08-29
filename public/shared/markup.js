@@ -148,8 +148,42 @@ function shouldBoldEnglishWord(source, wordStart, word) {
 }
 
 /**
- * 本文中に現れる登録済み見出し語を、明示的な ##参照## と同じ表示にする
- * レンダラーを作る。長い見出し語を優先し、英数字の途中では一致させない。
+ * 単語データのフレーズ欄から、参照先が一意に決まる熟語だけを抽出する。
+ * 同じ熟語が複数の見出し語に登録されている場合は、誤リンクを避けるため除外する。
+ * compact API の phrases と full API の examples の両方に対応する。
+ * @param {Iterable<object>} words
+ * @returns {Array<{phrase: string, target: string}>}
+ */
+export function collectPhraseCrossReferences(words) {
+  const candidateByLower = new Map();
+  for (const word of words || []) {
+    const target = String(word?.spelling || "").trim();
+    if (!target) continue;
+    const phrases = Array.isArray(word?.phrases)
+      ? word.phrases
+      : (word?.examples || [])
+          .filter((example) => example?.type === "phrase")
+          .map((example) => example?.sentence);
+    for (const rawPhrase of phrases) {
+      const phrase = String(rawPhrase || "").trim();
+      if (!phrase || phrase.includes("#") || phrase.includes("|")) continue;
+      const key = phrase.toLowerCase();
+      const existing = candidateByLower.get(key);
+      if (!existing) {
+        candidateByLower.set(key, { phrase, target, ambiguous: false });
+      } else if (existing.target.toLowerCase() !== target.toLowerCase()) {
+        existing.ambiguous = true;
+      }
+    }
+  }
+  return [...candidateByLower.values()]
+    .filter((candidate) => !candidate.ambiguous)
+    .map(({ phrase, target }) => ({ phrase, target }));
+}
+
+/**
+ * 本文中に現れる登録済み熟語・見出し語を、明示的な ##参照## と同じ表示にする
+ * レンダラーを作る。長い表現を優先し、英数字の途中では一致させない。
  * 見出し語一覧から正規表現を作る処理は初回だけなので、入力ごとのプレビューにも使える。
  * @param {Iterable<string>} headwords
  * @param {object} [opts] renderMarkup と同じオプション
@@ -164,7 +198,22 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     if (!canonicalByLower.has(key)) canonicalByLower.set(key, headword);
   }
 
-  const alternatives = [...canonicalByLower.values()]
+  const referenceByLower = new Map(
+    [...canonicalByLower.entries()].map(([key, headword]) => [
+      key,
+      { label: headword, target: headword, isHeadword: true },
+    ])
+  );
+  for (const rawReference of opts.phraseReferences || []) {
+    const phrase = String(rawReference?.phrase || "").trim();
+    const target = String(rawReference?.target || "").trim();
+    const key = phrase.toLowerCase();
+    if (!phrase || !target || referenceByLower.has(key)) continue;
+    referenceByLower.set(key, { label: phrase, target, isHeadword: false });
+  }
+
+  const alternatives = [...referenceByLower.values()]
+    .map((reference) => reference.label)
     .sort((a, b) => b.length - a.length)
     .map(escapeRegExp);
 
@@ -215,11 +264,14 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       return token;
     });
 
-    // 新規作成中の見出し語も登録済み語と同じ最長一致の候補へ加える。
+    // 熟語を含む最長一致の候補へ、新規作成中の見出し語も加える。
     // 先に単独で太字化すると、take off より draft の take が先に一致してしまうため。
     let autoHeadwordRe = plainHeadwordRe;
     if (currentHeadword && !canonicalByLower.has(currentHeadwordLower)) {
-      const draftAlternatives = [...canonicalByLower.values(), currentHeadword]
+      const draftAlternatives = [
+        ...[...referenceByLower.values()].map((reference) => reference.label),
+        currentHeadword,
+      ]
         .sort((a, b) => b.length - a.length)
         .map(escapeRegExp);
       autoHeadwordRe = new RegExp(boundaryPattern(draftAlternatives.join("|")), "giu");
@@ -228,12 +280,17 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     const autoRefs = [];
     const withAutoRefs = autoHeadwordRe
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
-          if (currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
+          const reference = referenceByLower.get(matched.toLowerCase());
+          if (!reference && currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
             return `${prefix}${boldToken(matched)}`;
           }
-          const canonical = canonicalByLower.get(matched.toLowerCase());
-          if (!canonical) return `${prefix}${matched}`;
-          const marker = canonical === matched ? `##${canonical}##` : `##${canonical}|${matched}##`;
+          if (!reference) return `${prefix}${matched}`;
+          if (reference.isHeadword && currentHeadwordLower && reference.target.toLowerCase() === currentHeadwordLower) {
+            return `${prefix}${boldToken(matched)}`;
+          }
+          const marker = reference.target === matched
+            ? `##${reference.target}##`
+            : `##${reference.target}|${matched}##`;
           const token = `\uE400${autoRefs.length}\uE401`;
           autoRefs.push(marker);
           return `${prefix}${token}`;
