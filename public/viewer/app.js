@@ -1,4 +1,11 @@
-import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup, escapeHtml, stripMarkup } from "../shared/markup.js";
+import {
+  collectPhraseCrossReferences,
+  createAutoCrossRefRenderer,
+  renderMarkup,
+  renderWordListMarkup,
+  escapeHtml,
+  stripMarkup,
+} from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
@@ -148,7 +155,10 @@ function buildIndex() {
   for (const w of state.words) {
     state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
   }
-  state.renderNotesMarkup = createAutoCrossRefRenderer(state.wordIndex.keys(), { resolve: resolveRef });
+  state.renderNotesMarkup = createAutoCrossRefRenderer(state.wordIndex.keys(), {
+    resolve: resolveRef,
+    phraseReferences: collectPhraseCrossReferences(state.words),
+  });
 }
 
 // ---- レンダリング ----

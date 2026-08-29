@@ -1,4 +1,9 @@
-import { createAutoCrossRefRenderer, renderMarkup, renderWordListMarkup } from "../shared/markup.js";
+import {
+  collectPhraseCrossReferences,
+  createAutoCrossRefRenderer,
+  renderMarkup,
+  renderWordListMarkup,
+} from "../shared/markup.js";
 import { EDITOR_API_BASE } from "../shared/config.js";
 import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
@@ -276,7 +281,10 @@ function updatePreview(textarea, previewEl) {
 }
 
 function rebuildAutoCrossRefRenderer() {
-  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), { resolve: resolveRef });
+  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), {
+    resolve: resolveRef,
+    phraseReferences: collectPhraseCrossReferences(state.words),
+  });
 }
 
 function escapeHtml(s) {
