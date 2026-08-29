@@ -49,16 +49,22 @@ assert.match(placeholderContext, /<strong>O<\/strong>\/<strong>Ving<\/strong>を
 assert.match(placeholderContext, /。Cには形容詞を置く。$/);
 assert.doesNotMatch(placeholderContext, /<strong>第5文型|<strong>形容詞|<strong>C<\/strong>には/);
 
+const objectPlaceholders = render("Aに利益をもたらす。Bから奪う。give A B。A/B。");
+assert.equal(
+  objectPlaceholders,
+  "Aに利益をもたらす。Bから奪う。<strong>give</strong> <strong>A</strong> <strong>B</strong>。<strong>A</strong>/<strong>B</strong>。"
+);
+
 const allEnglishWords = render("a different shoulder if should");
 assert.equal(
   allEnglishWords,
   "<strong>a</strong> <strong>different</strong> <strong>shoulder</strong> <strong>if</strong> <strong>should</strong>"
 );
 
-const manualBold = render("これは**重要語**。**very important**。**O**を使う。");
+const manualBold = render("これは**重要語**。**very important**。**O**を使う。**A**に。");
 assert.equal(
   manualBold,
-  "これは<strong>重要語</strong>。<strong>very important</strong>。<strong>O</strong>を使う。"
+  "これは<strong>重要語</strong>。<strong>very important</strong>。<strong>O</strong>を使う。<strong>A</strong>に。"
 );
 assert.equal(stripMarkup("**重要**と*語根*"), "重要と語根");
 
