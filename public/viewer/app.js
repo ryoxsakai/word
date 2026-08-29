@@ -3,6 +3,7 @@ import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
+import { speakEnglish } from "../shared/speech.js";
 import {
   registerVocabWebMCP,
   registeredWebMCPTools,
@@ -308,7 +309,7 @@ function renderEntry(w) {
     <div class="entry-body">
       <div class="entry-head">
         <span class="headword">${escapeHtml(w.spelling)}</span>
-        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(w.audioUrl || "")}" title="発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
+        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" title="端末の英語音声で発音を聞く"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cefrBadge}
         ${awlBadge}
         ${cautionHtml}
@@ -713,41 +714,11 @@ function applyFilters() {
 
 // ---- 発音 / リンクコピー / 空所トグル ----
 
-function speakWithTts(text, btn) {
-  if (!("speechSynthesis" in window)) {
-    showToast("この端末は音声読み上げに対応していません");
-    return;
-  }
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-US";
-  if (btn) {
-    btn.classList.add("speaking");
-    const clear = () => btn.classList.remove("speaking");
-    utter.onend = clear;
-    utter.onerror = clear;
-  }
-  window.speechSynthesis.speak(utter);
-}
-
-// 辞書APIから取得した実音声(audioUrl)があればそれを再生し、なければブラウザのTTSにフォールバックする。
-function speak(text, btn, audioUrl) {
-  if (audioUrl) {
-    if (btn) btn.classList.add("speaking");
-    const audio = new Audio(audioUrl);
-    const clear = () => btn && btn.classList.remove("speaking");
-    audio.addEventListener("ended", clear);
-    audio.addEventListener("error", () => {
-      clear();
-      speakWithTts(text, btn);
-    });
-    audio.play().catch(() => {
-      clear();
-      speakWithTts(text, btn);
-    });
-    return;
-  }
-  speakWithTts(text, btn);
+function speak(text, btn) {
+  speakEnglish(text, {
+    button: btn,
+    onUnsupported: () => showToast("この端末は音声読み上げに対応していません"),
+  });
 }
 
 async function copyLink(id) {
@@ -864,7 +835,7 @@ el.wordList.addEventListener("click", (e) => {
   const actionEl = e.target.closest("[data-action]");
   if (!actionEl) return;
   const action = actionEl.dataset.action;
-  if (action === "speak") speak(actionEl.dataset.text, actionEl, actionEl.dataset.audioUrl || null);
+  if (action === "speak") speak(actionEl.dataset.text, actionEl);
   else if (action === "copy-link") copyLink(actionEl.dataset.wordId);
   else if (action === "toggle-blank") toggleBlank(actionEl);
 });
