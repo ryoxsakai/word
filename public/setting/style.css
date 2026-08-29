@@ -19,6 +19,7 @@
   --accent-hover: #2f4be0;
   --accent-soft: rgba(61, 90, 254, 0.1);
   --accent-ring: rgba(61, 90, 254, 0.35);
+  --memo-english: #d9531e;
 
   --danger: #d9304f;
   --danger-soft: rgba(217, 48, 79, 0.1);
@@ -1228,6 +1229,9 @@ legend .hint {
   color: var(--danger);
   border-bottom: 1px dotted var(--danger);
 }
+.preview .memo-english { color: var(--memo-english); }
+.preview .ref-no { color: var(--text-muted); font-weight: 400; }
+.preview .ref-missing .memo-english { color: inherit; }
 .preview mark {
   background: #fff3bf;
   padding: 0 0.15em;
@@ -1459,6 +1463,7 @@ legend .hint {
   --accent-hover: #5a7af5;
   --accent-soft: rgba(107, 138, 255, 0.14);
   --accent-ring: rgba(107, 138, 255, 0.35);
+  --memo-english: #ff9a6a;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
@@ -1485,6 +1490,7 @@ legend .hint {
     --accent-hover: #5a7af5;
     --accent-soft: rgba(107, 138, 255, 0.14);
     --accent-ring: rgba(107, 138, 255, 0.35);
+    --memo-english: #ff9a6a;
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
