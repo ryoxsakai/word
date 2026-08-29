@@ -289,8 +289,18 @@ async function listWordsInList(db, listId) {
     )
     .bind(listId)
     .all();
+  const phraseRows = results.length
+    ? await selectInChunks(
+        db,
+        (ph) =>
+          `SELECT word_id AS wordId, sentence AS phrase FROM examples WHERE type = 'phrase' AND word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
+        results.map((row) => row.id)
+      )
+    : [];
+  const phrasesByWord = groupByWordId(phraseRows);
   const rows = results.map((r) => ({
     ...r,
+    phrases: (phrasesByWord.get(r.id) || []).map((item) => item.phrase),
     displayNo: formatNo(r.no, r.branch),
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
