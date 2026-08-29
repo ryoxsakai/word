@@ -59,6 +59,9 @@ export async function synthesizeWordWithIpa({
   spelling,
   ipa: rawIpa,
   forcePronunciation = true,
+  spokenText,
+  previousText,
+  nextText,
   outputFormat = "mp3_44100_128",
   apiBase = DEFAULT_API_BASE,
   fetchImpl = fetch,
@@ -68,6 +71,8 @@ export async function synthesizeWordWithIpa({
   const normalizedSpelling = String(spelling || "").trim();
   if (!normalizedSpelling) throw new ElevenLabsError("見出し語が必要です", 400);
   const ipa = normalizeIpa(rawIpa);
+  const normalizedSpokenText = String(spokenText || normalizedSpelling).trim();
+  if (!normalizedSpokenText) throw new ElevenLabsError("読み上げテキストが必要です", 400);
 
   const dictionaryName = `vocab-${normalizedSpelling.replace(/[^a-z0-9]+/gi, "-").slice(0, 40) || "word"}-${Date.now()}`;
   let dictionaryId = null;
@@ -115,8 +120,10 @@ export async function synthesizeWordWithIpa({
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          text: normalizedSpelling,
+          text: normalizedSpokenText,
           model_id: modelId,
+          ...(previousText ? { previous_text: String(previousText) } : {}),
+          ...(nextText ? { next_text: String(nextText) } : {}),
           ...(dictionaryId
             ? {
                 pronunciation_dictionary_locators: [

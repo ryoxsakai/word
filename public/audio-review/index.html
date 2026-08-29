@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>発音音声サンプル</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main>
+    <h1>発音音声サンプル</h1>
+    <p>同じ音声を音量別に比較し、transferは生成方法も比較できます。</p>
+    <section>
+      <h2>音量比較：turn</h2>
+      <div class="buttons" data-url="/mcp-viewer/api/audio/turn/primary">
+        <button data-gain="1">現状</button>
+        <button data-gain="1.25">少し大きい（+約2 dB）</button>
+        <button data-gain="1.4">大きい（+約3 dB）</button>
+      </div>
+    </section>
+    <section>
+      <h2>transfer：生成方法比較</h2>
+      <div class="sample"><span>現在のIPA指定</span><button data-url="/mcp-viewer/api/audio/transfer/primary" data-gain="1.25">再生</button></div>
+      <div class="sample"><span>辞書指定なし</span><button data-url="/mcp-viewer/api/audio/transfer/sample-native" data-gain="1.25">再生</button></div>
+      <div class="sample"><span>動詞文脈あり（文脈自体は無音）</span><button data-url="/mcp-viewer/api/audio/transfer/sample-context" data-gain="1.25">再生</button></div>
+    </section>
+    <p id="status" role="status"></p>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

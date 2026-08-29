@@ -47,7 +47,7 @@ export async function generateWordAudio(env, wordId, body = {}) {
   if (!word) throw new ElevenLabsError("word not found", 404);
 
   const variant = variantKey(body.variantKey);
-  const ipa = variant === PRIMARY_VARIANT ? word.pronunciation : body.ipa;
+  const ipa = variant === PRIMARY_VARIANT ? word.pronunciation : body.ipa || word.pronunciation;
   const rawPos = variant === PRIMARY_VARIANT ? word.primaryPos : body.pos;
   const pos = rawPos == null ? null : String(rawPos).trim().slice(0, 50) || null;
   const voiceId = env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
@@ -57,7 +57,10 @@ export async function generateWordAudio(env, wordId, body = {}) {
     .bind(wordId, variant)
     .first();
 
-  const forcePronunciation = variant !== PRIMARY_VARIANT || Boolean(word.pronunciationCaution);
+  const forcePronunciation =
+    body.forcePronunciation == null
+      ? variant !== PRIMARY_VARIANT || Boolean(word.pronunciationCaution)
+      : Boolean(body.forcePronunciation);
   const audio = await synthesizeWordWithIpa({
     apiKey: env.ELEVENLABS_API_KEY,
     voiceId,
@@ -65,6 +68,9 @@ export async function generateWordAudio(env, wordId, body = {}) {
     spelling: word.spelling,
     ipa,
     forcePronunciation,
+    spokenText: body.spokenText,
+    previousText: body.previousText,
+    nextText: body.nextText,
   });
   const provider = audio.pronunciationMode === "ipa" ? IPA_PROVIDER : NATIVE_PROVIDER;
 
@@ -125,6 +131,28 @@ export async function generateWordAudio(env, wordId, body = {}) {
     }
   }
   return await loadGeneratedAudio(env.DB, wordId, variant);
+}
+
+// 全件生成を止めた状態でも、確認用のtransfer 2種類だけを一度生成する。
+export async function generatePronunciationReviewSamples(env) {
+  const samples = [
+    {
+      variantKey: "sample-native",
+      forcePronunciation: false,
+    },
+    {
+      variantKey: "sample-context",
+      forcePronunciation: false,
+      previousText: "They will",
+      nextText: "the patient to another hospital.",
+    },
+  ];
+  const generated = [];
+  for (const sample of samples) {
+    if (await loadGeneratedAudio(env.DB, "transfer", sample.variantKey)) continue;
+    generated.push(await generateWordAudio(env, "transfer", sample));
+  }
+  return generated;
 }
 
 export async function serveWordAudio(request, env, wordId, rawVariant = PRIMARY_VARIANT) {
