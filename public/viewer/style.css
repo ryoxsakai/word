@@ -813,9 +813,9 @@ button { font-family: inherit; }
 .notes-block.notes-synonym { color: #1565c0; }
 .notes-block.notes-antonym { color: #e65100; }
 .notes-block.notes-memo { color: #6a1b9a; }
-.notes-block.notes-memo .memo-english { color: var(--accent-strong); }
+.notes-block.notes-memo .memo-current-headword { color: var(--accent-strong); }
 .notes-block.notes-memo .ref-no { color: var(--text-muted); font-weight: 400; }
-.notes-block.notes-memo .ref-missing .memo-english { color: inherit; }
+.notes-block.notes-memo .ref-missing .memo-current-headword { color: inherit; }
 .notes-label.derivative-badge { background-color: #e0f2f1; color: #00695c; }
 .notes-label.irregular-badge { background-color: #efebe9; color: #6d4c41; }
 .notes-label.etymology-badge { background-color: #e8f5e9; color: #2e7d32; }
