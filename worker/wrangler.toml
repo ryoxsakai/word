@@ -17,8 +17,8 @@ binding = "ASSETS"
 ALLOWED_ORIGINS = "https://ryoxsakai.github.io,https://vocab.lrnr.jp"
 # ElevenLabsのAPIキーはWorker Secretとして別途設定する。
 # 音声・モデルはダッシュボード側の変数で上書きできる。
-ELEVENLABS_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"
-ELEVENLABS_MODEL_ID = "eleven_turbo_v2"
+ELEVENLABS_VOICE_ID = "Sq93GQT4X1lKDXsQcixO"
+ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
 # 毎分この件数まで、IPA登録済みで音声がない見出し語を自動生成する。
 AUDIO_AUTO_BATCH_SIZE = "5"
 

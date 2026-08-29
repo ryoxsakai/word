@@ -1,10 +1,10 @@
 import { ElevenLabsError, synthesizeWordWithIpa } from "./elevenlabs.js";
 
 const PRIMARY_VARIANT = "primary";
-const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
-const DEFAULT_MODEL_ID = "eleven_turbo_v2";
-const NATIVE_PROVIDER = "elevenlabs-native";
-const IPA_PROVIDER = "elevenlabs-ipa";
+export const DEFAULT_VOICE_ID = "Sq93GQT4X1lKDXsQcixO";
+export const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
+export const NATIVE_PROVIDER = "elevenlabs-native";
+export const IPA_PROVIDER = "elevenlabs-ipa";
 
 function variantKey(raw) {
   const value = String(raw || PRIMARY_VARIANT).trim().toLowerCase();

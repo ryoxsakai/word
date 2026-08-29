@@ -1,12 +1,16 @@
-import { generateWordAudio } from "./word-audio.js";
+import {
+  DEFAULT_MODEL_ID,
+  DEFAULT_VOICE_ID,
+  generateWordAudio,
+  IPA_PROVIDER,
+  NATIVE_PROVIDER,
+} from "./word-audio.js";
 
 const DEFAULT_BATCH_SIZE = 5;
 const MAX_BATCH_SIZE = 20;
 const MAX_RETRY_DELAY_SECONDS = 24 * 60 * 60;
 const STUCK_JOB_MINUTES = 15;
 const AUTOMATIC_AUDIO_LIST_ID = "crossover-v3";
-const NATIVE_PROVIDER = "elevenlabs-native";
-const IPA_PROVIDER = "elevenlabs-ipa";
 
 function batchSize(raw) {
   const parsed = Number.parseInt(String(raw ?? ""), 10);
@@ -24,6 +28,8 @@ function retryDelaySeconds(attempts) {
 
 // crossoverの収録語と現在のwords/word_audioを正として待ち行列を整える。
 export async function reconcileAutomaticAudioJobs(env) {
+  const voiceId = env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
+  const modelId = env.ELEVENLABS_MODEL_ID || DEFAULT_MODEL_ID;
   await env.DB.batch([
     env.DB.prepare(
       `UPDATE word_audio
@@ -36,12 +42,16 @@ export async function reconcileAutomaticAudioJobs(env) {
            JOIN list_items li ON li.word_id = w.id
            WHERE w.id = word_audio.word_id
              AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
-             AND word_audio.provider <> CASE
-               WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
-               ELSE '${NATIVE_PROVIDER}'
-             END
-         )`
-    ),
+             AND (
+               word_audio.provider <> CASE
+                 WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
+                 ELSE '${NATIVE_PROVIDER}'
+               END
+               OR word_audio.voice_id <> ?
+               OR word_audio.model_id <> ?
+             )
+           )`
+    ).bind(voiceId, modelId),
     env.DB.prepare(
       `UPDATE words
        SET audio_url = NULL
@@ -58,8 +68,10 @@ export async function reconcileAutomaticAudioJobs(env) {
              WHEN words.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
              ELSE '${NATIVE_PROVIDER}'
            END
+           AND a.voice_id = ?
+           AND a.model_id = ?
        )`
-    ),
+    ).bind(voiceId, modelId),
     env.DB.prepare(
       `DELETE FROM word_audio_jobs
        WHERE variant_key = 'primary'
@@ -86,9 +98,11 @@ export async function reconcileAutomaticAudioJobs(env) {
                  END
                  FROM words w WHERE w.id = word_audio_jobs.word_id
                )
+               AND a.voice_id = ?
+               AND a.model_id = ?
            )
          )`
-    ),
+    ).bind(voiceId, modelId),
     env.DB.prepare(
       `UPDATE word_audio_jobs
        SET status = 'retry', next_attempt_at = unixepoch(), updated_at = datetime('now')
@@ -110,13 +124,17 @@ export async function reconcileAutomaticAudioJobs(env) {
           WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
           ELSE '${NATIVE_PROVIDER}'
         END
+        AND a.voice_id = ?
+        AND a.model_id = ?
        WHERE TRIM(COALESCE(w.pronunciation, '')) <> ''
          AND a.word_id IS NULL`
-    ),
+    ).bind(voiceId, modelId),
   ]);
 }
 
 export async function automaticAudioStatus(env) {
+  const voiceId = env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
+  const modelId = env.ELEVENLABS_MODEL_ID || DEFAULT_MODEL_ID;
   const [eligible, generated, jobs, recentErrors] = await env.DB.batch([
     env.DB.prepare(
       `SELECT COUNT(*) AS count
@@ -138,8 +156,10 @@ export async function automaticAudioStatus(env) {
          AND a.provider = CASE
            WHEN w.pronunciation_caution = 1 THEN '${IPA_PROVIDER}'
            ELSE '${NATIVE_PROVIDER}'
-         END`
-    ),
+         END
+         AND a.voice_id = ?
+         AND a.model_id = ?`
+    ).bind(voiceId, modelId),
     env.DB.prepare(
       `SELECT COUNT(*) AS queued,
               SUM(CASE WHEN j.status = 'pending' THEN 1 ELSE 0 END) AS pending,
@@ -163,6 +183,8 @@ export async function automaticAudioStatus(env) {
   ]);
   const first = (result) => result?.results?.[0] || {};
   return {
+    voiceId,
+    modelId,
     eligible: Number(first(eligible).count || 0),
     generated: Number(first(generated).count || 0),
     queued: Number(first(jobs).queued || 0),

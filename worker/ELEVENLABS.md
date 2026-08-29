@@ -10,7 +10,7 @@ Set the ElevenLabs API key as a Cloudflare Worker secret. Do not add the key to 
 npx wrangler secret put ELEVENLABS_API_KEY
 ```
 
-The deploy workflow creates the `vocab-audio` R2 bucket if it does not exist. The default voice and model are configured in `wrangler.toml` and can be overridden with `ELEVENLABS_VOICE_ID` and `ELEVENLABS_MODEL_ID`.
+The deploy workflow creates the `vocab-audio` R2 bucket if it does not exist. The default voice is Felix (`Sq93GQT4X1lKDXsQcixO`) with `eleven_multilingual_v2`; both are configured in `wrangler.toml` and can be overridden with `ELEVENLABS_VOICE_ID` and `ELEVENLABS_MODEL_ID`. Automatic reconciliation marks clips from a different voice or model as stale and queues replacements.
 
 ## Automatic generation
 
