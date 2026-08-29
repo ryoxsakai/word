@@ -4,6 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import {
   automaticAudioStatus,
   processAutomaticAudio,
+  reconcileAutomaticAudioJobs,
 } from "../src/audio-auto-generation.js";
 
 class PreparedStatement {
@@ -60,6 +61,8 @@ sqlite.exec(`
     word_id TEXT NOT NULL,
     variant_key TEXT NOT NULL DEFAULT 'primary',
     provider TEXT NOT NULL DEFAULT 'elevenlabs',
+    voice_id TEXT NOT NULL DEFAULT 'old-voice',
+    model_id TEXT NOT NULL DEFAULT 'old-model',
     is_stale INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (word_id, variant_key)
   );
@@ -117,8 +120,15 @@ assert.equal(retry.attempts, 1);
 assert.match(retry.lastError, /複数/);
 assert.ok(retry.nextAttemptAt > 2_000_000_000);
 
-const status = await automaticAudioStatus({ DB: db });
+const audioEnv = {
+  DB: db,
+  ELEVENLABS_VOICE_ID: "test-voice",
+  ELEVENLABS_MODEL_ID: "test-model",
+};
+const status = await automaticAudioStatus(audioEnv);
 assert.deepEqual(status, {
+  voiceId: "test-voice",
+  modelId: "test-model",
   eligible: 2,
   generated: 0,
   queued: 1,
@@ -134,5 +144,19 @@ assert.deepEqual(status, {
     },
   ],
 });
+
+await db.prepare(
+  `INSERT INTO word_audio (word_id, variant_key, provider, voice_id, model_id)
+   VALUES ('alpha', 'primary', 'elevenlabs-native', 'old-voice', 'old-model')`
+).run();
+await reconcileAutomaticAudioJobs(audioEnv);
+assert.equal(
+  (await db.prepare("SELECT is_stale AS isStale FROM word_audio WHERE word_id = 'alpha'").first()).isStale,
+  1
+);
+assert.equal(
+  (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'alpha'").first()).count,
+  1
+);
 
 console.log("automatic word audio integration tests passed");
