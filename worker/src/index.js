@@ -320,6 +320,7 @@ async function listWordsInList(db, listId, options = {}) {
               w.derived_from_id AS derivedFromId,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
+              w.ergative AS ergative,
               w.conjugation_caution AS conjugationCaution, w.usage_caution AS usageCaution,
               ${WORD_TAG_SELECT},
               ${PRIMARY_MEANING_SELECT}
@@ -350,6 +351,7 @@ async function listWordsInList(db, listId, options = {}) {
     accentCaution: !!r.accentCaution,
     polysemousCaution: !!r.polysemousCaution,
     spellingCaution: !!r.spellingCaution,
+    ergative: !!r.ergative,
     conjugationCaution: !!r.conjugationCaution,
     usageCaution: !!r.usageCaution,
   }));
@@ -426,6 +428,7 @@ async function listMasterWords(db, searchUrl) {
            w.derived_from_id AS derivedFromId,
            w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
+           w.ergative AS ergative,
            w.conjugation_caution AS conjugationCaution, w.usage_caution AS usageCaution,
            ${WORD_TAG_SELECT},
            ${PRIMARY_MEANING_SELECT}
@@ -464,6 +467,7 @@ async function listMasterWords(db, searchUrl) {
     accentCaution: !!r.accentCaution,
     polysemousCaution: !!r.polysemousCaution,
     spellingCaution: !!r.spellingCaution,
+    ergative: !!r.ergative,
     conjugationCaution: !!r.conjugationCaution,
     usageCaution: !!r.usageCaution,
   }));
@@ -515,6 +519,7 @@ async function listWordsInListFull(db, listId, options = {}) {
               w.irregular_forms AS irregularForms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
+              w.ergative AS ergative,
               w.conjugation_caution AS conjugationCaution, w.usage_caution AS usageCaution,
               w.derived_from_id AS derivedFromId,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
@@ -622,6 +627,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     accentCaution: !!r.accentCaution,
     polysemousCaution: !!r.polysemousCaution,
     spellingCaution: !!r.spellingCaution,
+    ergative: !!r.ergative,
     conjugationCaution: !!r.conjugationCaution,
     usageCaution: !!r.usageCaution,
     no: r.no,
@@ -1142,6 +1148,7 @@ async function loadWordDetail(db, id) {
       `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, irregular_forms AS irregularForms,
               pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
               polysemous_caution AS polysemousCaution, spelling_caution AS spellingCaution,
+              ergative AS ergative,
               conjugation_caution AS conjugationCaution, usage_caution AS usageCaution,
               derived_from_id AS derivedFromId, created_at, updated_at
        FROM words WHERE id = ?`
@@ -1181,6 +1188,7 @@ async function loadWordDetail(db, id) {
     accentCaution: !!word.accentCaution,
     polysemousCaution: !!word.polysemousCaution,
     spellingCaution: !!word.spellingCaution,
+    ergative: !!word.ergative,
     conjugationCaution: !!word.conjugationCaution,
     usageCaution: !!word.usageCaution,
     senses: senses.results.map((s) => ({ ...s, is_primary: !!s.is_primary })),
@@ -1290,8 +1298,8 @@ async function createWord(db, body) {
   await db
     .prepare(
       `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms, irregular_forms,
-                           pronunciation_caution, accent_caution, polysemous_caution, spelling_caution, conjugation_caution, usage_caution, derived_from_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                           ergative, pronunciation_caution, accent_caution, polysemous_caution, spelling_caution, conjugation_caution, usage_caution, derived_from_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -1303,6 +1311,7 @@ async function createWord(db, body) {
       body.synonyms || null,
       body.antonyms || null,
       body.irregularForms || null,
+      body.ergative ? 1 : 0,
       body.pronunciationCaution ? 1 : 0,
       body.accentCaution ? 1 : 0,
       body.polysemousCaution ? 1 : 0,
@@ -1342,6 +1351,7 @@ async function updateWord(db, id, body) {
     body.synonyms || null,
     body.antonyms || null,
     body.irregularForms || null,
+    body.ergative ? 1 : 0,
     body.pronunciationCaution ? 1 : 0,
     body.accentCaution ? 1 : 0,
     body.polysemousCaution ? 1 : 0,
@@ -1354,7 +1364,7 @@ async function updateWord(db, id, body) {
     await db
       .prepare(
         `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
-                           pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, derived_from_id = ?, updated_at = datetime('now')
+                           ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, derived_from_id = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
       .bind(...commonBinds, derivedFromResolved.id, id)
@@ -1363,7 +1373,7 @@ async function updateWord(db, id, body) {
     await db
       .prepare(
         `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
-                           pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, updated_at = datetime('now')
+                           ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
       .bind(...commonBinds, id)
