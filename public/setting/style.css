@@ -553,7 +553,7 @@ body {
   color: var(--text-secondary);
 }
 
-.word-table .col-caution-spelling, .word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly, .word-table .col-caution-conjugation, .word-table .col-caution-usage {
+.word-table .col-caution-ergative, .word-table .col-caution-spelling, .word-table .col-caution-pron, .word-table .col-caution-accent, .word-table .col-caution-poly, .word-table .col-caution-conjugation, .word-table .col-caution-usage {
   width: 3.5rem;
   text-align: center;
 }
@@ -589,6 +589,7 @@ body {
   width: 1.6rem;
   height: 1.6rem;
 }
+.caution-icon.caution-ergative { color: #1d5f8a; }
 .caution-icon.caution-spelling { color: #0f7b6c; }
 .caution-icon.caution-pronunciation { color: #a15c00; }
 .caution-icon.caution-accent { color: #b3261e; }
@@ -596,6 +597,7 @@ body {
 .caution-icon.caution-conjugation { color: #1565c0; }
 .caution-icon.caution-usage { color: #ad1457; }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-icon.caution-ergative { color: #8ad3ff; }
   :root:not([data-theme="light"]) .caution-icon.caution-spelling { color: #6fe0cc; }
   :root:not([data-theme="light"]) .caution-icon.caution-pronunciation { color: #ffcf7a; }
   :root:not([data-theme="light"]) .caution-icon.caution-accent { color: #ff9a9a; }
@@ -603,6 +605,7 @@ body {
   :root:not([data-theme="light"]) .caution-icon.caution-conjugation { color: #90caf9; }
   :root:not([data-theme="light"]) .caution-icon.caution-usage { color: #f48fb1; }
 }
+:root[data-theme="dark"] .caution-icon.caution-ergative { color: #8ad3ff; }
 :root[data-theme="dark"] .caution-icon.caution-spelling { color: #6fe0cc; }
 :root[data-theme="dark"] .caution-icon.caution-pronunciation { color: #ffcf7a; }
 :root[data-theme="dark"] .caution-icon.caution-accent { color: #ff9a9a; }
@@ -980,6 +983,23 @@ legend .hint {
   border-color: #e0a233;
   color: #8a5a00;
   font-weight: 650;
+}
+.caution-toggle-btn--ergative.is-active {
+  background: #e0f1fa;
+  border-color: #4b91b9;
+  color: #1d5f8a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-toggle-btn--ergative.is-active {
+    background: #17384a;
+    border-color: #4b91b9;
+    color: #8ad3ff;
+  }
+}
+:root[data-theme="dark"] .caution-toggle-btn--ergative.is-active {
+  background: #17384a;
+  border-color: #4b91b9;
+  color: #8ad3ff;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .caution-toggle-btn.is-active {
@@ -1392,6 +1412,7 @@ legend .hint {
   .master-filters select { flex: 1 1 100%; max-width: none; }
   .master-actions button { flex: 1; min-width: 0; }
   .word-table .col-pron,
+  .word-table .col-caution-ergative,
   .word-table .col-caution-spelling,
   .word-table .col-caution-pron,
   .word-table .col-caution-accent,
@@ -1419,7 +1440,7 @@ legend .hint {
   /* リストno.・派生元、セクション・ラベルを2列ずつにする */
   #notebookFields { grid-template-columns: 1fr 1fr; }
 
-  /* 発音記号入力欄＋各種注意ボタン(6個)を1行に収める。
+  /* 発音記号入力欄＋各種注意ボタン(7個)を1行に収める。
      注意ボタンが増えるたびにここで詰め直す必要があるため、min-width/paddingを最小限にしてある。 */
   .field-pronunciation .input-with-btn { gap: 0.2rem; }
   .field-pronunciation .input-with-btn input { min-width: 4.5rem; }
