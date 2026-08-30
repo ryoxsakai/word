@@ -9,6 +9,7 @@ import {
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
+import { groupDerivativeSenses } from "../shared/derivatives.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import { playPronunciation } from "../shared/speech.js";
 import {
@@ -315,11 +316,17 @@ function renderEntry(w) {
         .join("")}</div>`
     : "";
 
-  const derivativesHtml = (w.derivatives || []).length
-    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="notes-content derivative-items">${w.derivatives
-        .map(
-          (d) => `<span class="derivative-item">${d.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(d.pos)}</span> ` : ""}<span class="derivative-word">${renderMarkup(d.word, { resolve: resolveRef })}</span>${d.meaning ? ` <span class="derivative-meaning">${renderMarkup(d.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
-        )
+  const derivativeGroups = groupDerivativeSenses(w.derivatives || []);
+  const derivativesHtml = derivativeGroups.length
+    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="notes-content derivative-items">${derivativeGroups
+        .map((group) => {
+          const senses = group.senses
+            .map(
+              (sense) => `<span class="derivative-sense">${sense.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(sense.pos)}</span>` : ""}${sense.meaning ? `<span class="derivative-meaning">${renderMarkup(sense.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
+            )
+            .join("");
+          return `<span class="derivative-item"><span class="derivative-word">${renderMarkup(group.word, { resolve: resolveRef })}</span>${senses}</span>`;
+        })
         .join("")}</span></div>`
     : "";
 

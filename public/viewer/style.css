@@ -804,6 +804,8 @@ button { font-family: inherit; }
 .derivative-item:last-child { margin-right: 0; }
 .pos-badge.derivative-pos { opacity: 0.6; vertical-align: middle; }
 .derivative-word { font-weight: 600; }
+.derivative-sense { margin-left: 0.35em; }
+.derivative-sense .derivative-pos { margin-right: 0.2em; }
 .derivative-meaning { color: var(--text-muted); font-weight: 400; font-size: 0.85em; }
 
 .blank-toggle {
