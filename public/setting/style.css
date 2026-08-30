@@ -610,11 +610,11 @@ body {
 :root[data-theme="dark"] .caution-icon.caution-conjugation { color: #90caf9; }
 :root[data-theme="dark"] .caution-icon.caution-usage { color: #f48fb1; }
 
-.word-table tbody tr:not(.section-header-row):not(.label-header-row) {
+.word-table tbody tr:not(.section-header-row):not(.label-header-row):not(.section-status-row) {
   cursor: pointer;
   transition: background 0.12s;
 }
-.word-table tbody tr:not(.section-header-row):not(.chapter-header-row):not(.label-header-row):hover { background: var(--bg-soft); }
+.word-table tbody tr:not(.section-header-row):not(.chapter-header-row):not(.label-header-row):not(.section-status-row):hover { background: var(--bg-soft); }
 .word-table tbody tr.selected { background: var(--accent-soft); }
 .word-table tbody tr.selected td:first-child { color: var(--accent); font-weight: 600; }
 
@@ -654,6 +654,23 @@ body {
   border-top: 1px dashed var(--border);
 }
 .word-table tbody tr.label-header-row .fa-tag { color: var(--accent); font-size: 0.72rem; }
+
+.word-table tbody tr.section-status-row td {
+  padding: 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: center;
+  cursor: default;
+}
+.section-status-message { margin-right: 0.6rem; }
+.section-retry-btn {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
 
 /* チャプター帯はセクション帯より上位の概念なので、少し濃い目のグレーで区別する */
 .word-table tbody tr.chapter-header-row {
