@@ -52,6 +52,7 @@ const wordFields = {
   antonyms: { type: "string", maxLength: 2000 },
   irregular_forms: { type: "string", maxLength: 1000 },
   derived_from_word_id: { type: "string", description: "派生元となる既存の単語ID" },
+  ergative: { type: "boolean", description: "能格動詞（同じ参与者が自動詞の主語・他動詞の目的語になる語）" },
   pronunciation_caution: { type: "boolean" },
   accent_caution: { type: "boolean" },
   polysemous_caution: { type: "boolean" },
@@ -968,6 +969,7 @@ const WORD_COLUMN_MAP = {
   synonyms: "synonyms",
   antonyms: "antonyms",
   irregular_forms: "irregular_forms",
+  ergative: "ergative",
   pronunciation_caution: "pronunciation_caution",
   accent_caution: "accent_caution",
   polysemous_caution: "polysemous_caution",
@@ -978,7 +980,7 @@ const WORD_COLUMN_MAP = {
 };
 
 function dbWordValue(field, value) {
-  if (field.endsWith("_caution")) return value ? 1 : 0;
+  if (field === "ergative" || field.endsWith("_caution")) return value ? 1 : 0;
   if (value === undefined || value === "") return null;
   return value;
 }
