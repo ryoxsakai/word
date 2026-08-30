@@ -45,7 +45,7 @@ function json(data, init = {}) {
   });
 }
 
-// 閲覧ページの読み取り専用データは、ブラウザのHTTPキャッシュでETag再検証できるようにする。
+// 閲覧・編集ページの読み取り専用データは、ブラウザのHTTPキャッシュでETag再検証できるようにする。
 // max-age=0のため通常の再訪時には必ず鮮度を確認しつつ、内容が同じなら本文の再転送を省ける。
 async function cacheableJson(data, request) {
   const body = JSON.stringify(data);
@@ -290,12 +290,26 @@ const WORD_TAG_JOINS = `
   LEFT JOIN tags t14 ON t14.word_id = w.id AND t14.tag_key = 'target1400'
 `;
 
-async function listWordsInList(db, listId) {
+async function listWordsInList(db, listId, options = {}) {
+  const { sectionKey, request } = options;
   if (listId === MASTER_LIST_ID) {
     return listMasterWords(db, "");
   }
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
+
+  let sectionFilter = "";
+  const binds = [listId];
+  if (sectionKey === "none") {
+    sectionFilter = " AND li.section_id IS NULL";
+  } else if (sectionKey != null) {
+    const sectionId = Number(sectionKey);
+    if (!Number.isInteger(sectionId) || sectionId <= 0) return badRequest("invalid section id");
+    const section = await db.prepare("SELECT 1 FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+    if (!section) return notFound("section not found");
+    sectionFilter = " AND li.section_id = ?";
+    binds.push(sectionId);
+  }
   const { results } = await db
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation,
@@ -314,10 +328,10 @@ async function listWordsInList(db, listId) {
        LEFT JOIN section_labels sl ON sl.id = li.label_id
        LEFT JOIN chapters c ON c.id = s.chapter_id
        ${WORD_TAG_JOINS}
-       WHERE li.list_id = ?
+       WHERE li.list_id = ?${sectionFilter}
        ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
     )
-    .bind(listId)
+    .bind(...binds)
     .all();
   const phraseRows = results.length
     ? await selectInChunks(
@@ -339,7 +353,60 @@ async function listWordsInList(db, listId) {
     conjugationCaution: !!r.conjugationCaution,
     usageCaution: !!r.usageCaution,
   }));
-  return json(rows);
+  return request ? cacheableJson(rows, request) : json(rows);
+}
+
+// 編集ページの初期表示用。並べ替え・検索・自動参照に必要な最小限の索引だけ返す。
+async function getEditorIndex(db, listId, request) {
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+
+  const { results } = await db
+    .prepare(
+      `SELECT w.id AS id, w.spelling AS spelling,
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId, li.label_id AS labelId
+       FROM list_items li JOIN words w ON w.id = li.word_id
+       LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN chapters c ON c.id = s.chapter_id
+       LEFT JOIN section_labels sl ON sl.id = li.label_id
+       WHERE li.list_id = ?
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
+    )
+    .bind(listId)
+    .all();
+
+  const words = results.map((row) => ({
+    id: row.id,
+    spelling: row.spelling,
+    no: row.no,
+    branch: row.branch,
+    displayNo: formatNo(row.no, row.branch),
+    sectionId: row.sectionId,
+    labelId: row.labelId,
+  }));
+  return cacheableJson({ words }, request);
+}
+
+// 熟語の自動参照は編集モーダルを開いたときだけ必要なので、一覧本体とは分けて遅延取得する。
+async function getEditorReferences(db, listId, request) {
+  const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const { results } = await db
+    .prepare(
+      `SELECT w.id AS id, w.spelling AS spelling, e.sentence AS phrase
+       FROM list_items li JOIN words w ON w.id = li.word_id
+       JOIN examples e ON e.word_id = w.id AND e.type = 'phrase'
+       WHERE li.list_id = ?
+       ORDER BY li.no, li.branch, e.sort_order, e.id`
+    )
+    .bind(listId)
+    .all();
+  const wordsById = new Map();
+  for (const row of results) {
+    if (!wordsById.has(row.id)) wordsById.set(row.id, { id: row.id, spelling: row.spelling, phrases: [] });
+    wordsById.get(row.id).phrases.push(row.phrase);
+  }
+  return cacheableJson({ words: [...wordsById.values()] }, request);
 }
 
 async function listMasterWords(db, searchUrl) {
@@ -401,6 +468,12 @@ async function listMasterWords(db, searchUrl) {
     usageCaution: !!r.usageCaution,
   }));
   return json({ words, hasMore, offset, limit });
+}
+
+// マスター編集ページの自動参照用。表示用の意味・タグを除き、全見出し語の解決情報だけ返す。
+async function getMasterWordIndex(db, request) {
+  const { results } = await db.prepare("SELECT id, spelling FROM words ORDER BY spelling COLLATE NOCASE, id").all();
+  return cacheableJson({ words: results }, request);
 }
 
 function groupByWordId(rows) {
@@ -2245,6 +2318,11 @@ async function handleApi(request, env, parts, method) {
     return await listMasterWords(db, request.url);
   }
 
+  // /api/master/index （編集ページの自動参照用の軽量な全見出し語索引）
+  if (parts.length === 3 && parts[1] === "master" && parts[2] === "index" && method === "GET") {
+    return await getMasterWordIndex(db, request);
+  }
+
   // /api/lists
   if (parts.length === 2 && parts[1] === "lists") {
     if (method === "GET") return await listLists(db);
@@ -2285,6 +2363,21 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/viewer/sections/:sectionId （セクション単位の詳細データ）
   if (parts.length === 6 && parts[1] === "lists" && parts[3] === "viewer" && parts[4] === "sections" && method === "GET") {
     return await listWordsInListFull(db, parts[2], { sectionKey: parts[5], request });
+  }
+
+  // /api/lists/:listId/editor/index （編集一覧の並び順・検索・参照に必要な軽量索引）
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "index" && method === "GET") {
+    return await getEditorIndex(db, parts[2], request);
+  }
+
+  // /api/lists/:listId/editor/references （編集プレビュー用の熟語参照索引）
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "references" && method === "GET") {
+    return await getEditorReferences(db, parts[2], request);
+  }
+
+  // /api/lists/:listId/editor/sections/:sectionId （編集表のセクション単位の表示データ）
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "sections" && method === "GET") {
+    return await listWordsInList(db, parts[2], { sectionKey: parts[5], request });
   }
 
   // /api/lists/:listId/chapters

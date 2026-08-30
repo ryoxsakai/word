@@ -8,7 +8,6 @@ import { EDITOR_API_BASE } from "../shared/config.js";
 import { editorFetch } from "./auth.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
-import { fetchCompleteWordIndex } from "../shared/word-index.js";
 import { cefrLevelClass, normalizeCefrLevel } from "../shared/learning-tags.js";
 import { playPronunciation } from "../shared/speech.js";
 
@@ -21,12 +20,26 @@ const LAST_ADD_NOTEBOOK_SECTION_KEY = "vocab-setting-last-add-notebook-section";
 const THEME_KEY = "vocab-setting-theme";
 const SEARCH_VISIBLE_KEY = "vocab-setting-search-visible";
 
+// 単語帳の編集一覧は、軽量索引と開いたセクションの表示データを別々に保持する。
+// HTTP側のETag再検証に加え、同じページ内で単語帳を切り替えて戻った場合も再利用する。
+const editorIndexCache = new Map();
+const editorSectionCache = new Map();
+const editorReferenceCache = new Map();
+let listLoadGeneration = 0;
+let editorCacheGeneration = 0;
+
 const state = {
   lists: [],
   currentListId: null,
   listWordIndex: new Map(),
   masterWordIndex: null,
   words: [],
+  sectionWords: new Map(),
+  sectionPromises: new Map(),
+  sectionLoadErrors: new Map(),
+  sectionDataGeneration: 0,
+  phraseReferenceWords: [],
+  referencePromise: null,
   sections: [],
   currentSectionId: null,
   labels: [],
@@ -251,16 +264,37 @@ function toggleTopbarMenu() {
   el.menuToggle.setAttribute("aria-label", open ? "メニューを閉じる" : "メニューを開く");
 }
 
-async function api(path, opts) {
+function clearEditorCaches(listId = null) {
+  editorCacheGeneration += 1;
+  if (listId == null) {
+    editorIndexCache.clear();
+    editorSectionCache.clear();
+    editorReferenceCache.clear();
+    return;
+  }
+  editorIndexCache.delete(listId);
+  editorReferenceCache.delete(listId);
+  const prefix = `${listId}:`;
+  for (const key of editorSectionCache.keys()) {
+    if (key.startsWith(prefix)) editorSectionCache.delete(key);
+  }
+}
+
+async function api(path, opts = {}) {
+  const { forceRefresh = false, ...fetchOptions } = opts;
   const res = await editorFetch(`${API}${path}`, {
     headers: { "content-type": "application/json" },
-    ...opts,
+    cache: forceRefresh ? "reload" : "default",
+    ...fetchOptions,
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `HTTP ${res.status}`);
   }
-  return res.status === 204 ? null : res.json();
+  const data = res.status === 204 ? null : await res.json();
+  const method = String(fetchOptions.method || "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD") clearEditorCaches();
+  return data;
 }
 
 function resolveRef(headword) {
@@ -284,8 +318,36 @@ function updatePreview(textarea, previewEl) {
 function rebuildAutoCrossRefRenderer() {
   state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), {
     resolve: resolveRef,
-    phraseReferences: collectPhraseCrossReferences(state.words),
+    phraseReferences: collectPhraseCrossReferences(state.phraseReferenceWords),
   });
+}
+
+async function ensureEditorReferences() {
+  if (!isNotebookView() || !state.currentListId) return;
+  const listId = state.currentListId;
+  const cached = editorReferenceCache.get(listId);
+  if (cached) {
+    state.phraseReferenceWords = cached.words || [];
+    rebuildAutoCrossRefRenderer();
+    return;
+  }
+  if (state.referencePromise) return state.referencePromise;
+  const generation = listLoadGeneration;
+  const cacheGeneration = editorCacheGeneration;
+  const promise = (async () => {
+    const data = await api(`/lists/${encodeURIComponent(listId)}/editor/references`);
+    if (cacheGeneration !== editorCacheGeneration) return;
+    editorReferenceCache.set(listId, data);
+    if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+    state.phraseReferenceWords = data.words || [];
+    rebuildAutoCrossRefRenderer();
+  })();
+  state.referencePromise = promise;
+  try {
+    await promise;
+  } finally {
+    if (state.referencePromise === promise) state.referencePromise = null;
+  }
 }
 
 function escapeHtml(s) {
@@ -570,6 +632,7 @@ async function loadLists() {
 }
 
 async function selectList(listId) {
+  const generation = ++listLoadGeneration;
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
   state.selectedWordIds.clear();
@@ -582,7 +645,60 @@ async function selectList(listId) {
   state.masterFilter.q = "";
   state.notebookSearchQuery = "";
   el.tableSearchInput.value = "";
-  await Promise.all([loadWordsForList(listId), loadSectionsForList(listId)]);
+  await Promise.all([
+    loadWordsForList(listId, { render: false }),
+    loadSectionsForList(listId, { render: false }),
+  ]);
+  if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+  if (isNotebookView()) initializeNotebookExpansion();
+  renderWordTableHead();
+  renderWordTable();
+  await loadExpandedNotebookSections();
+}
+
+function editorSectionKey(sectionId) {
+  return sectionId == null ? "none" : String(sectionId);
+}
+
+function notebookSectionIdsInOrder() {
+  const ids = [];
+  if (state.words.some((word) => word.sectionId == null)) ids.push(null);
+  ids.push(...state.sections.map((section) => section.id));
+  return ids;
+}
+
+function initializeNotebookExpansion() {
+  const sectionIds = notebookSectionIdsInOrder();
+  state.collapsedSectionIds = new Set(sectionIds);
+  const firstWithWords = sectionIds.find((sectionId) =>
+    state.words.some((word) => (word.sectionId ?? null) === sectionId)
+  );
+  if (firstWithWords !== undefined) state.collapsedSectionIds.delete(firstWithWords);
+  state.collapsedChapterIds.clear();
+}
+
+function expandedNotebookSectionKeys() {
+  if (!isNotebookView()) return [];
+  const keys = [];
+  for (const sectionId of notebookSectionIdsInOrder()) {
+    if (state.collapsedSectionIds.has(sectionId)) continue;
+    if (sectionId != null) {
+      const section = state.sections.find((item) => item.id === sectionId);
+      if (section?.chapterId != null && state.collapsedChapterIds.has(section.chapterId)) continue;
+    }
+    keys.push(editorSectionKey(sectionId));
+  }
+  return keys;
+}
+
+async function loadExpandedNotebookSections() {
+  if (!isNotebookView()) return;
+  const keys = state.notebookSearchQuery
+    ? state.words
+        .filter((word) => word.spelling.toLowerCase().includes(state.notebookSearchQuery))
+        .map((word) => editorSectionKey(word.sectionId))
+    : expandedNotebookSectionKeys();
+  await loadEditorSectionsWithLimit(keys);
 }
 
 function buildMasterQuery(offset) {
@@ -599,31 +715,53 @@ function buildMasterQuery(offset) {
 
 async function loadCompleteMasterWordIndex() {
   if (state.masterWordIndex) return state.masterWordIndex;
-  state.masterWordIndex = await fetchCompleteWordIndex((offset, limit) => {
-    const qs = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-    return api(`/master/words?${qs.toString()}`);
-  });
+  const data = await api("/master/index");
+  state.masterWordIndex = new Map(
+    (data.words || []).map((word) => [word.spelling.toLowerCase(), { id: word.id, no: null }])
+  );
   return state.masterWordIndex;
 }
 
-async function loadWordsForList(listId) {
+async function loadWordsForList(listId, { forceRefresh = false, render = true } = {}) {
   if (isMasterView()) {
     const [result, completeWordIndex] = await Promise.all([
       api(`/master/words?${buildMasterQuery(0)}`),
       loadCompleteMasterWordIndex(),
     ]);
+    if (listId !== state.currentListId) return;
     state.words = result.words;
     state.masterOffset = result.words.length;
     state.masterHasMore = result.hasMore;
     state.listWordIndex = completeWordIndex;
+    state.sectionWords = new Map();
+    state.sectionPromises = new Map();
+    state.sectionLoadErrors = new Map();
+    state.phraseReferenceWords = [];
+    state.referencePromise = null;
   } else {
-    state.words = await api(`/lists/${encodeURIComponent(listId)}/words`);
+    if (forceRefresh) clearEditorCaches(listId);
+    let data = editorIndexCache.get(listId);
+    if (!data) {
+      data = await api(`/lists/${encodeURIComponent(listId)}/editor/index`, { forceRefresh });
+      editorIndexCache.set(listId, data);
+    }
+    if (listId !== state.currentListId) return;
+    state.words = data.words || [];
     state.masterHasMore = false;
     state.listWordIndex = new Map(state.words.map((w) => [w.spelling.toLowerCase(), { id: w.id, no: w.displayNo }]));
+    state.sectionDataGeneration += 1;
+    state.sectionWords = new Map();
+    state.sectionPromises = new Map();
+    state.sectionLoadErrors = new Map();
+    state.phraseReferenceWords = editorReferenceCache.get(listId)?.words || [];
+    state.referencePromise = null;
   }
   rebuildAutoCrossRefRenderer();
-  renderWordTableHead();
-  renderWordTable();
+  if (render) {
+    renderWordTableHead();
+    renderWordTable();
+    await loadExpandedNotebookSections();
+  }
 }
 
 async function loadMoreMasterWords() {
@@ -654,25 +792,32 @@ function handleWordTableScroll() {
 }
 
 // チャプターは常にセクションとセットで使うため、呼び出し側を増やさずここでまとめて読み込む。
-async function loadSectionsForList(listId) {
+async function loadSectionsForList(listId, { render = true } = {}) {
   if (isMasterView()) {
     state.sections = [];
     state.chapters = [];
     state.labels = [];
     return;
   }
-  [state.sections, state.chapters, state.labels] = await Promise.all([
+  const [sections, chapters, labels] = await Promise.all([
     api(`/lists/${encodeURIComponent(listId)}/sections`),
     api(`/lists/${encodeURIComponent(listId)}/chapters`),
     api(`/lists/${encodeURIComponent(listId)}/labels`),
   ]);
+  if (listId !== state.currentListId) return;
+  state.sections = sections;
+  state.chapters = chapters;
+  state.labels = labels;
   renderSectionOptions();
   renderLabelOptions();
   updateListModeUi();
   // loadWordsForListと並行して呼ばれることが多いため、こちらが後に解決した場合でも
   // 単語一覧を再描画して最新のセクション・チャプター帯を反映する(先に解決した側の描画が
   // 古いsections/chaptersで上書きされたままにならないようにするため)。
-  renderWordTable();
+  if (render) {
+    renderWordTable();
+    await loadExpandedNotebookSections();
+  }
 }
 
 // プルリフレッシュ用: 選択中/検索状態は保ったまま、単語とセクションをサーバーから読み直す。
@@ -681,7 +826,11 @@ async function loadSectionsForList(listId) {
 async function refreshCurrentList() {
   if (!state.currentListId) return;
   if (isMasterView()) state.masterWordIndex = null;
-  await Promise.all([loadWordsForList(state.currentListId), loadSectionsForList(state.currentListId)]);
+  if (isNotebookView()) clearEditorCaches(state.currentListId);
+  await Promise.all([
+    loadWordsForList(state.currentListId, { forceRefresh: true }),
+    loadSectionsForList(state.currentListId),
+  ]);
   if (isNotebookView()) {
     const order = getHeadWordOrder();
     if (order.length > 0) await submitReorder(order);
@@ -884,7 +1033,11 @@ function getVisibleWordIds() {
   if (isMasterView()) return state.words.map((w) => w.id);
 
   const query = state.notebookSearchQuery;
-  const words = query ? state.words.filter((w) => w.spelling.toLowerCase().includes(query)) : state.words;
+  const loadedWordIds = new Set(
+    [...state.sectionWords.values()].flatMap((sectionWords) => sectionWords.map((word) => word.id))
+  );
+  const loadedWords = state.words.filter((word) => loadedWordIds.has(word.id));
+  const words = query ? loadedWords.filter((w) => w.spelling.toLowerCase().includes(query)) : loadedWords;
 
   const wordsBySection = new Map();
   for (const w of words) {
@@ -901,16 +1054,16 @@ function getVisibleWordIds() {
 
   const ids = [];
   const addSection = (section) => {
-    if (state.collapsedSectionIds.has(section.id)) return;
+    if (!query && state.collapsedSectionIds.has(section.id)) return;
     for (const w of wordsBySection.get(section.id) || []) ids.push(w.id);
   };
 
-  if (!state.collapsedSectionIds.has(null)) {
+  if (query || !state.collapsedSectionIds.has(null)) {
     for (const w of wordsBySection.get(null) || []) ids.push(w.id);
   }
   for (const section of sectionsByChapter.get(null) || []) addSection(section);
   for (const chapter of state.chapters) {
-    if (state.collapsedChapterIds.has(chapter.id)) continue;
+    if (!query && state.collapsedChapterIds.has(chapter.id)) continue;
     for (const section of sectionsByChapter.get(chapter.id) || []) addSection(section);
   }
   return ids;
@@ -1424,23 +1577,94 @@ function attachRepeatRowReorder(row, kind) {
   row.querySelector('[data-action="row-down"]').addEventListener("click", () => moveRepeatRow(row, 1));
 }
 
+function editorSectionCacheKey(listId, sectionKey) {
+  return `${listId}:${sectionKey}`;
+}
+
+async function loadEditorSection(sectionKey, { forceRefresh = false } = {}) {
+  if (!isNotebookView() || !state.currentListId) return;
+  const key = String(sectionKey);
+  if (!forceRefresh && state.sectionWords.has(key)) return;
+  if (!forceRefresh && state.sectionPromises.has(key)) return state.sectionPromises.get(key);
+
+  const listId = state.currentListId;
+  const listGeneration = listLoadGeneration;
+  const dataGeneration = state.sectionDataGeneration;
+  const cacheGeneration = editorCacheGeneration;
+  const cacheKey = editorSectionCacheKey(listId, key);
+  const promise = (async () => {
+    try {
+      let rows = forceRefresh ? null : editorSectionCache.get(cacheKey);
+      if (!rows) {
+        rows = await api(
+          `/lists/${encodeURIComponent(listId)}/editor/sections/${encodeURIComponent(key)}`,
+          { forceRefresh }
+        );
+        if (cacheGeneration !== editorCacheGeneration) return;
+        editorSectionCache.set(cacheKey, rows);
+      }
+      if (
+        listGeneration !== listLoadGeneration ||
+        dataGeneration !== state.sectionDataGeneration ||
+        listId !== state.currentListId
+      ) return;
+      state.sectionWords.set(key, rows || []);
+      state.sectionLoadErrors.delete(key);
+      renderWordTableHead();
+      renderWordTable();
+    } catch (err) {
+      if (
+        listGeneration === listLoadGeneration &&
+        dataGeneration === state.sectionDataGeneration &&
+        listId === state.currentListId
+      ) {
+        state.sectionLoadErrors.set(key, err.message);
+        renderWordTable();
+      }
+    }
+  })();
+  state.sectionPromises.set(key, promise);
+  try {
+    await promise;
+  } finally {
+    if (state.sectionPromises.get(key) === promise) state.sectionPromises.delete(key);
+  }
+}
+
+async function loadEditorSectionsWithLimit(sectionKeys, concurrency = 3) {
+  const keys = [...new Set((sectionKeys || []).map(String))];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, keys.length) }, async () => {
+    while (cursor < keys.length) {
+      const key = keys[cursor];
+      cursor += 1;
+      await loadEditorSection(key);
+    }
+  });
+  await Promise.all(workers);
+}
+
 // 折りたたみ状態はセクション/チャプターのidだけで管理し、単語データ自体は変えない
 // (再読み込みしても畳んだ帯は畳んだままにするため、renderWordTableの中でこれを見て
 // 単語行・子セクション帯の描画自体をスキップする)。
 function toggleSectionCollapse(sectionId) {
-  if (state.collapsedSectionIds.has(sectionId)) state.collapsedSectionIds.delete(sectionId);
+  const expanding = state.collapsedSectionIds.has(sectionId);
+  if (expanding) state.collapsedSectionIds.delete(sectionId);
   else state.collapsedSectionIds.add(sectionId);
   // 折りたたみで表示中の単語が変わるため、全選択チェックボックスのチェック/indeterminate表示も
   // 更新する(内部のvisibleIds自体はクリック時に再計算するが、表示上のズレを防ぐため)。
   renderWordTableHead();
   renderWordTable();
+  if (expanding) loadEditorSection(editorSectionKey(sectionId));
 }
 
 function toggleChapterCollapse(chapterId) {
-  if (state.collapsedChapterIds.has(chapterId)) state.collapsedChapterIds.delete(chapterId);
+  const expanding = state.collapsedChapterIds.has(chapterId);
+  if (expanding) state.collapsedChapterIds.delete(chapterId);
   else state.collapsedChapterIds.add(chapterId);
   renderWordTableHead();
   renderWordTable();
+  if (expanding) loadExpandedNotebookSections();
 }
 
 function bandCollapseButtonHtml(collapsed) {
@@ -1497,6 +1721,28 @@ function buildLabelBandRow(label, wordCount) {
   tr.title = "クリックしてラベル名・所属セクションを編集";
   tr.innerHTML = `<td colspan="${colspan}"><span class="section-band-inner"><span class="section-band-text"><i class="fa-solid fa-tag" aria-hidden="true"></i><span class="section-band-name">${escapeHtml(label.name)}</span><span class="section-band-count">(${wordCount})</span></span></span></td>`;
   tr.addEventListener("click", () => openLabelEditor(label.id));
+  return tr;
+}
+
+function buildSectionStatusRow(sectionKey) {
+  const colspan = el.wordTableHead.querySelectorAll("th").length || 12;
+  const tr = document.createElement("tr");
+  tr.className = "section-status-row";
+  const error = state.sectionLoadErrors.get(String(sectionKey));
+  const message = error ? `読み込みに失敗しました: ${error}` : "単語を読み込み中…";
+  tr.innerHTML = `<td colspan="${colspan}"><span class="section-status-message">${escapeHtml(message)}</span></td>`;
+  if (error) {
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "section-retry-btn";
+    retry.textContent = "再試行";
+    retry.addEventListener("click", () => {
+      state.sectionLoadErrors.delete(String(sectionKey));
+      renderWordTable();
+      loadEditorSection(String(sectionKey), { forceRefresh: true });
+    });
+    tr.querySelector("td").appendChild(retry);
+  }
   return tr;
 }
 
@@ -1608,9 +1854,9 @@ function renderWordTable() {
   }
 
   const query = state.notebookSearchQuery;
-  const words = query ? state.words.filter((w) => w.spelling.toLowerCase().includes(query)) : state.words;
+  const indexWords = query ? state.words.filter((w) => w.spelling.toLowerCase().includes(query)) : state.words;
 
-  el.wordTableEmpty.hidden = words.length > 0;
+  el.wordTableEmpty.hidden = indexWords.length > 0;
   el.wordTableEmpty.textContent =
     state.words.length === 0
       ? "この単語帳にはまだ単語がありません。親リストからチェックして追加してください。"
@@ -1620,7 +1866,7 @@ function renderWordTable() {
   // セクションなしの単語・チャプターなしのセクションは先頭、以降はstate.chapters→state.sectionsの
   // 並び順どおりに帯を出す(チャプター帯は各セクションの上に並ぶ)。
   const wordsBySection = new Map();
-  for (const w of words) {
+  for (const w of indexWords) {
     const key = w.sectionId ?? null;
     if (!wordsBySection.has(key)) wordsBySection.set(key, []);
     wordsBySection.get(key).push(w);
@@ -1633,29 +1879,41 @@ function renderWordTable() {
     sectionsByChapter.get(key).push(s);
   }
 
+  const renderSectionWords = (sectionId, matchingIndexWords) => {
+    const key = editorSectionKey(sectionId);
+    const loadedWords = state.sectionWords.get(key);
+    if (!loadedWords) {
+      el.wordTableBody.appendChild(buildSectionStatusRow(key));
+      return;
+    }
+    const matchingIds = new Set(matchingIndexWords.map((word) => word.id));
+    const wordsInSection = loadedWords.filter((word) => matchingIds.has(word.id));
+    if (sectionId == null) {
+      for (const word of wordsInSection) el.wordTableBody.appendChild(buildWordRow(word));
+      return;
+    }
+    const labels = state.labels.filter((label) => label.sectionId === sectionId);
+    const unlabeled = wordsInSection.filter((word) => word.labelId == null);
+    for (const word of unlabeled) el.wordTableBody.appendChild(buildWordRow(word));
+    for (const label of labels) {
+      const labeledWords = wordsInSection.filter((word) => word.labelId === label.id);
+      el.wordTableBody.appendChild(buildLabelBandRow(label, labeledWords.length));
+      for (const word of labeledWords) el.wordTableBody.appendChild(buildWordRow(word));
+    }
+  };
+
   const renderSectionBand = (section) => {
     const wordsInSection = wordsBySection.get(section.id) || [];
-    const collapsed = state.collapsedSectionIds.has(section.id);
+    const collapsed = !query && state.collapsedSectionIds.has(section.id);
     el.wordTableBody.appendChild(buildSectionBandRow(section.id, section.subtitle, wordsInSection.length, collapsed));
-    if (!collapsed) {
-      const labels = state.labels.filter((label) => label.sectionId === section.id);
-      const unlabeled = wordsInSection.filter((w) => w.labelId == null);
-      for (const w of unlabeled) el.wordTableBody.appendChild(buildWordRow(w));
-      for (const label of labels) {
-        const labeledWords = wordsInSection.filter((w) => w.labelId === label.id);
-        el.wordTableBody.appendChild(buildLabelBandRow(label, labeledWords.length));
-        for (const w of labeledWords) el.wordTableBody.appendChild(buildWordRow(w));
-      }
-    }
+    if (!collapsed && wordsInSection.length > 0) renderSectionWords(section.id, wordsInSection);
   };
 
   const noSectionWords = wordsBySection.get(null) || [];
   if (noSectionWords.length > 0) {
-    const collapsed = state.collapsedSectionIds.has(null);
+    const collapsed = !query && state.collapsedSectionIds.has(null);
     el.wordTableBody.appendChild(buildSectionBandRow(null, null, noSectionWords.length, collapsed));
-    if (!collapsed) {
-      for (const w of noSectionWords) el.wordTableBody.appendChild(buildWordRow(w));
-    }
+    if (!collapsed) renderSectionWords(null, noSectionWords);
   }
 
   for (const section of sectionsByChapter.get(null) || []) renderSectionBand(section);
@@ -1663,7 +1921,7 @@ function renderWordTable() {
   for (const chapter of state.chapters) {
     const sectionsInChapter = sectionsByChapter.get(chapter.id) || [];
     const wordCountInChapter = sectionsInChapter.reduce((sum, s) => sum + (wordsBySection.get(s.id) || []).length, 0);
-    const chapterCollapsed = state.collapsedChapterIds.has(chapter.id);
+    const chapterCollapsed = !query && state.collapsedChapterIds.has(chapter.id);
     el.wordTableBody.appendChild(buildChapterBandRow(chapter.id, chapter.subtitle, wordCountInChapter, chapterCollapsed));
     if (!chapterCollapsed) {
       for (const section of sectionsInChapter) renderSectionBand(section);
@@ -1705,6 +1963,14 @@ async function applyTableSearch() {
   } else {
     state.notebookSearchQuery = el.tableSearchInput.value.trim().toLowerCase();
     renderWordTable();
+    if (state.notebookSearchQuery) {
+      const matchingSectionKeys = state.words
+        .filter((word) => word.spelling.toLowerCase().includes(state.notebookSearchQuery))
+        .map((word) => editorSectionKey(word.sectionId));
+      await loadEditorSectionsWithLimit(matchingSectionKeys);
+    } else {
+      await loadExpandedNotebookSections();
+    }
   }
 }
 
@@ -1910,6 +2176,9 @@ function updateTagReadonly(el2, label, value) {
 }
 
 function openNewWordForm() {
+  ensureEditorReferences()
+    .then(() => updatePreview(el.fieldNotes, el.notesPreview))
+    .catch(() => {});
   state.currentWord = null;
   state.isNew = true;
   el.editTitle.textContent = "単語を追加（マスター）";
@@ -1962,7 +2231,10 @@ function nextSuggestedNo() {
 }
 
 async function openWordEditor(wordId) {
-  const detail = await api(`/words/${encodeURIComponent(wordId)}`);
+  const [detail] = await Promise.all([
+    api(`/words/${encodeURIComponent(wordId)}`),
+    ensureEditorReferences().catch(() => {}),
+  ]);
   state.currentWord = detail;
   state.isNew = false;
   el.editTitle.textContent = `単語を編集: ${detail.spelling}`;
@@ -2092,6 +2364,7 @@ async function saveWord() {
       ]);
     }
     state.masterWordIndex = null;
+    if (isNotebookView()) state.collapsedSectionIds.delete(sectionId);
     await loadWordsForList(state.currentListId);
     closeEditor();
     showToast("保存しました");
