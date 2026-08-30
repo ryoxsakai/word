@@ -340,6 +340,9 @@ function renderEntry(w) {
     : "";
 
   const cautionHtml = [
+    w.ergative
+      ? '<span class="caution-badge caution-ergative" title="自動詞の主語と他動詞の目的語が対応する能格動詞"><i class="fa-solid fa-right-left" aria-hidden="true"></i>能格</span>'
+      : "",
     w.spellingCaution
       ? '<span class="caution-badge caution-spelling" title="スペルに注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>スペル</span>'
       : "",
