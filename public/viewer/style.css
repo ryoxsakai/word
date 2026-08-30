@@ -688,12 +688,14 @@ button { font-family: inherit; }
   border: 1px solid currentColor;
 }
 .caution-badge i { font-size: 0.85em; }
+.caution-badge.caution-ergative { background: #e0f1fa; color: #1d5f8a; }
 .caution-badge.caution-spelling { background: #dcf3ee; color: #0f7b6c; }
 .caution-badge.caution-pronunciation { background: #fff4e0; color: #8a5a00; }
 .caution-badge.caution-accent { background: #fde3e3; color: #b3261e; }
 .caution-badge.caution-polysemous { background: #ede7f6; color: #4527a0; }
 .caution-badge.caution-conjugation { background: #e3f2fd; color: #1565c0; }
 .caution-badge.caution-usage { background: #fce4ec; color: #ad1457; }
+:root[data-theme="dark"] .caution-badge.caution-ergative { background: #17384a; color: #8ad3ff; }
 :root[data-theme="dark"] .caution-badge.caution-spelling { background: #163531; color: #6fe0cc; }
 :root[data-theme="dark"] .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
 :root[data-theme="dark"] .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
@@ -701,6 +703,7 @@ button { font-family: inherit; }
 :root[data-theme="dark"] .caution-badge.caution-conjugation { background: #1a2f45; color: #90caf9; }
 :root[data-theme="dark"] .caution-badge.caution-usage { background: #4a1f38; color: #f48fb1; }
 @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .caution-badge.caution-ergative { background: #17384a; color: #8ad3ff; }
   :root:not([data-theme="light"]) .caution-badge.caution-spelling { background: #163531; color: #6fe0cc; }
   :root:not([data-theme="light"]) .caution-badge.caution-pronunciation { background: #4a3400; color: #ffcf7a; }
   :root:not([data-theme="light"]) .caution-badge.caution-accent { background: #4a2222; color: #ff9a9a; }
@@ -1056,6 +1059,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     box-shadow: none;
   }
   /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
+  .caution-badge.caution-ergative { background: #e0f1fa !important; color: #1d5f8a !important; }
   .caution-badge.caution-spelling { background: #dcf3ee !important; color: #0f7b6c !important; }
   .caution-badge.caution-pronunciation { background: #fff4e0 !important; color: #8a5a00 !important; }
   .caution-badge.caution-accent { background: #fde3e3 !important; color: #b3261e !important; }
