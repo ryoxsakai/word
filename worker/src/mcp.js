@@ -263,6 +263,7 @@ const WORD_SUMMARY_SELECT = [
   "w.spelling AS spelling",
   "w.pronunciation AS pronunciation",
   "w.derived_from_id AS derivedFromId",
+  "w.ergative AS ergative",
   "w.pronunciation_caution AS pronunciationCaution",
   "w.accent_caution AS accentCaution",
   "w.polysemous_caution AS polysemousCaution",
@@ -283,6 +284,7 @@ function normalizeWordSummary(row) {
   return {
     ...row,
     displayNo: displayNo(row.no, row.branch),
+    ergative: Boolean(row.ergative),
     pronunciationCaution: Boolean(row.pronunciationCaution),
     accentCaution: Boolean(row.accentCaution),
     polysemousCaution: Boolean(row.polysemousCaution),
@@ -431,7 +433,7 @@ async function getWord(db, args) {
     ? await db
         .prepare(
           "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, " +
-            "irregular_forms AS irregularForms, pronunciation_caution AS pronunciationCaution, " +
+            "irregular_forms AS irregularForms, ergative AS ergative, pronunciation_caution AS pronunciationCaution, " +
             "accent_caution AS accentCaution, polysemous_caution AS polysemousCaution, " +
             "spelling_caution AS spellingCaution, conjugation_caution AS conjugationCaution, " +
             "usage_caution AS usageCaution, derived_from_id AS derivedFromId, created_at AS createdAt, " +
@@ -442,7 +444,7 @@ async function getWord(db, args) {
     : await db
         .prepare(
           "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, " +
-            "irregular_forms AS irregularForms, pronunciation_caution AS pronunciationCaution, " +
+            "irregular_forms AS irregularForms, ergative AS ergative, pronunciation_caution AS pronunciationCaution, " +
             "accent_caution AS accentCaution, polysemous_caution AS polysemousCaution, " +
             "spelling_caution AS spellingCaution, conjugation_caution AS conjugationCaution, " +
             "usage_caution AS usageCaution, derived_from_id AS derivedFromId, created_at AS createdAt, " +
@@ -498,6 +500,7 @@ async function getWord(db, args) {
 
   return {
     ...word,
+    ergative: Boolean(word.ergative),
     pronunciationCaution: Boolean(word.pronunciationCaution),
     accentCaution: Boolean(word.accentCaution),
     polysemousCaution: Boolean(word.polysemousCaution),

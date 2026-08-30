@@ -157,6 +157,7 @@ const el = {
   lookupPronunciationBtn: document.getElementById("lookupPronunciationBtn"),
   playAudioBtn: document.getElementById("playAudioBtn"),
   generateAudioBtn: document.getElementById("generateAudioBtn"),
+  ergativeBtn: document.getElementById("ergativeBtn"),
   spellingCautionBtn: document.getElementById("spellingCautionBtn"),
   pronunciationCautionBtn: document.getElementById("pronunciationCautionBtn"),
   accentCautionBtn: document.getElementById("accentCautionBtn"),
@@ -376,6 +377,11 @@ function formatLevelBadgeCell(w, type) {
 }
 
 function formatCautionBadgeCell(w, type) {
+  if (type === "ergative") {
+    return w.ergative
+      ? '<span class="caution-icon caution-ergative" title="能格動詞"><i class="fa-solid fa-right-left" aria-hidden="true"></i></span>'
+      : "";
+  }
   if (type === "spelling") {
     return w.spellingCaution
       ? '<span class="caution-icon caution-spelling" title="スペル注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>'
@@ -1023,7 +1029,7 @@ async function saveListSettings() {
 const LEVEL_COLUMNS_HEAD =
   '<th class="col-awl">AWL</th><th class="col-cefr">CEFR</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th>';
 const PRON_COLUMNS_HEAD =
-  '<th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th>';
+  '<th class="col-pron">発音</th><th class="col-caution-ergative">能格</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th>';
 
 // 折りたたみ・検索フィルタを反映した「現在テーブルに表示されている単語」のIDだけを返す。
 // (renderWordTableと同じ絞り込み条件を独立に計算する。呼び出し順によってはDOMがまだ
@@ -1797,6 +1803,7 @@ function buildWordRow(w) {
     `<td class="col-target1400">${formatLevelBadgeCell(w, "target1400")}</td>`;
   const pronCells =
     `<td class="col-pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation || ""))}</td>` +
+    `<td class="col-caution-ergative">${formatCautionBadgeCell(w, "ergative")}</td>` +
     `<td class="col-caution-spelling">${formatCautionBadgeCell(w, "spelling")}</td>` +
     `<td class="col-caution-pron">${formatCautionBadgeCell(w, "pron")}</td>` +
     `<td class="col-caution-accent">${formatCautionBadgeCell(w, "accent")}</td>` +
@@ -2188,6 +2195,7 @@ function openNewWordForm() {
   el.fieldPronunciation.value = "";
   state.currentAudioUrl = null;
   updatePlayAudioButton();
+  setCautionButton(el.ergativeBtn, false);
   setCautionButton(el.spellingCautionBtn, false);
   setCautionButton(el.pronunciationCautionBtn, false);
   setCautionButton(el.accentCautionBtn, false);
@@ -2246,6 +2254,7 @@ async function openWordEditor(wordId) {
   el.fieldPronunciation.value = detail.pronunciation || "";
   state.currentAudioUrl = detail.generatedAudio?.url || null;
   updatePlayAudioButton();
+  setCautionButton(el.ergativeBtn, detail.ergative);
   setCautionButton(el.spellingCautionBtn, detail.spellingCaution);
   setCautionButton(el.pronunciationCautionBtn, detail.pronunciationCaution);
   setCautionButton(el.accentCautionBtn, detail.accentCaution);
@@ -2320,6 +2329,7 @@ async function saveWord() {
     spelling: el.fieldSpelling.value.trim(),
     pronunciation: el.fieldPronunciation.value.trim() || null,
     audioUrl: state.currentAudioUrl || null,
+    ergative: isCautionButtonActive(el.ergativeBtn),
     spellingCaution: isCautionButtonActive(el.spellingCautionBtn),
     pronunciationCaution: isCautionButtonActive(el.pronunciationCautionBtn),
     accentCaution: isCautionButtonActive(el.accentCautionBtn),
@@ -2723,6 +2733,9 @@ el.addNotebookModalOverlay.addEventListener("click", (e) => {
 el.addNotebookConfirmBtn.addEventListener("click", saveAddNotebookSettings);
 el.addNotebookCloseBtn.addEventListener("click", closeAddNotebookModal);
 el.addNotebookSelect.addEventListener("change", () => loadAddNotebookSections(el.addNotebookSelect.value));
+el.ergativeBtn.addEventListener("click", () =>
+  setCautionButton(el.ergativeBtn, !isCautionButtonActive(el.ergativeBtn))
+);
 el.spellingCautionBtn.addEventListener("click", () =>
   setCautionButton(el.spellingCautionBtn, !isCautionButtonActive(el.spellingCautionBtn))
 );
