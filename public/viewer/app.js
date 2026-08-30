@@ -27,13 +27,26 @@ const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
 
+// リストを切り替えて戻った場合も再利用できる、ページ内の軽量キャッシュ。
+// 永続的な鮮度確認はAPIのETagに任せ、プル更新時は明示的に破棄する。
+const viewerIndexCache = new Map();
+const sectionResponseCache = new Map();
+let listLoadGeneration = 0;
+let searchGeneration = 0;
+
 const state = {
   lists: [],
   currentListId: null,
-  words: [],
+  indexWords: [],
+  chapters: [],
+  sections: [],
+  wordMetaById: new Map(),
+  loadedSectionKeys: new Set(),
+  sectionPromises: new Map(),
   wordIndex: new Map(), // spelling(lower) -> {id, no}
   renderNotesMarkup: null,
   search: "",
+  searchMatches: null,
   activeView: "list", // "list" | "index"
 };
 
@@ -61,8 +74,8 @@ const el = {
   ptrIndicator: document.getElementById("ptrIndicator"),
 };
 
-async function api(path) {
-  const res = await fetch(`${API}${path}`);
+async function api(path, { forceRefresh = false } = {}) {
+  const res = await fetch(`${API}${path}`, { cache: forceRefresh ? "reload" : "default" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error || `HTTP ${res.status}`);
@@ -106,39 +119,74 @@ async function loadLists() {
   await selectList(initial);
 }
 
-async function selectList(listId) {
+function clearListCaches(listId) {
+  viewerIndexCache.delete(listId);
+  const prefix = `${listId}:`;
+  for (const key of sectionResponseCache.keys()) {
+    if (key.startsWith(prefix)) sectionResponseCache.delete(key);
+  }
+}
+
+async function selectList(listId, { forceRefresh = false } = {}) {
+  const generation = ++listLoadGeneration;
+  searchGeneration += 1;
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
   el.loadingMsg.hidden = false;
   el.emptyMsg.hidden = true;
   el.wordList.innerHTML = "";
+  if (sectionObserver) sectionObserver.disconnect();
+  if (lazySectionObserver) lazySectionObserver.disconnect();
+  if (forceRefresh) clearListCaches(listId);
   try {
-    const data = await api(`/lists/${encodeURIComponent(listId)}/words/full`);
-    state.words = data.words;
+    let data = viewerIndexCache.get(listId);
+    if (!data) {
+      data = await api(`/lists/${encodeURIComponent(listId)}/viewer/index`, { forceRefresh });
+      viewerIndexCache.set(listId, data);
+    }
+    if (generation !== listLoadGeneration) return;
+    state.indexWords = data.words || [];
+    state.chapters = data.chapters || [];
+    state.sections = data.sections || [];
+    state.loadedSectionKeys = new Set();
+    state.sectionPromises = new Map();
+    state.searchMatches = null;
     assignSequentialNumbers();
     buildIndex();
     renderSectionNav();
-    renderWords();
+    renderSectionShells();
     renderContentsNav();
     renderAlphabeticalIndex();
     setupSectionObserver();
-    el.emptyMsg.hidden = state.words.length > 0;
-    applyHashScroll();
+    setupLazySectionObserver();
+    el.emptyMsg.hidden = state.indexWords.length > 0;
+    const firstSection = state.sections[0];
+    if (firstSection) await loadSection(firstSection.key);
+    if (generation !== listLoadGeneration) return;
+    await applyHashScroll();
+    if (el.searchInput.value.trim()) void runSearch();
   } catch (err) {
+    if (generation !== listLoadGeneration) return;
     el.wordList.innerHTML = `<p class="empty-msg">読み込みに失敗しました: ${escapeHtml(err.message)}</p>`;
   } finally {
-    el.loadingMsg.hidden = true;
+    if (generation === listLoadGeneration) el.loadingMsg.hidden = true;
   }
 }
 
 // 閲覧ページの番号は、保存された no ではなく「上から表示される順番」で毎回振り直す。
 // これにより、単語帳での並び替えやマスターからの追加後も、常に 1,2,3,... と隙間なく連番になる。
 // 派生語の枝番(例: 5-1, 5-2)は直前の見出し語の番号にぶら下げる。
-// state.words はサーバー側で「セクション順 → no → branch」に整列済みなので、この順で数えればよい。
+// state.indexWords はサーバー側で「セクション順 → no → branch」に整列済みなので、この順で数えればよい。
 function assignSequentialNumbers() {
   let top = 0;
   let branch = 0;
-  for (const w of state.words) {
+  for (const w of state.indexWords) {
+    if (w.seqNo) {
+      const [savedTop, savedBranch] = String(w.seqNo).split("-").map(Number);
+      top = savedTop;
+      branch = savedBranch || 0;
+      continue;
+    }
     if (w.branch > 0 && top > 0) {
       branch += 1;
       w.seqNo = `${top}-${branch}`;
@@ -152,12 +200,21 @@ function assignSequentialNumbers() {
 
 function buildIndex() {
   state.wordIndex = new Map();
-  for (const w of state.words) {
+  state.wordMetaById = new Map(state.indexWords.map((word) => [word.id, word]));
+
+  // 同じスペルが複数の形で現れる場合も、独立した見出し語を優先する。
+  for (const w of state.indexWords) {
+    if (w.branch !== 0) continue;
     state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
+  }
+  for (const w of state.indexWords) {
+    const key = w.spelling.toLowerCase();
+    if (state.wordIndex.has(key)) continue;
+    state.wordIndex.set(key, { id: w.id, no: w.seqNo });
   }
   state.renderNotesMarkup = createAutoCrossRefRenderer(state.wordIndex.keys(), {
     resolve: resolveRef,
-    phraseReferences: collectPhraseCrossReferences(state.words),
+    phraseReferences: collectPhraseCrossReferences(state.indexWords),
   });
 }
 
@@ -341,106 +398,185 @@ function renderEntry(w) {
 }
 
 function hasAnySection() {
-  return state.words.some((w) => w.sectionId != null);
+  return state.sections.some((section) => section.id != null);
 }
 
 function hasAnyChapter() {
-  return state.words.some((w) => w.chapterId != null);
+  return state.chapters.some((chapter) => chapter.id != null);
 }
 
-function hasAnyLabel() {
-  return state.words.some((w) => w.labelId != null);
-}
-
-function renderWords() {
+function renderSectionShells() {
   const withSections = hasAnySection();
   const withChapters = hasAnyChapter();
-  const withLabels = hasAnyLabel();
-  const countByKey = new Map();
-  const countByChapterKey = new Map();
-  const countByLabelKey = new Map();
-  const toneBySectionKey = new Map();
-  for (const w of state.words) {
-    const key = w.sectionId != null ? String(w.sectionId) : "none";
-    countByKey.set(key, (countByKey.get(key) || 0) + 1);
-    if (withSections && !toneBySectionKey.has(key)) {
-      toneBySectionKey.set(key, (toneBySectionKey.size % 6) + 1);
-    }
-    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
-    countByChapterKey.set(chapterKey, (countByChapterKey.get(chapterKey) || 0) + 1);
-    const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
-    countByLabelKey.set(labelKey, (countByLabelKey.get(labelKey) || 0) + 1);
-  }
-  let lastKey;
+  const chapterByKey = new Map(state.chapters.map((chapter) => [String(chapter.key), chapter]));
   let lastChapterKey;
-  let lastLabelKey;
-  let sectionOpen = false;
   const parts = [];
-  for (const w of state.words) {
-    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
-    const key = w.sectionId != null ? String(w.sectionId) : "none";
+  for (const [sectionIndex, section] of state.sections.entries()) {
+    const chapterKey = String(section.chapterKey);
+    const chapter = chapterByKey.get(chapterKey);
     const chapterChanged = withChapters && chapterKey !== lastChapterKey;
-    const sectionChanged = withSections && (key !== lastKey || chapterChanged);
-
-    if (sectionChanged && sectionOpen) {
-      parts.push("</section>");
-      sectionOpen = false;
-    }
-
     let chapterMarkup = "";
     if (chapterChanged) {
       lastChapterKey = chapterKey;
-      const titleLine = `<span class="chapter-title">${escapeHtml(w.chapterName || "その他")}</span>${
-        w.chapterSubtitle ? `<span class="chapter-subtitle">${escapeHtml(w.chapterSubtitle)}</span>` : ""
-      }<span class="chapter-count">(${countByChapterKey.get(chapterKey)})</span>`;
-      const descLine = w.chapterDescription ? `<div class="chapter-description">${escapeHtml(w.chapterDescription)}</div>` : "";
+      const titleLine = `<span class="chapter-title">${escapeHtml(chapter?.name || "その他")}</span>${
+        chapter?.subtitle ? `<span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
+      }<span class="chapter-count">(${chapter?.count || 0})</span>`;
+      const descLine = chapter?.description ? `<div class="chapter-description">${escapeHtml(chapter.description)}</div>` : "";
       chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`;
     }
-    if (sectionChanged) {
-      lastKey = key;
-      lastLabelKey = undefined;
-      const sectionTone = `section-tone-${toneBySectionKey.get(key)}`;
-      const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
-      const chapterFrameId = chapterMarkup ? ` id="chapter-frame-${escapeHtml(chapterKey)}"` : "";
-      const titleLine = `<span class="section-title">${escapeHtml(w.sectionName || "その他")}</span>${
-        w.sectionSubtitle ? `<span class="section-subtitle">${escapeHtml(w.sectionSubtitle)}</span>` : ""
-      }<span class="section-count">(${countByKey.get(key)})</span>`;
-      const descLine = w.sectionDescription ? `<div class="section-description">${escapeHtml(w.sectionDescription)}</div>` : "";
-      parts.push(
-        `<section class="section-group ${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" aria-labelledby="section-${escapeHtml(key)}">`,
-        chapterMarkup,
-        `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
-      );
-      sectionOpen = true;
-    } else if (chapterMarkup) {
-      parts.push(chapterMarkup);
-    }
-    const labelKey = w.labelId != null ? String(w.labelId) : `none-${key}`;
-    if (withLabels && w.labelId != null && labelKey !== lastLabelKey) {
-      lastLabelKey = labelKey;
-      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}"><i class="fa-solid fa-tag" aria-hidden="true"></i><span class="label-title">${escapeHtml(w.labelName || "")}</span><span class="label-count">(${countByLabelKey.get(labelKey)})</span></div>`);
-    } else if (w.labelId == null) {
-      lastLabelKey = labelKey;
-    }
-    parts.push(renderEntry(w));
+    const key = String(section.key);
+    const titleLine = `<span class="section-title">${escapeHtml(section.name || "その他")}</span>${
+      section.subtitle ? `<span class="section-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
+    }<span class="section-count">(${section.count})</span>`;
+    const descLine = section.description ? `<div class="section-description">${escapeHtml(section.description)}</div>` : "";
+    const divider = withSections
+      ? `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
+      : "";
+    const sectionTone = withSections ? ` section-tone-${(sectionIndex % 6) + 1}` : "";
+    const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
+    const chapterFrameId = chapterMarkup ? ` id="chapter-frame-${escapeHtml(chapterKey)}"` : "";
+    const labelledBy = withSections ? ` aria-labelledby="section-${escapeHtml(key)}"` : "";
+    const placeholderHeight = Math.min(900, Math.max(160, section.count * 44));
+    parts.push(
+      `<section class="section-group${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}"${labelledBy}>${chapterMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="true" style="--section-placeholder-height:${placeholderHeight}px"><div class="section-loading">${escapeHtml(section.name || "単語")}を読み込み中...</div></div></section>`
+    );
   }
-  if (sectionOpen) parts.push("</section>");
+  parts.push('<p class="empty-msg search-empty" hidden>検索結果がありません。</p>');
   el.wordList.innerHTML = parts.join("");
   applyFilters();
 }
 
+function sectionCacheKey(listId, sectionKey) {
+  return `${listId}:${sectionKey}`;
+}
+
+function renderSectionEntriesHtml(words, sectionKey) {
+  const withLabels = state.indexWords.some((word) => word.labelId != null);
+  const countByLabelKey = new Map();
+  for (const word of words) {
+    const labelKey = word.labelId != null ? String(word.labelId) : `none-${sectionKey}`;
+    countByLabelKey.set(labelKey, (countByLabelKey.get(labelKey) || 0) + 1);
+  }
+  let lastLabelKey;
+  const parts = [];
+  for (const word of words) {
+    const labelKey = word.labelId != null ? String(word.labelId) : `none-${sectionKey}`;
+    if (withLabels && word.labelId != null && labelKey !== lastLabelKey) {
+      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}"><i class="fa-solid fa-tag" aria-hidden="true"></i><span class="label-title">${escapeHtml(word.labelName || "")}</span><span class="label-count">(${countByLabelKey.get(labelKey)})</span></div>`);
+    }
+    lastLabelKey = labelKey;
+    parts.push(renderEntry(word));
+  }
+  return parts.join("");
+}
+
+function renderLoadedSection(sectionKey, data) {
+  const entriesEl = el.wordList.querySelector(`[data-section-entries="${CSS.escape(String(sectionKey))}"]`);
+  if (!entriesEl) return;
+  const words = (data.words || []).map((word) => {
+    const meta = state.wordMetaById.get(word.id);
+    const hydrated = { ...word, seqNo: meta?.seqNo || word.displayNo || "" };
+    return hydrated;
+  });
+  entriesEl.innerHTML = renderSectionEntriesHtml(words, sectionKey);
+  entriesEl.removeAttribute("style");
+  entriesEl.setAttribute("aria-busy", "false");
+  entriesEl.closest(".section-group")?.classList.add("is-loaded");
+  state.loadedSectionKeys.add(String(sectionKey));
+  lazySectionObserver?.unobserve(entriesEl);
+  applyFilters();
+}
+
+function renderSectionLoadError(sectionKey, message) {
+  const entriesEl = el.wordList.querySelector(`[data-section-entries="${CSS.escape(String(sectionKey))}"]`);
+  if (!entriesEl) return;
+  entriesEl.innerHTML = `<div class="section-load-error">読み込みに失敗しました: ${escapeHtml(message)} <button type="button" data-action="retry-section" data-section-key="${escapeHtml(String(sectionKey))}">再試行</button></div>`;
+  entriesEl.setAttribute("aria-busy", "false");
+}
+
+async function loadSection(sectionKey, { forceRefresh = false } = {}) {
+  const key = String(sectionKey);
+  if (!forceRefresh && state.loadedSectionKeys.has(key)) return;
+  if (!forceRefresh && state.sectionPromises.has(key)) return state.sectionPromises.get(key);
+
+  const listId = state.currentListId;
+  const generation = listLoadGeneration;
+  const cacheKey = sectionCacheKey(listId, key);
+  const promise = (async () => {
+    try {
+      let data = forceRefresh ? null : sectionResponseCache.get(cacheKey);
+      if (!data) {
+        data = await api(
+          `/lists/${encodeURIComponent(listId)}/viewer/sections/${encodeURIComponent(key)}`,
+          { forceRefresh }
+        );
+        sectionResponseCache.set(cacheKey, data);
+      }
+      if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+      renderLoadedSection(key, data);
+    } catch (err) {
+      if (generation === listLoadGeneration && listId === state.currentListId) renderSectionLoadError(key, err.message);
+      throw err;
+    }
+  })();
+  state.sectionPromises.set(key, promise);
+  try {
+    await promise;
+  } finally {
+    if (state.sectionPromises.get(key) === promise) state.sectionPromises.delete(key);
+  }
+}
+
+async function loadSectionsWithLimit(sectionKeys, concurrency = 3) {
+  const keys = [...new Set(sectionKeys.map(String))];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, keys.length) }, async () => {
+    while (cursor < keys.length) {
+      const key = keys[cursor];
+      cursor += 1;
+      await loadSection(key);
+    }
+  });
+  await Promise.all(workers);
+}
+
+let lazySectionObserver;
+
+function setupLazySectionObserver() {
+  if (lazySectionObserver) lazySectionObserver.disconnect();
+  const entries = el.wordList.querySelectorAll(".section-entries");
+  if (!entries.length) return;
+  if (!("IntersectionObserver" in window)) {
+    loadSectionsWithLimit(state.sections.map((section) => section.key)).catch(() => {});
+    return;
+  }
+  lazySectionObserver = new IntersectionObserver(
+    (observed) => {
+      const sectionKeys = [];
+      for (const item of observed) {
+        if (!item.isIntersecting) continue;
+        lazySectionObserver.unobserve(item.target);
+        sectionKeys.push(item.target.dataset.sectionEntries);
+      }
+      loadSectionsWithLimit(sectionKeys).catch(() => {});
+    },
+    { rootMargin: "1000px 0px" }
+  );
+  entries.forEach((entry) => lazySectionObserver.observe(entry));
+}
+
 // ---- 索引（abc順） ----
 
-// state.wordsには見出し語(branch=0)と派生語エントリー(branch>0)しか並ばないため、
+// state.indexWordsには見出し語(branch=0)と派生語エントリー(branch>0)しか並ばないため、
 // 各エントリーの derivatives（例文欄と違い、独立したエントリーを持たない参考の派生語）も
 // 拾い上げて索引に含める。ただし派生語自身が別途エントリーを持つ場合は二重掲載しない。
 function buildAlphabeticalIndex() {
   const entries = [];
-  for (const w of state.words) {
+  for (const w of state.indexWords) {
     entries.push({ spelling: w.spelling, loc: w.seqNo, targetId: w.id, isRef: false });
   }
   const derivSeen = new Set();
-  for (const w of state.words) {
+  for (const w of state.indexWords) {
     for (const d of w.derivatives || []) {
       const plain = stripMarkup(d.word || "");
       if (!plain) continue;
@@ -514,7 +650,7 @@ el.viewTabIndex.addEventListener("click", () => setActiveView("index"));
 el.indexList.addEventListener("click", (e) => {
   const item = e.target.closest('[data-action="index-jump"]');
   if (!item) return;
-  navigateToWord(item.dataset.wordId);
+  navigateToWord(item.dataset.wordId).catch(() => {});
 });
 
 // ---- セクションナビ ----
@@ -522,12 +658,8 @@ el.indexList.addEventListener("click", (e) => {
 let sectionObserver;
 
 function renderSectionNav() {
-  const seen = new Map();
-  for (const w of state.words) {
-    if (w.sectionId == null) continue;
-    if (!seen.has(w.sectionId)) seen.set(w.sectionId, w.sectionName || "");
-  }
-  if (seen.size === 0) {
+  const sections = state.sections.filter((section) => section.id != null);
+  if (sections.length === 0) {
     el.sectionNav.hidden = true;
     el.sectionNav.innerHTML = "";
     document.body.classList.remove("has-section-nav");
@@ -535,8 +667,8 @@ function renderSectionNav() {
   }
   el.sectionNav.hidden = false;
   document.body.classList.add("has-section-nav");
-  el.sectionNav.innerHTML = [...seen.entries()]
-    .map(([key, name]) => `<button type="button" data-section-key="${escapeHtml(String(key))}">${escapeHtml(name)}</button>`)
+  el.sectionNav.innerHTML = sections
+    .map((section) => `<button type="button" data-section-key="${escapeHtml(String(section.key))}">${escapeHtml(section.name)}</button>`)
     .join("");
 }
 
@@ -548,48 +680,7 @@ function renderContentsNav() {
     return;
   }
 
-  const chapters = [];
-  const chapterByKey = new Map();
-
-  for (const w of state.words) {
-    const chapterKey = w.chapterId != null ? String(w.chapterId) : "none";
-    let chapter = chapterByKey.get(chapterKey);
-    if (!chapter) {
-      chapter = {
-        key: chapterKey,
-        name: w.chapterName || "その他",
-        subtitle: w.chapterSubtitle || "",
-        count: 0,
-        sections: [],
-        sectionByKey: new Map(),
-      };
-      chapterByKey.set(chapterKey, chapter);
-      chapters.push(chapter);
-    }
-    chapter.count += 1;
-
-    if (!withSections) continue;
-    const sectionKey = w.sectionId != null ? String(w.sectionId) : "none";
-    let section = chapter.sectionByKey.get(sectionKey);
-    if (!section) {
-      section = {
-        key: sectionKey,
-        name: w.sectionName || "その他",
-        subtitle: w.sectionSubtitle || "",
-        count: 0,
-      };
-      chapter.sectionByKey.set(sectionKey, section);
-      chapter.sections.push(section);
-    }
-    section.count += 1;
-  }
-
-  if (chapters.length === 0) {
-    el.contentsNav.innerHTML = '<p class="contents-empty">チャプター・セクションはありません。</p>';
-    return;
-  }
-
-  el.contentsNav.innerHTML = chapters
+  el.contentsNav.innerHTML = state.chapters
     .map((chapter) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
       const chapterButton = withChapters
@@ -600,9 +691,10 @@ function renderContentsNav() {
             <span class="contents-item-count">(${chapter.count})</span>
           </button>`
         : "";
-      const sections = chapter.sections
+      const sections = state.sections
+        .filter((section) => withSections && String(section.chapterKey) === String(chapter.key))
         .map(
-          (section) => `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}" data-nav-target="section-${escapeHtml(section.key)}">
+          (section) => `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
               section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
             }</span>
@@ -635,8 +727,12 @@ function setupSectionObserver() {
 el.sectionNav.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-section-key]");
   if (!btn) return;
-  const target = document.getElementById(`section-${btn.dataset.sectionKey}`);
-  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  loadSection(btn.dataset.sectionKey)
+    .then(() => {
+      const target = document.getElementById(`section-${btn.dataset.sectionKey}`);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    })
+    .catch(() => {});
 });
 
 // ---- 検索・進捗フィルタ ----
@@ -646,81 +742,58 @@ function applyFilters() {
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
     const haystack = entry.dataset.haystack || "";
-    entry.hidden = !(!q || haystack.includes(q));
+    const matches = state.searchMatches ? state.searchMatches.has(entry.dataset.wordId) : haystack.includes(q);
+    entry.hidden = !!q && !matches;
   });
 
   const sectionGroups = [...el.wordList.querySelectorAll(".section-group")];
-  if (sectionGroups.length > 0) {
-    const groupHasVisibleEntry = new Map();
-    for (const group of sectionGroups) {
-      const groupChildren = [...group.children];
-      const hasVisibleEntry = groupChildren.some((child) => child.classList.contains("entry") && !child.hidden);
-      groupHasVisibleEntry.set(group, hasVisibleEntry);
-      const sectionDivider = group.querySelector(":scope > .section-divider");
-      if (sectionDivider) sectionDivider.hidden = !hasVisibleEntry;
-
-      for (let i = 0; i < groupChildren.length; i += 1) {
-        const labelDivider = groupChildren[i];
-        if (!labelDivider.classList.contains("label-divider")) continue;
-        let labelHasVisibleEntry = false;
-        for (let j = i + 1; j < groupChildren.length; j += 1) {
-          const next = groupChildren[j];
-          if (next.classList.contains("label-divider")) break;
-          if (next.classList.contains("entry") && !next.hidden) {
-            labelHasVisibleEntry = true;
-            break;
-          }
-        }
-        labelDivider.hidden = !labelHasVisibleEntry;
-      }
-    }
-
-    const visibleChapterKeys = new Set(
-      sectionGroups
-        .filter((group) => groupHasVisibleEntry.get(group))
-        .map((group) => group.dataset.chapterKey)
-    );
-    for (const group of sectionGroups) {
-      const chapterDivider = group.querySelector(":scope > .chapter-divider");
-      if (chapterDivider) chapterDivider.hidden = !visibleChapterKeys.has(group.dataset.chapterKey);
-      group.hidden = !groupHasVisibleEntry.get(group) && (!chapterDivider || chapterDivider.hidden);
-    }
-
-    const topLevelChildren = [...el.wordList.children];
-    for (let i = 0; i < topLevelChildren.length; i += 1) {
-      const chapterDivider = topLevelChildren[i];
-      if (!chapterDivider.classList.contains("chapter-divider")) continue;
-      let chapterHasVisibleSection = false;
-      for (let j = i + 1; j < topLevelChildren.length; j += 1) {
-        const next = topLevelChildren[j];
-        if (next.classList.contains("chapter-divider")) break;
-        if (next.classList.contains("section-group") && !next.hidden) {
-          chapterHasVisibleSection = true;
-          break;
-        }
-      }
-      chapterDivider.hidden = !chapterHasVisibleSection;
-    }
+  if (!q) {
+    for (const group of sectionGroups) group.hidden = false;
+    el.wordList.querySelectorAll(".chapter-divider, .section-divider, .label-divider").forEach((divider) => {
+      divider.hidden = false;
+    });
+    const searchEmpty = el.wordList.querySelector(".search-empty");
+    if (searchEmpty) searchEmpty.hidden = true;
     return;
   }
 
-  const children = [...el.wordList.children];
-  for (let i = 0; i < children.length; i += 1) {
-    const divider = children[i];
-    if (!divider.matches(".chapter-divider, .section-divider, .label-divider")) continue;
-    const level = divider.classList.contains("chapter-divider") ? 3 : divider.classList.contains("section-divider") ? 2 : 1;
-    let hasVisible = false;
-    for (let j = i + 1; j < children.length; j += 1) {
-      const next = children[j];
-      const nextLevel = next.classList.contains("chapter-divider") ? 3 : next.classList.contains("section-divider") ? 2 : next.classList.contains("label-divider") ? 1 : 0;
-      if (nextLevel >= level) break;
-      if (next.classList.contains("entry") && !next.hidden) {
-        hasVisible = true;
-        break;
+  const groupHasVisibleEntry = new Map();
+  for (const group of sectionGroups) {
+    const entriesContainer = group.querySelector(":scope > .section-entries");
+    const groupChildren = entriesContainer ? [...entriesContainer.children] : [];
+    const hasVisibleEntry = groupChildren.some((child) => child.classList.contains("entry") && !child.hidden);
+    groupHasVisibleEntry.set(group, hasVisibleEntry);
+    const sectionDivider = group.querySelector(":scope > .section-divider");
+    if (sectionDivider) sectionDivider.hidden = !hasVisibleEntry;
+
+    for (let i = 0; i < groupChildren.length; i += 1) {
+      const labelDivider = groupChildren[i];
+      if (!labelDivider.classList.contains("label-divider")) continue;
+      let labelHasVisibleEntry = false;
+      for (let j = i + 1; j < groupChildren.length; j += 1) {
+        const next = groupChildren[j];
+        if (next.classList.contains("label-divider")) break;
+        if (next.classList.contains("entry") && !next.hidden) {
+          labelHasVisibleEntry = true;
+          break;
+        }
       }
+      labelDivider.hidden = !labelHasVisibleEntry;
     }
-    divider.hidden = !hasVisible;
   }
+
+  const visibleChapterKeys = new Set(
+    sectionGroups
+      .filter((group) => groupHasVisibleEntry.get(group))
+      .map((group) => group.dataset.chapterKey)
+  );
+  for (const group of sectionGroups) {
+    const chapterDivider = group.querySelector(":scope > .chapter-divider");
+    if (chapterDivider) chapterDivider.hidden = !visibleChapterKeys.has(group.dataset.chapterKey);
+    group.hidden = !groupHasVisibleEntry.get(group) && (!chapterDivider || chapterDivider.hidden);
+  }
+  const searchEmpty = el.wordList.querySelector(".search-empty");
+  if (searchEmpty) searchEmpty.hidden = sectionGroups.some((group) => !group.hidden);
 }
 
 // ---- 発音 / リンクコピー / 空所トグル ----
@@ -768,40 +841,46 @@ function flash(target) {
 function revealAndScroll(target) {
   if (!target) return;
   if (target.hidden) {
+    searchGeneration += 1;
     state.search = "";
+    state.searchMatches = null;
     el.searchInput.value = "";
+    el.searchInput.removeAttribute("aria-busy");
     applyFilters();
   }
   target.scrollIntoView({ behavior: "smooth", block: "center" });
   flash(target);
 }
 
-function navigateToWord(id) {
+async function navigateToWord(id) {
+  const meta = state.wordMetaById.get(id);
+  if (!meta) return;
+  if (state.activeView !== "list") setActiveView("list");
+  await loadSection(meta.sectionKey);
   const target = document.getElementById(`word-${id}`);
   if (!target) return;
-  if (state.activeView !== "list") setActiveView("list");
   history.pushState(null, "", `#word-${id}`);
   revealAndScroll(target);
 }
 
 async function openWordFromWebMCP(listId, wordId) {
-  if (state.currentListId !== listId || !state.words.some((word) => String(word.id) === String(wordId))) {
+  const normalizedWordId = String(wordId);
+  if (state.currentListId !== listId) {
     const notebookExists = state.lists.some((list) => list.id === listId);
     if (!notebookExists) throw new Error("指定された単語帳が見つかりません。");
     el.listSelect.value = listId;
     await selectList(listId);
   }
-  navigateToWord(wordId);
+  if (!state.wordMetaById.has(normalizedWordId)) throw new Error("指定された単語が見つかりません。");
+  await navigateToWord(normalizedWordId);
 }
 
-function applyHashScroll() {
+async function applyHashScroll() {
   if (!location.hash.startsWith("#word-")) return;
-  let target;
-  try {
-    target = document.querySelector(location.hash);
-  } catch {
-    return;
-  }
+  const id = location.hash.slice("#word-".length);
+  const meta = state.wordMetaById.get(id);
+  if (meta) await loadSection(meta.sectionKey);
+  const target = document.getElementById(`word-${id}`);
   if (target) setTimeout(() => revealAndScroll(target), 60);
 }
 
@@ -841,7 +920,7 @@ el.wordList.addEventListener("click", (e) => {
   const refLink = e.target.closest("a.ref");
   if (refLink) {
     e.preventDefault();
-    navigateToWord(refLink.dataset.wordId);
+    navigateToWord(refLink.dataset.wordId).catch(() => {});
     return;
   }
   const actionEl = e.target.closest("[data-action]");
@@ -850,16 +929,41 @@ el.wordList.addEventListener("click", (e) => {
   if (action === "speak") speak(actionEl.dataset.text, actionEl.dataset.audioUrl, actionEl);
   else if (action === "copy-link") copyLink(actionEl.dataset.wordId);
   else if (action === "toggle-blank") toggleBlank(actionEl);
+  else if (action === "retry-section") loadSection(actionEl.dataset.sectionKey, { forceRefresh: true }).catch(() => {});
 });
 
 let searchTimer;
 el.searchInput.addEventListener("input", () => {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    state.search = el.searchInput.value;
-    applyFilters();
-  }, 120);
+  searchTimer = setTimeout(runSearch, 250);
 });
+
+async function runSearch() {
+  const query = el.searchInput.value.trim();
+  const generation = ++searchGeneration;
+  state.search = query;
+  if (!query) {
+    state.searchMatches = null;
+    el.searchInput.removeAttribute("aria-busy");
+    applyFilters();
+    return;
+  }
+
+  const listId = state.currentListId;
+  el.searchInput.setAttribute("aria-busy", "true");
+  try {
+    const data = await api(`/lists/${encodeURIComponent(listId)}/viewer/search?q=${encodeURIComponent(query)}`);
+    if (generation !== searchGeneration || listId !== state.currentListId) return;
+    await loadSectionsWithLimit((data.matches || []).map((match) => match.sectionKey));
+    if (generation !== searchGeneration || listId !== state.currentListId) return;
+    state.searchMatches = new Set((data.matches || []).map((match) => match.wordId));
+    applyFilters();
+  } catch (err) {
+    if (generation === searchGeneration) showToast(`検索に失敗しました: ${err.message}`);
+  } finally {
+    if (generation === searchGeneration) el.searchInput.removeAttribute("aria-busy");
+  }
+}
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 
@@ -867,20 +971,14 @@ el.jumpForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const raw = el.jumpInput.value.trim();
   if (!raw) return;
-  let target = null;
-  try {
-    target =
-      el.wordList.querySelector(`.entry[data-no="${CSS.escape(raw)}"]`) ||
-      el.wordList.querySelector(`.entry[data-no^="${CSS.escape(raw)}-"]`);
-  } catch {
-    target = null;
-  }
-  if (!target) {
+  const targetWord =
+    state.indexWords.find((word) => String(word.seqNo) === raw) ||
+    state.indexWords.find((word) => String(word.seqNo).startsWith(`${raw}-`));
+  if (!targetWord) {
     showToast(`no.${raw} は見つかりませんでした`);
     return;
   }
-  history.pushState(null, "", `#word-${target.dataset.wordId}`);
-  revealAndScroll(target);
+  navigateToWord(targetWord.id).catch(() => {});
   closeSettingsMenu();
 });
 
@@ -892,9 +990,16 @@ el.menuToggle.addEventListener("click", (e) => {
   e.stopPropagation();
   toggleContentsMenu();
 });
-el.contentsNav.addEventListener("click", (e) => {
+el.contentsNav.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-nav-target]");
   if (!btn) return;
+  if (btn.dataset.navSectionKey) {
+    try {
+      await loadSection(btn.dataset.navSectionKey);
+    } catch {
+      return;
+    }
+  }
   const target = document.getElementById(btn.dataset.navTarget);
   if (!target) return;
   if (state.activeView !== "list") setActiveView("list");
@@ -973,7 +1078,7 @@ applyFontSize(Number(localStorage.getItem(FONT_SIZE_KEY)) || 3);
 
 async function refreshCurrentList() {
   if (!state.currentListId) return;
-  await selectList(state.currentListId);
+  await selectList(state.currentListId, { forceRefresh: true });
 }
 
 if (el.ptrIndicator) {
