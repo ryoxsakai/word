@@ -92,7 +92,7 @@
       <div class="table-scroll" id="tableScroll">
         <table class="word-table">
           <thead id="wordTableHead">
-            <tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-awl">AWL</th><th class="col-cefr">CEFR</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th><th class="col-pron">発音</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th></tr>
+            <tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-awl">AWL</th><th class="col-cefr">CEFR</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th><th class="col-pron">発音</th><th class="col-caution-ergative">能格</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th></tr>
           </thead>
           <tbody id="wordTableBody"></tbody>
         </table>
@@ -129,6 +129,7 @@
             <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
             <button type="button" id="playAudioBtn" title="端末の英語音声で発音を再生" aria-label="端末の英語音声で発音を再生" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
             <button type="button" id="generateAudioBtn" class="generate-audio-btn" title="IPAを使ってElevenLabs音声を生成" aria-label="ElevenLabs音声を生成" disabled><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></button>
+            <button type="button" id="ergativeBtn" class="caution-toggle-btn caution-toggle-btn--ergative" aria-pressed="false" title="自動詞の主語と他動詞の目的語が対応する能格動詞としてマークします">能</button>
             <button type="button" id="spellingCautionBtn" class="caution-toggle-btn caution-toggle-btn--spelling" aria-pressed="false" title="スペルを間違えやすい単語としてマークします">ス</button>
             <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします">発</button>
             <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします">ア</button>
