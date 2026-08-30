@@ -45,6 +45,23 @@ function json(data, init = {}) {
   });
 }
 
+// 閲覧ページの読み取り専用データは、ブラウザのHTTPキャッシュでETag再検証できるようにする。
+// max-age=0のため通常の再訪時には必ず鮮度を確認しつつ、内容が同じなら本文の再転送を省ける。
+async function cacheableJson(data, request) {
+  const body = JSON.stringify(data);
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
+  const etag = `"${[...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("")}"`;
+  const headers = {
+    "content-type": "application/json; charset=utf-8",
+    "cache-control": "private, max-age=0, must-revalidate",
+    etag,
+  };
+  if (request.headers.get("If-None-Match") === etag) {
+    return new Response(null, { status: 304, headers });
+  }
+  return new Response(body, { headers });
+}
+
 function notFound(message = "not found") {
   return json({ error: message }, { status: 404 });
 }
@@ -395,14 +412,28 @@ function groupByWordId(rows) {
   return map;
 }
 
-// 閲覧ページ用: リスト内の全単語を、意味・派生語・例文・タグまで含めて1回のリクエストで返す。
+// 閲覧ページ用: リスト内の全単語、または指定した1セクションを、意味・派生語・例文・タグまで含めて返す。
 // (単語詳細を1件ずつ取得すると N+1 になってしまうため、子テーブルは word_id IN (...) でまとめて取得する)
-async function listWordsInListFull(db, listId) {
+async function listWordsInListFull(db, listId, options = {}) {
+  const { sectionKey, request } = options;
   const list = await db
     .prepare("SELECT id, name, description, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists WHERE id = ?")
     .bind(listId)
     .first();
   if (!list) return notFound("list not found");
+
+  let sectionFilter = "";
+  const itemBinds = [listId];
+  if (sectionKey === "none") {
+    sectionFilter = " AND li.section_id IS NULL";
+  } else if (sectionKey != null) {
+    const sectionId = Number(sectionKey);
+    if (!Number.isInteger(sectionId) || sectionId <= 0) return badRequest("invalid section id");
+    const section = await db.prepare("SELECT 1 FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+    if (!section) return notFound("section not found");
+    sectionFilter = " AND li.section_id = ?";
+    itemBinds.push(sectionId);
+  }
 
   const { results: items } = await db
     .prepare(
@@ -421,13 +452,16 @@ async function listWordsInListFull(db, listId) {
        LEFT JOIN sections s ON s.id = li.section_id
        LEFT JOIN section_labels sl ON sl.id = li.label_id
        LEFT JOIN chapters c ON c.id = s.chapter_id
-       WHERE li.list_id = ?
+       WHERE li.list_id = ?${sectionFilter}
        ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
     )
-    .bind(listId)
+    .bind(...itemBinds)
     .all();
 
-  if (items.length === 0) return json({ list, words: [] });
+  if (items.length === 0) {
+    const payload = { list, words: [] };
+    return request ? cacheableJson(payload, request) : json(payload);
+  }
 
   // セクション名・チャプター名は保存された文字列ではなく、単語帳の呼び方(Section/Unit/Part、
   // Chapter/Module/Volume)+並び順から常に自動計算する。(並べ替えても番号がずれないようにするため)
@@ -541,7 +575,180 @@ async function listWordsInListFull(db, listId) {
     tags: tagsByWord.get(r.id) || {},
   }));
 
-  return json({ list, words });
+  const payload = { list, words };
+  return request ? cacheableJson(payload, request) : json(payload);
+}
+
+// 閲覧ページの初期表示用。詳細本文を含めず、目次・番号・リンク・abc索引に必要な情報だけ返す。
+async function getViewerIndex(db, listId, request) {
+  const list = await db
+    .prepare("SELECT id, name, description, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists WHERE id = ?")
+    .bind(listId)
+    .first();
+  if (!list) return notFound("list not found");
+
+  const { results: items } = await db
+    .prepare(
+      `SELECT w.id AS id, w.spelling AS spelling, w.derived_from_id AS derivedFromId,
+              li.no AS no, li.branch AS branch, li.section_id AS sectionId,
+              li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
+              s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
+              s.chapter_id AS chapterId, c.subtitle AS chapterSubtitle,
+              c.description AS chapterDescription, c.sort_order AS chapterSortOrder
+       FROM list_items li JOIN words w ON w.id = li.word_id
+       LEFT JOIN sections s ON s.id = li.section_id
+       LEFT JOIN section_labels sl ON sl.id = li.label_id
+       LEFT JOIN chapters c ON c.id = s.chapter_id
+       WHERE li.list_id = ?
+       ORDER BY COALESCE(c.sort_order, -1), COALESCE(s.sort_order, -1), COALESCE(sl.sort_order, -1), li.no, li.branch`
+    )
+    .bind(listId)
+    .all();
+
+  const { results: orderedSections } = await db
+    .prepare("SELECT id FROM sections WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
+  const sectionPositionById = new Map(orderedSections.map((section, index) => [section.id, index + 1]));
+  const sectionLabel = list.sectionLabel || "Section";
+  const sectionNameById = (sectionId) =>
+    sectionId != null && sectionPositionById.has(sectionId) ? `${sectionLabel} ${sectionPositionById.get(sectionId)}` : null;
+
+  const { results: orderedChapters } = await db
+    .prepare("SELECT id FROM chapters WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(listId)
+    .all();
+  const chapterPositionById = new Map(orderedChapters.map((chapter, index) => [chapter.id, index + 1]));
+  const chapterLabel = list.chapterLabel || "Chapter";
+  const chapterNameById = (chapterId) =>
+    chapterId != null && chapterPositionById.has(chapterId) ? `${chapterLabel} ${chapterPositionById.get(chapterId)}` : null;
+
+  const ids = items.map((item) => item.id);
+  const [derivativeRows, phraseRows] = ids.length
+    ? await Promise.all([
+        selectInChunks(
+          db,
+          (placeholders) =>
+            `SELECT word_id AS wordId, word FROM derivatives WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`,
+          ids
+        ),
+        selectInChunks(
+          db,
+          (placeholders) =>
+            `SELECT word_id AS wordId, sentence FROM examples WHERE type = 'phrase' AND word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`,
+          ids
+        ),
+      ])
+    : [[], []];
+  const derivativesByWord = groupByWordId(derivativeRows);
+  const phrasesByWord = groupByWordId(phraseRows);
+
+  let top = 0;
+  let branch = 0;
+  const words = items.map((item) => {
+    let seqNo;
+    if (item.branch > 0 && top > 0) {
+      branch += 1;
+      seqNo = `${top}-${branch}`;
+    } else {
+      top += 1;
+      branch = 0;
+      seqNo = String(top);
+    }
+    return {
+      id: item.id,
+      spelling: item.spelling,
+      no: item.no,
+      branch: item.branch,
+      seqNo,
+      sectionId: item.sectionId,
+      sectionKey: item.sectionId != null ? String(item.sectionId) : "none",
+      labelId: item.labelId,
+      labelName: item.labelName,
+      labelSortOrder: item.labelSortOrder,
+      chapterId: item.chapterId,
+      derivedFromId: item.derivedFromId,
+      derivatives: derivativesByWord.get(item.id) || [],
+      phrases: (phrasesByWord.get(item.id) || []).map((phrase) => phrase.sentence),
+    };
+  });
+
+  const chapters = [];
+  const chapterByKey = new Map();
+  const sections = [];
+  const sectionByKey = new Map();
+  for (const item of items) {
+    const chapterKey = item.chapterId != null ? String(item.chapterId) : "none";
+    let chapter = chapterByKey.get(chapterKey);
+    if (!chapter) {
+      chapter = {
+        key: chapterKey,
+        id: item.chapterId,
+        name: chapterNameById(item.chapterId) || "その他",
+        subtitle: item.chapterSubtitle || "",
+        description: item.chapterDescription || "",
+        sortOrder: item.chapterSortOrder,
+        count: 0,
+      };
+      chapterByKey.set(chapterKey, chapter);
+      chapters.push(chapter);
+    }
+    chapter.count += 1;
+
+    const sectionKey = item.sectionId != null ? String(item.sectionId) : "none";
+    let section = sectionByKey.get(sectionKey);
+    if (!section) {
+      section = {
+        key: sectionKey,
+        id: item.sectionId,
+        name: sectionNameById(item.sectionId) || "その他",
+        subtitle: item.sectionSubtitle || "",
+        description: item.sectionDescription || "",
+        sortOrder: item.sectionSortOrder,
+        chapterId: item.chapterId,
+        chapterKey,
+        count: 0,
+      };
+      sectionByKey.set(sectionKey, section);
+      sections.push(section);
+    }
+    section.count += 1;
+  }
+
+  return cacheableJson({ list, chapters, sections, words }, request);
+}
+
+async function searchViewerWords(db, listId, request) {
+  const query = new URL(request.url).searchParams.get("q")?.trim() || "";
+  if (!query) return cacheableJson({ matches: [] }, request);
+  const escaped = query.replace(/[%_\\]/g, (character) => `\\${character}`);
+  const pattern = `%${escaped}%`;
+  const { results } = await db
+    .prepare(
+      `SELECT li.word_id AS wordId, li.section_id AS sectionId
+       FROM list_items li JOIN words w ON w.id = li.word_id
+       WHERE li.list_id = ? AND (
+         w.spelling LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.pronunciation, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.irregular_forms, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.etymology, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.synonyms, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.antonyms, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.notes, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         EXISTS (SELECT 1 FROM senses se WHERE se.word_id = w.id AND se.meaning LIKE ? ESCAPE '\\' COLLATE NOCASE) OR
+         EXISTS (SELECT 1 FROM derivatives d WHERE d.word_id = w.id AND (d.word LIKE ? ESCAPE '\\' COLLATE NOCASE OR COALESCE(d.meaning, '') LIKE ? ESCAPE '\\' COLLATE NOCASE)) OR
+         EXISTS (SELECT 1 FROM examples e WHERE e.word_id = w.id AND (e.sentence LIKE ? ESCAPE '\\' COLLATE NOCASE OR COALESCE(e.translation, '') LIKE ? ESCAPE '\\' COLLATE NOCASE)) OR
+         EXISTS (SELECT 1 FROM tags t WHERE t.word_id = w.id AND (t.tag_key LIKE ? ESCAPE '\\' COLLATE NOCASE OR COALESCE(t.tag_value, '') LIKE ? ESCAPE '\\' COLLATE NOCASE))
+       )
+       ORDER BY li.no, li.branch`
+    )
+    .bind(listId, ...Array(14).fill(pattern))
+    .all();
+  const matches = results.map((row) => ({
+    wordId: row.wordId,
+    sectionKey: row.sectionId != null ? String(row.sectionId) : "none",
+  }));
+  return cacheableJson({ matches }, request);
 }
 
 // ---- chapters ----
@@ -2065,6 +2272,21 @@ async function handleApi(request, env, parts, method) {
     return await listWordsInListFull(db, parts[2]);
   }
 
+  // /api/lists/:listId/viewer/index （閲覧ページ用の軽量な目次・索引データ）
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "viewer" && parts[4] === "index" && method === "GET") {
+    return await getViewerIndex(db, parts[2], request);
+  }
+
+  // /api/lists/:listId/viewer/search?q=... （未読み込みセクションも対象にした全文検索）
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "viewer" && parts[4] === "search" && method === "GET") {
+    return await searchViewerWords(db, parts[2], request);
+  }
+
+  // /api/lists/:listId/viewer/sections/:sectionId （セクション単位の詳細データ）
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "viewer" && parts[4] === "sections" && method === "GET") {
+    return await listWordsInListFull(db, parts[2], { sectionKey: parts[5], request });
+  }
+
   // /api/lists/:listId/chapters
   if (parts.length === 4 && parts[1] === "lists" && parts[3] === "chapters") {
     if (method === "GET") return await listChapters(db, parts[2]);
@@ -2256,6 +2478,30 @@ export default {
         );
         if (fullListMatch) {
           return await listWordsInListFull(env.DB, decodeURIComponent(fullListMatch[1]));
+        }
+
+        const viewerIndexMatch = pathname.match(
+          /^\/mcp-viewer\/api\/lists\/([^/]+)\/viewer\/index\/?$/
+        );
+        if (viewerIndexMatch) {
+          return await getViewerIndex(env.DB, decodeURIComponent(viewerIndexMatch[1]), request);
+        }
+
+        const viewerSearchMatch = pathname.match(
+          /^\/mcp-viewer\/api\/lists\/([^/]+)\/viewer\/search\/?$/
+        );
+        if (viewerSearchMatch) {
+          return await searchViewerWords(env.DB, decodeURIComponent(viewerSearchMatch[1]), request);
+        }
+
+        const viewerSectionMatch = pathname.match(
+          /^\/mcp-viewer\/api\/lists\/([^/]+)\/viewer\/sections\/([^/]+)\/?$/
+        );
+        if (viewerSectionMatch) {
+          return await listWordsInListFull(env.DB, decodeURIComponent(viewerSectionMatch[1]), {
+            sectionKey: decodeURIComponent(viewerSectionMatch[2]),
+            request,
+          });
         }
 
         return notFound("no such viewer route");

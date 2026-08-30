@@ -400,6 +400,36 @@ button { font-family: inherit; }
 
 .word-list { max-width: 640px; margin: 0 auto; padding: 0 0.9rem 2rem; }
 
+/* セクション単位でDOM描画を分離し、画面外のレイアウト・描画コストを抑える。 */
+.section-group {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 800px;
+}
+.section-entries {
+  min-height: var(--section-placeholder-height, 160px);
+}
+.section-group.is-loaded .section-entries { min-height: 0; }
+.section-loading,
+.section-load-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 7rem;
+  padding: 1rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-align: center;
+}
+.section-load-error { gap: 0.5rem; color: var(--danger); }
+.section-load-error button {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+
 /* ---- 索引（abc順） ---- */
 
 .index-list {
@@ -474,6 +504,8 @@ button { font-family: inherit; }
 .section-group > .section-divider { margin-right: 0.9rem; margin-left: 0.9rem; }
 .section-group > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
 .section-group > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
+.section-group > .section-entries > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
+.section-group > .section-entries > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
 
 .section-divider {
   margin: 0 0 0.6rem;
@@ -993,6 +1025,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .section-group > .section-divider { margin-right: 0; margin-left: 0; }
   .section-group > .label-divider { margin-right: 0; margin-left: 0.65rem; }
   .section-group > .entry { margin-right: 0; margin-left: 0; }
+  .section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0.65rem; }
+  .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
   .index-columns {
     columns: 2 !important;
     column-gap: 1.1rem;
@@ -1044,4 +1078,6 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     break-inside: avoid;
     page-break-inside: avoid;
   }
+  .section-group { content-visibility: visible; contain: none; }
+  .section-loading, .section-load-error { display: none !important; }
 }
