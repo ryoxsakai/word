@@ -14,7 +14,7 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch live word records
+      - name: Fetch live crossover records
         shell: bash
         run: |
           set -euo pipefail
@@ -22,31 +22,38 @@ jobs:
           import json
           import urllib.request
 
-          base = 'https://vocab.lrnr.jp/mcp-viewer/api/words/'
-          result = {}
-          for word in ['definitely', 'definite', 'define']:
-              with urllib.request.urlopen(base + word, timeout=30) as response:
-                  result[word] = json.load(response)
+          full_url = 'https://vocab.lrnr.jp/mcp-viewer/api/lists/crossover-v3/words/full'
+          coverage_url = 'https://vocab.lrnr.jp/mcp-viewer/api/lists/crossover-v3/coverage/uncovered?books=systan&mode=practical&view=unique&limit=5000'
 
+          def fetch(url):
+              request = urllib.request.Request(url, headers={'User-Agent': 'define-family-check'})
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  return json.load(response)
+
+          full = fetch(full_url)
+          coverage = fetch(coverage_url)
+
+          records = full.get('words', full) if isinstance(full, dict) else full
+          targets = {'define', 'definite', 'definitely'}
+          crossover_matches = [
+              record for record in records
+              if str(record.get('spelling', '')).lower() in targets
+              or str(record.get('id', '')).lower() in targets
+          ]
+          uncovered_matches = [
+              record for record in coverage.get('words', [])
+              if str(record.get('spelling', '')).lower() in targets
+          ]
+
+          result = {
+              'crossoverMatches': crossover_matches,
+              'uncoveredMatches': uncovered_matches,
+              'crossoverRecordCount': len(records),
+          }
           with open('define-family-live.json', 'w', encoding='utf-8') as f:
               json.dump(result, f, ensure_ascii=False, indent=2)
 
-          summary = {}
-          for word, record in result.items():
-              summary[word] = {
-                  'id': record.get('id'),
-                  'spelling': record.get('spelling'),
-                  'derivedFromId': record.get('derivedFromId'),
-                  'derivedFrom': record.get('derivedFrom'),
-                  'derivatives': record.get('derivatives'),
-                  'derivedWords': record.get('derivedWords'),
-                  'crossoverMembership': [
-                      x for x in record.get('notebooks', [])
-                      if x.get('listId') == 'crossover-v3'
-                  ],
-                  'tags': record.get('tags'),
-              }
-          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          print(json.dumps(result, ensure_ascii=False, indent=2))
           PY
 
       - name: Upload result
