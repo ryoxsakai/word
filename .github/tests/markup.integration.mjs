@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 
 import {
+  addDerivativeCrossReferenceAliases,
+  collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
+  renderWordListMarkup,
   stripMarkup,
 } from "../../public/shared/markup.js";
 
@@ -66,6 +69,46 @@ const otherWordsRemainBoldOnly = renderWithPhrases("seemはappearと似る。", 
 });
 assert.match(otherWordsRemainBoldOnly, /^<strong class="memo-current-headword">seem<\/strong>は<strong>appear<\/strong>と似る。$/);
 assert.doesNotMatch(otherWordsRemainBoldOnly, /memo-current-headword">appear/);
+
+const derivativeReferences = collectDerivativeCrossReferences([
+  { spelling: "succeed", derivatives: [{ word: "success" }, { word: "successful" }] },
+  { spelling: "alpha", derivatives: ["shared derivative"] },
+  { spelling: "beta", derivatives: [{ word: "shared derivative" }] },
+]);
+assert.deepEqual(derivativeReferences, [
+  { derivative: "success", target: "succeed" },
+  { derivative: "successful", target: "succeed" },
+]);
+
+const derivativeHeadwords = new Map(entries);
+derivativeHeadwords.set("succeed", { id: "succeed", no: 40 });
+const derivativeIndex = addDerivativeCrossReferenceAliases(derivativeHeadwords, derivativeReferences);
+const resolveDerivative = (headword) => {
+  const hit = derivativeIndex.get(headword.toLowerCase());
+  return hit ? { found: true, ...hit } : { found: false };
+};
+const renderWithDerivatives = createAutoCrossRefRenderer(derivativeHeadwords.keys(), {
+  resolve: resolveDerivative,
+  derivativeReferences,
+});
+const derivativeLink = renderWithDerivatives("successは結果を表す。", { currentHeadword: "record" });
+assert.match(
+  derivativeLink,
+  /^<a [^>]*href="#word-succeed"[^>]*data-headword="succeed"[^>]*><strong>success<\/strong><span class="ref-no"> \(no\.40\)<\/span><\/a>は/
+);
+assert.equal(
+  renderWordListMarkup("success", { resolve: resolveDerivative }),
+  '<a href="#word-succeed" class="ref" data-headword="success" data-word-id="succeed">success<span class="ref-no"> (no.40)</span></a>'
+);
+assert.doesNotMatch(
+  renderWithDerivatives("successは派生名詞。", { currentHeadword: "succeed" }),
+  /data-word-id="succeed"/
+);
+
+const independentSuccessIndex = new Map(derivativeHeadwords);
+independentSuccessIndex.set("success", { id: "success", no: 41 });
+const resolvedIndependentSuccess = addDerivativeCrossReferenceAliases(independentSuccessIndex, derivativeReferences);
+assert.equal(resolvedIndependentSuccess.get("success").id, "success");
 
 const longestMatch = render("take offの用法とtakeを確認する。", { currentHeadword: "take" });
 assert.match(longestMatch, /<a [^>]*data-headword="take off"[^>]*><strong>/);
