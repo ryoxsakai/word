@@ -1,4 +1,6 @@
 import {
+  addDerivativeCrossReferenceAliases,
+  collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
   renderMarkup,
@@ -200,21 +202,24 @@ function assignSequentialNumbers() {
 }
 
 function buildIndex() {
-  state.wordIndex = new Map();
+  const headwordIndex = new Map();
   state.wordMetaById = new Map(state.indexWords.map((word) => [word.id, word]));
 
   // 同じスペルが複数の形で現れる場合も、独立した見出し語を優先する。
   for (const w of state.indexWords) {
     if (w.branch !== 0) continue;
-    state.wordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
+    headwordIndex.set(w.spelling.toLowerCase(), { id: w.id, no: w.seqNo });
   }
   for (const w of state.indexWords) {
     const key = w.spelling.toLowerCase();
-    if (state.wordIndex.has(key)) continue;
-    state.wordIndex.set(key, { id: w.id, no: w.seqNo });
+    if (headwordIndex.has(key)) continue;
+    headwordIndex.set(key, { id: w.id, no: w.seqNo });
   }
-  state.renderNotesMarkup = createAutoCrossRefRenderer(state.wordIndex.keys(), {
+  const derivativeReferences = collectDerivativeCrossReferences(state.indexWords);
+  state.wordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
+  state.renderNotesMarkup = createAutoCrossRefRenderer(headwordIndex.keys(), {
     resolve: resolveRef,
+    derivativeReferences,
     phraseReferences: collectPhraseCrossReferences(state.indexWords),
   });
 }

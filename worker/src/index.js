@@ -389,26 +389,46 @@ async function getEditorIndex(db, listId, request) {
   return cacheableJson({ words }, request);
 }
 
-// 熟語の自動参照は編集モーダルを開いたときだけ必要なので、一覧本体とは分けて遅延取得する。
+// 熟語・派生語の自動参照は編集モーダルを開いたときだけ必要なので、一覧本体とは分けて遅延取得する。
 async function getEditorReferences(db, listId, request) {
   const list = await db.prepare("SELECT id FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
-  const { results } = await db
+  const { results: entries } = await db
     .prepare(
-      `SELECT w.id AS id, w.spelling AS spelling, e.sentence AS phrase
+      `SELECT w.id AS id, w.spelling AS spelling
        FROM list_items li JOIN words w ON w.id = li.word_id
-       JOIN examples e ON e.word_id = w.id AND e.type = 'phrase'
        WHERE li.list_id = ?
-       ORDER BY li.no, li.branch, e.sort_order, e.id`
+       ORDER BY li.no, li.branch`
     )
     .bind(listId)
     .all();
-  const wordsById = new Map();
-  for (const row of results) {
-    if (!wordsById.has(row.id)) wordsById.set(row.id, { id: row.id, spelling: row.spelling, phrases: [] });
-    wordsById.get(row.id).phrases.push(row.phrase);
-  }
-  return cacheableJson({ words: [...wordsById.values()] }, request);
+  const ids = entries.map((entry) => entry.id);
+  const [phraseRows, derivativeRows] = ids.length
+    ? await Promise.all([
+        selectInChunks(
+          db,
+          (placeholders) =>
+            `SELECT word_id AS wordId, sentence AS phrase FROM examples WHERE type = 'phrase' AND word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`,
+          ids
+        ),
+        selectInChunks(
+          db,
+          (placeholders) =>
+            `SELECT word_id AS wordId, word FROM derivatives WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`,
+          ids
+        ),
+      ])
+    : [[], []];
+  const phrasesByWord = groupByWordId(phraseRows);
+  const derivativesByWord = groupByWordId(derivativeRows);
+  const words = entries
+    .map((entry) => ({
+      ...entry,
+      phrases: (phrasesByWord.get(entry.id) || []).map((item) => item.phrase),
+      derivatives: derivativesByWord.get(entry.id) || [],
+    }))
+    .filter((entry) => entry.phrases.length || entry.derivatives.length);
+  return cacheableJson({ words }, request);
 }
 
 async function listMasterWords(db, searchUrl) {
@@ -474,10 +494,23 @@ async function listMasterWords(db, searchUrl) {
   return json({ words, hasMore, offset, limit });
 }
 
-// マスター編集ページの自動参照用。表示用の意味・タグを除き、全見出し語の解決情報だけ返す。
+// マスター編集ページの自動参照用。全見出し語と派生語の解決情報だけを返す。
 async function getMasterWordIndex(db, request) {
   const { results } = await db.prepare("SELECT id, spelling FROM words ORDER BY spelling COLLATE NOCASE, id").all();
-  return cacheableJson({ words: results }, request);
+  const derivativeRows = results.length
+    ? await selectInChunks(
+        db,
+        (placeholders) =>
+          `SELECT word_id AS wordId, word FROM derivatives WHERE word_id IN (${placeholders}) ORDER BY word_id, sort_order, id`,
+        results.map((word) => word.id)
+      )
+    : [];
+  const derivativesByWord = groupByWordId(derivativeRows);
+  const words = results.map((word) => ({
+    ...word,
+    derivatives: derivativesByWord.get(word.id) || [],
+  }));
+  return cacheableJson({ words }, request);
 }
 
 function groupByWordId(rows) {
@@ -2380,7 +2413,7 @@ async function handleApi(request, env, parts, method) {
     return await getEditorIndex(db, parts[2], request);
   }
 
-  // /api/lists/:listId/editor/references （編集プレビュー用の熟語参照索引）
+  // /api/lists/:listId/editor/references （編集プレビュー用の熟語・派生語参照索引）
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "references" && method === "GET") {
     return await getEditorReferences(db, parts[2], request);
   }
