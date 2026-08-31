@@ -1,4 +1,4 @@
-name: Coverage API production check
+name: Coverage API and MCP production check
 
 on:
   push:
@@ -16,29 +16,48 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Verify live coverage JSON
+      - name: Verify live coverage API and MCP
         shell: bash
         run: |
           set -euo pipefail
-          endpoint="https://vocab.lrnr.jp/mcp-viewer/api/lists/crossover-v3/coverage/uncovered?mode=practical&view=unique&limit=1"
-          curl -fsS "$endpoint" \
+
+          api_endpoint="https://vocab.lrnr.jp/mcp-viewer/api/lists/crossover-v3/coverage/uncovered?mode=practical&view=unique&limit=1"
+          mcp_endpoint="https://vocab.lrnr.jp/mcp"
+
+          curl -fsS "$api_endpoint" \
             --retry 6 --retry-delay 10 --retry-all-errors \
-            -o /tmp/coverage.json
+            -o /tmp/coverage-api.json
+
+          curl -fsS -X POST "$mcp_endpoint" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":10,"method":"tools/list","params":{}}' \
+            --retry 6 --retry-delay 10 --retry-all-errors \
+            -o /tmp/coverage-mcp-tools.json
+
+          curl -fsS -X POST "$mcp_endpoint" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            --data '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"list_uncovered_words","arguments":{"list_id":"crossover-v3","books":["target1900"],"mode":"practical","view":"unique","limit":1,"offset":0}}}' \
+            --retry 6 --retry-delay 10 --retry-all-errors \
+            -o /tmp/coverage-mcp-call.json
 
           node <<'NODE'
           const fs = require("fs");
-          const report = JSON.parse(fs.readFileSync("/tmp/coverage.json", "utf8"));
+          const apiReport = JSON.parse(fs.readFileSync("/tmp/coverage-api.json", "utf8"));
+          const toolsPayload = JSON.parse(fs.readFileSync("/tmp/coverage-mcp-tools.json", "utf8"));
+          const callPayload = JSON.parse(fs.readFileSync("/tmp/coverage-mcp-call.json", "utf8"));
           const expectedBooks = ["target1900", "teppeki", "systan", "passtan_p1"];
 
-          if (report.schemaVersion !== 1) throw new Error("Unexpected schemaVersion");
-          if (report.notebook?.id !== "crossover-v3") throw new Error("Unexpected notebook id");
-          if (!Array.isArray(report.words) || report.words.length > 1) throw new Error("Unexpected words page");
-          if (!Array.isArray(report.summary?.books)) throw new Error("Missing book summaries");
+          if (apiReport.schemaVersion !== 1) throw new Error("Unexpected API schemaVersion");
+          if (apiReport.notebook?.id !== "crossover-v3") throw new Error("Unexpected API notebook id");
+          if (!Array.isArray(apiReport.words) || apiReport.words.length > 1) throw new Error("Unexpected API words page");
+          if (!Array.isArray(apiReport.summary?.books)) throw new Error("Missing API book summaries");
 
-          const summaries = new Map(report.summary.books.map((book) => [book.key, book]));
+          const summaries = new Map(apiReport.summary.books.map((book) => [book.key, book]));
           for (const key of expectedBooks) {
             const book = summaries.get(key);
-            if (!book) throw new Error(`Missing summary for ${key}`);
+            if (!book) throw new Error(`Missing API summary for ${key}`);
             if (!Number.isInteger(book.total) || book.total < 100 || book.total > 4000) {
               throw new Error(`Implausible source total for ${key}: ${book.total}`);
             }
@@ -50,11 +69,48 @@ jobs:
             }
           }
 
+          const tools = toolsPayload.result?.tools || [];
+          for (const name of ["list_uncovered_words", "vocab.list_uncovered_words"]) {
+            const tool = tools.find((candidate) => candidate.name === name);
+            if (!tool) throw new Error(`Missing MCP tool: ${name}`);
+            if (tool.annotations?.readOnlyHint !== true) throw new Error(`Tool is not read-only: ${name}`);
+            if (tool.securitySchemes?.[0]?.type !== "noauth") throw new Error(`Unexpected security scheme: ${name}`);
+          }
+
+          if (callPayload.result?.isError !== false) {
+            throw new Error(`MCP call failed: ${JSON.stringify(callPayload)}`);
+          }
+          const mcpReport = callPayload.result?.structuredContent;
+          if (mcpReport?.schemaVersion !== 1) throw new Error("Unexpected MCP schemaVersion");
+          if (mcpReport?.notebook?.id !== "crossover-v3") throw new Error("Unexpected MCP notebook id");
+          if (mcpReport?.request?.mode !== "practical") throw new Error("Unexpected MCP mode");
+          if (mcpReport?.request?.view !== "unique") throw new Error("Unexpected MCP view");
+          if (JSON.stringify(mcpReport?.request?.books) !== JSON.stringify(["target1900"])) {
+            throw new Error("Unexpected MCP books");
+          }
+          if (!Array.isArray(mcpReport.words) || mcpReport.words.length > 1) {
+            throw new Error("Unexpected MCP words page");
+          }
+
+          const textReport = JSON.parse(callPayload.result.content?.[0]?.text || "null");
+          if (textReport?.summary?.selectedUncoveredUniqueWords !== mcpReport.summary?.selectedUncoveredUniqueWords) {
+            throw new Error("MCP text and structured content differ");
+          }
+
           console.log(JSON.stringify({
-            notebook: report.notebook,
-            request: report.request,
-            summary: report.summary,
-            pagination: report.pagination,
-            firstWord: report.words[0] || null,
+            api: {
+              notebook: apiReport.notebook,
+              summary: apiReport.summary,
+              pagination: apiReport.pagination,
+              firstWord: apiReport.words[0] || null,
+            },
+            mcp: {
+              tools: ["list_uncovered_words", "vocab.list_uncovered_words"],
+              notebook: mcpReport.notebook,
+              request: mcpReport.request,
+              summary: mcpReport.summary,
+              pagination: mcpReport.pagination,
+              firstWord: mcpReport.words[0] || null,
+            },
           }, null, 2));
           NODE
