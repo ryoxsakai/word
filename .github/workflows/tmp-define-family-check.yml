@@ -1,0 +1,58 @@
+name: Temporary define family check
+
+on:
+  push:
+    branches:
+      - codex/coverage-mcp-tool
+    paths:
+      - .github/workflows/tmp-define-family-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch live word records
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          import json
+          import urllib.request
+
+          base = 'https://vocab.lrnr.jp/mcp-viewer/api/words/'
+          result = {}
+          for word in ['definitely', 'definite', 'define']:
+              with urllib.request.urlopen(base + word, timeout=30) as response:
+                  result[word] = json.load(response)
+
+          with open('define-family-live.json', 'w', encoding='utf-8') as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+
+          summary = {}
+          for word, record in result.items():
+              summary[word] = {
+                  'id': record.get('id'),
+                  'spelling': record.get('spelling'),
+                  'derivedFromId': record.get('derivedFromId'),
+                  'derivedFrom': record.get('derivedFrom'),
+                  'derivatives': record.get('derivatives'),
+                  'derivedWords': record.get('derivedWords'),
+                  'crossoverMembership': [
+                      x for x in record.get('notebooks', [])
+                      if x.get('listId') == 'crossover-v3'
+                  ],
+                  'tags': record.get('tags'),
+              }
+          print(json.dumps(summary, ensure_ascii=False, indent=2))
+          PY
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: define-family-live
+          path: define-family-live.json
+          if-no-files-found: error
+          retention-days: 1
