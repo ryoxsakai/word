@@ -90,6 +90,10 @@ try {
     .prepare("INSERT INTO examples (word_id, sentence, translation, sort_order, type) VALUES (?, ?, ?, ?, ?)")
     .bind("cache-alpha", "alpha phrase", "アルファの句", 1, "phrase")
     .run();
+  await db
+    .prepare("INSERT INTO derivatives (word_id, word, pos, meaning, sort_order) VALUES (?, ?, ?, ?, ?)")
+    .bind("cache-alpha", "alphabetic", "形", "アルファベットの", 1)
+    .run();
 
   const indexResponse = await fetchApi("/lists/editor-cache-test/editor/index");
   assert.equal(indexResponse.status, 200);
@@ -116,7 +120,12 @@ try {
 
   const referencesResponse = await fetchApi("/lists/editor-cache-test/editor/references");
   const references = await referencesResponse.json();
-  assert.deepEqual(references.words, [{ id: "cache-alpha", spelling: "alpha", phrases: ["alpha phrase"] }]);
+  assert.deepEqual(references.words, [{
+    id: "cache-alpha",
+    spelling: "alpha",
+    phrases: ["alpha phrase"],
+    derivatives: [{ word: "alphabetic" }],
+  }]);
 
   const legacyResponse = await fetchApi("/lists/editor-cache-test/words");
   assert.equal((await legacyResponse.json()).length, 3);
@@ -125,6 +134,7 @@ try {
   const masterIndex = await masterIndexResponse.json();
   assert.ok(masterIndex.words.some((word) => word.id === "cache-alpha" && word.spelling === "alpha"));
   assert.equal("primaryMeaning" in masterIndex.words.find((word) => word.id === "cache-alpha"), false);
+  assert.deepEqual(masterIndex.words.find((word) => word.id === "cache-alpha").derivatives, [{ word: "alphabetic" }]);
 
   console.log("editor section cache integration test passed");
 } finally {
