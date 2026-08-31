@@ -1,4 +1,6 @@
 import {
+  addDerivativeCrossReferenceAliases,
+  collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
   renderMarkup,
@@ -33,12 +35,13 @@ const state = {
   currentListId: null,
   listWordIndex: new Map(),
   masterWordIndex: null,
+  masterReferenceWords: [],
   words: [],
   sectionWords: new Map(),
   sectionPromises: new Map(),
   sectionLoadErrors: new Map(),
   sectionDataGeneration: 0,
-  phraseReferenceWords: [],
+  referenceWords: [],
   referencePromise: null,
   sections: [],
   currentSectionId: null,
@@ -317,9 +320,18 @@ function updatePreview(textarea, previewEl) {
 }
 
 function rebuildAutoCrossRefRenderer() {
-  state.renderNotesMarkup = createAutoCrossRefRenderer(state.listWordIndex.keys(), {
+  const headwordIndex = isMasterView()
+    ? state.masterWordIndex || new Map()
+    : new Map(state.words.map((word) => [
+        word.spelling.toLowerCase(),
+        { id: word.id, no: word.displayNo },
+      ]));
+  const derivativeReferences = collectDerivativeCrossReferences(state.referenceWords);
+  state.listWordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
+  state.renderNotesMarkup = createAutoCrossRefRenderer(headwordIndex.keys(), {
     resolve: resolveRef,
-    phraseReferences: collectPhraseCrossReferences(state.phraseReferenceWords),
+    derivativeReferences,
+    phraseReferences: collectPhraseCrossReferences(state.referenceWords),
   });
 }
 
@@ -328,7 +340,7 @@ async function ensureEditorReferences() {
   const listId = state.currentListId;
   const cached = editorReferenceCache.get(listId);
   if (cached) {
-    state.phraseReferenceWords = cached.words || [];
+    state.referenceWords = cached.words || [];
     rebuildAutoCrossRefRenderer();
     return;
   }
@@ -340,7 +352,7 @@ async function ensureEditorReferences() {
     if (cacheGeneration !== editorCacheGeneration) return;
     editorReferenceCache.set(listId, data);
     if (generation !== listLoadGeneration || listId !== state.currentListId) return;
-    state.phraseReferenceWords = data.words || [];
+    state.referenceWords = data.words || [];
     rebuildAutoCrossRefRenderer();
   })();
   state.referencePromise = promise;
@@ -722,8 +734,9 @@ function buildMasterQuery(offset) {
 async function loadCompleteMasterWordIndex() {
   if (state.masterWordIndex) return state.masterWordIndex;
   const data = await api("/master/index");
+  state.masterReferenceWords = data.words || [];
   state.masterWordIndex = new Map(
-    (data.words || []).map((word) => [word.spelling.toLowerCase(), { id: word.id, no: null }])
+    state.masterReferenceWords.map((word) => [word.spelling.toLowerCase(), { id: word.id, no: null }])
   );
   return state.masterWordIndex;
 }
@@ -739,10 +752,10 @@ async function loadWordsForList(listId, { forceRefresh = false, render = true } 
     state.masterOffset = result.words.length;
     state.masterHasMore = result.hasMore;
     state.listWordIndex = completeWordIndex;
+    state.referenceWords = state.masterReferenceWords;
     state.sectionWords = new Map();
     state.sectionPromises = new Map();
     state.sectionLoadErrors = new Map();
-    state.phraseReferenceWords = [];
     state.referencePromise = null;
   } else {
     if (forceRefresh) clearEditorCaches(listId);
@@ -759,7 +772,7 @@ async function loadWordsForList(listId, { forceRefresh = false, render = true } 
     state.sectionWords = new Map();
     state.sectionPromises = new Map();
     state.sectionLoadErrors = new Map();
-    state.phraseReferenceWords = editorReferenceCache.get(listId)?.words || [];
+    state.referenceWords = editorReferenceCache.get(listId)?.words || [];
     state.referencePromise = null;
   }
   rebuildAutoCrossRefRenderer();
