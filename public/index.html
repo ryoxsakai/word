@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="./viewer/style.css" />
 </head>
 <body>
+<div id="loadingProgress" class="loading-progress" role="progressbar" aria-label="読み込み中" aria-valuetext="読み込み中" hidden></div>
 <header class="topbar">
   <div class="topbar-row topbar-row--primary">
     <h1 class="brand-name">単語帳</h1>
@@ -72,7 +73,10 @@
 <div id="indexList" class="index-list" aria-live="polite" hidden></div>
 
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
-<p id="loadingMsg" class="loading-msg">読み込み中...</p>
+<div id="loadingMsg" class="loading-msg" aria-live="polite" hidden>
+  <span class="loading-label">読み込み中...</span>
+  <div class="skeleton-list" aria-hidden="true"></div>
+</div>
 
 <nav id="sectionNav" class="section-nav" hidden></nav>
 <button id="backToTopBtn" type="button" class="back-to-top" hidden title="先頭に戻る"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button>
