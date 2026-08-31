@@ -405,6 +405,11 @@ button { font-family: inherit; }
   content-visibility: auto;
   contain-intrinsic-size: auto 800px;
 }
+/* リンク移動中は対象と直前側のセクションを実寸で確定し、遅延描画後の位置ずれを防ぐ。 */
+.section-group.is-navigation-anchor {
+  content-visibility: visible;
+  contain: none;
+}
 .section-entries {
   min-height: var(--section-placeholder-height, 160px);
 }
