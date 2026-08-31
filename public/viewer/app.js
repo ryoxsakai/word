@@ -39,11 +39,71 @@ const el = {
   viewTabIndex: document.getElementById("viewTabIndex"),
   emptyMsg: document.getElementById("emptyMsg"),
   loadingMsg: document.getElementById("loadingMsg"),
+  loadingProgress: document.getElementById("loadingProgress"),
   backToTopBtn: document.getElementById("backToTopBtn"),
   toast: document.getElementById("toast"),
   fontSizeSteps: document.getElementById("fontSizeSteps"),
   ptrIndicator: document.getElementById("ptrIndicator"),
 };
+
+const LOADING_DELAY_MS = 250;
+let loadingDepth = 0;
+let loadingDelayTimer;
+let loadingFinishTimer;
+
+function renderLoadingSkeleton() {
+  const skeletonList = el.loadingMsg.querySelector(".skeleton-list");
+  if (!skeletonList || skeletonList.childElementCount) return;
+  const entry = `
+    <div class="skeleton-entry">
+      <span class="skeleton-no skeleton-line"></span>
+      <div class="skeleton-body">
+        <span class="skeleton-headword skeleton-line"></span>
+        <span class="skeleton-meaning skeleton-line"></span>
+        <span class="skeleton-example skeleton-line"></span>
+      </div>
+    </div>`;
+  skeletonList.innerHTML = entry.repeat(4);
+}
+
+function revealLoading() {
+  if (loadingDepth === 0) return;
+  el.loadingProgress.classList.remove("is-completing");
+  el.loadingProgress.hidden = false;
+  el.loadingMsg.hidden = false;
+  document.body.classList.add("is-loading");
+}
+
+function beginLoading() {
+  loadingDepth += 1;
+  el.wordList.setAttribute("aria-busy", "true");
+  if (loadingDepth > 1) return;
+  clearTimeout(loadingDelayTimer);
+  clearTimeout(loadingFinishTimer);
+  if (!el.loadingProgress.hidden) {
+    revealLoading();
+    return;
+  }
+  loadingDelayTimer = setTimeout(revealLoading, LOADING_DELAY_MS);
+}
+
+function endLoading() {
+  loadingDepth = Math.max(0, loadingDepth - 1);
+  if (loadingDepth > 0) return;
+  clearTimeout(loadingDelayTimer);
+  document.body.classList.remove("is-loading");
+  el.loadingMsg.hidden = true;
+  el.wordList.setAttribute("aria-busy", "false");
+  if (el.loadingProgress.hidden) return;
+  el.loadingProgress.classList.add("is-completing");
+  loadingFinishTimer = setTimeout(() => {
+    if (loadingDepth > 0) return;
+    el.loadingProgress.hidden = true;
+    el.loadingProgress.classList.remove("is-completing");
+  }, 180);
+}
+
+renderLoadingSkeleton();
 
 async function api(path) {
   const res = await fetch(`${API}${path}`);
@@ -111,11 +171,10 @@ async function loadLists() {
 }
 
 async function selectList(listId) {
+  beginLoading();
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
-  el.loadingMsg.hidden = false;
   el.emptyMsg.hidden = true;
-  el.wordList.innerHTML = "";
   try {
     const data = await api(`/lists/${encodeURIComponent(listId)}/words/full`);
     state.words = data.words;
@@ -131,7 +190,7 @@ async function selectList(listId) {
   } catch (err) {
     el.wordList.innerHTML = `<p class="empty-msg">読み込みに失敗しました: ${escapeHtml(err.message)}</p>`;
   } finally {
-    el.loadingMsg.hidden = true;
+    endLoading();
   }
 }
 
@@ -600,7 +659,7 @@ el.sectionNav.addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-section-key]");
   if (!btn) return;
   const target = document.getElementById(`section-${btn.dataset.sectionKey}`);
-  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (target) scrollToTarget(target);
 });
 
 // ---- 検索・進捗フィルタ ----
@@ -698,6 +757,13 @@ function flash(target) {
   target.classList.add("flash");
 }
 
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function scrollToTarget(target, block = "start") {
+  target.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block });
+  flash(target);
+}
+
 function revealAndScroll(target) {
   if (!target) return;
   if (target.hidden) {
@@ -705,8 +771,7 @@ function revealAndScroll(target) {
     el.searchInput.value = "";
     applyFilters();
   }
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  flash(target);
+  scrollToTarget(target, "center");
 }
 
 function navigateToWord(id) {
@@ -822,7 +887,7 @@ el.contentsNav.addEventListener("click", (e) => {
   if (!target) return;
   if (state.activeView !== "list") setActiveView("list");
   closeContentsMenu();
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  scrollToTarget(target);
 });
 document.addEventListener("click", (e) => {
   if (el.settingsMenu.contains(e.target) || el.settingsToggle.contains(e.target)) return;
@@ -911,9 +976,10 @@ if (el.ptrIndicator) {
 
 // ---- 起動 ----
 
+beginLoading();
 loadLists().catch((err) => {
   console.error(err);
   el.loadingMsg.hidden = true;
   el.emptyMsg.hidden = false;
   el.emptyMsg.textContent = `読み込みエラー: ${err.message}`;
-});
+}).finally(endLoading);
