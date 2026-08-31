@@ -77,19 +77,103 @@ const el = {
   viewTabIndex: document.getElementById("viewTabIndex"),
   emptyMsg: document.getElementById("emptyMsg"),
   loadingMsg: document.getElementById("loadingMsg"),
+  loadingProgress: document.getElementById("loadingProgress"),
   backToTopBtn: document.getElementById("backToTopBtn"),
   toast: document.getElementById("toast"),
   fontSizeSteps: document.getElementById("fontSizeSteps"),
   ptrIndicator: document.getElementById("ptrIndicator"),
 };
 
-async function api(path, { forceRefresh = false } = {}) {
-  const res = await fetch(`${API}${path}`, { cache: forceRefresh ? "reload" : "default" });
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `HTTP ${res.status}`);
+const LOADING_DELAY_MS = 250;
+let networkActivityDepth = 0;
+let progressDelayTimer;
+let progressFinishTimer;
+let pageLoadingDepth = 0;
+let pageLoadingTimer;
+
+function renderLoadingSkeleton() {
+  const skeletonList = el.loadingMsg.querySelector(".skeleton-list");
+  if (!skeletonList || skeletonList.childElementCount) return;
+  const entry = `
+    <div class="skeleton-entry">
+      <span class="skeleton-no skeleton-line"></span>
+      <div class="skeleton-body">
+        <span class="skeleton-headword skeleton-line"></span>
+        <span class="skeleton-meaning skeleton-line"></span>
+        <span class="skeleton-example skeleton-line"></span>
+      </div>
+    </div>`;
+  skeletonList.innerHTML = entry.repeat(4);
+}
+
+function revealProgress() {
+  if (networkActivityDepth === 0) return;
+  el.loadingProgress.classList.remove("is-completing");
+  el.loadingProgress.hidden = false;
+}
+
+function beginNetworkActivity() {
+  networkActivityDepth += 1;
+  if (networkActivityDepth > 1) return;
+  clearTimeout(progressDelayTimer);
+  clearTimeout(progressFinishTimer);
+  if (!el.loadingProgress.hidden) {
+    revealProgress();
+    return;
   }
-  return res.json();
+  progressDelayTimer = setTimeout(revealProgress, LOADING_DELAY_MS);
+}
+
+function endNetworkActivity() {
+  networkActivityDepth = Math.max(0, networkActivityDepth - 1);
+  if (networkActivityDepth > 0) return;
+  clearTimeout(progressDelayTimer);
+  if (el.loadingProgress.hidden) return;
+  el.loadingProgress.classList.add("is-completing");
+  progressFinishTimer = setTimeout(() => {
+    if (networkActivityDepth > 0) return;
+    el.loadingProgress.hidden = true;
+    el.loadingProgress.classList.remove("is-completing");
+  }, 180);
+}
+
+function revealPageLoading() {
+  if (pageLoadingDepth === 0) return;
+  el.loadingMsg.hidden = false;
+  document.body.classList.add("is-loading");
+}
+
+function beginPageLoading() {
+  pageLoadingDepth += 1;
+  el.wordList.setAttribute("aria-busy", "true");
+  if (pageLoadingDepth > 1) return;
+  clearTimeout(pageLoadingTimer);
+  pageLoadingTimer = setTimeout(revealPageLoading, LOADING_DELAY_MS);
+}
+
+function endPageLoading() {
+  pageLoadingDepth = Math.max(0, pageLoadingDepth - 1);
+  if (pageLoadingDepth > 0) return;
+  clearTimeout(pageLoadingTimer);
+  document.body.classList.remove("is-loading");
+  el.loadingMsg.hidden = true;
+  el.wordList.setAttribute("aria-busy", "false");
+}
+
+renderLoadingSkeleton();
+
+async function api(path, { forceRefresh = false } = {}) {
+  beginNetworkActivity();
+  try {
+    const res = await fetch(`${API}${path}`, { cache: forceRefresh ? "reload" : "default" });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    return await res.json();
+  } finally {
+    endNetworkActivity();
+  }
 }
 
 function resolveRef(headword) {
@@ -143,6 +227,7 @@ function clearListCaches(listId) {
 }
 
 async function selectList(listId, { forceRefresh = false } = {}) {
+  beginPageLoading();
   const generation = ++listLoadGeneration;
   searchGeneration += 1;
   navigationGeneration += 1;
@@ -150,9 +235,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
   clearNavigationAnchors();
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
-  el.loadingMsg.hidden = false;
   el.emptyMsg.hidden = true;
-  el.wordList.innerHTML = "";
   if (sectionObserver) sectionObserver.disconnect();
   if (lazySectionObserver) lazySectionObserver.disconnect();
   if (forceRefresh) clearListCaches(listId);
@@ -187,7 +270,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     if (generation !== listLoadGeneration) return;
     el.wordList.innerHTML = `<p class="empty-msg">読み込みに失敗しました: ${escapeHtml(err.message)}</p>`;
   } finally {
-    if (generation === listLoadGeneration) el.loadingMsg.hidden = true;
+    endPageLoading();
   }
 }
 
@@ -469,7 +552,7 @@ function renderSectionShells() {
     const labelledBy = withSections ? ` aria-labelledby="section-${escapeHtml(key)}"` : "";
     const placeholderHeight = Math.min(900, Math.max(160, section.count * 44));
     parts.push(
-      `<section class="section-group${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}"${labelledBy}>${chapterMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="true" style="--section-placeholder-height:${placeholderHeight}px"><div class="section-loading">${escapeHtml(section.name || "単語")}を読み込み中...</div></div></section>`
+      `<section class="section-group${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}"${labelledBy}>${chapterMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="true" style="--section-placeholder-height:${placeholderHeight}px"><div class="section-loading"><span class="section-loading-label">${escapeHtml(section.name || "単語")}を読み込み中...</span><div class="section-loading-skeleton" aria-hidden="true"><span class="section-loading-no skeleton-line"></span><div class="section-loading-lines"><span class="section-loading-headword skeleton-line"></span><span class="section-loading-meaning skeleton-line"></span><span class="section-loading-example skeleton-line"></span></div></div></div></div></section>`
     );
   }
   parts.push('<p class="empty-msg search-empty" hidden>検索結果がありません。</p>');
@@ -978,7 +1061,7 @@ async function navigateToSection(sectionKey, targetId) {
   if (sectionKey != null && !(await prepareNavigationSection(sectionKey, generation))) return false;
   if (sectionKey == null) await waitForNavigationLayout();
   const target = document.getElementById(targetId);
-  return scrollToNavigationTarget(target, { block: "start", generation });
+  return scrollToNavigationTarget(target, { block: "start", flashTarget: true, generation });
 }
 
 async function navigateToWord(id, { historyMode = "push" } = {}) {
@@ -1256,6 +1339,7 @@ window.VocabWebMCP = {
   registeredTools: registeredWebMCPTools,
 };
 
+beginPageLoading();
 loadLists()
   .then(() => registerVocabWebMCP({ api, openWord: openWordFromWebMCP }))
   .catch((err) => {
@@ -1263,4 +1347,5 @@ loadLists()
     el.loadingMsg.hidden = true;
     el.emptyMsg.hidden = false;
     el.emptyMsg.textContent = `読み込みエラー: ${err.message}`;
-  });
+  })
+  .finally(endPageLoading);
