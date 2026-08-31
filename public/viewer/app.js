@@ -3,6 +3,7 @@ import {
   collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
+  renderDerivativeWordMarkup,
   renderMarkup,
   renderWordListMarkup,
   escapeHtml,
@@ -48,6 +49,7 @@ const state = {
   chapters: [],
   sections: [],
   wordMetaById: new Map(),
+  headwordIndex: new Map(),
   loadedSectionKeys: new Set(),
   sectionPromises: new Map(),
   wordIndex: new Map(), // spelling(lower) -> {id, no}
@@ -92,6 +94,12 @@ async function api(path, { forceRefresh = false } = {}) {
 
 function resolveRef(headword) {
   const hit = state.wordIndex.get(headword.toLowerCase());
+  if (!hit) return { found: false };
+  return { found: true, id: hit.id, no: hit.no };
+}
+
+function resolveHeadwordRef(headword) {
+  const hit = state.headwordIndex.get(headword.toLowerCase());
   if (!hit) return { found: false };
   return { found: true, id: hit.id, no: hit.no };
 }
@@ -222,6 +230,7 @@ function buildIndex() {
     if (headwordIndex.has(key)) continue;
     headwordIndex.set(key, { id: w.id, no: w.seqNo });
   }
+  state.headwordIndex = headwordIndex;
   const derivativeReferences = collectDerivativeCrossReferences(state.indexWords);
   state.wordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
   state.renderNotesMarkup = createAutoCrossRefRenderer(headwordIndex.keys(), {
@@ -337,7 +346,7 @@ function renderEntry(w) {
               (sense) => `<span class="derivative-sense">${sense.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(sense.pos)}</span>` : ""}${sense.meaning ? `<span class="derivative-meaning">${renderMarkup(sense.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
             )
             .join("");
-          return `<span class="derivative-item"><span class="derivative-word">${renderMarkup(group.word, { resolve: resolveRef })}</span>${senses}</span>`;
+          return `<span class="derivative-item"><span class="derivative-word">${renderDerivativeWordMarkup(group.word, { resolve: resolveHeadwordRef })}</span>${senses}</span>`;
         })
         .join("")}</span></div>`
     : "";
