@@ -20,6 +20,7 @@ import {
   unregisterVocabWebMCP,
   webMCPSupported,
 } from "./webmcp.js";
+import { navigationSectionKeys, wordIdFromHash } from "./navigation.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -36,6 +37,9 @@ const viewerIndexCache = new Map();
 const sectionResponseCache = new Map();
 let listLoadGeneration = 0;
 let searchGeneration = 0;
+let navigationGeneration = 0;
+let lazyLoadGeneration = 0;
+let navigationAnchorGroups = [];
 
 const state = {
   lists: [],
@@ -95,7 +99,7 @@ function resolveRef(headword) {
 function renderRef(spelling) {
   const hit = resolveRef(spelling);
   if (!hit.found) return escapeHtml(spelling);
-  return `<a href="#word-${escapeHtml(hit.id)}" class="ref" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(spelling)}</a>`;
+  return `<a href="#word-${escapeHtml(encodeURIComponent(hit.id))}" class="ref" data-word-id="${escapeHtml(hit.id)}">${escapeHtml(spelling)}</a>`;
 }
 
 // ---- リスト読み込み ----
@@ -133,6 +137,9 @@ function clearListCaches(listId) {
 async function selectList(listId, { forceRefresh = false } = {}) {
   const generation = ++listLoadGeneration;
   searchGeneration += 1;
+  navigationGeneration += 1;
+  lazyLoadGeneration += 1;
+  clearNavigationAnchors();
   state.currentListId = listId;
   localStorage.setItem(LAST_LIST_KEY, listId);
   el.loadingMsg.hidden = false;
@@ -542,11 +549,11 @@ async function loadSection(sectionKey, { forceRefresh = false } = {}) {
   }
 }
 
-async function loadSectionsWithLimit(sectionKeys, concurrency = 3) {
+async function loadSectionsWithLimit(sectionKeys, concurrency = 3, shouldContinue = () => true) {
   const keys = [...new Set(sectionKeys.map(String))];
   let cursor = 0;
   const workers = Array.from({ length: Math.min(concurrency, keys.length) }, async () => {
-    while (cursor < keys.length) {
+    while (cursor < keys.length && shouldContinue()) {
       const key = keys[cursor];
       cursor += 1;
       await loadSection(key);
@@ -559,10 +566,13 @@ let lazySectionObserver;
 
 function setupLazySectionObserver() {
   if (lazySectionObserver) lazySectionObserver.disconnect();
+  const generation = ++lazyLoadGeneration;
+  const listId = state.currentListId;
+  const shouldContinue = () => generation === lazyLoadGeneration && listId === state.currentListId;
   const entries = el.wordList.querySelectorAll(".section-entries");
   if (!entries.length) return;
   if (!("IntersectionObserver" in window)) {
-    loadSectionsWithLimit(state.sections.map((section) => section.key)).catch(() => {});
+    loadSectionsWithLimit(state.sections.map((section) => section.key), 3, shouldContinue).catch(() => {});
     return;
   }
   lazySectionObserver = new IntersectionObserver(
@@ -573,7 +583,7 @@ function setupLazySectionObserver() {
         lazySectionObserver.unobserve(item.target);
         sectionKeys.push(item.target.dataset.sectionEntries);
       }
-      loadSectionsWithLimit(sectionKeys).catch(() => {});
+      loadSectionsWithLimit(sectionKeys, 3, shouldContinue).catch(() => {});
     },
     { rootMargin: "1000px 0px" }
   );
@@ -662,10 +672,17 @@ function setActiveView(view) {
 el.viewTabList.addEventListener("click", () => setActiveView("list"));
 el.viewTabIndex.addEventListener("click", () => setActiveView("index"));
 
-el.indexList.addEventListener("click", (e) => {
+el.indexList.addEventListener("click", async (e) => {
   const item = e.target.closest('[data-action="index-jump"]');
   if (!item) return;
-  navigateToWord(item.dataset.wordId).catch(() => {});
+  item.setAttribute("aria-busy", "true");
+  try {
+    await navigateToWord(item.dataset.wordId);
+  } catch (err) {
+    showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+  } finally {
+    item.removeAttribute("aria-busy");
+  }
 });
 
 // ---- セクションナビ ----
@@ -698,16 +715,21 @@ function renderContentsNav() {
   el.contentsNav.innerHTML = state.chapters
     .map((chapter) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
+      const chapterSections = state.sections.filter(
+        (section) => withSections && String(section.chapterKey) === String(chapter.key)
+      );
+      const firstSectionKey = chapterSections[0]?.key;
+      const chapterSectionData =
+        firstSectionKey != null ? ` data-nav-section-key="${escapeHtml(String(firstSectionKey))}"` : "";
       const chapterButton = withChapters
-        ? `<button type="button" class="contents-chapter" data-nav-target="${escapeHtml(chapterTarget)}">
+        ? `<button type="button" class="contents-chapter" data-nav-target="${escapeHtml(chapterTarget)}"${chapterSectionData}>
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
               chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
             }</span>
             <span class="contents-item-count">(${chapter.count})</span>
           </button>`
         : "";
-      const sections = state.sections
-        .filter((section) => withSections && String(section.chapterKey) === String(chapter.key))
+      const sections = chapterSections
         .map(
           (section) => `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
@@ -739,15 +761,17 @@ function setupSectionObserver() {
   dividers.forEach((d) => sectionObserver.observe(d));
 }
 
-el.sectionNav.addEventListener("click", (e) => {
+el.sectionNav.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-section-key]");
   if (!btn) return;
-  loadSection(btn.dataset.sectionKey)
-    .then(() => {
-      const target = document.getElementById(`section-${btn.dataset.sectionKey}`);
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    })
-    .catch(() => {});
+  btn.setAttribute("aria-busy", "true");
+  try {
+    await navigateToSection(btn.dataset.sectionKey, `section-${btn.dataset.sectionKey}`);
+  } catch (err) {
+    showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+  } finally {
+    btn.removeAttribute("aria-busy");
+  }
 });
 
 // ---- 検索・進捗フィルタ ----
@@ -822,7 +846,7 @@ function speak(text, audioUrl, btn) {
 }
 
 async function copyLink(id) {
-  const url = `${location.origin}${location.pathname}#word-${id}`;
+  const url = `${location.origin}${location.pathname}#word-${encodeURIComponent(id)}`;
   try {
     await navigator.clipboard.writeText(url);
     showToast("リンクをコピーしました");
@@ -853,29 +877,119 @@ function flash(target) {
   target.classList.add("flash");
 }
 
-function revealAndScroll(target) {
-  if (!target) return;
-  if (target.hidden) {
-    searchGeneration += 1;
-    state.search = "";
-    state.searchMatches = null;
-    el.searchInput.value = "";
-    el.searchInput.removeAttribute("aria-busy");
-    applyFilters();
-  }
-  target.scrollIntoView({ behavior: "smooth", block: "center" });
-  flash(target);
+function clearSearchForNavigation() {
+  if (!state.search && !state.searchMatches && !el.searchInput.value) return;
+  searchGeneration += 1;
+  state.search = "";
+  state.searchMatches = null;
+  el.searchInput.value = "";
+  el.searchInput.removeAttribute("aria-busy");
+  applyFilters();
 }
 
-async function navigateToWord(id) {
-  const meta = state.wordMetaById.get(id);
-  if (!meta) return;
+function clearNavigationAnchors() {
+  for (const group of navigationAnchorGroups) group.classList.remove("is-navigation-anchor");
+  navigationAnchorGroups = [];
+}
+
+function setNavigationAnchors(sectionKeys) {
+  clearNavigationAnchors();
+  navigationAnchorGroups = sectionKeys
+    .map((key) => el.wordList.querySelector(`.section-group[data-section-key="${CSS.escape(String(key))}"]`))
+    .filter(Boolean);
+  for (const group of navigationAnchorGroups) group.classList.add("is-navigation-anchor");
+}
+
+function waitForNavigationLayout() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
+async function prepareNavigationSection(sectionKey, generation) {
+  const targetKey = String(sectionKey);
+  const sectionKeys = navigationSectionKeys(state.sections, targetKey, window.innerHeight / 2);
+  const sectionIndexByKey = new Map(state.sections.map((section, index) => [String(section.key), index]));
+  const targetIndex = sectionIndexByKey.get(targetKey) ?? -1;
+  lazyLoadGeneration += 1;
+  lazySectionObserver?.disconnect();
+  const pendingLoads = [...state.sectionPromises.entries()]
+    .filter(([key]) => (sectionIndexByKey.get(String(key)) ?? Number.POSITIVE_INFINITY) <= targetIndex)
+    .map(([, promise]) => promise);
+  const targetPromise = loadSection(targetKey);
+  const adjacentPromises = sectionKeys.filter((key) => key !== targetKey).map((key) => loadSection(key));
+  const results = await Promise.allSettled([targetPromise, ...adjacentPromises, ...pendingLoads]);
+  const failedLoad = results.find((result) => result.status === "rejected");
+  if (failedLoad) {
+    if (generation === navigationGeneration) {
+      clearNavigationAnchors();
+      setupLazySectionObserver();
+    }
+    throw failedLoad.reason;
+  }
+  if (generation !== navigationGeneration) return false;
+
+  // 監視余白に入り得る直前側のセクションも実寸でレイアウトしておく。未読込プレースホルダーが移動後に
+  // 展開され、目的位置を下へ押し流す現象を防ぐ。
+  setNavigationAnchors(sectionKeys);
+  await waitForNavigationLayout();
+  return generation === navigationGeneration;
+}
+
+async function scrollToNavigationTarget(target, { block = "start", flashTarget = false, generation } = {}) {
+  if (generation !== navigationGeneration) return false;
+  if (!target) {
+    clearNavigationAnchors();
+    setupLazySectionObserver();
+    return false;
+  }
+  await waitForNavigationLayout();
+  if (generation !== navigationGeneration) return false;
+  target.scrollIntoView({ behavior: "auto", block });
+
+  // content-visibilityの再計算後にも同じ要素へ合わせ、推定高によるずれを残さない。
+  await waitForNavigationLayout();
+  if (generation !== navigationGeneration) return false;
+  target.scrollIntoView({ behavior: "auto", block });
+
+  // 実寸を記憶させた後は通常のcontent-visibilityへ戻し、その状態で最終位置を合わせる。
+  clearNavigationAnchors();
+  await waitForNavigationLayout();
+  if (generation !== navigationGeneration) return false;
+  target.scrollIntoView({ behavior: "auto", block });
+  if (flashTarget) flash(target);
+  setupLazySectionObserver();
+  return true;
+}
+
+async function navigateToSection(sectionKey, targetId) {
+  const generation = ++navigationGeneration;
   if (state.activeView !== "list") setActiveView("list");
-  await loadSection(meta.sectionKey);
-  const target = document.getElementById(`word-${id}`);
-  if (!target) return;
-  history.pushState(null, "", `#word-${id}`);
-  revealAndScroll(target);
+  clearSearchForNavigation();
+  if (sectionKey != null && !(await prepareNavigationSection(sectionKey, generation))) return false;
+  if (sectionKey == null) await waitForNavigationLayout();
+  const target = document.getElementById(targetId);
+  return scrollToNavigationTarget(target, { block: "start", generation });
+}
+
+async function navigateToWord(id, { historyMode = "push" } = {}) {
+  const normalizedId = String(id);
+  const meta = state.wordMetaById.get(normalizedId);
+  if (!meta) return false;
+  const generation = ++navigationGeneration;
+  if (state.activeView !== "list") setActiveView("list");
+  clearSearchForNavigation();
+  if (!(await prepareNavigationSection(meta.sectionKey, generation))) return false;
+  const target = document.getElementById(`word-${normalizedId}`);
+  if (!target) {
+    clearNavigationAnchors();
+    setupLazySectionObserver();
+    return false;
+  }
+  if (historyMode === "push") history.pushState(null, "", `#word-${encodeURIComponent(normalizedId)}`);
+  const scrolled = await scrollToNavigationTarget(target, { block: "center", flashTarget: true, generation });
+  if (!scrolled) return false;
+  return true;
 }
 
 async function openWordFromWebMCP(listId, wordId) {
@@ -890,13 +1004,21 @@ async function openWordFromWebMCP(listId, wordId) {
   await navigateToWord(normalizedWordId);
 }
 
-async function applyHashScroll() {
-  if (!location.hash.startsWith("#word-")) return;
-  const id = location.hash.slice("#word-".length);
-  const meta = state.wordMetaById.get(id);
-  if (meta) await loadSection(meta.sectionKey);
-  const target = document.getElementById(`word-${id}`);
-  if (target) setTimeout(() => revealAndScroll(target), 60);
+async function applyHashScroll({ cancelOnMissing = false } = {}) {
+  const id = wordIdFromHash(location.hash);
+  if (!id || !state.wordMetaById.has(id)) {
+    if (cancelOnMissing) {
+      navigationGeneration += 1;
+      clearNavigationAnchors();
+      setupLazySectionObserver();
+    }
+    return;
+  }
+  try {
+    await navigateToWord(id, { historyMode: "none" });
+  } catch (err) {
+    showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+  }
 }
 
 // ---- 設定メニュー / チャプター・セクション一覧 ----
@@ -935,7 +1057,9 @@ el.wordList.addEventListener("click", (e) => {
   const refLink = e.target.closest("a.ref");
   if (refLink) {
     e.preventDefault();
-    navigateToWord(refLink.dataset.wordId).catch(() => {});
+    navigateToWord(refLink.dataset.wordId).catch((err) => {
+      showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+    });
     return;
   }
   const actionEl = e.target.closest("[data-action]");
@@ -969,7 +1093,11 @@ async function runSearch() {
   try {
     const data = await api(`/lists/${encodeURIComponent(listId)}/viewer/search?q=${encodeURIComponent(query)}`);
     if (generation !== searchGeneration || listId !== state.currentListId) return;
-    await loadSectionsWithLimit((data.matches || []).map((match) => match.sectionKey));
+    await loadSectionsWithLimit(
+      (data.matches || []).map((match) => match.sectionKey),
+      3,
+      () => generation === searchGeneration && listId === state.currentListId
+    );
     if (generation !== searchGeneration || listId !== state.currentListId) return;
     state.searchMatches = new Set((data.matches || []).map((match) => match.wordId));
     applyFilters();
@@ -982,7 +1110,7 @@ async function runSearch() {
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 
-el.jumpForm.addEventListener("submit", (e) => {
+el.jumpForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const raw = el.jumpInput.value.trim();
   if (!raw) return;
@@ -993,8 +1121,12 @@ el.jumpForm.addEventListener("submit", (e) => {
     showToast(`no.${raw} は見つかりませんでした`);
     return;
   }
-  navigateToWord(targetWord.id).catch(() => {});
   closeSettingsMenu();
+  try {
+    await navigateToWord(targetWord.id);
+  } catch (err) {
+    showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+  }
 });
 
 el.settingsToggle.addEventListener("click", (e) => {
@@ -1008,18 +1140,18 @@ el.menuToggle.addEventListener("click", (e) => {
 el.contentsNav.addEventListener("click", async (e) => {
   const btn = e.target.closest("button[data-nav-target]");
   if (!btn) return;
-  if (btn.dataset.navSectionKey) {
-    try {
-      await loadSection(btn.dataset.navSectionKey);
-    } catch {
-      return;
-    }
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const moved = await navigateToSection(btn.dataset.navSectionKey ?? null, btn.dataset.navTarget);
+    if (moved) closeContentsMenu();
+  } catch (err) {
+    showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
+  } finally {
+    btn.removeAttribute("aria-busy");
   }
-  const target = document.getElementById(btn.dataset.navTarget);
-  if (!target) return;
-  if (state.activeView !== "list") setActiveView("list");
-  closeContentsMenu();
-  target.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+window.addEventListener("hashchange", () => {
+  applyHashScroll({ cancelOnMissing: true }).catch(() => {});
 });
 document.addEventListener("click", (e) => {
   if (el.settingsMenu.contains(e.target) || el.settingsToggle.contains(e.target)) return;
