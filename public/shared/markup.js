@@ -186,11 +186,63 @@ export function collectPhraseCrossReferences(words) {
 }
 
 /**
+ * 単語データの派生語欄から、参照先が一意に決まる派生語だけを抽出する。
+ * 同じ派生語が複数の見出し語に登録されている場合は、誤リンクを避けるため除外する。
+ * compact/full API のオブジェクト形式と文字列形式の両方に対応する。
+ * @param {Iterable<object>} words
+ * @returns {Array<{derivative: string, target: string}>}
+ */
+export function collectDerivativeCrossReferences(words) {
+  const candidateByLower = new Map();
+  for (const word of words || []) {
+    const target = String(word?.spelling || "").trim();
+    if (!target) continue;
+    for (const rawDerivative of word?.derivatives || []) {
+      const derivative = String(
+        typeof rawDerivative === "string" ? rawDerivative : rawDerivative?.word || ""
+      ).trim();
+      if (!derivative || derivative.includes("#") || derivative.includes("|")) continue;
+      const key = derivative.toLowerCase();
+      const existing = candidateByLower.get(key);
+      if (!existing) {
+        candidateByLower.set(key, { derivative, target, ambiguous: false });
+      } else if (existing.target.toLowerCase() !== target.toLowerCase()) {
+        existing.ambiguous = true;
+      }
+    }
+  }
+  return [...candidateByLower.values()]
+    .filter((candidate) => !candidate.ambiguous)
+    .map(({ derivative, target }) => ({ derivative, target }));
+}
+
+/**
+ * 見出し語の解決索引に、一意な派生語から親見出し語への別名を加える。
+ * 派生語と同名の独立見出し語がある場合は、独立見出し語を優先する。
+ * @param {Map<string, object>} headwordIndex
+ * @param {Iterable<{derivative: string, target: string}>} derivativeReferences
+ * @returns {Map<string, object>}
+ */
+export function addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences) {
+  const result = new Map(headwordIndex || []);
+  for (const reference of derivativeReferences || []) {
+    const derivativeKey = String(reference?.derivative || "").trim().toLowerCase();
+    const targetKey = String(reference?.target || "").trim().toLowerCase();
+    if (!derivativeKey || !targetKey || result.has(derivativeKey)) continue;
+    const target = result.get(targetKey);
+    if (target) result.set(derivativeKey, target);
+  }
+  return result;
+}
+
+/**
  * 本文中に現れる登録済み熟語・見出し語を、明示的な ##参照## と同じ表示にする
  * レンダラーを作る。長い表現を優先し、英数字の途中では一致させない。
  * 見出し語一覧から正規表現を作る処理は初回だけなので、入力ごとのプレビューにも使える。
  * @param {Iterable<string>} headwords
  * @param {object} [opts] renderMarkup と同じオプション
+ * @param {Iterable<{derivative: string, target: string}>} [opts.derivativeReferences]
+ * @param {Iterable<{phrase: string, target: string}>} [opts.phraseReferences]
  * @returns {(raw: string, context?: {currentHeadword?: string}) => string}
  */
 export function createAutoCrossRefRenderer(headwords, opts = {}) {
@@ -208,6 +260,13 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       { label: headword, target: headword, isHeadword: true },
     ])
   );
+  for (const rawReference of opts.derivativeReferences || []) {
+    const derivative = String(rawReference?.derivative || "").trim();
+    const target = String(rawReference?.target || "").trim();
+    const key = derivative.toLowerCase();
+    if (!derivative || !target || referenceByLower.has(key)) continue;
+    referenceByLower.set(key, { label: derivative, target, isHeadword: false });
+  }
   for (const rawReference of opts.phraseReferences || []) {
     const phrase = String(rawReference?.phrase || "").trim();
     const target = String(rawReference?.target || "").trim();
