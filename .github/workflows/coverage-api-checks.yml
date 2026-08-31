@@ -1,11 +1,13 @@
-name: Coverage API checks
+name: Coverage API and MCP checks
 
 on:
   pull_request:
     paths:
       - "worker/src/coverage.js"
       - "worker/src/coverage-entry.js"
+      - "worker/src/coverage-mcp.js"
       - "worker/test/coverage.test.mjs"
+      - "worker/test/coverage-mcp.test.mjs"
       - "worker/package.json"
       - "worker/package-lock.json"
       - "worker/wrangler.toml"
