@@ -1,5 +1,5 @@
 name = "vocab-app"
-main = "src/index.js"
+main = "src/coverage-entry.js"
 compatibility_date = "2024-11-01"
 # The dashboard routes only /mcp*, /oauth/*, and /.well-known/oauth-* to this Worker.
 # The rest of vocab.lrnr.jp remains on GitHub Pages.
