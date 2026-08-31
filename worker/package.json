@@ -10,7 +10,8 @@
     "test:mcp-write": "node test/mcp-write.integration.mjs",
     "test:editor-cache": "node test/editor-section-cache.integration.mjs && node test/editor-lazy-ui.integration.mjs",
     "test:derivatives": "node test/derivative-grouping.test.mjs",
-    "test:migrations": "node test/migration-0020.smoke.mjs && node test/migration-0023.smoke.mjs && node test/migration-0025.smoke.mjs && node test/migration-0026.smoke.mjs && node test/migration-0027.smoke.mjs && node test/migration-0028.smoke.mjs && node test/migration-0029.smoke.mjs",
+    "test:coverage": "node test/coverage.test.mjs",
+    "test:migrations": "node test/migration-0020.smoke.mjs && node test/migration-0023.smoke.mjs && node test/migration-0025.smoke.mjs && node test/migration-0026.smoke.mjs && node test/migration-0027.smoke.mjs && node test/migration-0028.smoke.mjs && node test/migration-0029.smoke.mjs && node test/coverage.test.mjs",
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocab-db --remote",
     "deploy": "wrangler deploy"
