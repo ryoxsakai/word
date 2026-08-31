@@ -5,6 +5,7 @@ import {
   collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
+  renderDerivativeWordMarkup,
   renderWordListMarkup,
   stripMarkup,
 } from "../../public/shared/markup.js";
@@ -109,6 +110,23 @@ const independentSuccessIndex = new Map(derivativeHeadwords);
 independentSuccessIndex.set("success", { id: "success", no: 41 });
 const resolvedIndependentSuccess = addDerivativeCrossReferenceAliases(independentSuccessIndex, derivativeReferences);
 assert.equal(resolvedIndependentSuccess.get("success").id, "success");
+
+const directDerivativeHeadwords = new Map([
+  ["possession", { id: "possession", no: 31 }],
+  ["possess", { id: "possess", no: 277 }],
+]);
+const resolveDirectDerivative = (headword) => {
+  const hit = directDerivativeHeadwords.get(headword.toLowerCase());
+  return hit ? { found: true, ...hit } : { found: false };
+};
+assert.equal(
+  renderDerivativeWordMarkup("possess", { resolve: resolveDirectDerivative }),
+  '<a href="#word-possess" class="ref derivative-ref" data-headword="possess" data-word-id="possess"><strong>possess</strong><span class="ref-no"> (no. 277)</span></a>'
+);
+assert.equal(
+  renderDerivativeWordMarkup("possessive", { resolve: resolveDirectDerivative }),
+  "possessive"
+);
 
 const longestMatch = render("take offの用法とtakeを確認する。", { currentHeadword: "take" });
 assert.match(longestMatch, /<a [^>]*data-headword="take off"[^>]*><strong>/);

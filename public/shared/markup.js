@@ -125,6 +125,32 @@ export function renderWordListMarkup(raw, opts = {}) {
     .join(", ");
 }
 
+/**
+ * 派生語欄の語を表示する。独立した見出し語と完全一致するときだけ、
+ * 太字の語と通常ウェイトの番号をまとめてリンクにする。
+ * @param {string} raw
+ * @param {object} [opts]
+ * @param {(headword: string) => ({found: boolean, id?: string, no?: number|string|null})} [opts.resolve]
+ * @returns {string}
+ */
+export function renderDerivativeWordMarkup(raw, opts = {}) {
+  if (!raw) return "";
+  const text = String(raw).trim();
+  if (!text) return "";
+
+  // 明示的な相互参照記法がある場合は、従来どおりその指定を優先する。
+  if (text.includes("##")) return renderMarkup(text, { ...opts, boldRefs: true });
+
+  const plain = stripMarkup(text).trim();
+  const result = plain && opts.resolve ? opts.resolve(plain) : null;
+  if (!result?.found) return renderMarkup(text, opts);
+
+  const noSuffix = result.no != null
+    ? `<span class="ref-no"> (no. ${escapeHtml(result.no)})</span>`
+    : "";
+  return `<a href="#word-${escapeHtml(result.id)}" class="ref derivative-ref" data-headword="${escapeHtml(plain)}" data-word-id="${escapeHtml(result.id)}"><strong>${escapeHtml(plain)}</strong>${noSuffix}</a>`;
+}
+
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
