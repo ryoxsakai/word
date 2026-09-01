@@ -625,6 +625,7 @@ try {
             {
               spelling: "abandon",
               pronunciation: "əbændən",
+              related_words: "desertion, withdrawal",
               senses: [{ pos: "動", meaning: "捨てる", is_primary: true }],
               examples: [{ sentence: "They abandoned the plan.", translation: "彼らは計画を断念した。" }],
               tags: { "custom:medical": "important" },
@@ -782,6 +783,7 @@ try {
     })
   );
   assert.equal(wordDetail.notes, "重要語");
+  assert.equal(wordDetail.relatedWords, "desertion, withdrawal");
   assert.equal(wordDetail.usageCaution, true);
   assert.equal(wordDetail.senses[0].meaning, "捨てる");
 

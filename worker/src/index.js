@@ -550,6 +550,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
               w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
+              w.related_words AS relatedWords,
               w.irregular_forms AS irregularForms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
@@ -656,6 +657,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     notes: r.notes,
     synonyms: r.synonyms,
     antonyms: r.antonyms,
+    relatedWords: r.relatedWords,
     irregularForms: r.irregularForms,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
@@ -703,7 +705,7 @@ async function getViewerIndex(db, listId, request) {
   const { results: items } = await db
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.derived_from_id AS derivedFromId,
-              w.synonyms AS synonyms, w.antonyms AS antonyms,
+              w.synonyms AS synonyms, w.antonyms AS antonyms, w.related_words AS relatedWords,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
               li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
@@ -797,6 +799,7 @@ async function getViewerIndex(db, listId, request) {
       derivedFromId: item.derivedFromId,
       synonyms: item.synonyms,
       antonyms: item.antonyms,
+      relatedWords: item.relatedWords,
       derivatives: derivativesByWord.get(item.id) || [],
       phrases: (phrasesByWord.get(item.id) || []).map((phrase) => phrase.sentence),
     };
@@ -883,6 +886,7 @@ async function searchViewerWords(db, listId, request) {
          COALESCE(w.etymology, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
          COALESCE(w.synonyms, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
          COALESCE(w.antonyms, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
+         COALESCE(w.related_words, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
          COALESCE(w.notes, '') LIKE ? ESCAPE '\\' COLLATE NOCASE OR
          EXISTS (SELECT 1 FROM senses se WHERE se.word_id = w.id AND se.meaning LIKE ? ESCAPE '\\' COLLATE NOCASE) OR
          EXISTS (SELECT 1 FROM derivatives d WHERE d.word_id = w.id AND (d.word LIKE ? ESCAPE '\\' COLLATE NOCASE OR COALESCE(d.meaning, '') LIKE ? ESCAPE '\\' COLLATE NOCASE)) OR
@@ -891,7 +895,7 @@ async function searchViewerWords(db, listId, request) {
        )
        ORDER BY li.no, li.branch`
     )
-    .bind(listId, ...Array(14).fill(pattern))
+    .bind(listId, ...Array(15).fill(pattern))
     .all();
   const matches = results.map((row) => ({
     wordId: row.wordId,
@@ -1321,7 +1325,8 @@ async function reorderListItems(db, listId, body) {
 async function loadWordDetail(db, id) {
   const word = await db
     .prepare(
-      `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, irregular_forms AS irregularForms,
+      `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms,
+              related_words AS relatedWords, irregular_forms AS irregularForms,
               pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
               polysemous_caution AS polysemousCaution, spelling_caution AS spellingCaution,
               ergative AS ergative,
@@ -1473,9 +1478,9 @@ async function createWord(db, body) {
   const id = await uniqueWordId(db, body.spelling);
   await db
     .prepare(
-      `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms, irregular_forms,
+      `INSERT INTO words (id, spelling, pronunciation, audio_url, etymology, notes, synonyms, antonyms, related_words, irregular_forms,
                            ergative, pronunciation_caution, accent_caution, polysemous_caution, spelling_caution, conjugation_caution, usage_caution, derived_from_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .bind(
       id,
@@ -1486,6 +1491,7 @@ async function createWord(db, body) {
       body.notes || null,
       body.synonyms || null,
       body.antonyms || null,
+      body.relatedWords || null,
       body.irregularForms || null,
       body.ergative ? 1 : 0,
       body.pronunciationCaution ? 1 : 0,
@@ -1526,6 +1532,7 @@ async function updateWord(db, id, body) {
     body.notes || null,
     body.synonyms || null,
     body.antonyms || null,
+    body.relatedWords || null,
     body.irregularForms || null,
     body.ergative ? 1 : 0,
     body.pronunciationCaution ? 1 : 0,
@@ -1539,7 +1546,7 @@ async function updateWord(db, id, body) {
     if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
     await db
       .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, related_words = ?, irregular_forms = ?,
                            ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, derived_from_id = ?, updated_at = datetime('now')
          WHERE id = ?`
       )
@@ -1548,7 +1555,7 @@ async function updateWord(db, id, body) {
   } else {
     await db
       .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, irregular_forms = ?,
+        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, related_words = ?, irregular_forms = ?,
                            ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, updated_at = datetime('now')
          WHERE id = ?`
       )

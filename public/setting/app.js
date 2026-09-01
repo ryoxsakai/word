@@ -182,6 +182,8 @@ const el = {
   synonymsPreview: document.getElementById("synonymsPreview"),
   fieldAntonyms: document.getElementById("fieldAntonyms"),
   antonymsPreview: document.getElementById("antonymsPreview"),
+  fieldRelatedWords: document.getElementById("fieldRelatedWords"),
+  relatedWordsPreview: document.getElementById("relatedWordsPreview"),
   fieldNotes: document.getElementById("fieldNotes"),
   notesPreview: document.getElementById("notesPreview"),
   tagOxford5000: document.getElementById("tagOxford5000"),
@@ -2228,6 +2230,7 @@ function openNewWordForm() {
   el.fieldEtymology.value = "";
   el.fieldSynonyms.value = "";
   el.fieldAntonyms.value = "";
+  el.fieldRelatedWords.value = "";
   el.fieldNotes.value = "";
   el.tagOxford5000.value = "";
   el.tagCefrProvisional.value = "";
@@ -2240,6 +2243,7 @@ function openNewWordForm() {
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
+  updatePreview(el.fieldRelatedWords, el.relatedWordsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
   setEditorOpen(true);
   updateEditorListFields();
@@ -2289,6 +2293,7 @@ async function openWordEditor(wordId) {
   el.fieldEtymology.value = detail.etymology || "";
   el.fieldSynonyms.value = detail.synonyms || "";
   el.fieldAntonyms.value = detail.antonyms || "";
+  el.fieldRelatedWords.value = detail.relatedWords || "";
   el.fieldNotes.value = detail.notes || "";
   el.tagOxford5000.value = detail.tags.oxford5000 || "";
   el.tagCefrProvisional.value = detail.tags.cefr_provisional || "";
@@ -2305,6 +2310,7 @@ async function openWordEditor(wordId) {
   updatePreview(el.fieldEtymology, el.etymologyPreview);
   updatePreview(el.fieldSynonyms, el.synonymsPreview);
   updatePreview(el.fieldAntonyms, el.antonymsPreview);
+  updatePreview(el.fieldRelatedWords, el.relatedWordsPreview);
   updatePreview(el.fieldNotes, el.notesPreview);
   setEditorOpen(true);
   updateEditorListFields();
@@ -2357,6 +2363,7 @@ async function saveWord() {
     etymology: el.fieldEtymology.value.trim() || null,
     synonyms: el.fieldSynonyms.value.trim() || null,
     antonyms: el.fieldAntonyms.value.trim() || null,
+    relatedWords: el.fieldRelatedWords.value.trim() || null,
     notes: el.fieldNotes.value.trim() || null,
     tags: collectTags(),
   };
@@ -2853,6 +2860,7 @@ el.fieldIrregularForms.addEventListener("input", () => updatePreview(el.fieldIrr
 el.fieldEtymology.addEventListener("input", () => updatePreview(el.fieldEtymology, el.etymologyPreview));
 el.fieldSynonyms.addEventListener("input", () => updatePreview(el.fieldSynonyms, el.synonymsPreview));
 el.fieldAntonyms.addEventListener("input", () => updatePreview(el.fieldAntonyms, el.antonymsPreview));
+el.fieldRelatedWords.addEventListener("input", () => updatePreview(el.fieldRelatedWords, el.relatedWordsPreview));
 el.fieldNotes.addEventListener("input", () => updatePreview(el.fieldNotes, el.notesPreview));
 
 document.querySelectorAll(".add-row-btn").forEach((btn) => {

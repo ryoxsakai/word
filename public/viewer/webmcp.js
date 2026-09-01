@@ -147,6 +147,7 @@ function wordHaystack(word) {
     word.etymology,
     word.synonyms,
     word.antonyms,
+    word.relatedWords,
     word.notes,
   ];
   for (const [key, value] of Object.entries(word.tags || {})) parts.push(key, value);
