@@ -222,6 +222,22 @@ export const WRITE_TOOLS = [
     },
   }),
   writeTool({
+    name: "create_group",
+    title: "グループを作成",
+    description: "ChapterとSectionの間にGroupを作成します。同じChapter内に同名のGroupがある場合は重複作成しません。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        chapter_id: { type: "integer", minimum: 1 },
+        subtitle: { type: "string", minLength: 1, maxLength: 300 },
+        description: { type: "string", maxLength: 1000 },
+      },
+      required: ["list_id", "chapter_id", "subtitle"],
+      additionalProperties: false,
+    },
+  }),
+  writeTool({
     name: "create_section",
     title: "セクションを作成",
     description: "指定した単語帳の末尾にセクションを作成します。チャプターへの所属も指定できます。",
@@ -230,6 +246,7 @@ export const WRITE_TOOLS = [
       properties: {
         list_id: { type: "string" },
         chapter_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
+        group_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
         subtitle: { type: "string", maxLength: 300 },
         description: { type: "string", maxLength: 1000 },
       },
@@ -247,6 +264,7 @@ export const WRITE_TOOLS = [
         list_id: { type: "string" },
         section_id: { type: "integer", minimum: 1 },
         chapter_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
+        group_id: { anyOf: [{ type: "integer", minimum: 1 }, { type: "null" }] },
         subtitle: stringOrNull,
         description: stringOrNull,
       },
@@ -494,11 +512,26 @@ async function requireSection(db, listId, sectionId) {
   const id = positiveInteger(sectionId, "section_id");
   const row = await db
     .prepare(
-      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM sections WHERE id = ? AND list_id = ?"
+      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId, group_id AS groupId FROM sections WHERE id = ? AND list_id = ?"
     )
     .bind(id, listId)
     .first();
   if (!row) throw new Error("Section not found: " + id);
+  return row;
+}
+
+async function requireGroup(db, listId, groupId, chapterId = undefined) {
+  const id = positiveInteger(groupId, "group_id");
+  const row = await db
+    .prepare(
+      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM section_groups WHERE id = ? AND list_id = ?"
+    )
+    .bind(id, listId)
+    .first();
+  if (!row) throw new Error("Group not found: " + id);
+  if (chapterId !== undefined && Number(row.chapterId) !== Number(chapterId)) {
+    throw new Error("Group does not belong to chapter: " + id);
+  }
   return row;
 }
 
@@ -789,27 +822,51 @@ async function reorderChapters(db, args, auth) {
   return { updated: true, chapterIds: ids };
 }
 
+async function createGroup(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const chapter = await requireChapter(db, notebook.id, args.chapter_id);
+  const subtitle = requiredText(args.subtitle, "subtitle", 300);
+  const description = optionalText(args.description, "description", 1000) ?? null;
+  const existing = await db
+    .prepare(
+      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM section_groups WHERE list_id = ? AND chapter_id = ? AND subtitle = ? COLLATE NOCASE LIMIT 1"
+    )
+    .bind(notebook.id, chapter.id, subtitle)
+    .first();
+  if (existing) return { created: false, reason: "same_group_exists", group: existing };
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS maxSort FROM section_groups WHERE list_id = ?").bind(notebook.id).first();
+  const sortOrder = Number(row?.maxSort || 0) + 1;
+  const result = await db
+    .prepare("INSERT INTO section_groups (list_id, chapter_id, subtitle, description, sort_order) VALUES (?, ?, ?, ?, ?)")
+    .bind(notebook.id, chapter.id, subtitle, description, sortOrder)
+    .run();
+  const id = Number(result.meta.last_row_id);
+  await audit(db, auth, "create_group", "group", id, { listId: notebook.id, chapterId: chapter.id, subtitle });
+  return { created: true, group: { id, subtitle, description, sortOrder, chapterId: Number(chapter.id) } };
+}
+
 async function createSection(db, args, auth) {
   const notebook = await requireNotebook(db, args.list_id);
   const chapterId = args.chapter_id === undefined || args.chapter_id === null ? null : (await requireChapter(db, notebook.id, args.chapter_id)).id;
+  const groupId = args.group_id === undefined || args.group_id === null ? null : (await requireGroup(db, notebook.id, args.group_id, chapterId)).id;
   const subtitle = optionalText(args.subtitle, "subtitle", 300) ?? null;
   const description = optionalText(args.description, "description", 1000) ?? null;
   const exact = await db
     .prepare(
-      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM sections WHERE list_id = ? AND chapter_id IS ? AND COALESCE(subtitle, '') = COALESCE(?, '') AND COALESCE(description, '') = COALESCE(?, '') LIMIT 1"
+      "SELECT id, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId, group_id AS groupId FROM sections WHERE list_id = ? AND chapter_id IS ? AND group_id IS ? AND COALESCE(subtitle, '') = COALESCE(?, '') AND COALESCE(description, '') = COALESCE(?, '') LIMIT 1"
     )
-    .bind(notebook.id, chapterId, subtitle, description)
+    .bind(notebook.id, chapterId, groupId, subtitle, description)
     .first();
   if (exact) return { created: false, reason: "same_section_exists", section: exact };
   const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS maxSort FROM sections WHERE list_id = ?").bind(notebook.id).first();
   const sortOrder = Number(row?.maxSort || 0) + 1;
   const result = await db
-    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order, chapter_id) VALUES (?, '', ?, ?, ?, ?)")
-    .bind(notebook.id, subtitle, description, sortOrder, chapterId)
+    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order, chapter_id, group_id) VALUES (?, '', ?, ?, ?, ?, ?)")
+    .bind(notebook.id, subtitle, description, sortOrder, chapterId, groupId)
     .run();
   const id = Number(result.meta.last_row_id);
-  await audit(db, auth, "create_section", "section", id, { listId: notebook.id, chapterId, subtitle });
-  return { created: true, section: { id, subtitle, description, sortOrder, chapterId } };
+  await audit(db, auth, "create_section", "section", id, { listId: notebook.id, chapterId, groupId, subtitle });
+  return { created: true, section: { id, subtitle, description, sortOrder, chapterId, groupId } };
 }
 
 async function updateSection(db, args, auth) {
@@ -829,6 +886,16 @@ async function updateSection(db, args, auth) {
     const chapterId = args.chapter_id === null ? null : (await requireChapter(db, notebook.id, args.chapter_id)).id;
     sets.push("chapter_id = ?");
     values.push(chapterId);
+  }
+  if (args.group_id !== undefined) {
+    const targetChapterId = args.chapter_id === undefined
+      ? section.chapterId
+      : args.chapter_id === null
+        ? null
+        : positiveInteger(args.chapter_id, "chapter_id");
+    const groupId = args.group_id === null ? null : (await requireGroup(db, notebook.id, args.group_id, targetChapterId)).id;
+    sets.push("group_id = ?");
+    values.push(groupId);
   }
   if (!sets.length) throw new Error("At least one field to update is required");
   await db.prepare("UPDATE sections SET " + sets.join(", ") + " WHERE id = ? AND list_id = ?").bind(...values, section.id, notebook.id).run();
@@ -1343,6 +1410,7 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "create_chapter") return createChapter(env.DB, args, auth);
   if (name === "update_chapter") return updateChapter(env.DB, args, auth);
   if (name === "reorder_chapters") return reorderChapters(env.DB, args, auth);
+  if (name === "create_group") return createGroup(env.DB, args, auth);
   if (name === "create_section") return createSection(env.DB, args, auth);
   if (name === "update_section") return updateSection(env.DB, args, auth);
   if (name === "reorder_sections") return reorderSections(env.DB, args, auth);
