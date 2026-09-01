@@ -32,6 +32,7 @@ const alphabeticalEntries = buildAlphabeticalIndexEntries([
     derivatives: [{ word: "beginning" }],
     synonyms: "start, ##commence##, commence",
     antonyms: "end; stop",
+    relatedWords: "origin、launch",
   },
   {
     id: "finish",
@@ -55,6 +56,8 @@ assert.deepEqual(alphabeticalEntries, [
   { spelling: "end", loc: "→ begin 1", targetId: "begin", isRef: true },
   { spelling: "end", loc: "→ finish 2", targetId: "finish", isRef: true },
   { spelling: "finish", loc: "2", targetId: "finish", isRef: false },
+  { spelling: "launch", loc: "→ begin 1", targetId: "begin", isRef: true },
+  { spelling: "origin", loc: "→ begin 1", targetId: "begin", isRef: true },
   { spelling: "start", loc: "3", targetId: "start", isRef: false },
   { spelling: "stop", loc: "→ begin 1", targetId: "begin", isRef: true },
 ]);

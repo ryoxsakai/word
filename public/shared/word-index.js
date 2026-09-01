@@ -24,7 +24,7 @@ function splitReferenceTerms(raw) {
 }
 
 /**
- * 見出し語と、派生語・類義語・対義語から見出し語へ戻る参照をまとめた索引を作る。
+ * 見出し語と、派生語・類義語・対義語・関連語から見出し語へ戻る参照をまとめた索引を作る。
  * 同じ参照語が複数の見出し語に属する場合は、対応関係を失わないよう見出し語ごとに表示する。
  * 独立した見出し語がある場合は、その見出し語だけを表示する。
  */
@@ -71,7 +71,7 @@ export function buildAlphabeticalIndexEntries(words) {
     for (const derivative of word?.derivatives || []) {
       addReference(typeof derivative === "string" ? derivative : derivative?.word, word);
     }
-    for (const field of ["synonyms", "antonyms"]) {
+    for (const field of ["synonyms", "antonyms", "relatedWords"]) {
       for (const term of splitReferenceTerms(word?.[field])) addReference(term, word);
     }
   }

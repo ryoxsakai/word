@@ -430,9 +430,9 @@ async function searchWords(db, args) {
     "(w.spelling LIKE ? ESCAPE '\\' COLLATE NOCASE OR " +
       "EXISTS (SELECT 1 FROM senses sx WHERE sx.word_id = w.id AND sx.meaning LIKE ? ESCAPE '\\') OR " +
       "COALESCE(w.notes, '') LIKE ? ESCAPE '\\' OR COALESCE(w.synonyms, '') LIKE ? ESCAPE '\\' OR " +
-      "COALESCE(w.antonyms, '') LIKE ? ESCAPE '\\')",
+      "COALESCE(w.antonyms, '') LIKE ? ESCAPE '\\' OR COALESCE(w.related_words, '') LIKE ? ESCAPE '\\')",
   ];
-  const values = [pattern, pattern, pattern, pattern, pattern];
+  const values = [pattern, pattern, pattern, pattern, pattern, pattern];
   if (listId && listId !== MASTER_LIST_ID) {
     conditions.push("EXISTS (SELECT 1 FROM list_items lif WHERE lif.word_id = w.id AND lif.list_id = ?)");
     values.push(listId);
@@ -469,7 +469,7 @@ async function getWord(db, args) {
   const word = wordId
     ? await db
         .prepare(
-          "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, " +
+          "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, related_words AS relatedWords, " +
             "irregular_forms AS irregularForms, ergative AS ergative, pronunciation_caution AS pronunciationCaution, " +
             "accent_caution AS accentCaution, polysemous_caution AS polysemousCaution, " +
             "spelling_caution AS spellingCaution, conjugation_caution AS conjugationCaution, " +
@@ -480,7 +480,7 @@ async function getWord(db, args) {
         .first()
     : await db
         .prepare(
-          "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, " +
+          "SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms, related_words AS relatedWords, " +
             "irregular_forms AS irregularForms, ergative AS ergative, pronunciation_caution AS pronunciationCaution, " +
             "accent_caution AS accentCaution, polysemous_caution AS polysemousCaution, " +
             "spelling_caution AS spellingCaution, conjugation_caution AS conjugationCaution, " +

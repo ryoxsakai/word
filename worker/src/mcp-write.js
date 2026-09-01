@@ -50,6 +50,7 @@ const wordFields = {
   notes: { type: "string", maxLength: 5000 },
   synonyms: { type: "string", maxLength: 2000 },
   antonyms: { type: "string", maxLength: 2000 },
+  related_words: { type: "string", maxLength: 2000 },
   irregular_forms: { type: "string", maxLength: 1000 },
   derived_from_word_id: { type: "string", description: "派生元となる既存の単語ID" },
   ergative: { type: "boolean", description: "能格動詞（同じ参与者が自動詞の主語・他動詞の目的語になる語）" },
@@ -1112,6 +1113,7 @@ function validateWordInput(item, index, requireSpelling) {
     ["notes", 5000],
     ["synonyms", 2000],
     ["antonyms", 2000],
+    ["related_words", 2000],
     ["irregular_forms", 1000],
   ]) {
     if (item[field] !== undefined) optionalText(item[field], "words[" + index + "]." + field, limit);
@@ -1171,6 +1173,7 @@ const WORD_COLUMN_MAP = {
   notes: "notes",
   synonyms: "synonyms",
   antonyms: "antonyms",
+  related_words: "related_words",
   irregular_forms: "irregular_forms",
   ergative: "ergative",
   pronunciation_caution: "pronunciation_caution",

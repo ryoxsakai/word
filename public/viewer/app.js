@@ -350,6 +350,7 @@ function wordHaystack(w) {
     w.etymology,
     w.synonyms,
     w.antonyms,
+    w.relatedWords,
     w.notes,
   ];
   for (const [k, v] of Object.entries(w.tags || {})) parts.push(k, v);
@@ -448,6 +449,9 @@ function renderEntry(w) {
   const antonymsHtml = w.antonyms
     ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
     : "";
+  const relatedWordsHtml = w.relatedWords
+    ? `<div class="notes-block notes-related"><span class="notes-label related-badge">関連語</span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
+    : "";
   const notesHtml = w.notes
     ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling })}</span></div>`
     : "";
@@ -506,6 +510,7 @@ function renderEntry(w) {
         ${irregularFormsHtml}
         ${synonymsHtml}
         ${antonymsHtml}
+        ${relatedWordsHtml}
         ${etymologyHtml}
         ${notesHtml}
       </div>
