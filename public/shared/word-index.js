@@ -16,7 +16,8 @@ export async function fetchCompleteWordIndex(fetchPage, pageSize = 300) {
 
 /**
  * 見出し語と、派生語・類義語・対義語・関連語から見出し語へ戻る参照をまとめた索引を作る。
- * 同じ参照語が複数の見出し語に属する場合は、対応関係を失わないよう見出し語ごとに表示する。
+ * 同じ参照語が複数の見出し語に属する場合は、派生語・類義語・対義語・関連語の順で
+ * 参照先を1件に絞る。同じ種類では、単語帳で先に現れる見出し語を優先する。
  * 独立した見出し語がある場合は、その見出し語だけを表示する。
  */
 export function buildAlphabeticalIndexEntries(words) {
@@ -36,8 +37,15 @@ export function buildAlphabeticalIndexEntries(words) {
     });
   }
 
-  const seenReferences = new Set();
-  const addReference = (rawSpelling, targetWord) => {
+  const referencePriority = {
+    derivative: 0,
+    synonyms: 1,
+    antonyms: 2,
+    relatedWords: 3,
+  };
+  const bestReferenceBySpelling = new Map();
+
+  const addReferenceCandidate = (rawSpelling, targetWord, kind) => {
     const spelling = stripMarkup(rawSpelling).trim();
     const targetSpelling = String(targetWord?.spelling || "").trim();
     if (!spelling || !targetSpelling || !targetWord?.id) return;
@@ -45,26 +53,41 @@ export function buildAlphabeticalIndexEntries(words) {
     const key = spelling.toLowerCase();
     if (headwordKeys.has(key)) return;
 
-    const referenceKey = `${key}\u0000${targetWord.id}`;
-    if (seenReferences.has(referenceKey)) return;
-    seenReferences.add(referenceKey);
-
-    const targetLocation = targetWord.seqNo != null ? ` ${targetWord.seqNo}` : "";
-    entries.push({
+    const candidate = {
       spelling,
-      loc: `→ ${targetSpelling}${targetLocation}`,
-      targetId: targetWord.id,
-      isRef: true,
-    });
+      targetWord,
+      priority: referencePriority[kind],
+    };
+    const existing = bestReferenceBySpelling.get(key);
+    if (!existing || candidate.priority < existing.priority) {
+      bestReferenceBySpelling.set(key, candidate);
+    }
   };
 
   for (const word of sourceWords) {
     for (const derivative of word?.derivatives || []) {
-      addReference(typeof derivative === "string" ? derivative : derivative?.word, word);
+      addReferenceCandidate(
+        typeof derivative === "string" ? derivative : derivative?.word,
+        word,
+        "derivative"
+      );
     }
     for (const field of ["synonyms", "antonyms", "relatedWords"]) {
-      for (const item of parseWordListItems(word?.[field])) addReference(item.target, word);
+      for (const item of parseWordListItems(word?.[field])) {
+        addReferenceCandidate(item.target, word, field);
+      }
     }
+  }
+
+  for (const { spelling, targetWord } of bestReferenceBySpelling.values()) {
+    const targetSpelling = String(targetWord.spelling).trim();
+    const targetLocation = targetWord.seqNo != null ? " " + targetWord.seqNo : "";
+    entries.push({
+      spelling,
+      loc: "→ " + targetSpelling + targetLocation,
+      targetId: targetWord.id,
+      isRef: true,
+    });
   }
 
   entries.sort((a, b) => {
