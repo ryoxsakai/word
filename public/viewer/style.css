@@ -252,13 +252,19 @@ button { font-family: inherit; }
   cursor: pointer;
 }
 .contents-chapter {
-  background: var(--topbar-soft);
-  font-weight: 700;
+  background: var(--topbar-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--topbar-accent) 48%, transparent);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 .contents-subgroup {
-  margin-top: 0.12rem;
-  padding-left: 1.25rem;
-  color: var(--topbar-accent);
+  margin: 0.12rem 0.25rem 0;
+  width: calc(100% - 0.5rem);
+  padding: 0.42rem 0.65rem 0.42rem 1rem;
+  border-left: 3px solid var(--topbar-accent);
+  border-radius: 0 6px 6px 0;
+  background: var(--topbar-soft);
+  color: var(--topbar-text);
   font-size: 0.84rem;
   font-weight: 700;
 }
@@ -616,7 +622,8 @@ body.is-loading .section-nav { display: none; }
   scroll-margin-top: 6.2rem;
 }
 .section-group + .section-group { padding-top: 1.4rem; }
-.section-group.has-chapter-divider { padding-top: 2rem; }
+.section-group.has-group-divider { padding-top: 2rem; }
+.section-group.has-chapter-divider { padding-top: 2.5rem; }
 .section-group.section-tone-1 { background: var(--section-bg-1); }
 .section-group.section-tone-2 { background: var(--section-bg-2); }
 .section-group.section-tone-3 { background: var(--section-bg-3); }
@@ -626,6 +633,7 @@ body.is-loading .section-nav { display: none; }
 
 /* 背景だけを一覧の端まで広げ、各要素の読み始める位置は従来どおりに保つ */
 .section-group > .chapter-divider { margin: 0 0.9rem 0.6rem; }
+.section-group > .group-divider { margin: 0 0.9rem 0.6rem; }
 .section-group > .section-divider { margin-right: 0.9rem; margin-left: 0.9rem; }
 .section-group > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
 .section-group > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
@@ -651,6 +659,29 @@ body.is-loading .section-nav { display: none; }
 .section-description {
   margin-top: 0.25rem;
   font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.group-divider {
+  margin: 0 0 0.6rem;
+  padding: 0.58rem 0.85rem;
+  border-left: 5px solid var(--accent);
+  border-top: 1px solid var(--title-border);
+  border-right: 1px solid var(--title-border);
+  border-bottom: 1px solid var(--title-border);
+  border-radius: 0 6px 6px 0;
+  background: color-mix(in srgb, var(--title-bg-1) 72%, var(--surface));
+  scroll-margin-top: 6.2rem;
+}
+.group-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+.group-title { font-size: 1.18rem; font-weight: 800; color: var(--text); }
+.group-subtitle { font-size: 0.92rem; font-weight: 600; color: var(--accent); }
+.group-count { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+.group-description {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
   font-weight: 400;
   color: var(--text-muted);
   line-height: 1.4;
@@ -708,6 +739,7 @@ body.is-loading .section-nav { display: none; }
 .entry.branch-entry .entry-no { color: var(--text-muted); font-size: 0.9rem; }
 .entry.flash,
 .section-divider.flash,
+.group-divider.flash,
 .chapter-divider.flash { animation: flash-highlight 1.4s ease-out; }
 @keyframes flash-highlight {
   0% { background-color: var(--loading-highlight); box-shadow: inset 4px 0 0 var(--loading-accent), 0 0 0 3px var(--loading-highlight); }
@@ -1179,6 +1211,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .index-list { max-width: 100%; padding: 0; }
   .section-group { margin-right: 0; margin-left: 0; padding-top: 0; }
   .section-group > .chapter-divider { margin-right: 0; margin-left: 0; }
+  .section-group > .group-divider { margin-right: 0; margin-left: 0; }
   .section-group > .section-divider { margin-right: 0; margin-left: 0; }
   .section-group > .label-divider { margin-right: 0; margin-left: 0.65rem; }
   .section-group > .entry { margin-right: 0; margin-left: 0; }
@@ -1192,7 +1225,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-group, .section-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1209,6 +1242,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   /* チャプターの帯自体は改ページせず、直後の最初のセクションの改ページに委ねる
      (両方に改ページを入れると、チャプター見出しだけが前ページに孤立してしまうため) */
   .chapter-divider {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+  .group-divider {
     break-inside: avoid;
     box-shadow: none;
   }
