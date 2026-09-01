@@ -20,6 +20,23 @@ export function navigationSectionKeys(sections, targetSectionKey, additionalDist
   return keys;
 }
 
+export function sectionNumberRanges(words) {
+  const ranges = new Map();
+  for (const word of words) {
+    const displayNumber = String(word.seqNo || "").trim();
+    if (!displayNumber) continue;
+    const number = displayNumber.split("-")[0];
+    const key = String(word.sectionKey ?? word.sectionId ?? "none");
+    const range = ranges.get(key);
+    if (range) {
+      range.last = number;
+    } else {
+      ranges.set(key, { first: number, last: number });
+    }
+  }
+  return ranges;
+}
+
 export function wordIdFromHash(hash) {
   const prefix = "#word-";
   if (!String(hash).startsWith(prefix)) return null;
