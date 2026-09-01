@@ -703,6 +703,7 @@ async function getViewerIndex(db, listId, request) {
   const { results: items } = await db
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.derived_from_id AS derivedFromId,
+              w.synonyms AS synonyms, w.antonyms AS antonyms,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
               li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
@@ -794,6 +795,8 @@ async function getViewerIndex(db, listId, request) {
       chapterId: item.chapterId,
       groupId: item.groupId,
       derivedFromId: item.derivedFromId,
+      synonyms: item.synonyms,
+      antonyms: item.antonyms,
       derivatives: derivativesByWord.get(item.id) || [],
       phrases: (phrasesByWord.get(item.id) || []).map((phrase) => phrase.sentence),
     };
