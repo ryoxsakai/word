@@ -7,9 +7,9 @@ import {
   renderMarkup,
   renderWordListMarkup,
   escapeHtml,
-  stripMarkup,
 } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
+import { buildAlphabeticalIndexEntries } from "../shared/word-index.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { groupDerivativeSenses } from "../shared/derivatives.js";
@@ -708,27 +708,10 @@ function setupLazySectionObserver() {
 // ---- 索引（abc順） ----
 
 // state.indexWordsには見出し語(branch=0)と派生語エントリー(branch>0)しか並ばないため、
-// 各エントリーの derivatives（例文欄と違い、独立したエントリーを持たない参考の派生語）も
-// 拾い上げて索引に含める。ただし派生語自身が別途エントリーを持つ場合は二重掲載しない。
+// 独立見出し語に加え、派生語・類義語・対義語から収録元の見出し語へ戻る参照も索引に含める。
+// 参照語自身が独立見出し語として収録済みの場合は、独立見出し語を優先する。
 function buildAlphabeticalIndex() {
-  const entries = [];
-  for (const w of state.indexWords) {
-    entries.push({ spelling: w.spelling, loc: w.seqNo, targetId: w.id, isRef: false });
-  }
-  const derivSeen = new Set();
-  for (const w of state.indexWords) {
-    for (const d of w.derivatives || []) {
-      const plain = stripMarkup(d.word || "");
-      if (!plain) continue;
-      const key = plain.toLowerCase();
-      if (state.wordIndex.has(key)) continue; // 本来のエントリーとして別途載るので、参照表記は不要
-      if (derivSeen.has(key)) continue;
-      derivSeen.add(key);
-      entries.push({ spelling: plain, loc: `→ ${w.spelling} ${w.seqNo}`, targetId: w.id, isRef: true });
-    }
-  }
-  entries.sort((a, b) => a.spelling.localeCompare(b.spelling, "en", { sensitivity: "base" }));
-  return entries;
+  return buildAlphabeticalIndexEntries(state.indexWords);
 }
 
 function renderIndexEntryHtml(e) {

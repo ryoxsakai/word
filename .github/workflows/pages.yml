@@ -29,6 +29,8 @@ jobs:
         run: node .github/tests/webmcp.integration.mjs
       - name: Test lazy viewer navigation
         run: node .github/tests/viewer-navigation.integration.mjs
+      - name: Test alphabetical word index
+        run: node .github/tests/word-index.integration.mjs
       - name: Prepare cache-safe Pages artifact
         env:
           ASSET_VERSION: ${{ github.sha }}
