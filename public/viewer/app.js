@@ -504,9 +504,9 @@ function renderEntry(w) {
         ${examplesHtml}
         ${derivativesHtml}
         ${irregularFormsHtml}
-        ${etymologyHtml}
         ${synonymsHtml}
         ${antonymsHtml}
+        ${etymologyHtml}
         ${notesHtml}
       </div>
     </div>
