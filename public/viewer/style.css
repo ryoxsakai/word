@@ -237,6 +237,7 @@ button { font-family: inherit; }
 .contents-nav { gap: 0.45rem; }
 .contents-group { gap: 0.15rem; }
 .contents-chapter,
+.contents-subgroup,
 .contents-section {
   display: flex;
   align-items: center;
@@ -254,8 +255,17 @@ button { font-family: inherit; }
   background: var(--topbar-soft);
   font-weight: 700;
 }
+.contents-subgroup {
+  margin-top: 0.12rem;
+  padding-left: 1.25rem;
+  color: var(--topbar-accent);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
 .contents-section.is-nested { padding-left: 1.25rem; }
+.contents-section.is-grouped { padding-left: 2rem; }
 .contents-chapter:hover,
+.contents-subgroup:hover,
 .contents-section:hover { background: var(--topbar-accent-soft); }
 .contents-item-text {
   display: flex;

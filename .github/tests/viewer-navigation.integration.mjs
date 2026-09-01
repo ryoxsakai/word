@@ -62,4 +62,19 @@ assert.match(appSource, /navigationSectionKeys\(state\.sections, targetKey, wind
 assert.match(appSource, /if \(!target\)[\s\S]*clearNavigationAnchors\(\);[\s\S]*setupLazySectionObserver\(\)/);
 assert.match(styleSource, /\.section-group\.is-navigation-anchor\s*\{[\s\S]*content-visibility:\s*visible/);
 
+const contentsNavSource = appSource.slice(
+  appSource.indexOf("function renderContentsNav"),
+  appSource.indexOf("function setupSectionObserver")
+);
+assert.match(contentsNavSource, /state\.groups/);
+assert.match(contentsNavSource, /contents-subgroup/);
+assert.match(contentsNavSource, /contents-section[\s\S]*is-grouped/);
+
+const sectionShellSource = appSource.slice(
+  appSource.indexOf("function renderSectionShells"),
+  appSource.indexOf("function sectionCacheKey")
+);
+assert.doesNotMatch(sectionShellSource, /contents-subgroup|group-divider|group-title/);
+assert.match(styleSource, /\.contents-section\.is-grouped\s*\{/);
+
 console.log("Viewer navigation integration tests passed");
