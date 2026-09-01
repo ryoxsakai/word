@@ -238,6 +238,36 @@ export const WRITE_TOOLS = [
     },
   }),
   writeTool({
+    name: "update_group",
+    title: "グループを更新",
+    description: "Groupのサブタイトルと説明を部分更新します。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        group_id: { type: "integer", minimum: 1 },
+        subtitle: { type: "string", minLength: 1, maxLength: 300 },
+        description: stringOrNull,
+      },
+      required: ["list_id", "group_id"],
+      additionalProperties: false,
+    },
+  }),
+  writeTool({
+    name: "delete_group",
+    title: "グループを削除",
+    description: "Groupを削除し、所属SectionをGroup未所属へ戻します。Section自体は削除しません。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        group_id: { type: "integer", minimum: 1 },
+      },
+      required: ["list_id", "group_id"],
+      additionalProperties: false,
+    },
+  }, true),
+  writeTool({
     name: "create_section",
     title: "セクションを作成",
     description: "指定した単語帳の末尾にセクションを作成します。チャプターへの所属も指定できます。",
@@ -845,6 +875,37 @@ async function createGroup(db, args, auth) {
   return { created: true, group: { id, subtitle, description, sortOrder, chapterId: Number(chapter.id) } };
 }
 
+async function updateGroup(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const group = await requireGroup(db, notebook.id, args.group_id);
+  const sets = [];
+  const values = [];
+  if (args.subtitle !== undefined) {
+    sets.push("subtitle = ?");
+    values.push(requiredText(args.subtitle, "subtitle", 300));
+  }
+  if (args.description !== undefined) {
+    sets.push("description = ?");
+    values.push(optionalText(args.description, "description", 1000));
+  }
+  if (!sets.length) throw new Error("At least one field to update is required");
+  await db.prepare("UPDATE section_groups SET " + sets.join(", ") + " WHERE id = ? AND list_id = ?").bind(...values, group.id, notebook.id).run();
+  await audit(db, auth, "update_group", "group", group.id, { listId: notebook.id, fields: Object.keys(args).filter((key) => !["list_id", "group_id"].includes(key)) });
+  return { updated: true, group: await requireGroup(db, notebook.id, group.id) };
+}
+
+async function deleteGroup(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const group = await requireGroup(db, notebook.id, args.group_id);
+  const countRow = await db.prepare("SELECT COUNT(*) AS count FROM sections WHERE list_id = ? AND group_id = ?").bind(notebook.id, group.id).first();
+  await db.batch([
+    db.prepare("UPDATE sections SET group_id = NULL WHERE list_id = ? AND group_id = ?").bind(notebook.id, group.id),
+    db.prepare("DELETE FROM section_groups WHERE id = ? AND list_id = ?").bind(group.id, notebook.id),
+  ]);
+  await audit(db, auth, "delete_group", "group", group.id, { listId: notebook.id, unassignedSectionCount: Number(countRow?.count || 0) });
+  return { deleted: true, groupId: Number(group.id), unassignedSectionCount: Number(countRow?.count || 0) };
+}
+
 async function createSection(db, args, auth) {
   const notebook = await requireNotebook(db, args.list_id);
   const chapterId = args.chapter_id === undefined || args.chapter_id === null ? null : (await requireChapter(db, notebook.id, args.chapter_id)).id;
@@ -1411,6 +1472,8 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "update_chapter") return updateChapter(env.DB, args, auth);
   if (name === "reorder_chapters") return reorderChapters(env.DB, args, auth);
   if (name === "create_group") return createGroup(env.DB, args, auth);
+  if (name === "update_group") return updateGroup(env.DB, args, auth);
+  if (name === "delete_group") return deleteGroup(env.DB, args, auth);
   if (name === "create_section") return createSection(env.DB, args, auth);
   if (name === "update_section") return updateSection(env.DB, args, auth);
   if (name === "reorder_sections") return reorderSections(env.DB, args, auth);
