@@ -239,6 +239,7 @@ try {
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_group"));
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "reorder_groups"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_group"));
   assert.ok(
     combinedTools.body.result.tools.some(
