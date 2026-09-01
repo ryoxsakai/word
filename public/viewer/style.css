@@ -1070,6 +1070,7 @@ a.ref { color: var(--accent); text-decoration: none; border-bottom: 1px solid va
 .notes-block.notes-memo a.ref .ref-no { color: inherit; }
 .ref-missing { color: var(--danger); border-bottom: 1px dotted var(--danger); }
 .ref-no { font-weight: 400; }
+.word-list-gloss { font-weight: 400; }
 mark { background: var(--mark-bg); color: inherit; padding: 0 0.1em; border-radius: 2px; }
 em { font-style: italic; color: var(--accent-strong); }
 

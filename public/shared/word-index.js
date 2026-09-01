@@ -1,4 +1,4 @@
-import { stripMarkup } from "./markup.js";
+import { parseWordListItems, stripMarkup } from "./markup.js";
 
 export async function fetchCompleteWordIndex(fetchPage, pageSize = 300) {
   const index = new Map();
@@ -12,15 +12,6 @@ export async function fetchCompleteWordIndex(fetchPage, pageSize = 300) {
     offset += result.words.length;
   }
   return index;
-}
-
-function splitReferenceTerms(raw) {
-  if (!raw) return [];
-  return String(raw)
-    .split(/[,;；、]/)
-    .map((part) => stripMarkup(part))
-    .map((part) => part.trim())
-    .filter(Boolean);
 }
 
 /**
@@ -72,7 +63,7 @@ export function buildAlphabeticalIndexEntries(words) {
       addReference(typeof derivative === "string" ? derivative : derivative?.word, word);
     }
     for (const field of ["synonyms", "antonyms", "relatedWords"]) {
-      for (const term of splitReferenceTerms(word?.[field])) addReference(term, word);
+      for (const item of parseWordListItems(word?.[field])) addReference(item.target, word);
     }
   }
 
