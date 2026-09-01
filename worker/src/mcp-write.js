@@ -252,6 +252,20 @@ export const WRITE_TOOLS = [
     },
   }),
   writeTool({
+    name: "reorder_groups",
+    title: "グループを並べ替え",
+    description: "指定した単語帳のGroupを並べ替えます。現在の全Group IDを漏れなく指定します。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        group_ids: { type: "array", minItems: 1, uniqueItems: true, items: { type: "integer", minimum: 1 } },
+      },
+      required: ["list_id", "group_ids"],
+      additionalProperties: false,
+    },
+  }),
+  writeTool({
     name: "update_group",
     title: "グループを更新",
     description: "Groupのサブタイトルと説明を部分更新します。",
@@ -912,6 +926,30 @@ async function createGroup(db, args, auth) {
   return { created: true, group: { id, subtitle, description, sortOrder, chapterId: Number(chapter.id) } };
 }
 
+async function reorderGroups(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const currentRows = await db
+    .prepare("SELECT id FROM section_groups WHERE list_id = ? ORDER BY sort_order, id")
+    .bind(notebook.id)
+    .all();
+  const current = currentRows.results.map((row) => Number(row.id));
+  const ids = Array.isArray(args.group_ids)
+    ? args.group_ids.map((id) => positiveInteger(id, "group_id"))
+    : [];
+  if (!ids.length || !sameIdSet(current, ids)) {
+    throw new Error("group_ids must contain every current group id exactly once");
+  }
+  await db.batch(
+    ids.map((id, index) =>
+      db
+        .prepare("UPDATE section_groups SET sort_order = ? WHERE id = ? AND list_id = ?")
+        .bind(index + 1, id, notebook.id)
+    )
+  );
+  await audit(db, auth, "reorder_groups", "notebook", notebook.id, { groupIds: ids });
+  return { updated: true, groupCount: ids.length };
+}
+
 async function updateGroup(db, args, auth) {
   const notebook = await requireNotebook(db, args.list_id);
   const group = await requireGroup(db, notebook.id, args.group_id);
@@ -1510,6 +1548,7 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "delete_chapter") return deleteChapter(env.DB, args, auth);
   if (name === "reorder_chapters") return reorderChapters(env.DB, args, auth);
   if (name === "create_group") return createGroup(env.DB, args, auth);
+  if (name === "reorder_groups") return reorderGroups(env.DB, args, auth);
   if (name === "update_group") return updateGroup(env.DB, args, auth);
   if (name === "delete_group") return deleteGroup(env.DB, args, auth);
   if (name === "create_section") return createSection(env.DB, args, auth);
