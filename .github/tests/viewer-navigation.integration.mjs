@@ -68,13 +68,19 @@ const contentsNavSource = appSource.slice(
 );
 assert.match(contentsNavSource, /state\.groups/);
 assert.match(contentsNavSource, /contents-subgroup/);
+assert.match(contentsNavSource, /data-nav-target="group-/);
 assert.match(contentsNavSource, /contents-section[\s\S]*is-grouped/);
 
 const sectionShellSource = appSource.slice(
   appSource.indexOf("function renderSectionShells"),
   appSource.indexOf("function sectionCacheKey")
 );
-assert.doesNotMatch(sectionShellSource, /contents-subgroup|group-divider|group-title/);
+assert.match(sectionShellSource, /group-divider/);
+assert.match(sectionShellSource, /group-title/);
+assert.match(sectionShellSource, /data-group-key/);
 assert.match(styleSource, /\.contents-section\.is-grouped\s*\{/);
+assert.match(styleSource, /\.contents-chapter\s*\{[\s\S]*font-weight:\s*800/);
+assert.match(styleSource, /\.contents-subgroup\s*\{[\s\S]*border-left:\s*3px/);
+assert.match(styleSource, /\.group-divider\s*\{/);
 
 console.log("Viewer navigation integration tests passed");
