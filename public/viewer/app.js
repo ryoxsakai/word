@@ -521,11 +521,18 @@ function hasAnyChapter() {
   return state.chapters.some((chapter) => chapter.id != null);
 }
 
+function hasAnyGroup() {
+  return state.groups.some((group) => group.id != null);
+}
+
 function renderSectionShells() {
   const withSections = hasAnySection();
   const withChapters = hasAnyChapter();
+  const withGroups = hasAnyGroup();
   const chapterByKey = new Map(state.chapters.map((chapter) => [String(chapter.key), chapter]));
+  const groupByKey = new Map(state.groups.map((group) => [String(group.key), group]));
   let lastChapterKey;
+  let lastGroupKey;
   const parts = [];
   for (const [sectionIndex, section] of state.sections.entries()) {
     const chapterKey = String(section.chapterKey);
@@ -534,12 +541,25 @@ function renderSectionShells() {
     let chapterMarkup = "";
     if (chapterChanged) {
       lastChapterKey = chapterKey;
+      lastGroupKey = undefined;
       const titleLine = `<span class="chapter-title">${escapeHtml(chapter?.name || "その他")}</span>${
         chapter?.subtitle ? `<span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
       }<span class="chapter-count">(${chapter?.count || 0})</span>`;
       const descLine = chapter?.description ? `<div class="chapter-description">${escapeHtml(chapter.description)}</div>` : "";
       chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`;
     }
+    const groupKey = section.groupId != null ? String(section.groupKey) : null;
+    const group = groupKey ? groupByKey.get(groupKey) : null;
+    const groupChanged = withGroups && !!group && groupKey !== lastGroupKey;
+    let groupMarkup = "";
+    if (groupChanged) {
+      const titleLine = `<span class="group-title">${escapeHtml(group.name)}</span>${
+        group.subtitle ? `<span class="group-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
+      }<span class="group-count">(${group.count})</span>`;
+      const descLine = group.description ? `<div class="group-description">${escapeHtml(group.description)}</div>` : "";
+      groupMarkup = `<div class="group-divider" id="group-${escapeHtml(groupKey)}" data-group-key="${escapeHtml(groupKey)}"><div class="group-title-row">${titleLine}</div>${descLine}</div>`;
+    }
+    lastGroupKey = groupKey;
     const key = String(section.key);
     const titleLine = `<span class="section-title">${escapeHtml(section.name || "その他")}</span>${
       section.subtitle ? `<span class="section-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
@@ -550,11 +570,12 @@ function renderSectionShells() {
       : "";
     const sectionTone = withSections ? ` section-tone-${(sectionIndex % 6) + 1}` : "";
     const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
+    const groupClass = groupMarkup ? " has-group-divider" : "";
     const chapterFrameId = chapterMarkup ? ` id="chapter-frame-${escapeHtml(chapterKey)}"` : "";
     const labelledBy = withSections ? ` aria-labelledby="section-${escapeHtml(key)}"` : "";
     const placeholderHeight = Math.min(900, Math.max(160, section.count * 44));
     parts.push(
-      `<section class="section-group${sectionTone}${chapterClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}"${labelledBy}>${chapterMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="true" style="--section-placeholder-height:${placeholderHeight}px"><div class="section-loading"><span class="section-loading-label">${escapeHtml(section.name || "単語")}を読み込み中...</span><div class="section-loading-skeleton" aria-hidden="true"><span class="section-loading-no skeleton-line"></span><div class="section-loading-lines"><span class="section-loading-headword skeleton-line"></span><span class="section-loading-meaning skeleton-line"></span><span class="section-loading-example skeleton-line"></span></div></div></div></div></section>`
+      `<section class="section-group${sectionTone}${chapterClass}${groupClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" data-group-key="${escapeHtml(groupKey || "none")}"${labelledBy}>${chapterMarkup}${groupMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="true" style="--section-placeholder-height:${placeholderHeight}px"><div class="section-loading"><span class="section-loading-label">${escapeHtml(section.name || "単語")}を読み込み中...</span><div class="section-loading-skeleton" aria-hidden="true"><span class="section-loading-no skeleton-line"></span><div class="section-loading-lines"><span class="section-loading-headword skeleton-line"></span><span class="section-loading-meaning skeleton-line"></span><span class="section-loading-example skeleton-line"></span></div></div></div></div></section>`
     );
   }
   parts.push('<p class="empty-msg search-empty" hidden>検索結果がありません。</p>');
@@ -835,7 +856,7 @@ function renderContentsNav() {
         const group = groupKey ? groupByKey.get(groupKey) : null;
         if (group && groupKey !== previousGroupKey) {
           sectionParts.push(
-            `<button type="button" class="contents-subgroup" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
+            `<button type="button" class="contents-subgroup" data-nav-target="group-${escapeHtml(group.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
               <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
                 group.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
               }</span>
@@ -903,7 +924,7 @@ function applyFilters() {
   const sectionGroups = [...el.wordList.querySelectorAll(".section-group")];
   if (!q) {
     for (const group of sectionGroups) group.hidden = false;
-    el.wordList.querySelectorAll(".chapter-divider, .section-divider, .label-divider").forEach((divider) => {
+    el.wordList.querySelectorAll(".chapter-divider, .group-divider, .section-divider, .label-divider").forEach((divider) => {
       divider.hidden = false;
     });
     const searchEmpty = el.wordList.querySelector(".search-empty");
@@ -941,10 +962,20 @@ function applyFilters() {
       .filter((group) => groupHasVisibleEntry.get(group))
       .map((group) => group.dataset.chapterKey)
   );
+  const visibleGroupKeys = new Set(
+    sectionGroups
+      .filter((group) => groupHasVisibleEntry.get(group) && group.dataset.groupKey !== "none")
+      .map((group) => group.dataset.groupKey)
+  );
   for (const group of sectionGroups) {
     const chapterDivider = group.querySelector(":scope > .chapter-divider");
     if (chapterDivider) chapterDivider.hidden = !visibleChapterKeys.has(group.dataset.chapterKey);
-    group.hidden = !groupHasVisibleEntry.get(group) && (!chapterDivider || chapterDivider.hidden);
+    const groupDivider = group.querySelector(":scope > .group-divider");
+    if (groupDivider) groupDivider.hidden = !visibleGroupKeys.has(group.dataset.groupKey);
+    group.hidden =
+      !groupHasVisibleEntry.get(group) &&
+      (!chapterDivider || chapterDivider.hidden) &&
+      (!groupDivider || groupDivider.hidden);
   }
   const searchEmpty = el.wordList.querySelector(".search-empty");
   if (searchEmpty) searchEmpty.hidden = sectionGroups.some((group) => !group.hidden);
