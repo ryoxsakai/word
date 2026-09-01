@@ -320,8 +320,8 @@ function renderEntry(w) {
       return `
     <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}">
       ${group.pos ? `<span class="pos-badge">${escapeHtml(group.pos)}</span>` : ""}
-      ${meaningsHtml}
       ${pron ? `<span class="pron sense-pron">${escapeHtml(formatPronunciationWithAccents(pron))}</span>` : ""}
+      ${meaningsHtml}
     </div>`;
     })
     .join("");
