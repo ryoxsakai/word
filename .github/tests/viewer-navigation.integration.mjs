@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 import {
   navigationSectionKeys,
+  sectionNumberRanges,
   wordIdFromHash,
 } from "../../public/viewer/navigation.js";
 
@@ -17,6 +18,17 @@ assert.deepEqual(navigationSectionKeys(sections, "2"), ["0", "1", "2"]);
 assert.deepEqual(navigationSectionKeys(sections, 3), ["1", "2", "3"]);
 assert.deepEqual(navigationSectionKeys(sections, 3, 400), ["0", "1", "2", "3"]);
 assert.deepEqual(navigationSectionKeys(sections, "none"), ["none"]);
+
+const numberRanges = sectionNumberRanges([
+  { sectionKey: "first", seqNo: "1" },
+  { sectionKey: "first", seqNo: "1-1" },
+  { sectionKey: "first", seqNo: "2" },
+  { sectionId: 20, seqNo: "3" },
+  { sectionId: 20, seqNo: "20" },
+  { sectionId: 20, seqNo: "20-1" },
+]);
+assert.deepEqual(numberRanges.get("first"), { first: "1", last: "2" });
+assert.deepEqual(numberRanges.get("20"), { first: "3", last: "20" });
 
 assert.equal(wordIdFromHash("#word-take%20off"), "take off");
 assert.equal(wordIdFromHash("#word-record"), "record");
@@ -70,6 +82,17 @@ assert.match(contentsNavSource, /state\.groups/);
 assert.match(contentsNavSource, /contents-subgroup/);
 assert.match(contentsNavSource, /data-nav-target="group-/);
 assert.match(contentsNavSource, /contents-section[\s\S]*is-grouped/);
+assert.match(contentsNavSource, /sectionNumberRanges\(state\.indexWords\)/);
+assert.match(contentsNavSource, /title="登録ナンバー"/);
+
+const bottomNavSource = appSource.slice(
+  appSource.indexOf("function setBottomNavContent"),
+  appSource.indexOf("function renderContentsNav")
+);
+assert.match(bottomNavSource, /data-index-target/);
+assert.match(bottomNavSource, /索引の頭文字/);
+assert.match(appSource, /function setupIndexObserver\(\)[\s\S]*dataset\.indexKey/);
+assert.match(styleSource, /\.index-group\s*\{[^}]*scroll-margin-top:/);
 
 const sectionShellSource = appSource.slice(
   appSource.indexOf("function renderSectionShells"),
