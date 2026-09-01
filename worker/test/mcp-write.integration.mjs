@@ -226,7 +226,7 @@ try {
 
   const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
-  assert.equal(combinedTools.body.result.tools.length, 52);
+  assert.equal(combinedTools.body.result.tools.length, 54);
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
     "noauth"
