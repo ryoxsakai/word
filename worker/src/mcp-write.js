@@ -208,6 +208,20 @@ export const WRITE_TOOLS = [
     },
   }),
   writeTool({
+    name: "delete_chapter",
+    title: "チャプターを削除",
+    description: "Chapterを削除し、残っている所属SectionをChapter・Group未所属へ戻します。Section自体は削除しません。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        list_id: { type: "string" },
+        chapter_id: { type: "integer", minimum: 1 },
+      },
+      required: ["list_id", "chapter_id"],
+      additionalProperties: false,
+    },
+  }, true),
+  writeTool({
     name: "reorder_chapters",
     title: "チャプターを並べ替え",
     description: "指定した単語帳のチャプターを並べ替えます。現在の全チャプターIDを漏れなく指定します。",
@@ -852,6 +866,29 @@ async function reorderChapters(db, args, auth) {
   return { updated: true, chapterIds: ids };
 }
 
+async function deleteChapter(db, args, auth) {
+  const notebook = await requireNotebook(db, args.list_id);
+  const chapter = await requireChapter(db, notebook.id, args.chapter_id);
+  const sectionCountRow = await db.prepare("SELECT COUNT(*) AS count FROM sections WHERE list_id = ? AND chapter_id = ?").bind(notebook.id, chapter.id).first();
+  const groupCountRow = await db.prepare("SELECT COUNT(*) AS count FROM section_groups WHERE list_id = ? AND chapter_id = ?").bind(notebook.id, chapter.id).first();
+  await db.batch([
+    db.prepare("UPDATE sections SET chapter_id = NULL, group_id = NULL WHERE list_id = ? AND chapter_id = ?").bind(notebook.id, chapter.id),
+    db.prepare("DELETE FROM section_groups WHERE list_id = ? AND chapter_id = ?").bind(notebook.id, chapter.id),
+    db.prepare("DELETE FROM chapters WHERE id = ? AND list_id = ?").bind(chapter.id, notebook.id),
+  ]);
+  await audit(db, auth, "delete_chapter", "chapter", chapter.id, {
+    listId: notebook.id,
+    unassignedSectionCount: Number(sectionCountRow?.count || 0),
+    deletedGroupCount: Number(groupCountRow?.count || 0),
+  });
+  return {
+    deleted: true,
+    chapterId: Number(chapter.id),
+    unassignedSectionCount: Number(sectionCountRow?.count || 0),
+    deletedGroupCount: Number(groupCountRow?.count || 0),
+  };
+}
+
 async function createGroup(db, args, auth) {
   const notebook = await requireNotebook(db, args.list_id);
   const chapter = await requireChapter(db, notebook.id, args.chapter_id);
@@ -1470,6 +1507,7 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "reorder_notebooks") return reorderNotebooks(env.DB, args, auth);
   if (name === "create_chapter") return createChapter(env.DB, args, auth);
   if (name === "update_chapter") return updateChapter(env.DB, args, auth);
+  if (name === "delete_chapter") return deleteChapter(env.DB, args, auth);
   if (name === "reorder_chapters") return reorderChapters(env.DB, args, auth);
   if (name === "create_group") return createGroup(env.DB, args, auth);
   if (name === "update_group") return updateGroup(env.DB, args, auth);

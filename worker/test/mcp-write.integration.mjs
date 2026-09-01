@@ -226,7 +226,7 @@ try {
 
   const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
-  assert.equal(combinedTools.body.result.tools.length, 50);
+  assert.equal(combinedTools.body.result.tools.length, 52);
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
     "noauth"
@@ -240,6 +240,11 @@ try {
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_group"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_group"));
+  assert.ok(
+    combinedTools.body.result.tools.some(
+      (tool) => tool.name === "delete_chapter" && tool.annotations.destructiveHint
+    )
+  );
   assert.ok(
     combinedTools.body.result.tools.some(
       (tool) => tool.name === "delete_group" && tool.annotations.destructiveHint
@@ -278,7 +283,7 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 50);
+  assert.equal(editableTools.body.result.tools.length, 52);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -454,6 +459,20 @@ try {
     )
   );
   assert.equal(updatedChapter.chapter.description, "応用語彙");
+
+  const temporaryChapter = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 430, "tools/call", {
+      name: "create_chapter",
+      arguments: { list_id: listId, subtitle: "一時Chapter" },
+    }, true)
+  );
+  const deletedChapter = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 4301, "tools/call", {
+      name: "delete_chapter",
+      arguments: { list_id: listId, chapter_id: temporaryChapter.chapter.id },
+    }, true)
+  );
+  assert.equal(deletedChapter.deleted, true);
 
   const group = toolResult(
     await rpc(
