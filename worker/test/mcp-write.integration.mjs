@@ -284,7 +284,7 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 52);
+  assert.equal(editableTools.body.result.tools.length, 54);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
