@@ -572,7 +572,7 @@ body.is-loading .section-nav { display: none; }
 }
 /* 文字(A, Bなど)ごとに独立した段組みにする。全体を1つのcolumnsにまとめて流し込むと、
    同じ列の中でa→bのように文字が混ざってしまい、印刷時に見出しの区切りが分かりにくくなるため */
-.index-group { break-inside: avoid-page; margin-bottom: 0.9rem; }
+.index-group { break-inside: avoid-page; margin-bottom: 0.9rem; scroll-margin-top: 6.2rem; }
 .index-letter {
   font-size: 1.05rem;
   font-weight: 700;
