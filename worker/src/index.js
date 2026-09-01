@@ -248,6 +248,7 @@ async function deleteList(db, listId) {
   await db.prepare("DELETE FROM list_items WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM section_labels WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM sections WHERE list_id = ?").bind(listId).run();
+  await db.prepare("DELETE FROM section_groups WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM chapters WHERE list_id = ?").bind(listId).run();
   await db.prepare("DELETE FROM lists WHERE id = ?").bind(listId).run();
   return json({ ok: true });
@@ -316,7 +317,7 @@ async function listWordsInList(db, listId, options = {}) {
               li.no AS no, li.branch AS branch, li.section_id AS sectionId, s.name AS sectionName,
               li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.sort_order AS sectionSortOrder,
-              s.chapter_id AS chapterId, c.sort_order AS chapterSortOrder,
+              s.chapter_id AS chapterId, s.group_id AS groupId, c.sort_order AS chapterSortOrder,
               w.derived_from_id AS derivedFromId,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
@@ -705,7 +706,7 @@ async function getViewerIndex(db, listId, request) {
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
               li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
-              s.chapter_id AS chapterId, c.subtitle AS chapterSubtitle,
+              s.chapter_id AS chapterId, s.group_id AS groupId, c.subtitle AS chapterSubtitle,
               c.description AS chapterDescription, c.sort_order AS chapterSortOrder
        FROM list_items li JOIN words w ON w.id = li.word_id
        LEFT JOIN sections s ON s.id = li.section_id
@@ -726,10 +727,22 @@ async function getViewerIndex(db, listId, request) {
   const sectionNameById = (sectionId) =>
     sectionId != null && sectionPositionById.has(sectionId) ? `${sectionLabel} ${sectionPositionById.get(sectionId)}` : null;
 
-  const { results: orderedChapters } = await db
+  const [{ results: orderedChapters }, { results: orderedGroups }] = await Promise.all([
+    db
     .prepare("SELECT id FROM chapters WHERE list_id = ? ORDER BY sort_order, id")
     .bind(listId)
-    .all();
+    .all(),
+    db
+      .prepare(
+        `SELECT g.id, g.subtitle, g.description, g.sort_order AS sortOrder, g.chapter_id AS chapterId
+         FROM section_groups g
+         LEFT JOIN chapters c ON c.id = g.chapter_id
+         WHERE g.list_id = ?
+         ORDER BY COALESCE(c.sort_order, -1), g.sort_order, g.id`
+      )
+      .bind(listId)
+      .all(),
+  ]);
   const chapterPositionById = new Map(orderedChapters.map((chapter, index) => [chapter.id, index + 1]));
   const chapterLabel = list.chapterLabel || "Chapter";
   const chapterNameById = (chapterId) =>
@@ -779,6 +792,7 @@ async function getViewerIndex(db, listId, request) {
       labelName: item.labelName,
       labelSortOrder: item.labelSortOrder,
       chapterId: item.chapterId,
+      groupId: item.groupId,
       derivedFromId: item.derivedFromId,
       derivatives: derivativesByWord.get(item.id) || [],
       phrases: (phrasesByWord.get(item.id) || []).map((phrase) => phrase.sentence),
@@ -789,6 +803,7 @@ async function getViewerIndex(db, listId, request) {
   const chapterByKey = new Map();
   const sections = [];
   const sectionByKey = new Map();
+  const groupCountById = new Map();
   for (const item of items) {
     const chapterKey = item.chapterId != null ? String(item.chapterId) : "none";
     let chapter = chapterByKey.get(chapterKey);
@@ -807,6 +822,11 @@ async function getViewerIndex(db, listId, request) {
     }
     chapter.count += 1;
 
+    if (item.groupId != null) {
+      const groupId = Number(item.groupId);
+      groupCountById.set(groupId, (groupCountById.get(groupId) || 0) + 1);
+    }
+
     const sectionKey = item.sectionId != null ? String(item.sectionId) : "none";
     let section = sectionByKey.get(sectionKey);
     if (!section) {
@@ -819,6 +839,8 @@ async function getViewerIndex(db, listId, request) {
         sortOrder: item.sectionSortOrder,
         chapterId: item.chapterId,
         chapterKey,
+        groupId: item.groupId,
+        groupKey: item.groupId != null ? String(item.groupId) : "none",
         count: 0,
       };
       sectionByKey.set(sectionKey, section);
@@ -827,7 +849,19 @@ async function getViewerIndex(db, listId, request) {
     section.count += 1;
   }
 
-  return cacheableJson({ list, chapters, sections, words }, request);
+  const groups = orderedGroups.map((group, index) => ({
+    key: String(group.id),
+    id: Number(group.id),
+    name: `Group ${index + 1}`,
+    subtitle: group.subtitle || "",
+    description: group.description || "",
+    sortOrder: group.sortOrder,
+    chapterId: Number(group.chapterId),
+    chapterKey: String(group.chapterId),
+    count: groupCountById.get(Number(group.id)) || 0,
+  }));
+
+  return cacheableJson({ list, chapters, groups, sections, words }, request);
 }
 
 async function searchViewerWords(db, listId, request) {
@@ -902,8 +936,11 @@ async function updateChapter(db, listId, chapterId, body) {
 }
 
 async function deleteChapter(db, listId, chapterId) {
-  await db.prepare("UPDATE sections SET chapter_id = NULL WHERE list_id = ? AND chapter_id = ?").bind(listId, chapterId).run();
-  await db.prepare("DELETE FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId).run();
+  await db.batch([
+    db.prepare("UPDATE sections SET chapter_id = NULL, group_id = NULL WHERE list_id = ? AND chapter_id = ?").bind(listId, chapterId),
+    db.prepare("DELETE FROM section_groups WHERE list_id = ? AND chapter_id = ?").bind(listId, chapterId),
+    db.prepare("DELETE FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId),
+  ]);
   // チャプター所属だったセクションが「チャプターなし」(表示上は先頭)へ移るため、
   // 単語のnoも新しい表示順に合わせて振り直す(reorderChapters/reorderSectionsと同じ考え方)。
   await renumberListItemsToMatchDisplayOrder(db, listId);
@@ -949,6 +986,67 @@ async function renumberSectionsToMatchChapterOrder(db, listId) {
   await runBatched(db, stmts);
 }
 
+// ---- groups ----
+// GroupはChapterとSectionの間に置く目次専用の階層。
+// 閲覧本文にはGroup帯を描画せず、目次で関連Sectionをまとめるためにだけ使う。
+
+async function listGroups(db, listId) {
+  if (listId === MASTER_LIST_ID) return json([]);
+  const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
+  if (!list) return notFound("list not found");
+  const { results } = await db
+    .prepare(
+      `SELECT g.id, g.subtitle, g.description, g.sort_order AS sortOrder, g.chapter_id AS chapterId
+       FROM section_groups g
+       LEFT JOIN chapters c ON c.id = g.chapter_id
+       WHERE g.list_id = ?
+       ORDER BY COALESCE(c.sort_order, -1), g.sort_order, g.id`
+    )
+    .bind(listId)
+    .all();
+  return json(results);
+}
+
+async function createGroup(db, listId, body) {
+  const chapterId = Number(body.chapterId);
+  const chapter = await db.prepare("SELECT id FROM chapters WHERE id = ? AND list_id = ?").bind(chapterId, listId).first();
+  if (!chapter) return badRequest("chapter does not belong to list");
+  const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM section_groups WHERE list_id = ?").bind(listId).first();
+  const sortOrder = Number(row?.m || 0) + 1;
+  const result = await db
+    .prepare("INSERT INTO section_groups (list_id, chapter_id, subtitle, description, sort_order) VALUES (?, ?, ?, ?, ?)")
+    .bind(listId, chapterId, body.subtitle || null, body.description || null, sortOrder)
+    .run();
+  return json(
+    {
+      id: result.meta.last_row_id,
+      chapterId,
+      subtitle: body.subtitle || null,
+      description: body.description || null,
+      sortOrder,
+    },
+    { status: 201 }
+  );
+}
+
+async function updateGroup(db, listId, groupId, body) {
+  const group = await db.prepare("SELECT id FROM section_groups WHERE id = ? AND list_id = ?").bind(groupId, listId).first();
+  if (!group) return notFound("group not found");
+  await db
+    .prepare("UPDATE section_groups SET subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
+    .bind(body.subtitle || null, body.description || null, groupId, listId)
+    .run();
+  return json({ id: Number(groupId), subtitle: body.subtitle || null, description: body.description || null });
+}
+
+async function deleteGroup(db, listId, groupId) {
+  await db.batch([
+    db.prepare("UPDATE sections SET group_id = NULL WHERE list_id = ? AND group_id = ?").bind(listId, groupId),
+    db.prepare("DELETE FROM section_groups WHERE id = ? AND list_id = ?").bind(groupId, listId),
+  ]);
+  return json({ ok: true });
+}
+
 // ---- sections ----
 
 async function listSections(db, listId) {
@@ -957,7 +1055,7 @@ async function listSections(db, listId) {
   if (!list) return notFound("list not found");
   const { results } = await db
     .prepare(
-      "SELECT id, name, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId FROM sections WHERE list_id = ? ORDER BY sort_order, id"
+      "SELECT id, name, subtitle, description, sort_order AS sortOrder, chapter_id AS chapterId, group_id AS groupId FROM sections WHERE list_id = ? ORDER BY sort_order, id"
     )
     .bind(listId)
     .all();
@@ -969,26 +1067,47 @@ async function listSections(db, listId) {
 async function createSection(db, listId, body) {
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
+  const chapterId = body.chapterId == null ? null : Number(body.chapterId);
+  const groupId = body.groupId == null ? null : Number(body.groupId);
+  if (groupId !== null) {
+    const group = await db
+      .prepare("SELECT id FROM section_groups WHERE id = ? AND list_id = ? AND chapter_id = ?")
+      .bind(groupId, listId, chapterId)
+      .first();
+    if (!group) return badRequest("group does not belong to chapter");
+  }
   const row = await db.prepare("SELECT COALESCE(MAX(sort_order), 0) AS m FROM sections WHERE list_id = ?").bind(listId).first();
   const sortOrder = (row?.m || 0) + 1;
   const result = await db
-    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order, chapter_id) VALUES (?, '', ?, ?, ?, ?)")
-    .bind(listId, body.subtitle || null, body.description || null, sortOrder, body.chapterId || null)
+    .prepare("INSERT INTO sections (list_id, name, subtitle, description, sort_order, chapter_id, group_id) VALUES (?, '', ?, ?, ?, ?, ?)")
+    .bind(listId, body.subtitle || null, body.description || null, sortOrder, chapterId, groupId)
     .run();
   return json(
-    { id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder, chapterId: body.chapterId || null },
+    { id: result.meta.last_row_id, subtitle: body.subtitle || null, description: body.description || null, sortOrder, chapterId, groupId },
     { status: 201 }
   );
 }
 
 async function updateSection(db, listId, sectionId, body) {
-  const section = await db.prepare("SELECT id FROM sections WHERE id = ? AND list_id = ?").bind(sectionId, listId).first();
+  const section = await db
+    .prepare("SELECT id, chapter_id AS chapterId, group_id AS groupId FROM sections WHERE id = ? AND list_id = ?")
+    .bind(sectionId, listId)
+    .first();
   if (!section) return notFound("section not found");
+  const chapterId = body.chapterId === undefined ? section.chapterId : body.chapterId;
+  const groupId = body.groupId === undefined ? section.groupId : body.groupId;
+  if (groupId != null) {
+    const group = await db
+      .prepare("SELECT id FROM section_groups WHERE id = ? AND list_id = ? AND chapter_id = ?")
+      .bind(groupId, listId, chapterId)
+      .first();
+    if (!group) return badRequest("group does not belong to chapter");
+  }
   await db
-    .prepare("UPDATE sections SET subtitle = ?, description = ? WHERE id = ? AND list_id = ?")
-    .bind(body.subtitle || null, body.description || null, sectionId, listId)
+    .prepare("UPDATE sections SET subtitle = ?, description = ?, chapter_id = ?, group_id = ? WHERE id = ? AND list_id = ?")
+    .bind(body.subtitle || null, body.description || null, chapterId ?? null, groupId ?? null, sectionId, listId)
     .run();
-  return json({ id: Number(sectionId), subtitle: body.subtitle || null, description: body.description || null });
+  return json({ id: Number(sectionId), subtitle: body.subtitle || null, description: body.description || null, chapterId: chapterId ?? null, groupId: groupId ?? null });
 }
 
 async function deleteSection(db, listId, sectionId) {
@@ -1066,10 +1185,31 @@ async function reorderSections(db, listId, body) {
   const sections = body.sections;
   if (!Array.isArray(sections) || sections.length === 0) return badRequest("sections is required");
 
-  const stmts = sections.map((s, index) =>
+  const [{ results: currentRows }, { results: groupRows }] = await Promise.all([
+    db.prepare("SELECT id, group_id AS groupId FROM sections WHERE list_id = ?").bind(listId).all(),
+    db.prepare("SELECT id, chapter_id AS chapterId FROM section_groups WHERE list_id = ?").bind(listId).all(),
+  ]);
+  const currentById = new Map(currentRows.map((row) => [Number(row.id), row]));
+  if (sections.length !== currentRows.length || new Set(sections.map((section) => Number(section.id))).size !== currentRows.length) {
+    return badRequest("sections must contain every current section id exactly once");
+  }
+  const groupChapterById = new Map(groupRows.map((row) => [Number(row.id), Number(row.chapterId)]));
+  const normalized = [];
+  for (const section of sections) {
+    const id = Number(section.id);
+    if (!currentById.has(id)) return badRequest("section does not belong to list");
+    const chapterId = section.chapterId == null ? null : Number(section.chapterId);
+    const requestedGroupId = section.groupId === undefined ? currentById.get(id).groupId : section.groupId;
+    const groupId = requestedGroupId == null ? null : Number(requestedGroupId);
+    if (groupId !== null && groupChapterById.get(groupId) !== chapterId) {
+      return badRequest("group does not belong to chapter");
+    }
+    normalized.push({ id, chapterId, groupId });
+  }
+  const stmts = normalized.map((section, index) =>
     db
-      .prepare("UPDATE sections SET sort_order = ?, chapter_id = ? WHERE id = ? AND list_id = ?")
-      .bind(index + 1, s.chapterId ?? null, s.id, listId)
+      .prepare("UPDATE sections SET sort_order = ?, chapter_id = ?, group_id = ? WHERE id = ? AND list_id = ?")
+      .bind(index + 1, section.chapterId, section.groupId, section.id, listId)
   );
   await runBatched(db, stmts);
 
@@ -2438,6 +2578,18 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/chapters/reorder
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "chapters" && parts[4] === "reorder" && method === "POST") {
     return await reorderChapters(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/groups
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "groups") {
+    if (method === "GET") return await listGroups(db, parts[2]);
+    if (method === "POST") return await createGroup(db, parts[2], await request.json());
+  }
+
+  // /api/lists/:listId/groups/:groupId
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "groups") {
+    if (method === "DELETE") return await deleteGroup(db, parts[2], parts[4]);
+    if (method === "PUT") return await updateGroup(db, parts[2], parts[4], await request.json());
   }
 
   // /api/lists/:listId/sections

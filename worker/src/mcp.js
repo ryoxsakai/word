@@ -104,6 +104,9 @@ async function loadNotebook(db, listId) {
       sectionLabel: "Section",
       chapterLabel: "Chapter",
       wordCount: Number(count?.count || 0),
+      sectionCount: 0,
+      groupCount: 0,
+      chapterCount: 0,
       isMaster: true,
     };
   }
@@ -114,6 +117,7 @@ async function loadNotebook(db, listId) {
         "l.chapter_label AS chapterLabel, l.sort_order AS sortOrder, " +
         "(SELECT COUNT(*) FROM list_items li WHERE li.list_id = l.id) AS wordCount, " +
         "(SELECT COUNT(*) FROM sections s WHERE s.list_id = l.id) AS sectionCount, " +
+        "(SELECT COUNT(*) FROM section_groups g WHERE g.list_id = l.id) AS groupCount, " +
         "(SELECT COUNT(*) FROM chapters c WHERE c.list_id = l.id) AS chapterCount " +
         "FROM lists l WHERE l.id = ?"
     )
@@ -124,6 +128,7 @@ async function loadNotebook(db, listId) {
     ...row,
     wordCount: Number(row.wordCount || 0),
     sectionCount: Number(row.sectionCount || 0),
+    groupCount: Number(row.groupCount || 0),
     chapterCount: Number(row.chapterCount || 0),
     isMaster: false,
   };
@@ -138,6 +143,7 @@ async function listNotebooks(db) {
           "l.section_label AS sectionLabel, l.chapter_label AS chapterLabel, " +
           "(SELECT COUNT(*) FROM list_items li WHERE li.list_id = l.id) AS wordCount, " +
           "(SELECT COUNT(*) FROM sections s WHERE s.list_id = l.id) AS sectionCount, " +
+          "(SELECT COUNT(*) FROM section_groups g WHERE g.list_id = l.id) AS groupCount, " +
           "(SELECT COUNT(*) FROM chapters c WHERE c.list_id = l.id) AS chapterCount " +
           "FROM lists l " +
           "WHERE l.id != ? AND l.id NOT LIKE 'awl-sublist-%' AND l.id NOT LIKE 'oxford5000-%' " +
@@ -158,6 +164,7 @@ async function listNotebooks(db) {
         chapterLabel: "Chapter",
         wordCount: Number(masterCount?.count || 0),
         sectionCount: 0,
+        groupCount: 0,
         chapterCount: 0,
         isMaster: true,
       },
@@ -165,6 +172,7 @@ async function listNotebooks(db) {
         ...row,
         wordCount: Number(row.wordCount || 0),
         sectionCount: Number(row.sectionCount || 0),
+        groupCount: Number(row.groupCount || 0),
         chapterCount: Number(row.chapterCount || 0),
         isMaster: false,
       })),
@@ -181,11 +189,11 @@ async function getNotebookStructure(db, args) {
       chapters: [],
       ungroupedSections: [],
       unassignedWordCount: notebook.wordCount,
-      summary: { chapterCount: 0, sectionCount: 0, wordCount: notebook.wordCount },
+      summary: { chapterCount: 0, groupCount: 0, sectionCount: 0, wordCount: notebook.wordCount },
     };
   }
 
-  const [chapterRows, labelRows, sectionRows, unassignedRow] = await Promise.all([
+  const [chapterRows, groupRows, labelRows, sectionRows, unassignedRow] = await Promise.all([
     db
       .prepare(
         "SELECT c.id, c.subtitle, c.description, c.sort_order AS sortOrder, " +
@@ -199,6 +207,17 @@ async function getNotebookStructure(db, args) {
       .all(),
     db
       .prepare(
+        "SELECT g.id, g.subtitle, g.description, g.sort_order AS sortOrder, g.chapter_id AS chapterId, " +
+          "COUNT(DISTINCT s.id) AS sectionCount, COUNT(DISTINCT li.word_id) AS wordCount " +
+          "FROM section_groups g " +
+          "LEFT JOIN sections s ON s.group_id = g.id AND s.list_id = g.list_id " +
+          "LEFT JOIN list_items li ON li.section_id = s.id AND li.list_id = g.list_id " +
+          "WHERE g.list_id = ? GROUP BY g.id ORDER BY g.sort_order, g.id"
+      )
+      .bind(listId)
+      .all(),
+    db
+      .prepare(
         "SELECT sl.id, sl.section_id AS sectionId, sl.name, sl.sort_order AS sortOrder, COUNT(li.word_id) AS wordCount " +
           "FROM section_labels sl LEFT JOIN list_items li ON li.label_id = sl.id AND li.list_id = sl.list_id " +
           "WHERE sl.list_id = ? GROUP BY sl.id ORDER BY sl.section_id, sl.sort_order, sl.id"
@@ -207,7 +226,7 @@ async function getNotebookStructure(db, args) {
       .all(),
     db
       .prepare(
-        "SELECT s.id, s.subtitle, s.description, s.sort_order AS sortOrder, s.chapter_id AS chapterId, " +
+        "SELECT s.id, s.subtitle, s.description, s.sort_order AS sortOrder, s.chapter_id AS chapterId, s.group_id AS groupId, " +
           "COUNT(li.word_id) AS wordCount " +
           "FROM sections s " +
           "LEFT JOIN list_items li ON li.section_id = s.id AND li.list_id = s.list_id " +
@@ -224,6 +243,7 @@ async function getNotebookStructure(db, args) {
   const sections = sectionRows.results.map((row, index) => ({
     ...row,
     chapterId: row.chapterId === null ? null : Number(row.chapterId),
+    groupId: row.groupId === null ? null : Number(row.groupId),
     wordCount: Number(row.wordCount || 0),
     displayName: (notebook.sectionLabel || "Section") + " " + (index + 1),
     labels: labelRows.results
@@ -237,21 +257,38 @@ async function getNotebookStructure(db, args) {
     sectionsByChapter.get(section.chapterId).push(section);
   }
 
+  const groups = groupRows.results.map((row, index) => ({
+    ...row,
+    chapterId: Number(row.chapterId),
+    sectionCount: Number(row.sectionCount || 0),
+    wordCount: Number(row.wordCount || 0),
+    displayName: "Group " + (index + 1),
+    sections: sections.filter((section) => section.groupId === Number(row.id)),
+  }));
+  const groupsByChapter = new Map();
+  for (const group of groups) {
+    if (!groupsByChapter.has(group.chapterId)) groupsByChapter.set(group.chapterId, []);
+    groupsByChapter.get(group.chapterId).push(group);
+  }
+
   const chapters = chapterRows.results.map((row, index) => ({
     ...row,
     sectionCount: Number(row.sectionCount || 0),
     wordCount: Number(row.wordCount || 0),
     displayName: (notebook.chapterLabel || "Chapter") + " " + (index + 1),
+    groups: groupsByChapter.get(Number(row.id)) || [],
     sections: sectionsByChapter.get(Number(row.id)) || [],
   }));
 
   return {
     notebook,
     chapters,
+    groups,
     ungroupedSections: sections.filter((section) => section.chapterId === null),
     unassignedWordCount: Number(unassignedRow?.count || 0),
     summary: {
       chapterCount: chapters.length,
+      groupCount: groups.length,
       sectionCount: sections.length,
       wordCount: notebook.wordCount,
     },
@@ -538,7 +575,7 @@ const TOOLS = [
     name: "get_notebook_structure",
     title: "単語帳構成",
     description:
-      "指定した単語帳のチャプターとセクションを表示順で取得し、それぞれの単語数も返します。単語帳の章立てや収録範囲を確認するときに使用します。",
+      "指定した単語帳のチャプター、目次用グループ、セクションを表示順で取得し、それぞれの単語数も返します。単語帳の章立てや収録範囲を確認するときに使用します。",
     inputSchema: {
       type: "object",
       properties: {

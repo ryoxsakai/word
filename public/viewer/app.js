@@ -47,6 +47,7 @@ const state = {
   currentListId: null,
   indexWords: [],
   chapters: [],
+  groups: [],
   sections: [],
   wordMetaById: new Map(),
   headwordIndex: new Map(),
@@ -248,6 +249,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     if (generation !== listLoadGeneration) return;
     state.indexWords = data.words || [];
     state.chapters = data.chapters || [];
+    state.groups = data.groups || [];
     state.sections = data.sections || [];
     state.loadedSectionKeys = new Set();
     state.sectionPromises = new Map();
@@ -821,16 +823,37 @@ function renderContentsNav() {
             <span class="contents-item-count">(${chapter.count})</span>
           </button>`
         : "";
-      const sections = chapterSections
-        .map(
-          (section) => `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
+      const groupByKey = new Map(
+        state.groups
+          .filter((group) => String(group.chapterKey) === String(chapter.key))
+          .map((group) => [String(group.key), group])
+      );
+      let previousGroupKey = null;
+      const sectionParts = [];
+      for (const section of chapterSections) {
+        const groupKey = section.groupId != null ? String(section.groupKey) : null;
+        const group = groupKey ? groupByKey.get(groupKey) : null;
+        if (group && groupKey !== previousGroupKey) {
+          sectionParts.push(
+            `<button type="button" class="contents-subgroup" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
+              <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
+                group.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
+              }</span>
+              <span class="contents-item-count">(${group.count})</span>
+            </button>`
+          );
+        }
+        previousGroupKey = groupKey;
+        sectionParts.push(
+          `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
               section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
             }</span>
             <span class="contents-item-count">(${section.count})</span>
           </button>`
-        )
-        .join("");
+        );
+      }
+      const sections = sectionParts.join("");
       return `<div class="contents-group">${chapterButton}${sections}</div>`;
     })
     .join("");
