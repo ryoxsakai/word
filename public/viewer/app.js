@@ -708,8 +708,8 @@ function setupLazySectionObserver() {
 // ---- 索引（abc順） ----
 
 // state.indexWordsには見出し語(branch=0)と派生語エントリー(branch>0)しか並ばないため、
-// 各エントリーの derivatives（例文欄と違い、独立したエントリーを持たない参考の派生語）も
-// 拾い上げて索引に含める。ただし派生語自身が別途エントリーを持つ場合は二重掲載しない。
+// 独立見出し語に加え、派生語・類義語・対義語から収録元の見出し語へ戻る参照も索引に含める。
+// 参照語自身が独立見出し語として収録済みの場合は、独立見出し語を優先する。
 function buildAlphabeticalIndex() {
   return buildAlphabeticalIndexEntries(state.indexWords);
 }
