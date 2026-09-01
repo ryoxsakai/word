@@ -20,6 +20,7 @@ const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
 const REFERENCE_NUMBER_RE = /[（(]\s*no[.．]\s*\d+(?:-\d+)*\s*[)）]/gi;
 const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701|\uE800\d+\uE801)/g;
+const JAPANESE_TEXT_RE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 
 const ENGLISH_WORD_RE =
   /(^|[^\p{Script=Latin}\p{N}_])(\p{Script=Latin}+(?:[-'’]\p{Script=Latin}+)*)(?=$|[^\p{Script=Latin}\p{N}_])/gu;
@@ -81,10 +82,82 @@ export function renderMarkup(raw, opts = {}) {
   return html;
 }
 
+function splitTrailingWordListGloss(source) {
+  const halfWidth = source.match(/^(.*?)\s*\(([^()]*)\)\s*$/u);
+  const fullWidth = source.match(/^(.*?)\s*（([^（）]*)）\s*$/u);
+  const match = halfWidth || fullWidth;
+  if (!match || !JAPANESE_TEXT_RE.test(match[2])) {
+    return { markup: source, gloss: "" };
+  }
+  return { markup: match[1].trim(), gloss: match[2].trim() };
+}
+
+function splitWordListSource(raw) {
+  const items = [];
+  let buffer = "";
+  let halfWidthParenDepth = 0;
+  let fullWidthParenDepth = 0;
+  let insideCrossRef = false;
+
+  const pushBuffer = () => {
+    const item = buffer.trim();
+    if (item) items.push(item);
+    buffer = "";
+  };
+
+  const source = String(raw);
+  for (let index = 0; index < source.length; index += 1) {
+    if (source.startsWith("##", index)) {
+      insideCrossRef = !insideCrossRef;
+      buffer += "##";
+      index += 1;
+      continue;
+    }
+
+    const char = source[index];
+    if (!insideCrossRef) {
+      if (char === "(") halfWidthParenDepth += 1;
+      if (char === ")" && halfWidthParenDepth > 0) halfWidthParenDepth -= 1;
+      if (char === "（") fullWidthParenDepth += 1;
+      if (char === "）" && fullWidthParenDepth > 0) fullWidthParenDepth -= 1;
+      const isSeparator = /[,;；、]/.test(char);
+      if (isSeparator && halfWidthParenDepth === 0 && fullWidthParenDepth === 0) {
+        pushBuffer();
+        continue;
+      }
+    }
+    buffer += char;
+  }
+  pushBuffer();
+  return items;
+}
+
 /**
- * 類義語・対義語欄のカンマ/セミコロン区切り項目を表示する。
+ * 類義語・対義語・関連語欄を、リンク判定用の語と補助語義に分ける。
+ * 末尾の日本語括弧は補助語義として扱い、##headword|表示## の場合は
+ * 表示文言ではなく headword を参照・索引用の語として返す。
+ * @param {string} raw
+ * @returns {Array<{markup: string, target: string, gloss: string, index: number}>}
+ */
+export function parseWordListItems(raw) {
+  if (!raw) return [];
+  return splitWordListSource(raw)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((source, index) => {
+      const { markup, gloss } = splitTrailingWordListGloss(source);
+      const explicitRef = new RegExp(CROSSREF_RE.source).exec(markup);
+      const target = explicitRef ? explicitRef[1].trim() : stripMarkup(markup).trim();
+      return { markup, target, gloss, index };
+    })
+    .filter((item) => item.markup && item.target);
+}
+
+/**
+ * 類義語・対義語・関連語欄のカンマ/セミコロン区切り項目を表示する。
  * 明示的な ##参照## はそのまま扱い、素の項目が見出し語と完全一致する場合も
- * ##で囲んだ場合と同じリンク・番号表示にする。
+ * ##で囲んだ場合と同じリンク・番号表示にする。登録済みの語は単語部分だけを
+ * 太字にし、入力された補助語義は省略する。未登録語は補助語義を括弧内に表示する。
  * @param {string} raw
  * @param {object} [opts] renderMarkup と同じオプション
  * @returns {string}
@@ -92,21 +165,21 @@ export function renderMarkup(raw, opts = {}) {
 export function renderWordListMarkup(raw, opts = {}) {
   if (!raw) return "";
   const { resolve } = opts;
-  return String(raw)
-    .split(/[,;；]/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .map((part, index) => {
-      const explicitRef = new RegExp(CROSSREF_RE.source).exec(part);
-      const headword = explicitRef ? explicitRef[1].trim() : part;
-      const result = resolve ? resolve(headword) : null;
+  return parseWordListItems(raw)
+    .map(({ markup, target, gloss, index }) => {
+      const result = resolve ? resolve(target) : null;
       const displayNo = result?.found && result.no != null ? String(result.no) : "";
       const sortKey = /^\d+(?:-\d+)*$/.test(displayNo) ? displayNo.split("-").map(Number) : null;
-      const html = part.includes("##")
-        ? renderMarkup(part, opts)
-        : result?.found
-          ? renderMarkup(`##${part}##`, opts)
-          : renderMarkup(part, opts);
+      let html;
+      if (result?.found) {
+        const linkedMarkup = markup.includes("##") ? markup : `##${target}##`;
+        html = renderMarkup(linkedMarkup, { ...opts, boldRefs: true });
+      } else {
+        const glossHtml = gloss
+          ? ` <span class="word-list-gloss">(${escapeHtml(gloss)})</span>`
+          : "";
+        html = `${renderMarkup(markup, opts)}${glossHtml}`;
+      }
       return { html, index, sortKey };
     })
     .sort((a, b) => {

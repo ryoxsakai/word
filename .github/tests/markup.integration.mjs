@@ -17,6 +17,7 @@ const entries = new Map([
   ["seem", { id: "seem", no: 16 }],
   ["record", { id: "record", no: 20 }],
   ["take off", { id: "take-off", no: 30 }],
+  ["genuine", { id: "genuine", no: 74 }],
   ["have", { id: "have", no: 122 }],
   ["bearing", { id: "bearing", no: 776 }],
 ]);
@@ -25,6 +26,11 @@ const resolve = (headword) => {
   return hit ? { found: true, ...hit } : { found: false };
 };
 const render = createAutoCrossRefRenderer(entries.keys(), { resolve });
+
+assert.equal(
+  renderWordListMarkup("genuine (本物の), clean (きれいな)", { resolve }),
+  '<a href="#word-genuine" class="ref" data-headword="genuine" data-word-id="genuine"><strong>genuine</strong><span class="ref-no"> (no.74)</span></a>, clean <span class="word-list-gloss">(きれいな)</span>'
+);
 
 const phraseReferences = collectPhraseCrossReferences([
   {
@@ -99,7 +105,27 @@ assert.match(
 );
 assert.equal(
   renderWordListMarkup("success", { resolve: resolveDerivative }),
-  '<a href="#word-succeed" class="ref" data-headword="success" data-word-id="succeed">success<span class="ref-no"> (no.40)</span></a>'
+  '<a href="#word-succeed" class="ref" data-headword="success" data-word-id="succeed"><strong>success</strong><span class="ref-no"> (no.40)</span></a>'
+);
+assert.equal(
+  renderWordListMarkup("succeed (成功), clean (きれいな)", { resolve: resolveDerivative }),
+  '<a href="#word-succeed" class="ref" data-headword="succeed" data-word-id="succeed"><strong>succeed</strong><span class="ref-no"> (no.40)</span></a>, clean <span class="word-list-gloss">(きれいな)</span>'
+);
+assert.equal(
+  renderWordListMarkup("clean（きれいな）", { resolve: resolveDerivative }),
+  'clean <span class="word-list-gloss">(きれいな)</span>'
+);
+assert.equal(
+  renderWordListMarkup("clean (きれいな、清潔な), ##succeed|success, achievement## (成功)", { resolve: resolveDerivative }),
+  '<a href="#word-succeed" class="ref" data-headword="succeed" data-word-id="succeed"><strong>success, achievement</strong><span class="ref-no"> (no.40)</span></a>, clean <span class="word-list-gloss">(きれいな、清潔な)</span>'
+);
+assert.equal(
+  renderWordListMarkup("##succeed|success## (成功)", { resolve: resolveDerivative }),
+  '<a href="#word-succeed" class="ref" data-headword="succeed" data-word-id="succeed"><strong>success</strong><span class="ref-no"> (no.40)</span></a>'
+);
+assert.equal(
+  renderWordListMarkup("clean (<img src=x>きれいな)", { resolve: resolveDerivative }),
+  'clean <span class="word-list-gloss">(&lt;img src=x&gt;きれいな)</span>'
 );
 assert.doesNotMatch(
   renderWithDerivatives("successは派生名詞。", { currentHeadword: "succeed" }),

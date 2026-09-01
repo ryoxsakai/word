@@ -30,9 +30,9 @@ const alphabeticalEntries = buildAlphabeticalIndexEntries([
     spelling: "begin",
     seqNo: "1",
     derivatives: [{ word: "beginning" }],
-    synonyms: "start, ##commence##, commence",
+    synonyms: "start (始める), ##commence|commencement## (開始), commence",
     antonyms: "end; stop",
-    relatedWords: "origin、launch",
+    relatedWords: "origin（起源）、launch (開始)",
   },
   {
     id: "finish",

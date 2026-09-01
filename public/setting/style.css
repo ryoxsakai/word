@@ -1278,6 +1278,7 @@ legend .hint {
 }
 .preview .memo-current-headword { color: var(--memo-current-headword); }
 .preview .ref-no { color: var(--text-muted); font-weight: 400; }
+.preview .word-list-gloss { font-weight: 400; }
 .preview .ref-missing .memo-current-headword { color: inherit; }
 .preview mark {
   background: #fff3bf;
