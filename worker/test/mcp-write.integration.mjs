@@ -226,7 +226,7 @@ try {
 
   const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
-  assert.equal(combinedTools.body.result.tools.length, 46);
+  assert.equal(combinedTools.body.result.tools.length, 50);
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
     "noauth"
@@ -239,6 +239,12 @@ try {
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_group"));
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_group"));
+  assert.ok(
+    combinedTools.body.result.tools.some(
+      (tool) => tool.name === "delete_group" && tool.annotations.destructiveHint
+    )
+  );
   assert.ok(
     combinedTools.body.result.tools.some(
       (tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint
@@ -272,7 +278,7 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 46);
+  assert.equal(editableTools.body.result.tools.length, 50);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -465,6 +471,28 @@ try {
   );
   assert.equal(group.created, true);
   const groupId = group.group.id;
+
+  const updatedGroup = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 432, "tools/call", {
+      name: "update_group",
+      arguments: { list_id: listId, group_id: groupId, subtitle: "文型・構文" },
+    }, true)
+  );
+  assert.equal(updatedGroup.group.subtitle, "文型・構文");
+
+  const temporaryGroup = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 433, "tools/call", {
+      name: "create_group",
+      arguments: { list_id: listId, chapter_id: secondChapterId, subtitle: "一時Group" },
+    }, true)
+  );
+  const deletedGroup = toolResult(
+    await rpc(env, accessToken, "/mcp-write", 434, "tools/call", {
+      name: "delete_group",
+      arguments: { list_id: listId, group_id: temporaryGroup.group.id },
+    }, true)
+  );
+  assert.equal(deletedGroup.deleted, true);
 
   const thirdSection = toolResult(
     await rpc(
