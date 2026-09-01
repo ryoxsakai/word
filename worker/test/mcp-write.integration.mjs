@@ -226,7 +226,7 @@ try {
 
   const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
-  assert.equal(combinedTools.body.result.tools.length, 44);
+  assert.equal(combinedTools.body.result.tools.length, 46);
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
     "noauth"
@@ -238,6 +238,7 @@ try {
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "update_label"));
+  assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_group"));
   assert.ok(
     combinedTools.body.result.tools.some(
       (tool) => tool.name === "remove_words_from_notebook" && tool.annotations.destructiveHint
@@ -271,7 +272,7 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 44);
+  assert.equal(editableTools.body.result.tools.length, 46);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -448,6 +449,23 @@ try {
   );
   assert.equal(updatedChapter.chapter.description, "応用語彙");
 
+  const group = toolResult(
+    await rpc(
+      env,
+      accessToken,
+      "/mcp-write",
+      431,
+      "tools/call",
+      {
+        name: "create_group",
+        arguments: { list_id: listId, chapter_id: secondChapterId, subtitle: "文型・補語" },
+      },
+      true
+    )
+  );
+  assert.equal(group.created, true);
+  const groupId = group.group.id;
+
   const thirdSection = toolResult(
     await rpc(
       env,
@@ -474,12 +492,13 @@ try {
       "tools/call",
       {
         name: "update_section",
-        arguments: { list_id: listId, section_id: thirdSectionId, description: "重要形容詞" },
+        arguments: { list_id: listId, section_id: thirdSectionId, group_id: groupId, description: "重要形容詞" },
       },
       true
     )
   );
   assert.equal(updatedSection.section.description, "重要形容詞");
+  assert.equal(updatedSection.section.groupId, groupId);
 
   const reorderedChapters = toolResult(
     await rpc(
@@ -778,7 +797,7 @@ try {
       "/mcp-write",
       13,
       "tools/call",
-      { name: "list_recent_changes", arguments: { limit: 20 } },
+      { name: "list_recent_changes", arguments: { limit: 100 } },
       true
     )
   );
