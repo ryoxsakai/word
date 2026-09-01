@@ -21,7 +21,7 @@ import {
   unregisterVocabWebMCP,
   webMCPSupported,
 } from "./webmcp.js";
-import { navigationSectionKeys, wordIdFromHash } from "./navigation.js";
+import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -238,6 +238,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
   localStorage.setItem(LAST_LIST_KEY, listId);
   el.emptyMsg.hidden = true;
   if (sectionObserver) sectionObserver.disconnect();
+  if (indexObserver) indexObserver.disconnect();
   if (lazySectionObserver) lazySectionObserver.disconnect();
   if (forceRefresh) clearListCaches(listId);
   try {
@@ -256,11 +257,12 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.searchMatches = null;
     assignSequentialNumbers();
     buildIndex();
-    renderSectionNav();
     renderSectionShells();
     renderContentsNav();
     renderAlphabeticalIndex();
+    renderActiveBottomNav();
     setupSectionObserver();
+    setupIndexObserver();
     setupLazySectionObserver();
     el.emptyMsg.hidden = state.indexWords.length > 0;
     const firstSection = state.sections[0];
@@ -753,8 +755,8 @@ function renderAlphabeticalIndex() {
   const groups = groupIndexEntriesByLetter(entries);
   el.indexList.innerHTML = groups
     .map(
-      (g) => `
-    <div class="index-group">
+      (g, index) => `
+    <div class="index-group" id="index-group-${index}" data-index-key="${index}">
       <h2 class="index-letter">${escapeHtml(g.letter)}</h2>
       <div class="index-columns">${g.items.map(renderIndexEntryHtml).join("")}</div>
     </div>`
@@ -767,9 +769,11 @@ function setActiveView(view) {
   const isIndex = view === "index";
   el.wordList.hidden = isIndex;
   el.indexList.hidden = !isIndex;
-  el.sectionNav.hidden = isIndex || !hasAnySection();
   el.viewTabList.setAttribute("aria-selected", String(!isIndex));
   el.viewTabIndex.setAttribute("aria-selected", String(isIndex));
+  renderActiveBottomNav();
+  setupSectionObserver();
+  setupIndexObserver();
 }
 
 el.viewTabList.addEventListener("click", () => setActiveView("list"));
@@ -788,23 +792,47 @@ el.indexList.addEventListener("click", async (e) => {
   }
 });
 
-// ---- セクションナビ ----
+// ---- 下部ナビ（一覧ではSection、索引では頭文字） ----
 
 let sectionObserver;
+let indexObserver;
 
-function renderSectionNav() {
-  const sections = state.sections.filter((section) => section.id != null);
-  if (sections.length === 0) {
+function setBottomNavContent(html, ariaLabel) {
+  if (!html) {
     el.sectionNav.hidden = true;
     el.sectionNav.innerHTML = "";
+    el.sectionNav.removeAttribute("aria-label");
     document.body.classList.remove("has-section-nav");
     return;
   }
   el.sectionNav.hidden = false;
+  el.sectionNav.setAttribute("aria-label", ariaLabel);
+  el.sectionNav.innerHTML = html;
   document.body.classList.add("has-section-nav");
-  el.sectionNav.innerHTML = sections
+}
+
+function renderSectionNav() {
+  const sections = state.sections.filter((section) => section.id != null);
+  const html = sections
     .map((section) => `<button type="button" data-section-key="${escapeHtml(String(section.key))}">${escapeHtml(section.name)}</button>`)
     .join("");
+  setBottomNavContent(html, "セクション");
+}
+
+function renderIndexNav() {
+  const groups = [...el.indexList.querySelectorAll(".index-group")];
+  const html = groups
+    .map((group) => {
+      const letter = group.querySelector(".index-letter")?.textContent || "";
+      return `<button type="button" data-index-target="${escapeHtml(group.id)}" data-index-key="${escapeHtml(group.dataset.indexKey || "")}">${escapeHtml(letter)}</button>`;
+    })
+    .join("");
+  setBottomNavContent(html, "索引の頭文字");
+}
+
+function renderActiveBottomNav() {
+  if (state.activeView === "index") renderIndexNav();
+  else renderSectionNav();
 }
 
 function renderContentsNav() {
@@ -815,6 +843,7 @@ function renderContentsNav() {
     return;
   }
 
+  const numberRanges = sectionNumberRanges(state.indexWords);
   el.contentsNav.innerHTML = state.chapters
     .map((chapter) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
@@ -840,6 +869,8 @@ function renderContentsNav() {
       let previousGroupKey = null;
       const sectionParts = [];
       for (const section of chapterSections) {
+        const numberRange = numberRanges.get(String(section.key));
+        const numberRangeText = numberRange ? `${numberRange.first}-${numberRange.last}` : String(section.count);
         const groupKey = section.groupId != null ? String(section.groupKey) : null;
         const group = groupKey ? groupByKey.get(groupKey) : null;
         if (group && groupKey !== previousGroupKey) {
@@ -858,7 +889,7 @@ function renderContentsNav() {
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
               section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
             }</span>
-            <span class="contents-item-count">(${section.count})</span>
+            <span class="contents-item-count" title="登録ナンバー">(${escapeHtml(numberRangeText)})</span>
           </button>`
         );
       }
@@ -870,6 +901,7 @@ function renderContentsNav() {
 
 function setupSectionObserver() {
   if (sectionObserver) sectionObserver.disconnect();
+  if (state.activeView !== "list") return;
   const dividers = el.wordList.querySelectorAll(".section-divider");
   if (!dividers.length) return;
   sectionObserver = new IntersectionObserver(
@@ -885,7 +917,33 @@ function setupSectionObserver() {
   dividers.forEach((d) => sectionObserver.observe(d));
 }
 
+function setupIndexObserver() {
+  if (indexObserver) indexObserver.disconnect();
+  if (state.activeView !== "index") return;
+  const groups = el.indexList.querySelectorAll(".index-group");
+  if (!groups.length) return;
+  indexObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const key = entry.target.dataset.indexKey;
+        el.sectionNav.querySelectorAll("button").forEach((button) => {
+          button.classList.toggle("active", button.dataset.indexKey === key);
+        });
+      }
+    },
+    { rootMargin: "-20% 0px -70% 0px" }
+  );
+  groups.forEach((group) => indexObserver.observe(group));
+}
+
 el.sectionNav.addEventListener("click", async (e) => {
+  const indexBtn = e.target.closest("button[data-index-target]");
+  if (indexBtn) {
+    const target = document.getElementById(indexBtn.dataset.indexTarget);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
   const btn = e.target.closest("button[data-section-key]");
   if (!btn) return;
   btn.setAttribute("aria-busy", "true");
