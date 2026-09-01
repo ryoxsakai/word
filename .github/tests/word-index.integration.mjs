@@ -53,7 +53,6 @@ assert.deepEqual(alphabeticalEntries, [
   { spelling: "beginning", loc: "→ begin 1", targetId: "begin", isRef: true },
   { spelling: "commence", loc: "→ begin 1", targetId: "begin", isRef: true },
   { spelling: "conclude", loc: "→ finish 2", targetId: "finish", isRef: true },
-  { spelling: "end", loc: "→ begin 1", targetId: "begin", isRef: true },
   { spelling: "end", loc: "→ finish 2", targetId: "finish", isRef: true },
   { spelling: "finish", loc: "2", targetId: "finish", isRef: false },
   { spelling: "launch", loc: "→ begin 1", targetId: "begin", isRef: true },
@@ -61,5 +60,66 @@ assert.deepEqual(alphabeticalEntries, [
   { spelling: "start", loc: "3", targetId: "start", isRef: false },
   { spelling: "stop", loc: "→ begin 1", targetId: "begin", isRef: true },
 ]);
+
+
+const priorityEntries = buildAlphabeticalIndexEntries([
+  {
+    id: "apparent",
+    spelling: "apparent",
+    seqNo: "9",
+    synonyms: "evident (明白な), unmistakable (紛れもない)",
+    relatedWords: "visible (目に見える), contextual (文脈上の)",
+  },
+  {
+    id: "obvious",
+    spelling: "obvious",
+    seqNo: "10",
+    synonyms: "evident (明らかな)",
+    antonyms: "hidden (隠れた), visible (目に見える)",
+  },
+  {
+    id: "evidence",
+    spelling: "evidence",
+    seqNo: "1786",
+    derivatives: [{ word: "evident" }],
+    antonyms: "unmistakable (紛れもない)",
+    relatedWords: "hidden (隠れた)",
+  },
+]);
+
+const referenceEntries = new Map(
+  priorityEntries.filter((entry) => entry.isRef).map((entry) => [entry.spelling, entry])
+);
+assert.equal(priorityEntries.filter((entry) => entry.spelling === "evident").length, 1);
+assert.deepEqual(referenceEntries.get("evident"), {
+  spelling: "evident",
+  loc: "→ evidence 1786",
+  targetId: "evidence",
+  isRef: true,
+});
+assert.deepEqual(referenceEntries.get("unmistakable"), {
+  spelling: "unmistakable",
+  loc: "→ apparent 9",
+  targetId: "apparent",
+  isRef: true,
+});
+assert.deepEqual(referenceEntries.get("hidden"), {
+  spelling: "hidden",
+  loc: "→ obvious 10",
+  targetId: "obvious",
+  isRef: true,
+});
+assert.deepEqual(referenceEntries.get("visible"), {
+  spelling: "visible",
+  loc: "→ obvious 10",
+  targetId: "obvious",
+  isRef: true,
+});
+assert.deepEqual(referenceEntries.get("contextual"), {
+  spelling: "contextual",
+  loc: "→ apparent 9",
+  targetId: "apparent",
+  isRef: true,
+});
 
 console.log("Word index integration tests passed");
