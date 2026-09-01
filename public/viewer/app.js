@@ -7,7 +7,6 @@ import {
   renderMarkup,
   renderWordListMarkup,
   escapeHtml,
-  stripMarkup,
 } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { buildAlphabeticalIndexEntries } from "../shared/word-index.js";
