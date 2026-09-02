@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 30511)
-Total output lines: 2918
-
 import { renderMarkup } from "../../public/shared/markup.js";
 import { handleMcpRoute } from "./mcp.js";
 import {
@@ -1331,7 +1328,47 @@ async function loadWordDetail(db, id) {
     .prepare(
       `SELECT id, spelling, pronunciation, audio_url AS audioUrl, etymology, notes, synonyms, antonyms,
               related_words AS relatedWords, irregular_forms AS irregularForms,
-              pronu…511 tokens truncated…ution: !!word.polysemousCaution,
+              pronunciation_caution AS pronunciationCaution, accent_caution AS accentCaution,
+              polysemous_caution AS polysemousCaution, spelling_caution AS spellingCaution,
+              ergative AS ergative,
+              conjugation_caution AS conjugationCaution, usage_caution AS usageCaution,
+              derived_from_id AS derivedFromId, created_at, updated_at
+       FROM words WHERE id = ?`
+    )
+    .bind(id)
+    .first();
+  if (!word) return null;
+
+  const [senses, derivatives, examples, tags, memberships, children, parent, generatedAudio] = await Promise.all([
+    db.prepare("SELECT id, pos, meaning, pronunciation, is_primary, sort_order FROM senses WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, pos, word, meaning, sort_order FROM derivatives WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT id, sentence, answer, translation, type, sort_order FROM examples WHERE word_id = ? ORDER BY sort_order, id").bind(id).all(),
+    db.prepare("SELECT tag_key, tag_value FROM tags WHERE word_id = ?").bind(id).all(),
+    db
+      .prepare(
+        `SELECT li.list_id AS listId, l.name AS listName, li.no AS no, li.branch AS branch, li.section_id AS sectionId,
+                li.label_id AS labelId, sl.name AS labelName
+         FROM list_items li JOIN lists l ON l.id = li.list_id
+         LEFT JOIN section_labels sl ON sl.id = li.label_id
+         WHERE li.word_id = ? ORDER BY l.sort_order, l.name`
+      )
+      .bind(id)
+      .all(),
+    db.prepare("SELECT id, spelling FROM words WHERE derived_from_id = ? ORDER BY spelling").bind(id).all(),
+    word.derivedFromId
+      ? db.prepare("SELECT id, spelling FROM words WHERE id = ?").bind(word.derivedFromId).first()
+      : Promise.resolve(null),
+    loadGeneratedAudio(db, id),
+  ]);
+
+  const tagMap = {};
+  for (const t of tags.results) tagMap[t.tag_key] = t.tag_value;
+
+  return {
+    ...word,
+    pronunciationCaution: !!word.pronunciationCaution,
+    accentCaution: !!word.accentCaution,
+    polysemousCaution: !!word.polysemousCaution,
     spellingCaution: !!word.spellingCaution,
     ergative: !!word.ergative,
     conjugationCaution: !!word.conjugationCaution,
