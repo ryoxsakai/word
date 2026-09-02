@@ -86,8 +86,9 @@ try {
     DB: db,
     VOCAB_MCP_API_KEY: "integration-api-key",
     VOCAB_MCP_SESSION_SECRET: "integration-session-secret-that-is-long-and-random",
-    MCP_ALLOW_ANONYMOUS_WRITES: "true",
+    MCP_ALLOW_ANONYMOUS_WRITES: "false",
   };
+  const anonymousEnv = { ...env, MCP_ALLOW_ANONYMOUS_WRITES: "true" };
 
   const protectedMetadata = await handleMcpRoute(
     new Request("http://127.0.0.1/.well-known/oauth-protected-resource/mcp-write"),
@@ -224,7 +225,7 @@ try {
   );
   assert.equal(replay.status, 400);
 
-  const combinedTools = await rpc(env, accessToken, "/mcp", 1, "tools/list");
+  const combinedTools = await rpc(anonymousEnv, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
   assert.equal(combinedTools.body.result.tools.length, 54);
   assert.equal(
@@ -258,7 +259,7 @@ try {
   );
 
   const anonymousRead = await rpc(
-    env,
+    anonymousEnv,
     accessToken,
     "/mcp",
     33,
@@ -270,7 +271,7 @@ try {
   assert.equal(anonymousRead.body.result.isError, false);
 
   const combinedAnonymousWrite = await rpc(
-    env,
+    anonymousEnv,
     accessToken,
     "/mcp",
     34,
@@ -281,6 +282,32 @@ try {
   assert.equal(combinedAnonymousWrite.status, 200);
   assert.equal(combinedAnonymousWrite.body.result.isError, false);
   const anonymousListId = JSON.parse(combinedAnonymousWrite.body.result.content[0].text).notebook.id;
+
+  const anonymousWriteTools = await rpc(
+    anonymousEnv,
+    accessToken,
+    "/mcp-write",
+    35,
+    "tools/list",
+    {},
+    false
+  );
+  assert.equal(anonymousWriteTools.status, 200);
+  assert.equal(anonymousWriteTools.body.result.tools.length, 54);
+  assert.ok(anonymousWriteTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "noauth"));
+
+  const anonymousWriteEndpoint = await rpc(
+    anonymousEnv,
+    accessToken,
+    "/mcp-write",
+    36,
+    "tools/call",
+    { name: "update_word", arguments: { lookup_spelling: "must-not-exist" } },
+    false
+  );
+  assert.equal(anonymousWriteEndpoint.status, 200);
+  assert.equal(anonymousWriteEndpoint.body.result.isError, true);
+  assert.match(anonymousWriteEndpoint.body.result.content[0].text, /Word not found/);
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
