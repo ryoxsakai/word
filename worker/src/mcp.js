@@ -787,9 +787,9 @@ export async function handleMcpRoute(request, env) {
   const oauthResponse = await handleOAuthRoute(request, env);
   if (oauthResponse) return oauthResponse;
   const path = new URL(request.url).pathname.replace(/\/+$/, "") || "/";
+  const allowAnonymousProtectedTools =
+    String(env.MCP_ALLOW_ANONYMOUS_WRITES || "").toLowerCase() === "true";
   if (path === "/mcp") {
-    const allowAnonymousProtectedTools =
-      String(env.MCP_ALLOW_ANONYMOUS_WRITES || "").toLowerCase() === "true";
     return mcp(request, env, {
       allowWrites: true,
       protectReads: false,
@@ -798,7 +798,12 @@ export async function handleMcpRoute(request, env) {
     });
   }
   if (path === "/mcp-write") {
-    return mcp(request, env, { allowWrites: true, protectReads: true, serverName: "vocab-edit" });
+    return mcp(request, env, {
+      allowWrites: true,
+      protectReads: true,
+      allowAnonymousProtectedTools,
+      serverName: "vocab-edit",
+    });
   }
   return null;
 }
