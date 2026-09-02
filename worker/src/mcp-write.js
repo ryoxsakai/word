@@ -1,4 +1,5 @@
 import { MCP_READ_SCOPE, MCP_WRITE_SCOPE } from "./mcp-oauth.js";
+import { normalizeSenseMeaning } from "./sense-normalization.js";
 
 const MASTER_LIST_ID = "__master__";
 const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
@@ -1207,7 +1208,8 @@ function childStatements(db, wordId, item, replace = false) {
         if (column === "sort_order") return index;
         if (column === "is_primary") return row.is_primary || (index === 0 && !rows.some((candidate) => candidate.is_primary)) ? 1 : 0;
         if (column === "type") return row.type || "example";
-        return row[column] ?? null;
+        const value = row[column] ?? null;
+        return table === "senses" && column === "meaning" ? normalizeSenseMeaning(value) : value;
       });
       statements.push(
         db

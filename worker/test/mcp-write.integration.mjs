@@ -630,7 +630,7 @@ try {
               examples: [{ sentence: "They abandoned the plan.", translation: "彼らは計画を断念した。" }],
               tags: { "custom:medical": "important" },
             },
-            { spelling: "benign", senses: [{ pos: "形", meaning: "良性の" }] },
+            { spelling: "benign", senses: [{ pos: "形", meaning: "【医】良性の" }] },
           ],
         },
       },
@@ -769,7 +769,12 @@ try {
       "tools/call",
       {
         name: "update_word",
-        arguments: { word_id: abandonId, notes: "重要語", usage_caution: true },
+        arguments: {
+          word_id: abandonId,
+          notes: "重要語",
+          usage_caution: true,
+          senses: [{ pos: "動", meaning: "〔通例〕を捨てる", is_primary: true }],
+        },
       },
       true
     )
@@ -785,7 +790,7 @@ try {
   assert.equal(wordDetail.notes, "重要語");
   assert.equal(wordDetail.relatedWords, "desertion, withdrawal");
   assert.equal(wordDetail.usageCaution, true);
-  assert.equal(wordDetail.senses[0].meaning, "捨てる");
+  assert.equal(wordDetail.senses[0].meaning, "(通例)を捨てる");
 
   const moved = toolResult(
     await rpc(
@@ -838,6 +843,7 @@ try {
     })
   );
   assert.equal(benignDetail.spelling, "benign");
+  assert.equal(benignDetail.senses[0].meaning, "(医)良性の");
   assert.equal(benignDetail.notebooks.length, 0);
 
   const auditLog = toolResult(
