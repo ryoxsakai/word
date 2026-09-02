@@ -12,7 +12,7 @@ directory = "../public"
 binding = "ASSETS"
 
 [vars]
-# 一時的に /mcp の編集・監査ツールを認証なしで公開する。再保護時は "false" に変更する。
+# 一時的に /mcp と /mcp-write の編集・監査ツールを認証なしで公開する。再保護時は "false" に変更する。
 MCP_ALLOW_ANONYMOUS_WRITES = "true"
 # GitHub PagesなどAPIと別オリジンからアクセスするフロントエンドのURLをカンマ区切りで指定。
 # 例: "https://ryoxsakai.github.io"
