@@ -67,6 +67,12 @@
       <button type="button" data-book-view="toc">目次</button>
     </nav>
     <div class="book-print-settings print-mode-only" aria-label="印刷設定">
+      <label for="printPageSize">用紙サイズ</label>
+      <select id="printPageSize">
+        <option value="a4" selected>A4（210×297mm）</option>
+        <option value="b5">B5（182×257mm）</option>
+        <option value="a5">A5（148×210mm）</option>
+      </select>
       <label for="printFontSize">文字サイズ</label>
       <select id="printFontSize">
         <option value="9">9pt</option>
@@ -80,6 +86,12 @@
         <option value="1.5" selected>標準</option>
         <option value="1.65">広い</option>
         <option value="1.8">かなり広い</option>
+      </select>
+      <label for="printExampleColumns">フレーズ段組</label>
+      <select id="printExampleColumns">
+        <option value="1">1段</option>
+        <option value="2" selected>2段</option>
+        <option value="3">3段</option>
       </select>
     </div>
     <div class="book-print-actions print-mode-only">

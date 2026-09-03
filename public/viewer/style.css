@@ -1216,18 +1216,15 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .sense-meaning { color: var(--accent-strong); font-weight: 600; }
 .sense-pron { font-size: 0.78rem; }
 
-/* 同一品詞の意味をまとめた行: ①②…の丸数字はCSSで生成する(実体文字は使わない) */
+/* 同一品詞の意味をまとめた行: 番号は版組時にも安定する実体要素で表示する。 */
 .sense-items {
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 0.7rem;
-  counter-reset: sense-num;
 }
 .sense-item { display: inline-flex; align-items: center; gap: 0.3rem; }
-.sense-item::before {
-  counter-increment: sense-num;
-  content: counter(sense-num);
+.sense-number {
   flex: none;
   display: inline-flex;
   align-items: center;
@@ -1245,7 +1242,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   color: var(--text-muted);
   font-weight: 400;
 }
-.sense-line.sense-primary .sense-item:not(.sense-item-primary)::before {
+.sense-line.sense-primary .sense-item:not(.sense-item-primary) .sense-number {
   opacity: 0.7;
 }
 
@@ -1517,6 +1514,14 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   }
 }
 
+@page print-a4 { size: 210mm 297mm; }
+@page print-b5 { size: 182mm 257mm; }
+@page print-a5 { size: 148mm 210mm; }
+
+html[data-print-page-size="a4"] body.is-printing-book { page: print-a4; }
+html[data-print-page-size="b5"] body.is-printing-book { page: print-b5; }
+html[data-print-page-size="a5"] body.is-printing-book { page: print-a5; }
+
 @media print {
   html { font-size: var(--print-font-size, 10pt); }
   /* テーマに関わらず、印刷は明るい配色に固定して枠・背景をはっきり出す */
@@ -1556,6 +1561,11 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   body.is-printing-book .book-toc-page {
     break-after: page;
     page-break-after: always;
+  }
+  body.is-printing-book[data-print-part="all"] .word-list,
+  body.is-printing-book[data-print-part="all-paged"] .word-list {
+    break-before: page;
+    page-break-before: always;
   }
   body.is-printing-book .index-list {
     break-before: page;
@@ -1604,6 +1614,16 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .section-group > .entry { margin-right: 0; margin-left: 0; }
   .section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0.65rem; }
   .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
+  .section-group > .section-entries > .entry {
+    border-top: 1px dashed var(--border);
+    border-bottom: 0;
+  }
+  .section-group > .section-entries > .entry:last-child {
+    border-bottom: 1px dashed var(--border);
+  }
+  .example-list {
+    grid-template-columns: repeat(var(--print-example-columns, 2), minmax(0, 1fr));
+  }
   .index-columns {
     columns: 2 !important;
     column-fill: auto;
@@ -1621,6 +1641,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   /* Sectionは続けて配置し、Groupの切り替わりだけで改ページする。 */
   .section-divider {
     break-inside: avoid;
+    break-after: avoid-page;
+    page-break-after: avoid;
     box-shadow: none;
   }
   .section-group.has-group-divider:not(:first-of-type) {

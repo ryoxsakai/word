@@ -34,6 +34,7 @@ const PRINT_UI_MODE = PAGE_PARAMS.get("mode") === "print" || PRINT_BOOK_MODE;
 const PRINT_PART = PAGE_PARAMS.get("part") || "front";
 const PRINT_CHAPTER_KEY = PAGE_PARAMS.get("chapter");
 const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
+const PRINT_PAGE_SIZES = new Set(["a4", "b5", "a5"]);
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
@@ -83,8 +84,10 @@ const el = {
   viewPanels: document.querySelectorAll("[data-view-panel]"),
   printBookBtn: document.getElementById("printBookBtn"),
   printPartSelect: document.getElementById("printPartSelect"),
+  printPageSize: document.getElementById("printPageSize"),
   printFontSize: document.getElementById("printFontSize"),
   printLineHeight: document.getElementById("printLineHeight"),
+  printExampleColumns: document.getElementById("printExampleColumns"),
   printStatus: document.getElementById("printStatus"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
@@ -110,18 +113,35 @@ function boundedPrintSetting(rawValue, fallback, min, max) {
   return Number.isFinite(value) && value >= min && value <= max ? value : fallback;
 }
 
+function boundedIntegerPrintSetting(rawValue, fallback, min, max) {
+  const value = Number(rawValue);
+  return Number.isInteger(value) && value >= min && value <= max ? value : fallback;
+}
+
+function normalizedPrintPageSize(rawValue) {
+  return PRINT_PAGE_SIZES.has(rawValue) ? rawValue : "a4";
+}
+
 function applyPrintSettings() {
+  const pageSize = normalizedPrintPageSize(el.printPageSize.value);
   const fontSize = boundedPrintSetting(el.printFontSize.value, 10, 8, 14);
   const lineHeight = boundedPrintSetting(el.printLineHeight.value, 1.5, 1.2, 2);
+  const exampleColumns = boundedIntegerPrintSetting(el.printExampleColumns.value, 2, 1, 3);
+  document.documentElement.dataset.printPageSize = pageSize;
   document.documentElement.style.setProperty("--print-font-size", `${fontSize}pt`);
   document.documentElement.style.setProperty("--print-line-height", String(lineHeight));
+  document.documentElement.style.setProperty("--print-example-columns", String(exampleColumns));
 }
 
 document.body.classList.toggle("is-print-mode", PRINT_UI_MODE);
+el.printPageSize.value = normalizedPrintPageSize(PAGE_PARAMS.get("pageSize"));
 el.printFontSize.value = String(boundedPrintSetting(PAGE_PARAMS.get("fontSize"), 10, 8, 14));
 el.printLineHeight.value = String(boundedPrintSetting(PAGE_PARAMS.get("lineHeight"), 1.5, 1.2, 2));
+el.printExampleColumns.value = String(boundedIntegerPrintSetting(PAGE_PARAMS.get("exampleColumns"), 2, 1, 3));
+el.printPageSize.addEventListener("change", applyPrintSettings);
 el.printFontSize.addEventListener("change", applyPrintSettings);
 el.printLineHeight.addEventListener("change", applyPrintSettings);
+el.printExampleColumns.addEventListener("change", applyPrintSettings);
 applyPrintSettings();
 let networkActivityDepth = 0;
 let progressDelayTimer;
@@ -437,8 +457,8 @@ function renderEntry(w) {
         items.length > 1
           ? `<span class="sense-items">${items
               .map(
-                (s) =>
-                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
+                (s, index) =>
+                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-number">${index + 1}</span><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
               )
               .join("")}</span>`
           : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;
@@ -579,7 +599,7 @@ function renderSectionShells() {
   const groupByKey = new Map(state.groups.map((group) => [String(group.key), group]));
   let lastChapterKey;
   let lastGroupKey;
-  const parts = ['<h1 class="print-part-title">単語一覧</h1>'];
+  const parts = [];
   for (const [sectionIndex, section] of state.sections.entries()) {
     const chapterKey = String(section.chapterKey);
     const chapter = chapterByKey.get(chapterKey);
@@ -1511,8 +1531,10 @@ function openDedicatedPrintView() {
   url.searchParams.set("list", state.currentListId);
   url.searchParams.set("mode", "print");
   url.searchParams.set("print", "book");
+  url.searchParams.set("pageSize", el.printPageSize.value);
   url.searchParams.set("fontSize", el.printFontSize.value);
   url.searchParams.set("lineHeight", el.printLineHeight.value);
+  url.searchParams.set("exampleColumns", el.printExampleColumns.value);
   if (selected.startsWith("chapter:")) {
     url.searchParams.set("part", "chapter");
     url.searchParams.set("chapter", selected.slice("chapter:".length));
