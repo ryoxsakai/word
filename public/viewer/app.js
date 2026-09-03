@@ -150,7 +150,13 @@ el.printLineHeight.addEventListener("change", applyPrintSettings);
 el.printExampleColumns.addEventListener("change", applyPrintSettings);
 applyPrintSettings();
 
+let printProgressHideTimer;
+
 function setPrintProgress(percent, label) {
+  if (printProgressHideTimer) {
+    clearTimeout(printProgressHideTimer);
+    printProgressHideTimer = undefined;
+  }
   const value = Math.max(0, Math.min(100, Math.round(percent)));
   el.printProgressOverlay.hidden = false;
   el.printProgressLabel.textContent = label;
@@ -164,6 +170,10 @@ function setPrintProgress(percent, label) {
 }
 
 function hidePrintProgress() {
+  if (printProgressHideTimer) {
+    clearTimeout(printProgressHideTimer);
+    printProgressHideTimer = undefined;
+  }
   el.printProgressOverlay.hidden = true;
 }
 let networkActivityDepth = 0;
@@ -1766,7 +1776,12 @@ async function printWholeBook() {
     if (el.printStatus?.isConnected && !el.printStatus.textContent.includes("読み込めませんでした")) {
       el.printStatus.hidden = true;
     }
-    if (printFailed) setTimeout(hidePrintProgress, 8000);
+    if (printFailed) {
+      printProgressHideTimer = setTimeout(() => {
+        printProgressHideTimer = undefined;
+        hidePrintProgress();
+      }, 8000);
+    }
     else hidePrintProgress();
   }
 }
