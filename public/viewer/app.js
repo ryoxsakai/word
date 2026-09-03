@@ -1587,6 +1587,7 @@ function registerPagedProgressHandler(sectionKeys) {
   const pageSizeLabel = PRINT_PAGE_SIZE_LABELS[normalizedPrintPageSize(el.printPageSize.value)];
   let renderedPages = 0;
   let highestSectionIndex = -1;
+  let highestReportedPercent = 48;
 
   class PrintProgressHandler extends window.Paged.Handler {
     afterPageLayout(pageElement) {
@@ -1597,10 +1598,11 @@ function registerPagedProgressHandler(sectionKeys) {
         if (index != null) highestSectionIndex = Math.max(highestSectionIndex, index);
       }
 
-      const percent = totalSections && highestSectionIndex >= 0
+      const calculatedPercent = totalSections && highestSectionIndex >= 0
         ? 50 + ((highestSectionIndex + 1) / totalSections) * 44
         : Math.min(90, 45 + renderedPages * 3);
-      setPrintProgress(percent, `ページを組版中（${pageSizeLabel}・${renderedPages}ページ）`);
+      highestReportedPercent = Math.max(highestReportedPercent, calculatedPercent);
+      setPrintProgress(highestReportedPercent, `ページを組版中（${pageSizeLabel}・${renderedPages}ページ）`);
     }
 
     afterRendered(flow) {
