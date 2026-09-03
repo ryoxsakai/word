@@ -30,6 +30,8 @@ const FONT_SIZE_KEY = "vocab-viewer-font-size";
 const CROSSOVER_LIST_ID = "crossover-v3";
 const PAGE_PARAMS = new URLSearchParams(window.location.search);
 const PRINT_BOOK_MODE = PAGE_PARAMS.get("print") === "book";
+const PRINT_PART = PAGE_PARAMS.get("part") || "front";
+const PRINT_CHAPTER_KEY = PAGE_PARAMS.get("chapter");
 const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
@@ -61,6 +63,7 @@ const state = {
   renderNotesMarkup: null,
   search: "",
   searchMatches: null,
+  indexRendered: false,
   activeView: "list", // "list" | "index" | front matter page
 };
 
@@ -78,6 +81,7 @@ const el = {
   bookTitleNodes: document.querySelectorAll("[data-book-title]"),
   viewPanels: document.querySelectorAll("[data-view-panel]"),
   printBookBtn: document.getElementById("printBookBtn"),
+  printPartSelect: document.getElementById("printPartSelect"),
   printStatus: document.getElementById("printStatus"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
@@ -265,12 +269,14 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.loadedSectionKeys = new Set();
     state.sectionPromises = new Map();
     state.searchMatches = null;
+    state.indexRendered = false;
+    el.indexList.innerHTML = "";
     assignSequentialNumbers();
     buildIndex();
     renderBookMatter();
     renderSectionShells();
     renderContentsNav();
-    renderAlphabeticalIndex();
+    if (PRINT_BOOK_MODE && PRINT_PART === "index") renderAlphabeticalIndex();
     renderActiveBottomNav();
     setupSectionObserver();
     setupIndexObserver();
@@ -780,6 +786,7 @@ function renderAlphabeticalIndex() {
   const entries = buildAlphabeticalIndex();
   if (entries.length === 0) {
     el.indexList.innerHTML = '<p class="index-empty">単語がまだ登録されていません。</p>';
+    state.indexRendered = true;
     return;
   }
   const groups = groupIndexEntriesByLetter(entries);
@@ -794,9 +801,11 @@ function renderAlphabeticalIndex() {
     </div>`
       )
       .join("");
+  state.indexRendered = true;
 }
 
 function setActiveView(view) {
+  if (view === "index" && !state.indexRendered) renderAlphabeticalIndex();
   state.activeView = view;
   for (const panel of el.viewPanels) {
     const active = panel.dataset.viewPanel === view;
@@ -880,6 +889,22 @@ function renderBookMatter() {
   el.bookTitleNodes.forEach((node) => {
     node.textContent = title;
   });
+  renderPrintPartOptions();
+}
+
+function renderPrintPartOptions() {
+  const selected = el.printPartSelect.value || "front";
+  const chapterOptions = state.chapters
+    .map((chapter, index) => `<option value="chapter:${escapeHtml(String(chapter.key))}">Chapter ${index + 1}　${escapeHtml(chapter.name)}</option>`)
+    .join("");
+  el.printPartSelect.innerHTML =
+    '<option value="front">前付け</option>' +
+    '<option value="toc">目次（ページ番号なし）</option>' +
+    chapterOptions +
+    '<option value="index">索引</option>';
+  if ([...el.printPartSelect.options].some((option) => option.value === selected)) {
+    el.printPartSelect.value = selected;
+  }
 }
 
 function renderContentsNav() {
@@ -1454,8 +1479,16 @@ let bookPrintInProgress = false;
 
 function openDedicatedPrintView() {
   const url = new URL(window.location.href);
+  const selected = el.printPartSelect.value || "front";
   url.searchParams.set("list", state.currentListId);
   url.searchParams.set("print", "book");
+  if (selected.startsWith("chapter:")) {
+    url.searchParams.set("part", "chapter");
+    url.searchParams.set("chapter", selected.slice("chapter:".length));
+  } else {
+    url.searchParams.set("part", selected);
+    url.searchParams.delete("chapter");
+  }
   window.open(url, "_blank", "noopener");
 }
 
@@ -1471,6 +1504,49 @@ function loadPagedJs() {
   });
 }
 
+function printSectionKeys() {
+  if (PRINT_PART !== "chapter" || PRINT_CHAPTER_KEY == null) return [];
+  return state.sections
+    .filter((section) => String(section.chapterKey) === String(PRINT_CHAPTER_KEY))
+    .map((section) => String(section.key));
+}
+
+function printPartLabel() {
+  if (PRINT_PART === "front") return "前付け";
+  if (PRINT_PART === "toc") return "目次";
+  if (PRINT_PART === "index") return "索引";
+  const chapterIndex = state.chapters.findIndex((chapter) => String(chapter.key) === String(PRINT_CHAPTER_KEY));
+  const chapter = state.chapters[chapterIndex];
+  return chapter ? `Chapter ${chapterIndex + 1} ${chapter.name}` : "Chapter";
+}
+
+function prepareLightweightPrintDom() {
+  document.body.dataset.printPart = PRINT_PART;
+  if (PRINT_PART === "index" && !state.indexRendered) renderAlphabeticalIndex();
+
+  const keepIds = {
+    front: new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide"]),
+    toc: new Set(["bookToc"]),
+    chapter: new Set(["wordList"]),
+    index: new Set(["indexList"]),
+  }[PRINT_PART] || new Set(["wordList"]);
+
+  for (const panel of [...document.querySelectorAll("body > .view-panel")]) {
+    if (!keepIds.has(panel.id)) panel.remove();
+  }
+  if (PRINT_PART === "chapter") {
+    for (const group of [...el.wordList.querySelectorAll(".section-group")]) {
+      if (String(group.dataset.chapterKey) !== String(PRINT_CHAPTER_KEY)) group.remove();
+    }
+  }
+  document.querySelectorAll("[data-haystack]").forEach((node) => node.removeAttribute("data-haystack"));
+  document.querySelectorAll(".speak-btn, .copy-link-btn, .blank-toggle").forEach((node) => {
+    if (node.classList.contains("blank-toggle")) node.replaceWith(document.createTextNode(node.textContent || ""));
+    else node.remove();
+  });
+  document.querySelectorAll(".topbar, .subbar, .section-nav, .back-to-top, .toast, .loading-progress, .loading-msg, .empty-msg, .ptr-indicator").forEach((node) => node.remove());
+}
+
 async function printWholeBook() {
   if (bookPrintInProgress || !state.currentListId) return;
   if (!PRINT_BOOK_MODE) {
@@ -1480,7 +1556,12 @@ async function printWholeBook() {
   bookPrintInProgress = true;
   const listId = state.currentListId;
   const generation = listLoadGeneration;
-  const sectionKeys = state.sections.map((section) => String(section.key));
+  const sectionKeys = printSectionKeys();
+  if (PRINT_PART === "chapter" && sectionKeys.length === 0) {
+    showToast("対象Chapterが見つかりませんでした。");
+    bookPrintInProgress = false;
+    return;
+  }
   const savedSearch = {
     query: state.search,
     matches: state.searchMatches,
@@ -1490,7 +1571,9 @@ async function printWholeBook() {
   el.printBookBtn.disabled = true;
   el.printBookBtn.setAttribute("aria-busy", "true");
   el.printStatus.hidden = false;
-  el.printStatus.textContent = `印刷用データを読み込み中（0 / ${sectionKeys.length}）`;
+  el.printStatus.textContent = sectionKeys.length
+    ? `印刷用データを読み込み中（0 / ${sectionKeys.length}）`
+    : `${printPartLabel()}を準備中`;
   lazySectionObserver?.disconnect();
 
   try {
@@ -1517,6 +1600,7 @@ async function printWholeBook() {
     printPrepared = true;
 
     document.body.classList.add("is-printing-book");
+    prepareLightweightPrintDom();
     el.printStatus.textContent = "印刷レイアウトを準備中";
     if (document.fonts?.ready) await document.fonts.ready;
     await waitForPrintLayout();
@@ -1527,7 +1611,7 @@ async function printWholeBook() {
 
     const currentList = state.lists.find((list) => list.id === state.currentListId);
     const originalTitle = document.title;
-    document.title = `${currentList?.name || "単語帳"} - 印刷用`;
+    document.title = `${currentList?.name || "Crossover"} - ${printPartLabel()}`;
     try {
       window.print();
     } finally {

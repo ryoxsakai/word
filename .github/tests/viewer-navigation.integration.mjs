@@ -112,6 +112,8 @@ for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) 
   assert.match(indexSource, new RegExp(`data-view-panel="${view}"`));
 }
 assert.match(indexSource, /id="printBookBtn"/);
+assert.match(indexSource, /id="printPartSelect"/);
+assert.match(indexSource, /選択範囲を印刷/);
 assert.match(indexSource, /id="bookTocNav"/);
 const printOrder = [
   'id="bookIntroduction"',
@@ -129,7 +131,6 @@ const printSource = appSource.slice(
   appSource.indexOf("async function printWholeBook"),
   appSource.indexOf("// ---- テーマ切り替え")
 );
-assert.match(printSource, /state\.sections\.map\(\(section\) => String\(section\.key\)\)/);
 assert.match(printSource, /await loadAllSectionsForPrint/);
 assert.match(printSource, /const unloaded = sectionKeys\.filter/);
 assert.match(printSource, /document\.body\.classList\.add\("is-printing-book"\)/);
@@ -161,6 +162,13 @@ assert.match(appSource, /const initial = CROSSOVER_LIST_ID/);
 assert.match(appSource, /PAGE_PARAMS\.get\("print"\) === "book"/);
 assert.match(appSource, /pagedjs@0\.4\.3/);
 assert.match(printSource, /await window\.PagedPolyfill\.preview\(\)/);
+assert.match(appSource, /function printSectionKeys\(\)/);
+assert.match(appSource, /String\(section\.chapterKey\) === String\(PRINT_CHAPTER_KEY\)/);
+assert.match(appSource, /function prepareLightweightPrintDom\(\)/);
+assert.match(appSource, /if \(!keepIds\.has\(panel\.id\)\) panel\.remove\(\)/);
+assert.match(appSource, /if \(view === "index" && !state\.indexRendered\) renderAlphabeticalIndex\(\)/);
+assert.match(styleSource, /\.section-group\.has-group-divider:not\(:first-of-type\)/);
+assert.doesNotMatch(styleSource, /\.section-group:not\(:first-of-type\)\s*\{/);
 assert.match(indexSource, /shared\/qr\/crossover\.svg/);
 assert.match(indexSource, /<title>crossover<\/title>/);
 assert.match(indexSource, /<h1 class="brand-name">crossover<\/h1>/);
