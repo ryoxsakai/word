@@ -1508,6 +1508,8 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   body.is-printing-book .view-panel { display: block !important; }
   body.is-printing-book .book-page {
     min-height: 0;
+  }
+  body.is-printing-book .front-matter-page {
     break-after: page;
     page-break-after: always;
   }
