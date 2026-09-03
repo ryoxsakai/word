@@ -25,7 +25,7 @@
     <button type="button" class="icon-toggle settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsMenu" aria-label="設定を開く">
       <i class="fa-solid fa-gear" aria-hidden="true"></i>
     </button>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="contentsMenu" aria-label="チャプター・セクション一覧を開く">
+    <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="contentsMenu" aria-label="本書のメニューを開く">
       <span class="menu-toggle-bar"></span>
       <span class="menu-toggle-bar"></span>
       <span class="menu-toggle-bar"></span>
@@ -56,7 +56,22 @@
     </div>
   </div>
   <div class="topbar-row topbar-row--contents" id="contentsMenu">
-    <div class="contents-menu-heading">チャプター・セクション</div>
+    <div class="contents-menu-heading">本書</div>
+    <nav id="bookNav" class="book-nav" aria-label="本書のページ">
+      <button type="button" data-book-view="introduction">はじめに</button>
+      <button type="button" data-book-view="structure">本書の構成</button>
+      <button type="button" data-book-view="badges">バッジの見方</button>
+      <button type="button" data-book-view="app-guide">アプリの利用方法</button>
+      <button type="button" data-book-view="toc">目次</button>
+    </nav>
+    <div class="book-print-actions">
+      <button type="button" id="printBookBtn" class="print-book-btn">
+        <i class="fa-solid fa-print" aria-hidden="true"></i>
+        <span>全体を印刷</span>
+      </button>
+      <p id="printStatus" class="print-status" aria-live="polite" hidden></p>
+    </div>
+    <div class="contents-menu-heading contents-menu-heading--sections">チャプター・セクション</div>
     <nav id="contentsNav" class="contents-nav" aria-label="チャプター・セクション一覧"></nav>
   </div>
 </header>
@@ -69,8 +84,86 @@
 </div>
 
 <div id="ptrIndicator" class="ptr-indicator" aria-hidden="true"><i class="fa-solid fa-rotate" aria-hidden="true"></i></div>
-<main id="wordList" class="word-list" aria-live="polite"></main>
-<div id="indexList" class="index-list" aria-live="polite" hidden></div>
+
+<section id="bookIntroduction" class="book-page view-panel" data-view-panel="introduction" aria-hidden="true">
+  <div class="book-page-kicker">INTRODUCTION</div>
+  <h1>はじめに</h1>
+  <p class="book-lead"><span data-book-title>単語帳</span>へようこそ。</p>
+  <p id="bookDescription">この単語帳は、語の意味だけでなく、用例・派生語・関連語まで結びつけて学べるように構成されています。</p>
+  <p>まず見出し語と中心義を確認し、例文で使い方をつかんでください。必要に応じて派生語や注意バッジをたどると、一語ずつではなく語彙のまとまりとして定着させやすくなります。</p>
+  <p>画面では検索やジャンプを使って必要な項目へ移動でき、印刷時は前付けから索引までを一冊として出力できます。</p>
+</section>
+
+<section id="bookStructure" class="book-page view-panel" data-view-panel="structure" aria-hidden="true">
+  <div class="book-page-kicker">STRUCTURE</div>
+  <h1>本書の構成</h1>
+  <div class="book-structure-grid">
+    <article><span class="book-step">1</span><h2>Chapter</h2><p>学習内容を大きなテーマに分けた単位です。</p></article>
+    <article><span class="book-step">2</span><h2>Group</h2><p>チャプター内の語を、目的や性質ごとにまとめます。</p></article>
+    <article><span class="book-step">3</span><h2>Section</h2><p>日々の学習や復習で扱いやすい分量に区切ります。</p></article>
+    <article><span class="book-step">4</span><h2>Entry</h2><p>見出し語、意味、例文、派生語、関連情報を掲載します。</p></article>
+  </div>
+  <div class="book-note">
+    <h2>ナンバーについて</h2>
+    <p>見出し語には掲載順の連番が付きます。派生語として独立掲載される語は、直前の見出し語に枝番（例：42-1）が付きます。</p>
+  </div>
+</section>
+
+<section id="bookBadges" class="book-page view-panel" data-view-panel="badges" aria-hidden="true">
+  <div class="book-page-kicker">BADGES</div>
+  <h1>バッジの見方</h1>
+  <h2>学習レベル</h2>
+  <div class="badge-guide-list">
+    <div class="badge-guide-row"><span class="learning-badge badge-cefr cefr-b1">B1</span><p>CEFRの目安です。A1からC2へ進むほど高度になります。</p></div>
+    <div class="badge-guide-row"><span class="learning-badge badge-awl">AWL</span><p>Academic Word Listに含まれる学術語彙です。</p></div>
+  </div>
+  <h2>注意ポイント</h2>
+  <div class="badge-samples" aria-label="注意バッジの例">
+    <span class="caution-badge caution-ergative">能格</span>
+    <span class="caution-badge caution-spelling">スペル</span>
+    <span class="caution-badge caution-pronunciation">発音</span>
+    <span class="caution-badge caution-accent">アクセント</span>
+    <span class="caution-badge caution-polysemous">多義</span>
+    <span class="caution-badge caution-conjugation">活用</span>
+    <span class="caution-badge caution-usage">語法</span>
+  </div>
+  <p>間違えやすい箇所や、学習時に意識したい性質を示します。</p>
+  <h2>補足情報</h2>
+  <div class="notes-guide">
+    <span class="notes-label derivative-badge">派生語</span>
+    <span class="notes-label irregular-badge">不規則</span>
+    <span class="notes-label synonym-badge">類義語</span>
+    <span class="notes-label antonym-badge">対義語</span>
+    <span class="notes-label related-badge">関連語</span>
+    <span class="notes-label etymology-badge">語源</span>
+    <span class="notes-label memo-badge">メモ</span>
+  </div>
+</section>
+
+<section id="bookAppGuide" class="book-page view-panel" data-view-panel="app-guide" aria-hidden="true">
+  <div class="book-page-kicker">APP GUIDE</div>
+  <h1>アプリの利用方法</h1>
+  <ol class="app-guide-list">
+    <li><strong>単語帳を選ぶ</strong><span>上部のリストから閲覧する単語帳を選択します。</span></li>
+    <li><strong>探す・移動する</strong><span>設定メニューの検索とナンバージャンプ、またはハンバーガーメニューの目次を使います。</span></li>
+    <li><strong>一覧と索引を切り替える</strong><span>一覧は掲載順、索引はアルファベット順で表示します。</span></li>
+    <li><strong>発音を聞く</strong><span>見出し語のスピーカーボタンを押します。</span></li>
+    <li><strong>一冊を印刷する</strong><span>ハンバーガーメニューの「全体を印刷」を押すと、すべてのセクションを読み込んでから印刷します。</span></li>
+  </ol>
+  <div class="book-note">
+    <h2>PDFに保存する場合</h2>
+    <p>印刷ダイアログで「PDFに保存」を選びます。アプリが付けるページ番号と重ならないよう、ブラウザ側の「ヘッダーとフッター」はオフにしてください。</p>
+  </div>
+</section>
+
+<section id="bookToc" class="book-page book-toc-page view-panel" data-view-panel="toc" aria-hidden="true">
+  <div class="book-page-kicker">CONTENTS</div>
+  <h1>目次</h1>
+  <nav id="bookTocNav" class="book-toc-nav contents-nav" aria-label="印刷用目次"></nav>
+</section>
+
+<main id="wordList" class="word-list view-panel is-active" data-view-panel="list" aria-live="polite" aria-hidden="false"></main>
+<div id="indexList" class="index-list view-panel" data-view-panel="index" aria-live="polite" aria-hidden="true"></div>
 
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
 <div id="loadingMsg" class="loading-msg" aria-live="polite" hidden>

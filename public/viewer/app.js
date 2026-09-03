@@ -57,7 +57,7 @@ const state = {
   renderNotesMarkup: null,
   search: "",
   searchMatches: null,
-  activeView: "list", // "list" | "index"
+  activeView: "list", // "list" | "index" | front matter page
 };
 
 const el = {
@@ -68,6 +68,13 @@ const el = {
   menuToggle: document.getElementById("menuToggle"),
   contentsMenu: document.getElementById("contentsMenu"),
   contentsNav: document.getElementById("contentsNav"),
+  bookNav: document.getElementById("bookNav"),
+  bookTocNav: document.getElementById("bookTocNav"),
+  bookDescription: document.getElementById("bookDescription"),
+  bookTitleNodes: document.querySelectorAll("[data-book-title]"),
+  viewPanels: document.querySelectorAll("[data-view-panel]"),
+  printBookBtn: document.getElementById("printBookBtn"),
+  printStatus: document.getElementById("printStatus"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
@@ -257,6 +264,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.searchMatches = null;
     assignSequentialNumbers();
     buildIndex();
+    renderBookMatter();
     renderSectionShells();
     renderContentsNav();
     renderAlphabeticalIndex();
@@ -540,7 +548,7 @@ function renderSectionShells() {
   const groupByKey = new Map(state.groups.map((group) => [String(group.key), group]));
   let lastChapterKey;
   let lastGroupKey;
-  const parts = [];
+  const parts = ['<h1 class="print-part-title">単語一覧</h1>'];
   for (const [sectionIndex, section] of state.sections.entries()) {
     const chapterKey = String(section.chapterKey);
     const chapter = chapterByKey.get(chapterKey);
@@ -684,6 +692,25 @@ async function loadSectionsWithLimit(sectionKeys, concurrency = 3, shouldContinu
   await Promise.all(workers);
 }
 
+async function loadAllSectionsForPrint(sectionKeys, concurrency = 4, shouldContinue = () => true) {
+  const keys = [...new Set(sectionKeys.map(String))];
+  const failures = [];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(concurrency, keys.length) }, async () => {
+    while (cursor < keys.length && shouldContinue()) {
+      const key = keys[cursor];
+      cursor += 1;
+      try {
+        await loadSection(key);
+      } catch (error) {
+        failures.push({ key, error });
+      }
+    }
+  });
+  await Promise.all(workers);
+  return failures;
+}
+
 let lazySectionObserver;
 
 function setupLazySectionObserver() {
@@ -753,24 +780,32 @@ function renderAlphabeticalIndex() {
     return;
   }
   const groups = groupIndexEntriesByLetter(entries);
-  el.indexList.innerHTML = groups
-    .map(
-      (g, index) => `
+  el.indexList.innerHTML =
+    '<h1 class="print-part-title">索引</h1>' +
+    groups
+      .map(
+        (g, index) => `
     <div class="index-group" id="index-group-${index}" data-index-key="${index}">
       <h2 class="index-letter">${escapeHtml(g.letter)}</h2>
       <div class="index-columns">${g.items.map(renderIndexEntryHtml).join("")}</div>
     </div>`
-    )
-    .join("");
+      )
+      .join("");
 }
 
 function setActiveView(view) {
   state.activeView = view;
-  const isIndex = view === "index";
-  el.wordList.hidden = isIndex;
-  el.indexList.hidden = !isIndex;
-  el.viewTabList.setAttribute("aria-selected", String(!isIndex));
-  el.viewTabIndex.setAttribute("aria-selected", String(isIndex));
+  for (const panel of el.viewPanels) {
+    const active = panel.dataset.viewPanel === view;
+    panel.classList.toggle("is-active", active);
+    panel.setAttribute("aria-hidden", String(!active));
+  }
+  el.viewTabList.setAttribute("aria-selected", String(view === "list"));
+  el.viewTabIndex.setAttribute("aria-selected", String(view === "index"));
+  el.bookNav.querySelectorAll("[data-book-view]").forEach((button) => {
+    if (button.dataset.bookView === view) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
   renderActiveBottomNav();
   setupSectionObserver();
   setupIndexObserver();
@@ -832,19 +867,34 @@ function renderIndexNav() {
 
 function renderActiveBottomNav() {
   if (state.activeView === "index") renderIndexNav();
-  else renderSectionNav();
+  else if (state.activeView === "list") renderSectionNav();
+  else setBottomNavContent("", "");
+}
+
+function renderBookMatter() {
+  const currentList = state.lists.find((list) => list.id === state.currentListId);
+  const title = currentList?.name || "単語帳";
+  const description =
+    currentList?.description ||
+    "この単語帳は、語の意味だけでなく、用例・派生語・関連語まで結びつけて学べるように構成されています。";
+  el.bookTitleNodes.forEach((node) => {
+    node.textContent = title;
+  });
+  el.bookDescription.textContent = description;
 }
 
 function renderContentsNav() {
   const withChapters = hasAnyChapter();
   const withSections = hasAnySection();
   if (!withChapters && !withSections) {
-    el.contentsNav.innerHTML = '<p class="contents-empty">チャプター・セクションはありません。</p>';
+    const emptyHtml = '<p class="contents-empty">チャプター・セクションはありません。</p>';
+    el.contentsNav.innerHTML = emptyHtml;
+    el.bookTocNav.innerHTML = emptyHtml;
     return;
   }
 
   const numberRanges = sectionNumberRanges(state.indexWords);
-  el.contentsNav.innerHTML = state.chapters
+  const contentsHtml = state.chapters
     .map((chapter) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
       const chapterSections = state.sections.filter(
@@ -897,6 +947,8 @@ function renderContentsNav() {
       return `<div class="contents-group">${chapterButton}${sections}</div>`;
     })
     .join("");
+  el.contentsNav.innerHTML = contentsHtml;
+  el.bookTocNav.innerHTML = contentsHtml;
 }
 
 function setupSectionObserver() {
@@ -1224,7 +1276,7 @@ function closeSettingsMenu() {
 function closeContentsMenu() {
   el.contentsMenu.classList.remove("is-open");
   el.menuToggle.setAttribute("aria-expanded", "false");
-  el.menuToggle.setAttribute("aria-label", "チャプター・セクション一覧を開く");
+  el.menuToggle.setAttribute("aria-label", "本書のメニューを開く");
 }
 
 function toggleSettingsMenu() {
@@ -1240,7 +1292,7 @@ function toggleContentsMenu() {
   closeSettingsMenu();
   el.contentsMenu.classList.toggle("is-open", open);
   el.menuToggle.setAttribute("aria-expanded", String(open));
-  el.menuToggle.setAttribute("aria-label", open ? "チャプター・セクション一覧を閉じる" : "チャプター・セクション一覧を開く");
+  el.menuToggle.setAttribute("aria-label", open ? "本書のメニューを閉じる" : "本書のメニューを開く");
 }
 
 // ---- イベント委譲 ----
@@ -1329,7 +1381,7 @@ el.menuToggle.addEventListener("click", (e) => {
   e.stopPropagation();
   toggleContentsMenu();
 });
-el.contentsNav.addEventListener("click", async (e) => {
+async function handleContentsNavigation(e) {
   const btn = e.target.closest("button[data-nav-target]");
   if (!btn) return;
   btn.setAttribute("aria-busy", "true");
@@ -1341,6 +1393,17 @@ el.contentsNav.addEventListener("click", async (e) => {
   } finally {
     btn.removeAttribute("aria-busy");
   }
+}
+
+el.contentsNav.addEventListener("click", handleContentsNavigation);
+el.bookTocNav.addEventListener("click", handleContentsNavigation);
+
+el.bookNav.addEventListener("click", (e) => {
+  const button = e.target.closest("[data-book-view]");
+  if (!button) return;
+  setActiveView(button.dataset.bookView);
+  closeContentsMenu();
+  window.scrollTo({ top: 0, behavior: "auto" });
 });
 window.addEventListener("hashchange", () => {
   applyHashScroll({ cancelOnMissing: true }).catch(() => {});
@@ -1365,6 +1428,92 @@ window.addEventListener(
   { passive: true }
 );
 el.backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+
+// ---- 本全体の印刷 ----
+
+function waitForPrintLayout() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+}
+
+let bookPrintInProgress = false;
+
+async function printWholeBook() {
+  if (bookPrintInProgress || !state.currentListId) return;
+  bookPrintInProgress = true;
+  const listId = state.currentListId;
+  const generation = listLoadGeneration;
+  const sectionKeys = state.sections.map((section) => String(section.key));
+  const savedSearch = {
+    query: state.search,
+    matches: state.searchMatches,
+    input: el.searchInput.value,
+  };
+  let printPrepared = false;
+  el.printBookBtn.disabled = true;
+  el.printBookBtn.setAttribute("aria-busy", "true");
+  el.printStatus.hidden = false;
+  el.printStatus.textContent = `印刷用データを読み込み中（0 / ${sectionKeys.length}）`;
+  lazySectionObserver?.disconnect();
+
+  try {
+    const failures = await loadAllSectionsForPrint(sectionKeys, 4, () => {
+      const active = generation === listLoadGeneration && listId === state.currentListId;
+      if (active) {
+        const loaded = sectionKeys.filter((key) => state.loadedSectionKeys.has(key)).length;
+        el.printStatus.textContent = `印刷用データを読み込み中（${loaded} / ${sectionKeys.length}）`;
+      }
+      return active;
+    });
+    if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+
+    const unloaded = sectionKeys.filter((key) => !state.loadedSectionKeys.has(key));
+    if (failures.length || unloaded.length) {
+      throw new Error(`${unloaded.length || failures.length}セクションを読み込めませんでした。通信状態を確認して再度お試しください。`);
+    }
+
+    searchGeneration += 1;
+    state.search = "";
+    state.searchMatches = null;
+    el.searchInput.value = "";
+    applyFilters();
+    printPrepared = true;
+
+    document.body.classList.add("is-printing-book");
+    el.printStatus.textContent = "印刷レイアウトを準備中";
+    if (document.fonts?.ready) await document.fonts.ready;
+    await waitForPrintLayout();
+
+    const currentList = state.lists.find((list) => list.id === state.currentListId);
+    const originalTitle = document.title;
+    document.title = `${currentList?.name || "単語帳"} - 印刷用`;
+    try {
+      window.print();
+    } finally {
+      document.title = originalTitle;
+    }
+  } catch (err) {
+    el.printStatus.textContent = err.message;
+    showToast(`全体印刷を開始できませんでした: ${err.message}`);
+  } finally {
+    document.body.classList.remove("is-printing-book");
+    if (printPrepared) {
+      state.search = savedSearch.query;
+      state.searchMatches = savedSearch.matches;
+      el.searchInput.value = savedSearch.input;
+      applyFilters();
+    }
+    el.printBookBtn.disabled = false;
+    el.printBookBtn.removeAttribute("aria-busy");
+    bookPrintInProgress = false;
+    if (generation === listLoadGeneration && listId === state.currentListId) setupLazySectionObserver();
+    if (!el.printStatus.textContent.includes("読み込めませんでした")) el.printStatus.hidden = true;
+  }
+}
+
+el.printBookBtn.addEventListener("click", printWholeBook);
 
 // ---- テーマ切り替え ----
 
