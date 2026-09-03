@@ -305,6 +305,48 @@ button { font-family: inherit; }
   padding-top: 0.85rem;
   border-top: 1px solid var(--topbar-border);
 }
+.print-mode-only { display: none !important; }
+.print-mode-entry,
+.print-mode-exit {
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--topbar-accent);
+  border-radius: 7px;
+  color: var(--topbar-accent);
+  padding: 0.5rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.print-mode-entry { display: inline-flex; }
+body.is-print-mode .print-mode-entry { display: none; }
+body.is-print-mode .print-mode-exit.print-mode-only { display: inline-flex !important; }
+body.is-print-mode .book-nav.print-mode-only { display: grid !important; }
+body.is-print-mode .book-print-actions.print-mode-only { display: flex !important; }
+body.is-print-mode .contents-menu-heading.print-mode-only { display: block !important; }
+.book-print-settings {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+  margin-top: 0.65rem;
+  border: 1px solid var(--topbar-border);
+  border-radius: 7px;
+  padding: 0.65rem;
+}
+body.is-print-mode .book-print-settings.print-mode-only { display: grid !important; }
+.book-print-settings label { color: var(--topbar-text-muted); font-size: 0.76rem; font-weight: 700; }
+.book-print-settings select {
+  min-width: 0;
+  border: 1px solid var(--topbar-border);
+  border-radius: 6px;
+  background: var(--topbar-soft);
+  color: var(--topbar-text);
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+}
 .book-nav {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1479,9 +1521,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 }
 
 @media print {
+  html { font-size: var(--print-font-size, 10pt); }
   /* テーマに関わらず、印刷は明るい配色に固定して枠・背景をはっきり出す */
   :root {
-    --font-scale: 0.92 !important;
+    --font-scale: 1 !important;
     --bg: #ffffff !important;
     --bg-soft: #eef1f1 !important;
     --card-bg-1: #eaf3f6 !important;
@@ -1504,7 +1547,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
     --section-bg-6: #ffffff !important;
   }
   .topbar, .subbar, .section-nav, .back-to-top, .toast, .speak-btn, .loading-progress, .loading-msg { display: none !important; }
-  body { padding: 0 !important; background: #fff !important; }
+  body { padding: 0 !important; background: #fff !important; line-height: var(--print-line-height, 1.5); }
   body.is-printing-book .view-panel { display: block !important; }
   body.is-printing-book .book-page {
     min-height: 0;
@@ -1524,7 +1567,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .book-page {
     max-width: 100%;
     padding: 3mm 2mm 0;
-    line-height: 1.65;
+    line-height: var(--print-line-height, 1.5);
   }
   .book-page h1 { margin-bottom: 1rem; }
   .book-page h2 { break-after: avoid; }
