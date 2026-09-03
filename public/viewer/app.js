@@ -35,6 +35,7 @@ const PRINT_PART = PAGE_PARAMS.get("part") || "front";
 const PRINT_CHAPTER_KEY = PAGE_PARAMS.get("chapter");
 const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
 const PRINT_PAGE_SIZES = new Set(["a4", "b5", "a5"]);
+const PRINT_PAGE_SIZE_LABELS = { a4: "A4", b5: "B5", a5: "A5" };
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
@@ -89,6 +90,10 @@ const el = {
   printLineHeight: document.getElementById("printLineHeight"),
   printExampleColumns: document.getElementById("printExampleColumns"),
   printStatus: document.getElementById("printStatus"),
+  printProgressOverlay: document.getElementById("printProgressOverlay"),
+  printProgressLabel: document.getElementById("printProgressLabel"),
+  printProgressPercent: document.getElementById("printProgressPercent"),
+  printProgressBar: document.getElementById("printProgressBar"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
@@ -128,6 +133,7 @@ function applyPrintSettings() {
   const lineHeight = boundedPrintSetting(el.printLineHeight.value, 1.5, 1.2, 2);
   const exampleColumns = boundedIntegerPrintSetting(el.printExampleColumns.value, 2, 1, 3);
   document.documentElement.dataset.printPageSize = pageSize;
+  document.body.dataset.printPageSize = pageSize;
   document.documentElement.style.setProperty("--print-font-size", `${fontSize}pt`);
   document.documentElement.style.setProperty("--print-line-height", String(lineHeight));
   document.documentElement.style.setProperty("--print-example-columns", String(exampleColumns));
@@ -143,6 +149,33 @@ el.printFontSize.addEventListener("change", applyPrintSettings);
 el.printLineHeight.addEventListener("change", applyPrintSettings);
 el.printExampleColumns.addEventListener("change", applyPrintSettings);
 applyPrintSettings();
+
+let printProgressHideTimer;
+
+function setPrintProgress(percent, label) {
+  if (printProgressHideTimer) {
+    clearTimeout(printProgressHideTimer);
+    printProgressHideTimer = undefined;
+  }
+  const value = Math.max(0, Math.min(100, Math.round(percent)));
+  el.printProgressOverlay.hidden = false;
+  el.printProgressLabel.textContent = label;
+  el.printProgressPercent.textContent = `${value}%`;
+  el.printProgressBar.value = value;
+  el.printProgressBar.textContent = `${value}%`;
+  if (el.printStatus?.isConnected) {
+    el.printStatus.hidden = false;
+    el.printStatus.textContent = `${label}（${value}%）`;
+  }
+}
+
+function hidePrintProgress() {
+  if (printProgressHideTimer) {
+    clearTimeout(printProgressHideTimer);
+    printProgressHideTimer = undefined;
+  }
+  el.printProgressOverlay.hidden = true;
+}
 let networkActivityDepth = 0;
 let progressDelayTimer;
 let progressFinishTimer;
@@ -1557,6 +1590,41 @@ function loadPagedJs() {
   });
 }
 
+function registerPagedProgressHandler(sectionKeys) {
+  if (!window.Paged?.Handler || !window.Paged?.registerHandlers) return false;
+  const sectionIndexByKey = new Map(sectionKeys.map((key, index) => [String(key), index]));
+  const totalSections = sectionKeys.length;
+  const pageSizeLabel = PRINT_PAGE_SIZE_LABELS[normalizedPrintPageSize(el.printPageSize.value)];
+  let renderedPages = 0;
+  let highestSectionIndex = -1;
+  let highestReportedPercent = 48;
+
+  class PrintProgressHandler extends window.Paged.Handler {
+    afterPageLayout(pageElement) {
+      renderedPages += 1;
+      const sectionNodes = pageElement?.querySelectorAll?.(".section-group[data-section-key]") || [];
+      for (const sectionNode of sectionNodes) {
+        const index = sectionIndexByKey.get(String(sectionNode.dataset.sectionKey));
+        if (index != null) highestSectionIndex = Math.max(highestSectionIndex, index);
+      }
+
+      const calculatedPercent = totalSections && highestSectionIndex >= 0
+        ? 50 + ((highestSectionIndex + 1) / totalSections) * 44
+        : Math.min(90, 45 + renderedPages * 3);
+      highestReportedPercent = Math.max(highestReportedPercent, calculatedPercent);
+      setPrintProgress(highestReportedPercent, `ページを組版中（${pageSizeLabel}・${renderedPages}ページ）`);
+    }
+
+    afterRendered(flow) {
+      const totalPages = Number(flow?.total) || renderedPages;
+      setPrintProgress(96, `版組完了（${pageSizeLabel}・${totalPages}ページ）`);
+    }
+  }
+
+  window.Paged.registerHandlers(PrintProgressHandler);
+  return true;
+}
+
 function printSectionKeys() {
   if (PRINT_PART === "all" || PRINT_PART === "all-paged") {
     return state.sections.map((section) => String(section.key));
@@ -1622,18 +1690,19 @@ async function printWholeBook() {
     bookPrintInProgress = false;
     return;
   }
+  setPrintProgress(1, "印刷準備を開始");
   const savedSearch = {
     query: state.search,
     matches: state.searchMatches,
     input: el.searchInput.value,
   };
   let printPrepared = false;
+  let printFailed = false;
   el.printBookBtn.disabled = true;
   el.printBookBtn.setAttribute("aria-busy", "true");
-  el.printStatus.hidden = false;
-  el.printStatus.textContent = sectionKeys.length
+  setPrintProgress(5, sectionKeys.length
     ? `印刷用データを読み込み中（0 / ${sectionKeys.length}）`
-    : `${printPartLabel()}を準備中`;
+    : `${printPartLabel()}を準備中`);
   lazySectionObserver?.disconnect();
 
   try {
@@ -1641,7 +1710,8 @@ async function printWholeBook() {
       const active = generation === listLoadGeneration && listId === state.currentListId;
       if (active) {
         const loaded = sectionKeys.filter((key) => state.loadedSectionKeys.has(key)).length;
-        el.printStatus.textContent = `印刷用データを読み込み中（${loaded} / ${sectionKeys.length}）`;
+        const percent = 5 + (loaded / sectionKeys.length) * 35;
+        setPrintProgress(percent, `印刷用データを読み込み中（${loaded} / ${sectionKeys.length}）`);
       }
       return active;
     });
@@ -1658,30 +1728,38 @@ async function printWholeBook() {
     el.searchInput.value = "";
     applyFilters();
     printPrepared = true;
+    setPrintProgress(40, "印刷用データの読み込み完了");
 
     document.body.classList.add("is-printing-book");
     document.body.dataset.printEngine = PRINT_PART === "all" ? "native" : "paged";
     prepareLightweightPrintDom();
-    el.printStatus.textContent = "印刷レイアウトを準備中";
+    setPrintProgress(45, "印刷レイアウトを準備中");
     if (document.fonts?.ready) await document.fonts.ready;
     await waitForPrintLayout();
     if (PRINT_PART !== "all") {
       await loadPagedJs();
-      el.printStatus.textContent = "ページを組版中";
+      registerPagedProgressHandler(sectionKeys);
+      setPrintProgress(48, `ページを組版中（${PRINT_PAGE_SIZE_LABELS[normalizedPrintPageSize(el.printPageSize.value)]}）`);
       await window.PagedPolyfill.preview();
       await waitForPrintLayout();
+      setPrintProgress(98, "印刷画面を準備中");
+    } else {
+      setPrintProgress(95, "印刷画面を準備中");
     }
 
     const currentList = state.lists.find((list) => list.id === state.currentListId);
     const originalTitle = document.title;
     document.title = `${currentList?.name || "Crossover"} - ${printPartLabel()}`;
     try {
+      setPrintProgress(100, "印刷準備完了");
+      await waitForPrintLayout();
       window.print();
     } finally {
       document.title = originalTitle;
     }
   } catch (err) {
-    el.printStatus.textContent = err.message;
+    printFailed = true;
+    setPrintProgress(0, `印刷準備に失敗しました：${err.message}`);
     showToast(`全体印刷を開始できませんでした: ${err.message}`);
   } finally {
     document.body.classList.remove("is-printing-book");
@@ -1695,7 +1773,16 @@ async function printWholeBook() {
     el.printBookBtn.removeAttribute("aria-busy");
     bookPrintInProgress = false;
     if (generation === listLoadGeneration && listId === state.currentListId) setupLazySectionObserver();
-    if (!el.printStatus.textContent.includes("読み込めませんでした")) el.printStatus.hidden = true;
+    if (el.printStatus?.isConnected && !el.printStatus.textContent.includes("読み込めませんでした")) {
+      el.printStatus.hidden = true;
+    }
+    if (printFailed) {
+      printProgressHideTimer = setTimeout(() => {
+        printProgressHideTimer = undefined;
+        hidePrintProgress();
+      }, 8000);
+    }
+    else hidePrintProgress();
   }
 }
 
