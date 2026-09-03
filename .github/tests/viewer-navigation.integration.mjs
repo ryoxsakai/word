@@ -37,6 +37,7 @@ assert.equal(wordIdFromHash("#word-"), null);
 
 const appSource = await readFile(new URL("../../public/viewer/app.js", import.meta.url), "utf8");
 const styleSource = await readFile(new URL("../../public/viewer/style.css", import.meta.url), "utf8");
+const indexSource = await readFile(new URL("../../public/index.html", import.meta.url), "utf8");
 
 const navigateToWordSource = appSource.slice(
   appSource.indexOf("async function navigateToWord"),
@@ -105,5 +106,50 @@ assert.match(styleSource, /\.contents-section\.is-grouped\s*\{/);
 assert.match(styleSource, /\.contents-chapter\s*\{[\s\S]*font-weight:\s*800/);
 assert.match(styleSource, /\.contents-subgroup\s*\{[\s\S]*border-left:\s*3px/);
 assert.match(styleSource, /\.group-divider\s*\{/);
+
+for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) {
+  assert.match(indexSource, new RegExp(`data-book-view="${view}"`));
+  assert.match(indexSource, new RegExp(`data-view-panel="${view}"`));
+}
+assert.match(indexSource, /id="printBookBtn"/);
+assert.match(indexSource, /id="bookTocNav"/);
+const printOrder = [
+  'id="bookIntroduction"',
+  'id="bookStructure"',
+  'id="bookBadges"',
+  'id="bookAppGuide"',
+  'id="bookToc"',
+  'id="wordList"',
+  'id="indexList"',
+].map((item) => indexSource.indexOf(item));
+assert.ok(printOrder.every((position) => position >= 0));
+assert.deepEqual(printOrder, [...printOrder].sort((a, b) => a - b), "book parts must follow print order");
+
+const printSource = appSource.slice(
+  appSource.indexOf("async function printWholeBook"),
+  appSource.indexOf("// ---- テーマ切り替え")
+);
+assert.match(printSource, /state\.sections\.map\(\(section\) => String\(section\.key\)\)/);
+assert.match(printSource, /await loadAllSectionsForPrint/);
+assert.match(printSource, /const unloaded = sectionKeys\.filter/);
+assert.match(printSource, /document\.body\.classList\.add\("is-printing-book"\)/);
+assert.match(printSource, /document\.fonts\?\.ready/);
+assert.match(printSource, /window\.print\(\)/);
+assert.ok(
+  printSource.indexOf("await loadAllSectionsForPrint") < printSource.indexOf('classList.add("is-printing-book")'),
+  "all sections must finish loading before the print layout is enabled"
+);
+assert.ok(
+  printSource.indexOf('classList.add("is-printing-book")') < printSource.indexOf("window.print()"),
+  "the complete book layout must be enabled before printing"
+);
+
+assert.match(contentsNavSource, /bookTocNav\.innerHTML = contentsHtml/);
+assert.match(styleSource, /@bottom-center\s*\{[\s\S]*counter\(page\)[\s\S]*counter\(pages\)/);
+assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
+assert.match(styleSource, /body\.is-printing-book \.book-page[\s\S]*break-after:\s*page/);
+const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
+assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
+assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
 
 console.log("Viewer navigation integration tests passed");

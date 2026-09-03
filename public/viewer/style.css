@@ -300,6 +300,64 @@ button { font-family: inherit; }
   text-align: center;
 }
 
+.contents-menu-heading--sections {
+  margin-top: 0.8rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--topbar-border);
+}
+.book-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+.book-nav button {
+  border: 1px solid var(--topbar-border);
+  border-radius: 7px;
+  background: var(--topbar-soft);
+  color: var(--topbar-text);
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+.book-nav button:hover,
+.book-nav button[aria-current="page"] {
+  border-color: var(--topbar-accent);
+  background: var(--topbar-accent-soft);
+}
+.book-print-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.55rem;
+}
+.print-book-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--topbar-accent);
+  border-radius: 7px;
+  background: var(--topbar-accent);
+  color: #fff;
+  padding: 0.5rem 0.85rem;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.print-book-btn:disabled { cursor: wait; opacity: 0.7; }
+.print-status {
+  flex: 1;
+  margin: 0;
+  color: var(--topbar-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .subbar {
   position: sticky;
   top: 3rem;
@@ -504,6 +562,119 @@ button { font-family: inherit; }
 body.is-loading .word-list,
 body.is-loading .index-list,
 body.is-loading .section-nav { display: none; }
+
+/* ---- 本書ページ / view panels ---- */
+
+.view-panel { display: none; }
+.view-panel.is-active { display: block; }
+
+.book-page {
+  box-sizing: border-box;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.2rem 1.25rem 4rem;
+  color: var(--text);
+  line-height: 1.9;
+}
+.book-page-kicker {
+  color: var(--accent);
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+.book-page h1,
+.print-part-title {
+  margin: 0.15rem 0 1.6rem;
+  color: var(--text);
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  line-height: 1.25;
+}
+.book-page h2 {
+  margin: 1.7rem 0 0.55rem;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+.book-page p { margin: 0.75rem 0; }
+.book-lead {
+  color: var(--accent-strong);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.book-structure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.book-structure-grid article {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  padding: 1rem 1rem 1rem 3.1rem;
+}
+.book-structure-grid h2 { margin: 0; }
+.book-structure-grid p { margin: 0.25rem 0 0; color: var(--text-muted); font-size: 0.86rem; }
+.book-step {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-family: "Roboto Condensed", sans-serif;
+  font-weight: 700;
+}
+.book-note {
+  margin-top: 1.5rem;
+  border-left: 4px solid var(--accent);
+  background: var(--bg-soft);
+  padding: 0.8rem 1rem;
+}
+.book-note h2 { margin: 0 0 0.35rem; }
+.book-note p { margin: 0; }
+.badge-guide-list { display: grid; gap: 0.65rem; }
+.badge-guide-row {
+  display: grid;
+  grid-template-columns: 3.2rem 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+.badge-guide-row p { margin: 0; }
+.badge-samples,
+.notes-guide {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.app-guide-list {
+  display: grid;
+  gap: 0.65rem;
+  padding-left: 1.5rem;
+}
+.app-guide-list li { padding-left: 0.3rem; }
+.app-guide-list strong,
+.app-guide-list span { display: block; }
+.app-guide-list span { color: var(--text-muted); font-size: 0.88rem; }
+.book-toc-nav { gap: 0.6rem; }
+.book-toc-nav .contents-chapter,
+.book-toc-nav .contents-subgroup,
+.book-toc-nav .contents-section {
+  color: var(--text);
+}
+.book-toc-nav .contents-item-subtitle,
+.book-toc-nav .contents-item-count { color: var(--text-muted); }
+.print-part-title { display: none; }
+
+@media (max-width: 560px) {
+  .book-structure-grid { grid-template-columns: 1fr; }
+}
 
 /* ---- word list ---- */
 
@@ -1190,6 +1361,18 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 
 /* ---- 印刷用スタイル ---- */
 
+@page {
+  size: A4;
+  margin: 12mm 12mm 16mm;
+
+  @bottom-center {
+    content: counter(page) " / " counter(pages);
+    color: #666;
+    font-family: "M PLUS 2", sans-serif;
+    font-size: 8pt;
+  }
+}
+
 @media print {
   /* テーマに関わらず、印刷は明るい配色に固定して枠・背景をはっきり出す */
   :root {
@@ -1216,6 +1399,49 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   }
   .topbar, .subbar, .section-nav, .back-to-top, .toast, .speak-btn, .loading-progress, .loading-msg { display: none !important; }
   body { padding: 0 !important; background: #fff !important; }
+  body.is-printing-book .view-panel { display: block !important; }
+  body.is-printing-book .book-page {
+    min-height: 0;
+    break-after: page;
+    page-break-after: always;
+  }
+  body.is-printing-book .book-toc-page {
+    break-after: page;
+    page-break-after: always;
+  }
+  body.is-printing-book .index-list {
+    break-before: page;
+    page-break-before: always;
+  }
+  .book-page {
+    max-width: 100%;
+    padding: 3mm 2mm 0;
+    line-height: 1.65;
+  }
+  .book-page h1 { margin-bottom: 1rem; }
+  .book-page h2 { break-after: avoid; }
+  .book-structure-grid article,
+  .book-note,
+  .badge-guide-row,
+  .app-guide-list li { break-inside: avoid; page-break-inside: avoid; }
+  .book-toc-nav button {
+    border-color: #aaa !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .book-toc-nav .contents-item-subtitle,
+  .book-toc-nav .contents-item-count { color: #444 !important; }
+  .book-toc-nav .contents-chapter { border-width: 0 0 1px; border-radius: 0; }
+  .book-toc-nav .contents-subgroup {
+    border-width: 0 0 0 3px;
+    border-radius: 0;
+    margin-top: 0.18rem;
+  }
+  .print-part-title {
+    display: block;
+    margin: 0 0 1rem;
+    font-size: 20pt;
+  }
   .word-list { max-width: 100%; padding: 0; }
   .index-list { max-width: 100%; padding: 0; }
   .section-group { margin-right: 0; margin-left: 0; padding-top: 0; }
@@ -1228,9 +1454,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
   .index-columns {
     columns: 2 !important;
+    column-fill: auto;
     column-gap: 1.1rem;
   }
-  .index-group { break-inside: avoid-page; page-break-inside: avoid; }
+  .index-group { break-inside: auto; page-break-inside: auto; }
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
