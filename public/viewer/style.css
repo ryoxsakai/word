@@ -648,6 +648,15 @@ body.is-loading .section-nav { display: none; }
 .chapter-overview strong,
 .chapter-overview span { display: block; }
 .chapter-overview span { color: var(--text-muted); font-size: 0.86rem; }
+.intro-study-steps {
+  display: grid;
+  gap: 0.65rem;
+  padding-left: 1.6rem;
+}
+.intro-study-steps li { padding-left: 0.25rem; }
+.intro-study-steps strong,
+.intro-study-steps span { display: block; }
+.intro-study-steps span { margin-top: 0.1rem; color: var(--text-muted); font-size: 0.86rem; }
 .badge-detail-list { display: grid; gap: 0.8rem; }
 .badge-detail-list article {
   display: grid;
