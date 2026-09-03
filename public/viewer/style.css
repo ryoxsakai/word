@@ -306,7 +306,6 @@ button { font-family: inherit; }
   border-top: 1px solid var(--topbar-border);
 }
 .print-mode-only { display: none !important; }
-.print-mode-entry,
 .print-mode-exit {
   align-items: center;
   justify-content: center;
@@ -320,8 +319,6 @@ button { font-family: inherit; }
   font-weight: 700;
   text-decoration: none;
 }
-.print-mode-entry { display: inline-flex; }
-body.is-print-mode .print-mode-entry { display: none; }
 body.is-print-mode .print-mode-exit.print-mode-only { display: inline-flex !important; }
 body.is-print-mode .book-nav.print-mode-only { display: grid !important; }
 body.is-print-mode .book-print-actions.print-mode-only { display: flex !important; }

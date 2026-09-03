@@ -114,7 +114,7 @@ for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) 
 assert.equal((indexSource.match(/class="book-page front-matter-page view-panel"/g) || []).length, 4);
 assert.match(indexSource, /id="printBookBtn"/);
 assert.match(indexSource, /id="printPartSelect"/);
-assert.match(indexSource, /href="\.\/\?mode=print"/);
+assert.doesNotMatch(indexSource, /印刷モードを開く/);
 assert.match(indexSource, /id="printFontSize"/);
 assert.match(indexSource, /id="printLineHeight"/);
 assert.match(indexSource, /選択範囲を印刷/);
