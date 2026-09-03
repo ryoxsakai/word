@@ -664,11 +664,21 @@ body.is-loading .section-nav { display: none; }
 .note-detail-list { display: grid; gap: 0.55rem; }
 .note-detail-list article {
   display: grid;
-  grid-template-columns: 3rem 1fr;
+  grid-template-columns: 5rem minmax(0, 1fr);
   gap: 0.75rem;
   align-items: start;
 }
 .note-detail-list p { margin: 0; font-size: 0.86rem; }
+.note-detail-list .notes-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 4.5rem;
+  line-height: 1.4;
+  text-align: center;
+  text-align-last: auto;
+}
 .app-install-intro {
   display: grid;
   grid-template-columns: 184px 1fr;

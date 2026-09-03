@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
-<title>単語帳</title>
+<title>crossover</title>
 <link rel="apple-touch-icon" href="./shared/icons/apple-touch-icon-viewer.png" />
 <link rel="manifest" href="./manifest.webmanifest" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,9 +19,9 @@
 <div id="loadingProgress" class="loading-progress" role="progressbar" aria-label="読み込み中" aria-valuetext="読み込み中" hidden></div>
 <header class="topbar">
   <div class="topbar-row topbar-row--primary">
-    <h1 class="brand-name">単語帳</h1>
-    <div class="toolbar-controls">
-      <select id="listSelect" aria-label="リストを選択"></select>
+    <h1 class="brand-name">crossover</h1>
+    <div class="toolbar-controls" hidden>
+      <select id="listSelect" aria-label="リストを選択" hidden></select>
     </div>
     <button type="button" class="icon-toggle settings-toggle" id="settingsToggle" aria-expanded="false" aria-controls="settingsMenu" aria-label="設定を開く">
       <i class="fa-solid fa-gear" aria-hidden="true"></i>
@@ -117,10 +117,6 @@
     <li><strong>発展読解の重要語彙</strong><span>論理・学術・社会・心理・生命に関する抽象語へ進みます。</span></li>
     <li><strong>医系関連語彙</strong><span>構造・機能、診察・症候、生命・防御の基本語を扱います。</span></li>
   </ol>
-  <div class="book-note">
-    <h2>ナンバーについて</h2>
-    <p>見出し語には掲載順の連番が付きます。派生語として独立掲載される語は、直前の見出し語に枝番（例：42-1）が付きます。</p>
-  </div>
 </section>
 
 <section id="bookBadges" class="book-page view-panel" data-view-panel="badges" aria-hidden="true">
@@ -134,7 +130,7 @@
   </div>
   <h2>注意ポイント</h2>
   <div class="badge-detail-list caution-details">
-    <article><span class="caution-badge caution-ergative">能格</span><div><h3>自動詞・他動詞で同じ変化を表す</h3><p><strong>着眼点：</strong>主語が変化する形と、目的語を変化させる形を対にします。<strong>学び方：</strong>「増える／〜を増やす」のように二つの文型を並べて覚えます。<strong>例：</strong><i lang="en">increase</i>, <i lang="en">break</i>。</p></div></article>
+    <article><span class="caution-badge caution-ergative">能格</span><div><h3>自動詞の主語と他動詞の目的語が対応する</h3><p><strong>着眼点：</strong>同じ動詞が、もの自体の変化を表す自動詞と、誰かがものを変化させる他動詞の両方で使われます。自動詞文の主語が、他動詞文では目的語になります。</p><p><strong>学び方：</strong>「何かが〜する／誰かが何かを〜する」という二つの文型を、同じ名詞を使って並べます。</p><p><strong>例：</strong><i lang="en">The number increased.</i>「数が増えた」／<i lang="en">They increased the number.</i>「彼らは数を増やした」。<i lang="en">The glass broke.</i>「グラスが割れた」／<i lang="en">She broke the glass.</i>「彼女がグラスを割った」。</p></div></article>
     <article><span class="caution-badge caution-spelling">スペル</span><div><h3>つづりを誤りやすい</h3><p><strong>着眼点：</strong>重なる子音、脱落しやすい文字、似た語との違いです。<strong>学び方：</strong>誤りやすい部分を区切って書きます。<strong>例：</strong><i lang="en">accommodate</i>はcとmがともに二つです。</p></div></article>
     <article><span class="caution-badge caution-pronunciation">発音</span><div><h3>文字から発音を推測しにくい</h3><p><strong>着眼点：</strong>母音・子音の音、黙字、品詞による違いです。<strong>学び方：</strong>発音記号を見て音声を聞き、声に出します。<strong>例：</strong><i lang="en">record</i>は名詞と動詞で発音が変わります。</p></div></article>
     <article><span class="caution-badge caution-accent">アクセント</span><div><h3>強勢位置を誤りやすい</h3><p><strong>着眼点：</strong>最も強く読む音節と、品詞による移動です。<strong>学び方：</strong>強勢のある音節を大きく読みます。<strong>例：</strong><i lang="en">record</i>は名詞で前、動詞で後ろに強勢があります。</p></div></article>
@@ -158,8 +154,8 @@
   <div class="book-page-kicker">APP GUIDE</div>
   <h1>アプリの利用方法</h1>
   <div class="app-install-intro">
-    <img src="./shared/qr/crossover.svg" alt="Crossoverを直接開くQRコード" width="184" height="184" />
-    <div><h2>QRコードからCrossoverを開く</h2><p>スマートフォンまたはタブレットのカメラで読み取ると、Crossoverが直接開きます。</p><p class="app-url">https://vocab.lrnr.jp/?list=crossover-v3</p></div>
+    <img src="./shared/qr/crossover.svg" alt="Crossoverを開くQRコード" width="184" height="184" />
+    <div><h2>QRコードからCrossoverを開く</h2><p>スマートフォンまたはタブレットのカメラで読み取ると、Crossoverが開きます。</p><p class="app-url">https://vocab.lrnr.jp/</p></div>
   </div>
   <div class="device-guide-grid">
     <article><h2><i class="fa-brands fa-apple" aria-hidden="true"></i> iPhone・iPad</h2><ol><li>QRコードを読み取り、Safariで開きます。</li><li>共有ボタンを押します。</li><li>「ホーム画面に追加」を選びます。</li><li>名前を確認し、「追加」を押します。</li></ol></article>
@@ -168,17 +164,12 @@
   <p class="book-caption">ホーム画面から通常のアプリのように開けます。閲覧・発音にはインターネット接続が必要です。</p>
   <h2>基本操作</h2>
   <ol class="app-guide-list">
-    <li><strong>単語帳を選ぶ</strong><span>上部のリストから閲覧する単語帳を選択します。</span></li>
+    <li><strong>Crossoverを開く</strong><span>アクセスするとCrossoverが自動的に表示され、そのまま学習を始められます。</span></li>
     <li><strong>探す・移動する</strong><span>設定メニューの検索とナンバージャンプ、またはハンバーガーメニューの目次を使います。</span></li>
     <li><strong>一覧と索引を切り替える</strong><span>一覧は掲載順、索引はアルファベット順で表示します。</span></li>
     <li><strong>発音を聞く</strong><span>見出し語のスピーカーボタンを押します。</span></li>
     <li><strong>表示を調整する</strong><span>歯車メニューから文字サイズとライト／ダークテーマを切り替えられます。</span></li>
-    <li><strong>一冊を印刷する</strong><span>ハンバーガーメニューの「全体を印刷」を押すと、全セクションを読み込み、目次のページ番号を確定してから印刷します。</span></li>
   </ol>
-  <div class="book-note">
-    <h2>PDFに保存する場合</h2>
-    <p>印刷ダイアログで「PDFに保存」を選びます。余白は「なし」、ブラウザ側の「ヘッダーとフッター」はオフ、「背景のグラフィック」はオンを推奨します。ページ番号は最初のページから算用数字で通し表示されます。</p>
-  </div>
 </section>
 
 <section id="bookToc" class="book-page book-toc-page view-panel" data-view-panel="toc" aria-hidden="true">

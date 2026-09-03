@@ -155,12 +155,21 @@ assert.match(styleSource, /body\.is-printing-book \.book-page[\s\S]*break-after:
 const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
 assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
 assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
-assert.match(appSource, /PAGE_PARAMS\.get\("list"\)/);
+assert.match(appSource, /const CROSSOVER_LIST_ID = "crossover-v3"/);
+assert.match(appSource, /l\.id === CROSSOVER_LIST_ID/);
+assert.match(appSource, /const initial = CROSSOVER_LIST_ID/);
 assert.match(appSource, /PAGE_PARAMS\.get\("print"\) === "book"/);
 assert.match(appSource, /pagedjs@0\.4\.3/);
 assert.match(printSource, /await window\.PagedPolyfill\.preview\(\)/);
 assert.match(indexSource, /shared\/qr\/crossover\.svg/);
-assert.match(indexSource, /https:\/\/vocab\.lrnr\.jp\/\?list=crossover-v3/);
+assert.match(indexSource, /<title>crossover<\/title>/);
+assert.match(indexSource, /<h1 class="brand-name">crossover<\/h1>/);
+assert.match(indexSource, /id="listSelect"[^>]*hidden/);
+assert.match(appSource, />AWL\$\{awlSublist \? ` \$\{escapeHtml\(awlSublist\)\}` : ""\}<\/span>/);
+assert.match(indexSource, /https:\/\/vocab\.lrnr\.jp\//);
+assert.doesNotMatch(indexSource, /ナンバーについて/);
+const appGuideSource = indexSource.slice(indexSource.indexOf('id="bookAppGuide"'), indexSource.indexOf('id="bookToc"'));
+assert.doesNotMatch(appGuideSource, /印刷|PDFに保存/);
 assert.match(indexSource, /rel="manifest"/);
 
 console.log("Viewer navigation integration tests passed");

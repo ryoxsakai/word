@@ -2,7 +2,7 @@
   "name": "Crossover",
   "short_name": "Crossover",
   "description": "医学部受験のための英単語帳",
-  "start_url": "/?list=crossover-v3",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f8f9fc",

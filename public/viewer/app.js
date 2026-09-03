@@ -27,6 +27,7 @@ const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
+const CROSSOVER_LIST_ID = "crossover-v3";
 const PAGE_PARAMS = new URLSearchParams(window.location.search);
 const PRINT_BOOK_MODE = PAGE_PARAMS.get("print") === "book";
 const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
@@ -210,7 +211,7 @@ function renderRef(spelling) {
 async function loadLists() {
   const allLists = await api("/lists");
   // 「単語マスター（全語）」は単語帳を組み立てるための管理用リストなので、閲覧ページの対象からは除外する。
-  state.lists = allLists.filter((l) => l.isNotebook !== false);
+  state.lists = allLists.filter((l) => l.isNotebook !== false && l.id === CROSSOVER_LIST_ID);
   el.listSelect.innerHTML = "";
   for (const l of state.lists) {
     const opt = document.createElement("option");
@@ -223,13 +224,7 @@ async function loadLists() {
     el.emptyMsg.hidden = false;
     return;
   }
-  const requested = PAGE_PARAMS.get("list");
-  const saved = localStorage.getItem(LAST_LIST_KEY);
-  const initial = state.lists.some((l) => l.id === requested)
-    ? requested
-    : state.lists.some((l) => l.id === saved)
-      ? saved
-      : state.lists[0].id;
+  const initial = CROSSOVER_LIST_ID;
   el.listSelect.value = initial;
   await selectList(initial);
 }
@@ -505,7 +500,7 @@ function renderEntry(w) {
   const hasAwlTag = Object.prototype.hasOwnProperty.call(w.tags || {}, "awl");
   const awlSublist = String(w.tags?.awl || "").trim();
   const awlBadge = hasAwlTag
-    ? `<span class="learning-badge badge-awl" title="Academic Word List${awlSublist ? ` Sublist ${escapeHtml(awlSublist)}` : ""}">AWL</span>`
+    ? `<span class="learning-badge badge-awl" title="Academic Word List${awlSublist ? ` Sublist ${escapeHtml(awlSublist)}` : ""}">AWL${awlSublist ? ` ${escapeHtml(awlSublist)}` : ""}</span>`
     : "";
   const generatedAudioUrl = w.generatedAudio?.url || "";
 
