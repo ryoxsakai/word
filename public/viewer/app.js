@@ -1670,7 +1670,6 @@ async function printWholeBook() {
     return;
   }
   bookPrintInProgress = true;
-  setPrintProgress(1, "印刷準備を開始");
   const listId = state.currentListId;
   const generation = listLoadGeneration;
   const sectionKeys = printSectionKeys();
@@ -1679,6 +1678,7 @@ async function printWholeBook() {
     bookPrintInProgress = false;
     return;
   }
+  setPrintProgress(1, "印刷準備を開始");
   const savedSearch = {
     query: state.search,
     matches: state.searchMatches,
