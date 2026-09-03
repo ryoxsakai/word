@@ -111,6 +111,7 @@ for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) 
   assert.match(indexSource, new RegExp(`data-book-view="${view}"`));
   assert.match(indexSource, new RegExp(`data-view-panel="${view}"`));
 }
+assert.equal((indexSource.match(/class="book-page front-matter-page view-panel"/g) || []).length, 4);
 assert.match(indexSource, /id="printBookBtn"/);
 assert.match(indexSource, /id="printPartSelect"/);
 assert.match(indexSource, /選択範囲を印刷/);
@@ -154,7 +155,7 @@ assert.match(contentsNavSource, /class="contents-section book-toc-link/);
 assert.match(styleSource, /@bottom-center\s*\{[\s\S]*counter\(page\)[\s\S]*counter\(pages\)/);
 assert.match(styleSource, /target-counter\(attr\(href\), page\)/);
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
-assert.match(styleSource, /body\.is-printing-book \.book-page[\s\S]*break-after:\s*page/);
+assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
 const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
 assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
 assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
