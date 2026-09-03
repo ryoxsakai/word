@@ -1638,14 +1638,14 @@ html[data-print-page-size="a5"] body.is-printing-book { page: print-a5; }
     print-color-adjust: exact;
   }
 
-  /* Sectionは続けて配置し、Groupの切り替わりだけで改ページする。 */
+  /* 2つ目以降のSectionは必ず新しいページから始める。 */
   .section-divider {
     break-inside: avoid;
     break-after: avoid-page;
     page-break-after: avoid;
     box-shadow: none;
   }
-  .section-group.has-group-divider:not(:first-of-type) {
+  .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
   }
