@@ -144,12 +144,23 @@ assert.ok(
   "the complete book layout must be enabled before printing"
 );
 
-assert.match(contentsNavSource, /bookTocNav\.innerHTML = contentsHtml/);
+assert.match(contentsNavSource, /bookTocNav\.innerHTML = renderItems\(true\)/);
+assert.match(contentsNavSource, /class="contents-chapter book-toc-link" href="#/);
+assert.match(contentsNavSource, /class="contents-subgroup book-toc-link" href="#group-/);
+assert.match(contentsNavSource, /class="contents-section book-toc-link/);
 assert.match(styleSource, /@bottom-center\s*\{[\s\S]*counter\(page\)[\s\S]*counter\(pages\)/);
+assert.match(styleSource, /target-counter\(attr\(href\), page\)/);
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
 assert.match(styleSource, /body\.is-printing-book \.book-page[\s\S]*break-after:\s*page/);
 const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
 assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
 assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
+assert.match(appSource, /PAGE_PARAMS\.get\("list"\)/);
+assert.match(appSource, /PAGE_PARAMS\.get\("print"\) === "book"/);
+assert.match(appSource, /pagedjs@0\.4\.3/);
+assert.match(printSource, /await window\.PagedPolyfill\.preview\(\)/);
+assert.match(indexSource, /shared\/qr\/crossover\.svg/);
+assert.match(indexSource, /https:\/\/vocab\.lrnr\.jp\/\?list=crossover-v3/);
+assert.match(indexSource, /rel="manifest"/);
 
 console.log("Viewer navigation integration tests passed");

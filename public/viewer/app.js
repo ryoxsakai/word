@@ -27,6 +27,9 @@ const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
+const PAGE_PARAMS = new URLSearchParams(window.location.search);
+const PRINT_BOOK_MODE = PAGE_PARAMS.get("print") === "book";
+const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
@@ -220,8 +223,13 @@ async function loadLists() {
     el.emptyMsg.hidden = false;
     return;
   }
+  const requested = PAGE_PARAMS.get("list");
   const saved = localStorage.getItem(LAST_LIST_KEY);
-  const initial = state.lists.some((l) => l.id === saved) ? saved : state.lists[0].id;
+  const initial = state.lists.some((l) => l.id === requested)
+    ? requested
+    : state.lists.some((l) => l.id === saved)
+      ? saved
+      : state.lists[0].id;
   el.listSelect.value = initial;
   await selectList(initial);
 }
@@ -874,13 +882,9 @@ function renderActiveBottomNav() {
 function renderBookMatter() {
   const currentList = state.lists.find((list) => list.id === state.currentListId);
   const title = currentList?.name || "単語帳";
-  const description =
-    currentList?.description ||
-    "この単語帳は、語の意味だけでなく、用例・派生語・関連語まで結びつけて学べるように構成されています。";
   el.bookTitleNodes.forEach((node) => {
     node.textContent = title;
   });
-  el.bookDescription.textContent = description;
 }
 
 function renderContentsNav() {
@@ -894,7 +898,7 @@ function renderContentsNav() {
   }
 
   const numberRanges = sectionNumberRanges(state.indexWords);
-  const contentsHtml = state.chapters
+  const renderItems = (forPrintToc = false) => state.chapters
     .map((chapter) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
       const chapterSections = state.sections.filter(
@@ -904,7 +908,12 @@ function renderContentsNav() {
       const chapterSectionData =
         firstSectionKey != null ? ` data-nav-section-key="${escapeHtml(String(firstSectionKey))}"` : "";
       const chapterButton = withChapters
-        ? `<button type="button" class="contents-chapter" data-nav-target="${escapeHtml(chapterTarget)}"${chapterSectionData}>
+        ? forPrintToc
+          ? `<a class="contents-chapter book-toc-link" href="#${escapeHtml(chapterTarget)}">
+            <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
+              chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
+            }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
+          : `<button type="button" class="contents-chapter" data-nav-target="${escapeHtml(chapterTarget)}"${chapterSectionData}>
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
               chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
             }</span>
@@ -925,7 +934,11 @@ function renderContentsNav() {
         const group = groupKey ? groupByKey.get(groupKey) : null;
         if (group && groupKey !== previousGroupKey) {
           sectionParts.push(
-            `<button type="button" class="contents-subgroup" data-nav-target="group-${escapeHtml(group.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
+            forPrintToc
+              ? `<a class="contents-subgroup book-toc-link" href="#group-${escapeHtml(group.key)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
+                  group.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
+                }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
+              : `<button type="button" class="contents-subgroup" data-nav-target="group-${escapeHtml(group.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
               <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
                 group.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
               }</span>
@@ -935,7 +948,11 @@ function renderContentsNav() {
         }
         previousGroupKey = groupKey;
         sectionParts.push(
-          `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
+          forPrintToc
+            ? `<a class="contents-section book-toc-link${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" href="#section-${escapeHtml(section.key)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
+                section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
+              }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
+            : `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
               section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
             }</span>
@@ -947,8 +964,8 @@ function renderContentsNav() {
       return `<div class="contents-group">${chapterButton}${sections}</div>`;
     })
     .join("");
-  el.contentsNav.innerHTML = contentsHtml;
-  el.bookTocNav.innerHTML = contentsHtml;
+  el.contentsNav.innerHTML = renderItems(false);
+  el.bookTocNav.innerHTML = renderItems(true);
 }
 
 function setupSectionObserver() {
@@ -1440,8 +1457,31 @@ function waitForPrintLayout() {
 
 let bookPrintInProgress = false;
 
+function openDedicatedPrintView() {
+  const url = new URL(window.location.href);
+  url.searchParams.set("list", state.currentListId);
+  url.searchParams.set("print", "book");
+  window.open(url, "_blank", "noopener");
+}
+
+function loadPagedJs() {
+  if (window.PagedPolyfill?.preview) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    window.PagedConfig = { auto: false };
+    const script = document.createElement("script");
+    script.src = PAGED_JS_URL;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("ページ組版ライブラリを読み込めませんでした。"));
+    document.head.appendChild(script);
+  });
+}
+
 async function printWholeBook() {
   if (bookPrintInProgress || !state.currentListId) return;
+  if (!PRINT_BOOK_MODE) {
+    openDedicatedPrintView();
+    return;
+  }
   bookPrintInProgress = true;
   const listId = state.currentListId;
   const generation = listLoadGeneration;
@@ -1484,6 +1524,10 @@ async function printWholeBook() {
     document.body.classList.add("is-printing-book");
     el.printStatus.textContent = "印刷レイアウトを準備中";
     if (document.fonts?.ready) await document.fonts.ready;
+    await waitForPrintLayout();
+    await loadPagedJs();
+    el.printStatus.textContent = "目次のページ番号を計算中";
+    await window.PagedPolyfill.preview();
     await waitForPrintLayout();
 
     const currentList = state.lists.find((list) => list.id === state.currentListId);
@@ -1590,7 +1634,10 @@ window.VocabWebMCP = {
 
 beginPageLoading();
 loadLists()
-  .then(() => registerVocabWebMCP({ api, openWord: openWordFromWebMCP }))
+  .then(async () => {
+    registerVocabWebMCP({ api, openWord: openWordFromWebMCP });
+    if (PRINT_BOOK_MODE) await printWholeBook();
+  })
   .catch((err) => {
     console.error(err);
     el.loadingMsg.hidden = true;

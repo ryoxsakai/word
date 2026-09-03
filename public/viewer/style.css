@@ -596,6 +596,7 @@ body.is-loading .section-nav { display: none; }
   font-size: 1.05rem;
 }
 .book-page p { margin: 0.75rem 0; }
+.book-page h3 { margin: 0 0 0.35rem; font-size: 0.95rem; }
 .book-lead {
   color: var(--accent-strong);
   font-size: 1.2rem;
@@ -638,6 +639,49 @@ body.is-loading .section-nav { display: none; }
 }
 .book-note h2 { margin: 0 0 0.35rem; }
 .book-note p { margin: 0; }
+.chapter-overview {
+  display: grid;
+  gap: 0.45rem;
+  padding-left: 1.6rem;
+}
+.chapter-overview li { padding-left: 0.25rem; }
+.chapter-overview strong,
+.chapter-overview span { display: block; }
+.chapter-overview span { color: var(--text-muted); font-size: 0.86rem; }
+.badge-detail-list { display: grid; gap: 0.8rem; }
+.badge-detail-list article {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: start;
+  gap: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  padding: 0.85rem;
+}
+.badge-detail-list article > span { justify-self: center; margin-top: 0.2rem; }
+.badge-detail-list p { margin: 0.25rem 0; font-size: 0.84rem; line-height: 1.65; }
+.note-detail-list { display: grid; gap: 0.55rem; }
+.note-detail-list article {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+.note-detail-list p { margin: 0; font-size: 0.86rem; }
+.app-install-intro {
+  display: grid;
+  grid-template-columns: 184px 1fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+.app-install-intro img { width: 184px; height: 184px; background: #fff; }
+.app-install-intro h2 { margin-top: 0; }
+.app-url { overflow-wrap: anywhere; color: var(--accent); font-family: "Roboto Condensed", sans-serif; font-size: 0.84rem; }
+.device-guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+.device-guide-grid article { border: 1px solid var(--border); border-radius: 10px; padding: 0 0.9rem 0.8rem; }
+.device-guide-grid ol { margin: 0; padding-left: 1.3rem; font-size: 0.86rem; }
+.book-caption { color: var(--text-muted); font-size: 0.82rem; }
 .badge-guide-list { display: grid; gap: 0.65rem; }
 .badge-guide-row {
   display: grid;
@@ -667,6 +711,17 @@ body.is-loading .section-nav { display: none; }
 .book-toc-nav .contents-subgroup,
 .book-toc-nav .contents-section {
   color: var(--text);
+  text-decoration: none;
+}
+.book-toc-link { display: flex; align-items: center; gap: 0.6rem; }
+.book-toc-page-no { display: none; }
+body.is-printing-book .book-toc-link::after {
+  content: target-counter(attr(href), page);
+  flex: none;
+  margin-left: auto;
+  min-width: 2.5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .book-toc-nav .contents-item-subtitle,
 .book-toc-nav .contents-item-count { color: var(--text-muted); }
@@ -674,7 +729,18 @@ body.is-loading .section-nav { display: none; }
 
 @media (max-width: 560px) {
   .book-structure-grid { grid-template-columns: 1fr; }
+  .app-install-intro { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .device-guide-grid { grid-template-columns: 1fr; }
 }
+
+body.is-printing-book > .view-panel { display: block !important; }
+body.is-printing-book > .topbar,
+body.is-printing-book > .subbar,
+body.is-printing-book > .section-nav,
+body.is-printing-book > .back-to-top,
+body.is-printing-book > .toast,
+body.is-printing-book > .loading-progress,
+body.is-printing-book > .loading-msg { display: none !important; }
 
 /* ---- word list ---- */
 
@@ -1421,10 +1487,14 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .book-page h1 { margin-bottom: 1rem; }
   .book-page h2 { break-after: avoid; }
   .book-structure-grid article,
+  .chapter-overview li,
   .book-note,
-  .badge-guide-row,
+  .badge-detail-list article,
+  .note-detail-list article,
+  .app-install-intro,
+  .device-guide-grid article,
   .app-guide-list li { break-inside: avoid; page-break-inside: avoid; }
-  .book-toc-nav button {
+  .book-toc-nav .book-toc-link {
     border-color: #aaa !important;
     background: #fff !important;
     color: #111 !important;
