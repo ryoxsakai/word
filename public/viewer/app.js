@@ -901,7 +901,9 @@ function renderPrintPartOptions() {
     '<option value="front">前付け</option>' +
     '<option value="toc">目次（ページ番号なし）</option>' +
     chapterOptions +
-    '<option value="index">索引</option>';
+    '<option value="index">索引</option>' +
+    '<option value="all">全体（軽量・目次ページ番号なし）</option>' +
+    '<option value="all-paged">全体（版組・目次ページ番号あり）</option>';
   if ([...el.printPartSelect.options].some((option) => option.value === selected)) {
     el.printPartSelect.value = selected;
   }
@@ -1480,6 +1482,10 @@ let bookPrintInProgress = false;
 function openDedicatedPrintView() {
   const url = new URL(window.location.href);
   const selected = el.printPartSelect.value || "front";
+  if (
+    selected === "all-paged" &&
+    !window.confirm("全体の版組には長い時間がかかり、端末のメモリを多く使用します。続けますか？")
+  ) return;
   url.searchParams.set("list", state.currentListId);
   url.searchParams.set("print", "book");
   if (selected.startsWith("chapter:")) {
@@ -1505,6 +1511,9 @@ function loadPagedJs() {
 }
 
 function printSectionKeys() {
+  if (PRINT_PART === "all" || PRINT_PART === "all-paged") {
+    return state.sections.map((section) => String(section.key));
+  }
   if (PRINT_PART !== "chapter" || PRINT_CHAPTER_KEY == null) return [];
   return state.sections
     .filter((section) => String(section.chapterKey) === String(PRINT_CHAPTER_KEY))
@@ -1512,6 +1521,8 @@ function printSectionKeys() {
 }
 
 function printPartLabel() {
+  if (PRINT_PART === "all") return "全体";
+  if (PRINT_PART === "all-paged") return "全体（版組）";
   if (PRINT_PART === "front") return "前付け";
   if (PRINT_PART === "toc") return "目次";
   if (PRINT_PART === "index") return "索引";
@@ -1522,13 +1533,15 @@ function printPartLabel() {
 
 function prepareLightweightPrintDom() {
   document.body.dataset.printPart = PRINT_PART;
-  if (PRINT_PART === "index" && !state.indexRendered) renderAlphabeticalIndex();
+  if (["index", "all", "all-paged"].includes(PRINT_PART) && !state.indexRendered) renderAlphabeticalIndex();
 
   const keepIds = {
     front: new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide"]),
     toc: new Set(["bookToc"]),
     chapter: new Set(["wordList"]),
     index: new Set(["indexList"]),
+    all: new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "indexList"]),
+    "all-paged": new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "indexList"]),
   }[PRINT_PART] || new Set(["wordList"]);
 
   for (const panel of [...document.querySelectorAll("body > .view-panel")]) {
@@ -1600,14 +1613,17 @@ async function printWholeBook() {
     printPrepared = true;
 
     document.body.classList.add("is-printing-book");
+    document.body.dataset.printEngine = PRINT_PART === "all" ? "native" : "paged";
     prepareLightweightPrintDom();
     el.printStatus.textContent = "印刷レイアウトを準備中";
     if (document.fonts?.ready) await document.fonts.ready;
     await waitForPrintLayout();
-    await loadPagedJs();
-    el.printStatus.textContent = "目次のページ番号を計算中";
-    await window.PagedPolyfill.preview();
-    await waitForPrintLayout();
+    if (PRINT_PART !== "all") {
+      await loadPagedJs();
+      el.printStatus.textContent = "ページを組版中";
+      await window.PagedPolyfill.preview();
+      await waitForPrintLayout();
+    }
 
     const currentList = state.lists.find((list) => list.id === state.currentListId);
     const originalTitle = document.title;

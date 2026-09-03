@@ -761,6 +761,7 @@ body.is-printing-book .book-toc-link::after {
   font-variant-numeric: tabular-nums;
 }
 body.is-printing-book[data-print-part="toc"] .book-toc-link::after { content: none; }
+body.is-printing-book[data-print-engine="native"] .book-toc-link::after { content: none; }
 .book-toc-nav .contents-item-subtitle,
 .book-toc-nav .contents-item-count { color: var(--text-muted); }
 .print-part-title { display: none; }
