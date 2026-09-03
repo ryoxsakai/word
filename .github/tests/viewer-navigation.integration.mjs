@@ -196,6 +196,7 @@ assert.match(appSource, /function setPrintProgress\(percent, label\)/);
 assert.match(appSource, /function registerPagedProgressHandler\(sectionKeys\)/);
 assert.match(appSource, /afterPageLayout\(pageElement\)/);
 assert.match(appSource, /afterRendered\(flow\)/);
+assert.match(appSource, /highestReportedPercent = Math\.max\(highestReportedPercent, calculatedPercent\)/);
 assert.match(appSource, /setPrintProgress\(100, "印刷準備完了"\)/);
 assert.match(indexSource, /id="printProgressOverlay"[\s\S]*id="printProgressBar"/);
 assert.match(appSource, /url\.searchParams\.set\("pageSize", el\.printPageSize\.value\)/);
