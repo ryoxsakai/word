@@ -17,6 +17,13 @@
 </head>
 <body>
 <div id="loadingProgress" class="loading-progress" role="progressbar" aria-label="読み込み中" aria-valuetext="読み込み中" hidden></div>
+<div id="printProgressOverlay" class="print-progress-overlay" role="status" aria-live="polite" hidden>
+  <div class="print-progress-heading">
+    <span id="printProgressLabel">印刷を準備中</span>
+    <strong id="printProgressPercent">0%</strong>
+  </div>
+  <progress id="printProgressBar" max="100" value="0">0%</progress>
+</div>
 <header class="topbar">
   <div class="topbar-row topbar-row--primary">
     <h1 class="brand-name">crossover</h1>
