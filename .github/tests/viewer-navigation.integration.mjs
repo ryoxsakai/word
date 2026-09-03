@@ -193,6 +193,7 @@ assert.match(appSource, /PRINT_PAGE_SIZES = new Set\(\["a4", "b5", "a5"\]\)/);
 assert.match(appSource, /dataset\.printPageSize = pageSize/);
 assert.match(appSource, /document\.body\.dataset\.printPageSize = pageSize/);
 assert.match(appSource, /function setPrintProgress\(percent, label\)/);
+assert.match(appSource, /clearTimeout\(printProgressHideTimer\)/);
 assert.match(appSource, /function registerPagedProgressHandler\(sectionKeys\)/);
 assert.match(appSource, /afterPageLayout\(pageElement\)/);
 assert.match(appSource, /afterRendered\(flow\)/);
