@@ -57,15 +57,33 @@
     </div>
   </div>
   <div class="topbar-row topbar-row--contents" id="contentsMenu">
-    <div class="contents-menu-heading">本書</div>
-    <nav id="bookNav" class="book-nav" aria-label="本書のページ">
+    <a class="print-mode-entry" href="./?mode=print"><i class="fa-solid fa-print" aria-hidden="true"></i> 印刷モードを開く</a>
+    <a class="print-mode-exit print-mode-only" href="./"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 閲覧モードに戻る</a>
+    <div class="contents-menu-heading print-mode-only">本書</div>
+    <nav id="bookNav" class="book-nav print-mode-only" aria-label="本書のページ">
       <button type="button" data-book-view="introduction">はじめに</button>
       <button type="button" data-book-view="structure">本書の構成</button>
       <button type="button" data-book-view="badges">バッジの見方</button>
       <button type="button" data-book-view="app-guide">アプリの利用方法</button>
       <button type="button" data-book-view="toc">目次</button>
     </nav>
-    <div class="book-print-actions">
+    <div class="book-print-settings print-mode-only" aria-label="印刷設定">
+      <label for="printFontSize">文字サイズ</label>
+      <select id="printFontSize">
+        <option value="9">9pt</option>
+        <option value="10" selected>10pt</option>
+        <option value="11">11pt</option>
+        <option value="12">12pt</option>
+      </select>
+      <label for="printLineHeight">行間</label>
+      <select id="printLineHeight">
+        <option value="1.35">狭い</option>
+        <option value="1.5" selected>標準</option>
+        <option value="1.65">広い</option>
+        <option value="1.8">かなり広い</option>
+      </select>
+    </div>
+    <div class="book-print-actions print-mode-only">
       <label class="print-range-label" for="printPartSelect">印刷範囲</label>
       <select id="printPartSelect" class="print-part-select" aria-label="印刷範囲">
         <option value="front">前付け</option>

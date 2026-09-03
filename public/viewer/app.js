@@ -30,6 +30,7 @@ const FONT_SIZE_KEY = "vocab-viewer-font-size";
 const CROSSOVER_LIST_ID = "crossover-v3";
 const PAGE_PARAMS = new URLSearchParams(window.location.search);
 const PRINT_BOOK_MODE = PAGE_PARAMS.get("print") === "book";
+const PRINT_UI_MODE = PAGE_PARAMS.get("mode") === "print" || PRINT_BOOK_MODE;
 const PRINT_PART = PAGE_PARAMS.get("part") || "front";
 const PRINT_CHAPTER_KEY = PAGE_PARAMS.get("chapter");
 const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.min.js";
@@ -82,6 +83,8 @@ const el = {
   viewPanels: document.querySelectorAll("[data-view-panel]"),
   printBookBtn: document.getElementById("printBookBtn"),
   printPartSelect: document.getElementById("printPartSelect"),
+  printFontSize: document.getElementById("printFontSize"),
+  printLineHeight: document.getElementById("printLineHeight"),
   printStatus: document.getElementById("printStatus"),
   searchInput: document.getElementById("searchInput"),
   sectionNav: document.getElementById("sectionNav"),
@@ -101,6 +104,25 @@ const el = {
 };
 
 const LOADING_DELAY_MS = 250;
+
+function boundedPrintSetting(rawValue, fallback, min, max) {
+  const value = Number(rawValue);
+  return Number.isFinite(value) && value >= min && value <= max ? value : fallback;
+}
+
+function applyPrintSettings() {
+  const fontSize = boundedPrintSetting(el.printFontSize.value, 10, 8, 14);
+  const lineHeight = boundedPrintSetting(el.printLineHeight.value, 1.5, 1.2, 2);
+  document.documentElement.style.setProperty("--print-font-size", `${fontSize}pt`);
+  document.documentElement.style.setProperty("--print-line-height", String(lineHeight));
+}
+
+document.body.classList.toggle("is-print-mode", PRINT_UI_MODE);
+el.printFontSize.value = String(boundedPrintSetting(PAGE_PARAMS.get("fontSize"), 10, 8, 14));
+el.printLineHeight.value = String(boundedPrintSetting(PAGE_PARAMS.get("lineHeight"), 1.5, 1.2, 2));
+el.printFontSize.addEventListener("change", applyPrintSettings);
+el.printLineHeight.addEventListener("change", applyPrintSettings);
+applyPrintSettings();
 let networkActivityDepth = 0;
 let progressDelayTimer;
 let progressFinishTimer;
@@ -1487,7 +1509,10 @@ function openDedicatedPrintView() {
     !window.confirm("全体の版組には長い時間がかかり、端末のメモリを多く使用します。続けますか？")
   ) return;
   url.searchParams.set("list", state.currentListId);
+  url.searchParams.set("mode", "print");
   url.searchParams.set("print", "book");
+  url.searchParams.set("fontSize", el.printFontSize.value);
+  url.searchParams.set("lineHeight", el.printLineHeight.value);
   if (selected.startsWith("chapter:")) {
     url.searchParams.set("part", "chapter");
     url.searchParams.set("chapter", selected.slice("chapter:".length));
