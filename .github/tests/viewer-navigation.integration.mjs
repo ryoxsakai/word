@@ -166,6 +166,14 @@ assert.match(styleSource, /@bottom-center\s*\{[\s\S]*counter\(page\)[\s\S]*count
 assert.match(styleSource, /target-counter\(attr\(href\), page\)/);
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
 assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
+assert.match(
+  styleSource,
+  /body\.is-printing-book > \.front-matter-page ~ \.front-matter-page,[\s\S]*\.front-matter-page ~ \.book-toc-page[\s\S]*break-before:\s*page/
+);
+assert.match(
+  styleSource,
+  /body\.is-printing-book > \.book-toc-page ~ \.word-list\s*\{[\s\S]*break-before:\s*page/
+);
 assert.match(styleSource, /@page print-a4\s*\{\s*size:\s*210mm 297mm/);
 assert.match(styleSource, /@page print-b5\s*\{\s*size:\s*182mm 257mm/);
 assert.match(styleSource, /@page print-a5\s*\{\s*size:\s*148mm 210mm/);
