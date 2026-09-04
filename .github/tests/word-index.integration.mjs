@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   buildAlphabeticalIndexEntries,
   fetchCompleteWordIndex,
+  getAlphabeticalIndexKey,
 } from "../../public/shared/word-index.js";
 
 const words = [
@@ -121,5 +122,19 @@ assert.deepEqual(referenceEntries.get("contextual"), {
   targetId: "apparent",
   isRef: true,
 });
+
+assert.equal(getAlphabeticalIndexKey("(at) first hand"), "first hand");
+assert.equal(getAlphabeticalIndexKey("(just) around the corner"), "around the corner");
+assert.equal(getAlphabeticalIndexKey("ordinary"), "ordinary");
+
+const optionalPrefixEntries = buildAlphabeticalIndexEntries([
+  { id: "around", spelling: "(just) around the corner", seqNo: "2" },
+  { id: "first", spelling: "(at) first hand", seqNo: "3" },
+  { id: "close", spelling: "close", seqNo: "1" },
+]);
+assert.deepEqual(
+  optionalPrefixEntries.map((entry) => entry.spelling),
+  ["(just) around the corner", "close", "(at) first hand"]
+);
 
 console.log("Word index integration tests passed");

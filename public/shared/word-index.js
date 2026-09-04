@@ -1,5 +1,11 @@
 import { parseWordListItems, stripMarkup } from "./markup.js";
 
+export function getAlphabeticalIndexKey(spelling) {
+  const displaySpelling = String(spelling || "").trim();
+  const spellingWithoutOptionalPrefix = displaySpelling.replace(/^(?:\([^)]*\)\s*)+/, "");
+  return spellingWithoutOptionalPrefix || displaySpelling;
+}
+
 export async function fetchCompleteWordIndex(fetchPage, pageSize = 300) {
   const index = new Map();
   let offset = 0;
@@ -91,8 +97,14 @@ export function buildAlphabeticalIndexEntries(words) {
   }
 
   entries.sort((a, b) => {
-    const spellingOrder = a.spelling.localeCompare(b.spelling, "en", { sensitivity: "base" });
+    const spellingOrder = getAlphabeticalIndexKey(a.spelling).localeCompare(
+      getAlphabeticalIndexKey(b.spelling),
+      "en",
+      { sensitivity: "base" }
+    );
     if (spellingOrder !== 0) return spellingOrder;
+    const displaySpellingOrder = a.spelling.localeCompare(b.spelling, "en", { sensitivity: "base" });
+    if (displaySpellingOrder !== 0) return displaySpellingOrder;
     return String(a.loc || "").localeCompare(String(b.loc || ""), "en", {
       numeric: true,
       sensitivity: "base",
