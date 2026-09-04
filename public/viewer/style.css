@@ -812,15 +812,10 @@ body.is-printing-book[data-print-engine="native"] .book-toc-link::after { conten
 }
 
 body.is-printing-book > .view-panel { display: block !important; }
-/* Paged.js が画面用DOMをページ化する段階でも、各前付けを必ず別ページから始める。 */
-body.is-printing-book > .front-matter-page ~ .front-matter-page,
-body.is-printing-book > .front-matter-page ~ .book-toc-page {
-  break-before: page;
-  page-break-before: always;
-}
-body.is-printing-book > .book-toc-page ~ .word-list {
-  break-before: page;
-  page-break-before: always;
+/* Paged.js の内部コンテナへ移動した後も一致する、親要素に依存しない改ページ指定。 */
+.print-page-break-before {
+  break-before: page !important;
+  page-break-before: always !important;
 }
 body.is-printing-book > .topbar,
 body.is-printing-book > .subbar,

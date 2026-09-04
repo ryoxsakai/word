@@ -1668,6 +1668,10 @@ function prepareLightweightPrintDom() {
   for (const panel of [...document.querySelectorAll("body > .view-panel")]) {
     if (!keepIds.has(panel.id)) panel.remove();
   }
+  const printPanels = [...document.querySelectorAll("body > .view-panel")];
+  printPanels.forEach((panel, index) => {
+    panel.classList.toggle("print-page-break-before", index > 0);
+  });
   if (PRINT_PART === "chapter") {
     for (const group of [...el.wordList.querySelectorAll(".section-group")]) {
       if (String(group.dataset.chapterKey) !== String(PRINT_CHAPTER_KEY)) group.remove();
