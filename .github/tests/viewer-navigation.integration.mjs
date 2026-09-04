@@ -164,7 +164,7 @@ assert.match(contentsNavSource, /bookTocNav\.innerHTML = renderItems\(true\)/);
 assert.match(contentsNavSource, /class="contents-chapter book-toc-link" href="#/);
 assert.match(contentsNavSource, /class="contents-subgroup book-toc-link" href="#group-/);
 assert.match(contentsNavSource, /class="contents-section book-toc-link/);
-assert.match(styleSource, /@bottom-center\s*\{\s*content:\s*counter\(page\)/);
+assert.match(styleSource, /@page\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*none/);
 assert.doesNotMatch(styleSource, /counter\(pages\)/);
 assert.match(
   styleSource,
@@ -195,15 +195,15 @@ assert.match(
 assert.match(styleSource, /@page print-a4\s*\{\s*size:\s*210mm 297mm/);
 assert.match(styleSource, /@page print-b5\s*\{\s*size:\s*182mm 257mm/);
 assert.match(styleSource, /@page print-a5\s*\{\s*size:\s*148mm 210mm/);
-assert.match(styleSource, /@page print-a4-no-number\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*none/);
-assert.match(styleSource, /@page print-b5-no-number\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*none/);
-assert.match(styleSource, /@page print-a5-no-number\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*none/);
+assert.match(styleSource, /@page print-a4-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
+assert.match(styleSource, /@page print-b5-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
+assert.match(styleSource, /@page print-a5-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
 assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a4"\] > \.view-panel\s*\{\s*page:\s*print-a4/);
 assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="b5"\] > \.view-panel\s*\{\s*page:\s*print-b5/);
 assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a5"\] > \.view-panel\s*\{\s*page:\s*print-a5/);
 assert.match(
   styleSource,
-  /body\.is-printing-book:not\(\[data-print-part="all-paged"\]\)\[data-print-page-size="a4"\][\s\S]*page:\s*print-a4-no-number/
+  /body\.is-printing-book\[data-print-part="all-paged"\]\[data-print-page-size="a4"\][\s\S]*page:\s*print-a4-numbered/
 );
 assert.match(styleSource, /\.print-progress-overlay\s*\{[\s\S]*position:\s*fixed/);
 const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
