@@ -957,114 +957,217 @@ body.is-printing-book > .loading-msg { display: none !important; }
   padding: 0.7rem 0 0;
   background: var(--surface);
   scroll-margin-top: 6.2rem;
+  --chapter-color-deep: #123b63;
+  --chapter-color: #1f6f9f;
 }
+.section-group.chapter-tone-2 { --chapter-color-deep: #14565c; --chapter-color: #23827e; }
+.section-group.chapter-tone-3 { --chapter-color-deep: #353e76; --chapter-color: #5c67a5; }
+.section-group.chapter-tone-4 { --chapter-color-deep: #5d365f; --chapter-color: #875987; }
+.section-group.chapter-tone-5 { --chapter-color-deep: #713e30; --chapter-color: #a85c43; }
+.section-group.chapter-tone-6 { --chapter-color-deep: #31563f; --chapter-color: #5c8265; }
 .section-group + .section-group { padding-top: 1.1rem; }
 .section-group.has-group-divider { padding-top: 1.6rem; }
 .section-group.has-chapter-divider { padding-top: 2.2rem; }
 
-/* 背景だけを一覧の端まで広げ、各要素の読み始める位置は従来どおりに保つ */
+/* 4階層の左端を同じ誌面グリッドへ揃え、サイズ・濃度・余白で親子関係を示す。 */
 .section-group > .chapter-divider,
 .section-group > .group-divider,
 .section-group > .section-divider { margin-right: 0; margin-left: 0; }
 .section-group > .label-divider,
-.section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 3.85rem; }
+.section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0; }
 .section-group > .entry,
 .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
 
+.hierarchy-icon {
+  display: block;
+  flex: none;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hierarchy-icon-fill {
+  fill: currentColor;
+  stroke: none;
+  opacity: 0.13;
+}
+
+/* Chapter: 最上位。濃色の大きな面と装飾線で章扉らしさを持たせる。 */
+.chapter-divider {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  min-height: 6.5rem;
+  margin: 0 0 1rem;
+  padding: 1.15rem 1.35rem;
+  overflow: hidden;
+  color: #ffffff;
+  background-color: var(--chapter-color-deep);
+  background-image: linear-gradient(122deg, var(--chapter-color-deep), var(--chapter-color));
+  border: 1px solid color-mix(in srgb, var(--chapter-color-deep) 74%, #000000);
+  border-radius: 16px;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--chapter-color-deep) 18%, transparent);
+  scroll-margin-top: 6.2rem;
+}
+.chapter-divider::before,
+.chapter-divider::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.19);
+  border-radius: 50%;
+}
+.chapter-divider::before {
+  width: 15rem;
+  height: 9rem;
+  top: -5.8rem;
+  right: -2.4rem;
+  transform: rotate(-9deg);
+}
+.chapter-divider::after {
+  width: 10rem;
+  height: 6rem;
+  right: 3rem;
+  bottom: -4.5rem;
+  transform: rotate(14deg);
+}
+.hierarchy-icon-chapter {
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0.55rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  stroke-width: 1.55;
+}
+.hierarchy-icon-chapter .hierarchy-icon-fill { opacity: 0.17; }
+.chapter-title-row {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.12rem;
+}
+.chapter-title {
+  color: #ffffff;
+  font-size: 1.58rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.chapter-subtitle {
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.94rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+/* Group: 中位。白いカードへ章色を引き継ぎ、Chapterより軽く見せる。 */
+.group-divider {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.75rem;
+  margin: 0 0 0.8rem;
+  padding: 0.85rem 1rem;
+  color: var(--text);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--chapter-color) 10%, var(--surface)), var(--surface) 72%);
+  border: 1px solid color-mix(in srgb, var(--chapter-color) 36%, var(--border));
+  border-left: 5px solid var(--chapter-color);
+  border-radius: 11px;
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--chapter-color-deep) 8%, transparent);
+  scroll-margin-top: 6.2rem;
+}
+.hierarchy-icon-group {
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0.42rem;
+  color: var(--chapter-color);
+  background: color-mix(in srgb, var(--chapter-color) 10%, var(--surface));
+  border-radius: 9px;
+}
+.group-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.18rem 0.6rem;
+}
+.group-title { font-size: 1.24rem; font-weight: 800; color: var(--text); }
+.group-subtitle { font-size: 0.94rem; font-weight: 700; color: var(--chapter-color); }
+
+/* Section: 小位。薄い帯と小さなBookmarkで本文への入口を示す。 */
 .section-divider {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.65rem;
   margin: 0 0 0.45rem;
-  padding: 0.72rem 1rem;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--title-bg-1) 90%, var(--surface)), var(--title-bg-2));
-  border: 1px solid var(--title-border);
+  padding: 0.68rem 0.9rem;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--chapter-color) 12%, var(--surface)), color-mix(in srgb, var(--chapter-color) 5%, var(--surface)));
+  border: 1px solid color-mix(in srgb, var(--chapter-color) 30%, var(--border));
   border-radius: 9px;
   scroll-margin-top: 6.2rem;
 }
+.hierarchy-icon-section {
+  width: 1.8rem;
+  height: 1.8rem;
+  padding: 0.28rem;
+  color: var(--chapter-color);
+  background: color-mix(in srgb, var(--chapter-color) 8%, transparent);
+  border-radius: 7px;
+}
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
 .section-title {
-  font-size: 1.12rem;
-  font-weight: 700;
+  font-size: 1.02rem;
+  font-weight: 800;
   color: var(--text);
 }
 .section-subtitle { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
-.section-count { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
-.section-description {
-  margin-top: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
 
-.group-divider {
-  margin: 0 0 0.75rem;
-  padding: 0.82rem 1rem;
-  border-left: 6px solid var(--accent);
-  border-top: 1px solid var(--title-border);
-  border-right: 1px solid var(--title-border);
-  border-bottom: 1px solid var(--title-border);
-  border-radius: 0 10px 10px 0;
-  background: var(--surface);
-  box-shadow: var(--card-shadow);
-  scroll-margin-top: 6.2rem;
-}
-.group-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
-.group-title { font-size: 1.18rem; font-weight: 800; color: var(--text); }
-.group-subtitle { font-size: 0.92rem; font-weight: 600; color: var(--accent); }
-.group-count { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
-.group-description {
-  margin-top: 0.25rem;
-  font-size: 0.72rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
+/* Label: 4本目の帯にはせず、タグ・語数・罫線だけの開いた小見出しにする。 */
 .label-divider {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin: 0.7rem 0 0.2rem 0.65rem;
-  padding: 0.4rem 0.65rem;
-  border-left: 3px solid var(--accent);
-  background: color-mix(in srgb, var(--title-bg-1) 55%, transparent);
-  border-radius: 0 6px 6px 0;
+  gap: 0.42rem;
+  min-height: 2.2rem;
+  margin: 0.72rem 0 0.16rem;
+  padding: 0.3rem 0;
   break-after: avoid;
 }
-.label-divider .fa-tag { color: var(--accent); font-size: 0.72rem; }
-.label-title { font-size: 0.84rem; font-weight: 700; color: var(--text); }
+.label-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  height: 1px;
+  margin-left: 0.25rem;
+  background: color-mix(in srgb, var(--chapter-color) 34%, var(--border));
+}
+.hierarchy-icon-label { width: 1rem; height: 1rem; color: var(--chapter-color); stroke-width: 1.9; }
+.hierarchy-icon-label .hierarchy-icon-fill { opacity: 0.1; }
+.label-title { font-size: 0.84rem; font-weight: 800; color: color-mix(in srgb, var(--chapter-color-deep) 72%, var(--text)); }
 .label-count { font-size: 0.76rem; color: var(--text-muted); }
 
-/* チャプターはセクションより上位の概念なので、帯を濃く・枠を太くして区別する
-   (--title-bg-1/2, --title-borderと同系色でアルファ値だけ上げた濃い版) */
-.chapter-divider {
-  margin: 0 0 0.8rem;
-  padding: 0.7rem 0.9rem;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--title-bg-1) 70%, var(--surface)), var(--surface));
-  border: 1px solid var(--title-border);
-  border-radius: 10px;
-  box-shadow: var(--card-shadow);
-  scroll-margin-top: 6.2rem;
-}
-.chapter-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.7rem; }
-.chapter-title {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 6px;
-  background: #173e6b;
-  color: #ffffff;
-  font-size: 1.18rem;
-  font-weight: 800;
-}
-.chapter-subtitle { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
-.chapter-count { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
-.chapter-description {
-  margin-top: 0.25rem;
-  font-size: 0.74rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  line-height: 1.4;
+@media (max-width: 560px) {
+  .chapter-divider {
+    grid-template-columns: 2.7rem minmax(0, 1fr);
+    gap: 0.8rem;
+    min-height: 5.7rem;
+    padding: 1rem;
+    border-radius: 13px;
+  }
+  .hierarchy-icon-chapter { width: 2.7rem; height: 2.7rem; padding: 0.48rem; }
+  .group-divider { grid-template-columns: 2.1rem minmax(0, 1fr); gap: 0.7rem; padding-right: 0.8rem; padding-left: 0.8rem; }
+  .hierarchy-icon-group { width: 2.1rem; height: 2.1rem; }
 }
 
 .entry {
@@ -1513,10 +1616,14 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 .word-list .section-subtitle { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-count { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-description { font-size: calc(0.7rem * var(--font-scale)); }
-.word-list .chapter-title { font-size: calc(1.18rem * var(--font-scale)); }
-.word-list .chapter-subtitle { font-size: calc(0.95rem * var(--font-scale)); }
+.word-list .chapter-title { font-size: calc(1.58rem * var(--font-scale)); }
+.word-list .chapter-subtitle { font-size: calc(0.94rem * var(--font-scale)); }
 .word-list .chapter-count { font-size: calc(0.95rem * var(--font-scale)); }
 .word-list .chapter-description { font-size: calc(0.74rem * var(--font-scale)); }
+.word-list .group-title { font-size: calc(1.24rem * var(--font-scale)); }
+.word-list .group-subtitle { font-size: calc(0.94rem * var(--font-scale)); }
+.word-list .label-title { font-size: calc(0.84rem * var(--font-scale)); }
+.word-list .label-count { font-size: calc(0.76rem * var(--font-scale)); }
 .word-list .entry-no { font-size: calc(1.05rem * var(--font-scale)); }
 .word-list .entry.branch-entry .entry-no { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .headword { font-size: calc(1.3rem * var(--font-scale)); }
@@ -1536,11 +1643,13 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .skeleton-line,
   .entry.flash,
   .section-divider.flash,
+  .group-divider.flash,
   .chapter-divider.flash { animation: none; }
   .loading-progress { transition: none; }
   .skeleton-line { background: var(--skeleton-base); }
   .entry.flash,
   .section-divider.flash,
+  .group-divider.flash,
   .chapter-divider.flash { box-shadow: inset 4px 0 0 var(--loading-accent); }
 }
 
@@ -1730,9 +1839,9 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .section-group > .chapter-divider { margin-right: 0; margin-left: 0; }
   .section-group > .group-divider { margin-right: 0; margin-left: 0; }
   .section-group > .section-divider { margin-right: 0; margin-left: 0; }
-  .section-group > .label-divider { margin-right: 0; margin-left: 0.65rem; }
+  .section-group > .label-divider { margin-right: 0; margin-left: 0; }
   .section-group > .entry { margin-right: 0; margin-left: 0; }
-  .section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0.65rem; }
+  .section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0; }
   .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
   .section-group > .section-entries > .entry {
     border-top: 1px dashed var(--border);
@@ -1753,7 +1862,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1778,12 +1887,45 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   }
   .chapter-divider {
     break-inside: avoid;
+    grid-template-columns: 10mm minmax(0, 1fr);
+    gap: 3mm;
+    min-height: 20mm;
+    margin-bottom: 4mm;
+    padding: 3.5mm 4mm;
+    border-radius: 3mm;
     box-shadow: none;
   }
+  .hierarchy-icon-chapter { width: 10mm; height: 10mm; padding: 1.7mm; }
+  .word-list .chapter-title { font-size: 16pt; }
+  .word-list .chapter-subtitle { font-size: 9pt; }
   .group-divider {
     break-inside: avoid;
+    grid-template-columns: 7mm minmax(0, 1fr);
+    gap: 2.5mm;
+    min-height: 14mm;
+    margin-bottom: 2.5mm;
+    padding: 2.4mm 3mm;
+    border-left-width: 1.4mm;
+    border-radius: 2mm;
     box-shadow: none;
   }
+  .hierarchy-icon-group { width: 7mm; height: 7mm; padding: 1.3mm; border-radius: 1.6mm; }
+  .word-list .group-title { font-size: 12pt; }
+  .word-list .group-subtitle { font-size: 9pt; }
+  .section-divider {
+    grid-template-columns: 5.5mm minmax(0, 1fr);
+    gap: 2mm;
+    min-height: 10.5mm;
+    margin-bottom: 1.5mm;
+    padding: 1.8mm 2.6mm;
+    border-radius: 1.6mm;
+  }
+  .hierarchy-icon-section { width: 5.5mm; height: 5.5mm; padding: 0.9mm; border-radius: 1.2mm; }
+  .word-list .section-title { font-size: 10pt; }
+  .word-list .section-subtitle { font-size: 8.5pt; }
+  .label-divider { min-height: 7mm; margin-top: 2mm; margin-bottom: 0.5mm; padding: 1mm 0; }
+  .word-list .label-title { font-size: 8.5pt; }
+  .word-list .label-count { font-size: 7.5pt; }
   /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
   .caution-badge.caution-ergative { background: #e0f1fa !important; color: #1d5f8a !important; }
   .caution-badge.caution-spelling { background: #dcf3ee !important; color: #0f7b6c !important; }
