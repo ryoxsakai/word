@@ -162,10 +162,19 @@ assert.match(contentsNavSource, /bookTocNav\.innerHTML = renderItems\(true\)/);
 assert.match(contentsNavSource, /class="contents-chapter book-toc-link" href="#/);
 assert.match(contentsNavSource, /class="contents-subgroup book-toc-link" href="#group-/);
 assert.match(contentsNavSource, /class="contents-section book-toc-link/);
-assert.match(styleSource, /@bottom-center\s*\{[\s\S]*counter\(page\)[\s\S]*counter\(pages\)/);
+assert.match(styleSource, /@bottom-center\s*\{\s*content:\s*counter\(page\)/);
+assert.doesNotMatch(styleSource, /counter\(pages\)/);
 assert.match(styleSource, /target-counter\(attr\(href\), page\)/);
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
 assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
+assert.match(
+  styleSource,
+  /body\.is-printing-book > \.front-matter-page ~ \.front-matter-page,[\s\S]*\.front-matter-page ~ \.book-toc-page[\s\S]*break-before:\s*page/
+);
+assert.match(
+  styleSource,
+  /body\.is-printing-book > \.book-toc-page ~ \.word-list\s*\{[\s\S]*break-before:\s*page/
+);
 assert.match(styleSource, /@page print-a4\s*\{\s*size:\s*210mm 297mm/);
 assert.match(styleSource, /@page print-b5\s*\{\s*size:\s*182mm 257mm/);
 assert.match(styleSource, /@page print-a5\s*\{\s*size:\s*148mm 210mm/);
