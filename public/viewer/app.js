@@ -659,9 +659,8 @@ function renderSectionShells() {
       lastGroupKey = undefined;
       const titleLine = `<span class="chapter-title">${escapeHtml(chapter?.name || "その他")}</span>${
         chapter?.subtitle ? `<span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
-      }<span class="chapter-count">(${chapter?.count || 0})</span>`;
-      const descLine = chapter?.description ? `<div class="chapter-description">${escapeHtml(chapter.description)}</div>` : "";
-      chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div>${descLine}</div>`;
+      }`;
+      chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}"><div class="chapter-title-row">${titleLine}</div></div>`;
     }
     const groupKey = section.groupId != null ? String(section.groupKey) : null;
     const group = groupKey ? groupByKey.get(groupKey) : null;
@@ -670,18 +669,16 @@ function renderSectionShells() {
     if (groupChanged) {
       const titleLine = `<span class="group-title">${escapeHtml(group.name)}</span>${
         group.subtitle ? `<span class="group-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
-      }<span class="group-count">(${group.count})</span>`;
-      const descLine = group.description ? `<div class="group-description">${escapeHtml(group.description)}</div>` : "";
-      groupMarkup = `<div class="group-divider" id="group-${escapeHtml(groupKey)}" data-group-key="${escapeHtml(groupKey)}"><div class="group-title-row">${titleLine}</div>${descLine}</div>`;
+      }`;
+      groupMarkup = `<div class="group-divider" id="group-${escapeHtml(groupKey)}" data-group-key="${escapeHtml(groupKey)}"><div class="group-title-row">${titleLine}</div></div>`;
     }
     lastGroupKey = groupKey;
     const key = String(section.key);
     const titleLine = `<span class="section-title">${escapeHtml(section.name || "その他")}</span>${
       section.subtitle ? `<span class="section-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
-    }<span class="section-count">(${section.count})</span>`;
-    const descLine = section.description ? `<div class="section-description">${escapeHtml(section.description)}</div>` : "";
+    }`;
     const divider = withSections
-      ? `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div>${descLine}</div>`
+      ? `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}"><div class="section-title-row">${titleLine}</div></div>`
       : "";
     const sectionTone = withSections ? ` section-tone-${(sectionIndex % 6) + 1}` : "";
     const chapterClass = chapterMarkup ? " has-chapter-divider" : "";
