@@ -791,7 +791,7 @@ body.is-loading .section-nav { display: none; }
 }
 .book-toc-link { display: flex; align-items: center; gap: 0.6rem; }
 .book-toc-page-no { display: none; }
-body.is-printing-book .book-toc-link::after {
+body.is-printing-book .book-toc-nav .contents-section.book-toc-link::after {
   content: target-counter(attr(href), page);
   flex: none;
   margin-left: auto;
@@ -799,8 +799,8 @@ body.is-printing-book .book-toc-link::after {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-body.is-printing-book[data-print-part="toc"] .book-toc-link::after { content: none; }
-body.is-printing-book[data-print-engine="native"] .book-toc-link::after { content: none; }
+body.is-printing-book[data-print-part="toc"] .book-toc-nav .contents-section.book-toc-link::after { content: none; }
+body.is-printing-book[data-print-engine="native"] .book-toc-nav .contents-section.book-toc-link::after { content: none; }
 .book-toc-nav .contents-item-subtitle,
 .book-toc-nav .contents-item-count { color: var(--text-muted); }
 .print-part-title { display: none; }
