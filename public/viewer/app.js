@@ -673,7 +673,7 @@ function renderSectionShells() {
       const titleLine = `<span class="chapter-title">${escapeHtml(chapter?.name || "その他")}</span>${
         chapter?.subtitle ? `<span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
       }`;
-      chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}">${hierarchyIcon("chapter")}<div class="chapter-title-row">${titleLine}</div></div>`;
+      chapterMarkup = `<div class="chapter-divider" id="chapter-${escapeHtml(chapterKey)}" data-chapter-key="${escapeHtml(chapterKey)}" role="heading" aria-level="2">${hierarchyIcon("chapter")}<div class="chapter-title-row">${titleLine}</div></div>`;
     }
     const groupKey = section.groupId != null ? String(section.groupKey) : null;
     const group = groupKey ? groupByKey.get(groupKey) : null;
@@ -683,7 +683,7 @@ function renderSectionShells() {
       const titleLine = `<span class="group-title">${escapeHtml(group.name)}</span>${
         group.subtitle ? `<span class="group-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
       }`;
-      groupMarkup = `<div class="group-divider" id="group-${escapeHtml(groupKey)}" data-group-key="${escapeHtml(groupKey)}">${hierarchyIcon("group")}<div class="group-title-row">${titleLine}</div></div>`;
+      groupMarkup = `<div class="group-divider" id="group-${escapeHtml(groupKey)}" data-group-key="${escapeHtml(groupKey)}" role="heading" aria-level="3">${hierarchyIcon("group")}<div class="group-title-row">${titleLine}</div></div>`;
     }
     lastGroupKey = groupKey;
     const key = String(section.key);
@@ -691,7 +691,7 @@ function renderSectionShells() {
       section.subtitle ? `<span class="section-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
     }`;
     const divider = withSections
-      ? `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}">${hierarchyIcon("section")}<div class="section-title-row">${titleLine}</div></div>`
+      ? `<div class="section-divider" id="section-${escapeHtml(key)}" data-section-key="${escapeHtml(key)}" role="heading" aria-level="4">${hierarchyIcon("section")}<div class="section-title-row">${titleLine}</div></div>`
       : "";
     const sectionTone = withSections ? ` section-tone-${(sectionIndex % 6) + 1}` : "";
     const chapterTone = ` chapter-tone-${chapterToneByKey.get(chapterKey) || 1}`;
@@ -725,7 +725,7 @@ function renderSectionEntriesHtml(words, sectionKey) {
   for (const word of words) {
     const labelKey = word.labelId != null ? String(word.labelId) : `none-${sectionKey}`;
     if (withLabels && word.labelId != null && labelKey !== lastLabelKey) {
-      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}">${hierarchyIcon("label")}<span class="label-title">${escapeHtml(word.labelName || "")}</span><span class="label-count">${countByLabelKey.get(labelKey)}語</span></div>`);
+      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}" role="heading" aria-level="5">${hierarchyIcon("label")}<span class="label-title">${escapeHtml(word.labelName || "")}</span><span class="label-count">${countByLabelKey.get(labelKey)}語</span></div>`);
     }
     lastLabelKey = labelKey;
     parts.push(renderEntry(word));
