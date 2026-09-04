@@ -2,18 +2,19 @@
   color-scheme: light dark;
   --header-grad-1: #1793a1;
   --header-grad-2: #3fc2a4;
-  --title-bg-1: rgba(74, 114, 217, 0.14);
-  --title-bg-2: rgba(154, 95, 208, 0.14);
-  --title-border: rgba(110, 100, 200, 0.4);
+  --title-bg-1: rgba(39, 91, 151, 0.13);
+  --title-bg-2: rgba(77, 128, 174, 0.07);
+  --title-border: rgba(38, 83, 136, 0.22);
   --card-bg-1: #eaf3f6;
   --card-bg-2: #f2ecf9;
-  --border: #d9dee0;
-  --bg: #ffffff;
-  --bg-soft: #f4f7f7;
-  --text: #202325;
-  --text-muted: #6b7378;
-  --accent: #1c7fae;
-  --accent-strong: #d9531e;
+  --border: #d9e0e9;
+  --bg: #f7f8fb;
+  --bg-soft: #eef3f8;
+  --surface: #ffffff;
+  --text: #172033;
+  --text-muted: #657286;
+  --accent: #1d5d8f;
+  --accent-strong: #c45123;
   --mark-bg: #ffe58a;
   --danger: #c0392b;
   --pos-border: #2f8fae;
@@ -38,6 +39,7 @@
   --topbar-accent-soft: rgba(61, 90, 254, 0.1);
   --topbar-shadow: 0 1px 2px rgba(20, 28, 50, 0.06);
   --topbar-shadow-md: 0 4px 16px rgba(20, 28, 50, 0.08);
+  --card-shadow: 0 8px 24px rgba(23, 45, 75, 0.07);
   font-family: "Roboto Condensed", "M PLUS 2", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
 }
 
@@ -46,6 +48,7 @@
   --border: #3a3f42;
   --bg: #15181a;
   --bg-soft: #1d2123;
+  --surface: #1a1f25;
   --card-bg-1: #17262a;
   --card-bg-2: #241f30;
   --text: #eaeceb;
@@ -73,6 +76,7 @@
   --topbar-accent-soft: rgba(107, 138, 255, 0.14);
   --topbar-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   --topbar-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -81,6 +85,7 @@
     --border: #3a3f42;
     --bg: #15181a;
     --bg-soft: #1d2123;
+    --surface: #1a1f25;
     --card-bg-1: #17262a;
     --card-bg-2: #241f30;
     --text: #eaeceb;
@@ -108,6 +113,7 @@
     --topbar-accent-soft: rgba(107, 138, 255, 0.14);
     --topbar-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     --topbar-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+    --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   }
 }
 
@@ -837,7 +843,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 
 /* ---- word list ---- */
 
-.word-list { max-width: 640px; margin: 0 auto; padding: 0 0.9rem 2rem; }
+.word-list { max-width: 1040px; margin: 0 auto; padding: 1.25rem clamp(0.9rem, 3vw, 2rem) 3rem; }
 
 /* セクション単位でDOM描画を分離し、画面外のレイアウト・描画コストを抑える。 */
 .section-group {
@@ -947,35 +953,30 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .index-empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
 
 .section-group {
-  margin: 0 -0.9rem;
-  padding: 0;
+  margin: 0;
+  padding: 0.7rem 0 0;
+  background: var(--surface);
   scroll-margin-top: 6.2rem;
 }
-.section-group + .section-group { padding-top: 1.4rem; }
-.section-group.has-group-divider { padding-top: 2rem; }
-.section-group.has-chapter-divider { padding-top: 2.5rem; }
-.section-group.section-tone-1 { background: var(--section-bg-1); }
-.section-group.section-tone-2 { background: var(--section-bg-2); }
-.section-group.section-tone-3 { background: var(--section-bg-3); }
-.section-group.section-tone-4 { background: var(--section-bg-4); }
-.section-group.section-tone-5 { background: var(--section-bg-5); }
-.section-group.section-tone-6 { background: var(--section-bg-6); }
+.section-group + .section-group { padding-top: 1.1rem; }
+.section-group.has-group-divider { padding-top: 1.6rem; }
+.section-group.has-chapter-divider { padding-top: 2.2rem; }
 
 /* 背景だけを一覧の端まで広げ、各要素の読み始める位置は従来どおりに保つ */
-.section-group > .chapter-divider { margin: 0 0.9rem 0.6rem; }
-.section-group > .group-divider { margin: 0 0.9rem 0.6rem; }
-.section-group > .section-divider { margin-right: 0.9rem; margin-left: 0.9rem; }
-.section-group > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
-.section-group > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
-.section-group > .section-entries > .label-divider { margin-right: 0.9rem; margin-left: 1.55rem; }
-.section-group > .section-entries > .entry { margin-right: 0.9rem; margin-left: 0.9rem; }
+.section-group > .chapter-divider,
+.section-group > .group-divider,
+.section-group > .section-divider { margin-right: 0; margin-left: 0; }
+.section-group > .label-divider,
+.section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 3.85rem; }
+.section-group > .entry,
+.section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
 
 .section-divider {
-  margin: 0 0 0.6rem;
-  padding: 0.55rem 0.85rem;
-  background: linear-gradient(135deg, var(--title-bg-1), var(--title-bg-2));
+  margin: 0 0 0.45rem;
+  padding: 0.72rem 1rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--title-bg-1) 90%, var(--surface)), var(--title-bg-2));
   border: 1px solid var(--title-border);
-  border-radius: 5px;
+  border-radius: 9px;
   scroll-margin-top: 6.2rem;
 }
 .section-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
@@ -995,14 +996,15 @@ body.is-printing-book > .loading-msg { display: none !important; }
 }
 
 .group-divider {
-  margin: 0 0 0.6rem;
-  padding: 0.58rem 0.85rem;
-  border-left: 5px solid var(--accent);
+  margin: 0 0 0.75rem;
+  padding: 0.82rem 1rem;
+  border-left: 6px solid var(--accent);
   border-top: 1px solid var(--title-border);
   border-right: 1px solid var(--title-border);
   border-bottom: 1px solid var(--title-border);
-  border-radius: 0 6px 6px 0;
-  background: color-mix(in srgb, var(--title-bg-1) 72%, var(--surface));
+  border-radius: 0 10px 10px 0;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
   scroll-margin-top: 6.2rem;
 }
 .group-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
@@ -1021,11 +1023,11 @@ body.is-printing-book > .loading-msg { display: none !important; }
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin: 0.85rem 0 0.3rem 0.65rem;
-  padding: 0.28rem 0.55rem;
+  margin: 0.7rem 0 0.2rem 0.65rem;
+  padding: 0.4rem 0.65rem;
   border-left: 3px solid var(--accent);
   background: color-mix(in srgb, var(--title-bg-1) 55%, transparent);
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 6px 6px 0;
   break-after: avoid;
 }
 .label-divider .fa-tag { color: var(--accent); font-size: 0.72rem; }
@@ -1035,18 +1037,25 @@ body.is-printing-book > .loading-msg { display: none !important; }
 /* チャプターはセクションより上位の概念なので、帯を濃く・枠を太くして区別する
    (--title-bg-1/2, --title-borderと同系色でアルファ値だけ上げた濃い版) */
 .chapter-divider {
-  margin: 2rem 0 0.6rem;
-  padding: 0.65rem 0.9rem;
-  background: linear-gradient(135deg, rgba(74, 114, 217, 0.26), rgba(154, 95, 208, 0.26));
-  border: 2px solid rgba(110, 100, 200, 0.6);
-  border-radius: 6px;
+  margin: 0 0 0.8rem;
+  padding: 0.7rem 0.9rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--title-bg-1) 70%, var(--surface)), var(--surface));
+  border: 1px solid var(--title-border);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
   scroll-margin-top: 6.2rem;
 }
-.chapter-title-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+.chapter-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.7rem; }
 .chapter-title {
-  font-size: 1.28rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  background: #173e6b;
+  color: #ffffff;
+  font-size: 1.18rem;
   font-weight: 800;
-  color: var(--text);
 }
 .chapter-subtitle { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
 .chapter-count { font-size: 0.95rem; font-weight: 500; color: var(--text-muted); }
@@ -1059,12 +1068,22 @@ body.is-printing-book > .loading-msg { display: none !important; }
 }
 
 .entry {
+  position: relative;
   display: grid;
-  grid-template-columns: 1.8rem 1fr;
-  gap: 0 0.7rem;
-  padding: 1.1rem 0;
-  border-bottom: 1px dashed var(--border);
+  grid-template-columns: 3rem 1fr;
+  gap: 0 0.9rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--border);
   scroll-margin-top: 6.2rem;
+}
+.entry::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1.32rem;
+  width: 1px;
+  background: color-mix(in srgb, var(--accent) 18%, var(--border));
 }
 .entry.branch-entry .entry-no { color: var(--text-muted); font-size: 0.9rem; }
 .entry.flash,
@@ -1078,9 +1097,19 @@ body.is-printing-book > .loading-msg { display: none !important; }
 
 .entry-no {
   grid-column: 1;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: start;
+  min-height: 1.9rem;
+  padding: 0.18rem 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
   font-size: 1.05rem;
-  color: var(--text-muted);
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: 800;
   cursor: pointer;
   user-select: none;
   padding-top: 0.15rem;
@@ -1100,9 +1129,9 @@ body.is-printing-book > .loading-msg { display: none !important; }
   row-gap: 0.15rem;
 }
 .headword {
-  font-size: 1.3rem;
+  font-size: 1.42rem;
   font-weight: 800;
-  color: var(--text);
+  color: var(--accent);
   text-decoration: none;
   overflow-wrap: break-word;
   min-width: 0;
@@ -1551,7 +1580,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 
 @page {
   size: A4;
-  margin: 12mm 12mm 16mm;
+  margin: 12mm 12mm 14mm;
 
   @bottom-center {
     content: none;
@@ -1597,6 +1626,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   :root {
     --font-scale: 1 !important;
     --bg: #ffffff !important;
+    --surface: #ffffff !important;
     --bg-soft: #eef1f1 !important;
     --card-bg-1: #eaf3f6 !important;
     --card-bg-2: #f2ecf9 !important;
@@ -1728,19 +1758,24 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     print-color-adjust: exact;
   }
 
-  /* 2つ目以降のSectionは必ず新しいページから始める。 */
+  /* 見出しだけをページ末尾に残さず、直後の内容と一緒に送る。 */
   .section-divider {
     break-inside: avoid;
     break-after: avoid-page;
     page-break-after: avoid;
     box-shadow: none;
   }
-  .section-group:not(:first-of-type) {
+  .chapter-divider,
+  .group-divider {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  /* 標準はChapter単位、省スペースは連続、従来設定はSection単位で改ページする。 */
+  body[data-print-pagination="standard"] .section-group.has-chapter-divider:not(:first-of-type),
+  body[data-print-pagination="section"] .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
   }
-  /* チャプターの帯自体は改ページせず、直後の最初のセクションの改ページに委ねる
-     (両方に改ページを入れると、チャプター見出しだけが前ページに孤立してしまうため) */
   .chapter-divider {
     break-inside: avoid;
     box-shadow: none;
@@ -1771,9 +1806,40 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .notes-block.notes-antonym { color: #e65100 !important; }
   .notes-block.notes-related { color: #455a64 !important; }
   .notes-block.notes-memo { color: #6a1b9a !important; }
-  .entry {
+  body[data-print-pagination="section"] .entry {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+  /* 標準・省スペースでは、見出し語と各情報行を保ったまま安全な行間だけで分割する。 */
+  body:not([data-print-pagination="section"]) .entry {
+    display: block;
+    padding: 0.78rem 0 0.78rem 2.65rem;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  body:not([data-print-pagination="section"]) .entry::before { left: 1.05rem; }
+  body:not([data-print-pagination="section"]) .entry-no {
+    position: absolute;
+    top: 0.78rem;
+    left: 0;
+    width: 2.1rem;
+    min-height: 1.65rem;
+  }
+  body:not([data-print-pagination="section"]) .entry-body,
+  body:not([data-print-pagination="section"]) .entry-card { display: block; }
+  body:not([data-print-pagination="section"]) .entry-body > * + * { margin-top: 0.28rem; }
+  body:not([data-print-pagination="section"]) .entry-card > * + * { margin-top: 0.38rem; }
+  .entry-head,
+  .family-block,
+  .sense-line,
+  .example-line,
+  .notes-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .entry-head {
+    break-after: avoid-page;
+    page-break-after: avoid;
   }
   .section-group { content-visibility: visible; contain: none; }
   .section-loading, .section-load-error { display: none !important; }
