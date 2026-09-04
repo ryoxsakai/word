@@ -9,7 +9,7 @@ import {
   escapeHtml,
 } from "../shared/markup.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
-import { buildAlphabeticalIndexEntries } from "../shared/word-index.js";
+import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../shared/word-index.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { groupDerivativeSenses } from "../shared/derivatives.js";
@@ -852,7 +852,7 @@ function groupIndexEntriesByLetter(entries) {
   const groups = [];
   let current = null;
   for (const e of entries) {
-    const letter = (e.spelling[0] || "").toUpperCase();
+    const letter = (getAlphabeticalIndexKey(e.spelling)[0] || "").toUpperCase();
     if (!current || current.letter !== letter) {
       current = { letter, items: [] };
       groups.push(current);
