@@ -715,17 +715,12 @@ function sectionCacheKey(listId, sectionKey) {
 
 function renderSectionEntriesHtml(words, sectionKey) {
   const withLabels = state.indexWords.some((word) => word.labelId != null);
-  const countByLabelKey = new Map();
-  for (const word of words) {
-    const labelKey = word.labelId != null ? String(word.labelId) : `none-${sectionKey}`;
-    countByLabelKey.set(labelKey, (countByLabelKey.get(labelKey) || 0) + 1);
-  }
   let lastLabelKey;
   const parts = [];
   for (const word of words) {
     const labelKey = word.labelId != null ? String(word.labelId) : `none-${sectionKey}`;
     if (withLabels && word.labelId != null && labelKey !== lastLabelKey) {
-      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}" role="heading" aria-level="5">${hierarchyIcon("label")}<span class="label-title">${escapeHtml(word.labelName || "")}</span><span class="label-count">${countByLabelKey.get(labelKey)}語</span></div>`);
+      parts.push(`<div class="label-divider" data-label-key="${escapeHtml(labelKey)}" role="heading" aria-level="5">${hierarchyIcon("label")}<span class="label-title">${escapeHtml(word.labelName || "")}</span></div>`);
     }
     lastLabelKey = labelKey;
     parts.push(renderEntry(word));

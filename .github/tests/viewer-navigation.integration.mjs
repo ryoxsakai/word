@@ -117,6 +117,10 @@ assert.match(styleSource, /\.contents-subgroup\s*\{[\s\S]*border-left:\s*3px/);
 assert.match(styleSource, /\.group-divider\s*\{/);
 assert.match(styleSource, /\.chapter-divider::before,[\s\S]*\.chapter-divider::after/);
 assert.match(styleSource, /\.section-group\.chapter-tone-2\s*\{/);
+assert.match(styleSource, /--hierarchy-copy-column:\s*5\.55rem/);
+assert.match(styleSource, /\.chapter-divider\s*\{[\s\S]*grid-template-columns:\s*var\(--hierarchy-copy-column\)/);
+assert.match(styleSource, /\.group-divider\s*\{[\s\S]*grid-template-columns:\s*var\(--hierarchy-copy-column\)/);
+assert.match(styleSource, /\.section-divider\s*\{[\s\S]*grid-template-columns:\s*var\(--hierarchy-copy-column\)/);
 assert.match(styleSource, /\.label-divider::after\s*\{[\s\S]*flex:\s*1 1 auto/);
 
 const labelDividerSource = appSource.slice(
@@ -125,7 +129,8 @@ const labelDividerSource = appSource.slice(
 );
 assert.match(labelDividerSource, /hierarchyIcon\("label"\)/);
 assert.match(labelDividerSource, /role="heading" aria-level="5"/);
-assert.match(labelDividerSource, /class="label-count">\$\{countByLabelKey\.get\(labelKey\)\}語/);
+assert.doesNotMatch(labelDividerSource, /label-count/);
+assert.doesNotMatch(labelDividerSource, /countByLabelKey/);
 assert.doesNotMatch(labelDividerSource, /fa-solid fa-tag/);
 
 for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) {
