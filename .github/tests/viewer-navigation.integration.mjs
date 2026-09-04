@@ -222,6 +222,10 @@ assert.match(
   printStyleSource,
   /\.book-toc-nav\s*\{[\s\S]*break-before:\s*avoid-page;[\s\S]*page-break-before:\s*avoid/
 );
+assert.match(
+  printStyleSource,
+  /\.book-toc-nav > \.contents-group:first-child,[\s\S]*\.contents-group:first-child > \.book-toc-link:first-child[\s\S]*break-before:\s*avoid-page/
+);
 assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
 assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
 assert.match(appSource, /const CROSSOVER_LIST_ID = "crossover-v3"/);
