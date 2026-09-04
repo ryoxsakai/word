@@ -1549,7 +1549,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   margin: 12mm 12mm 16mm;
 
   @bottom-center {
-    content: counter(page) " / " counter(pages);
+    content: counter(page);
     color: #666;
     font-family: "M PLUS 2", sans-serif;
     font-size: 8pt;
