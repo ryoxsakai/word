@@ -979,10 +979,10 @@ function renderPrintPartOptions() {
     .join("");
   el.printPartSelect.innerHTML =
     '<option value="front">前付け</option>' +
-    '<option value="toc">目次（ページ番号なし）</option>' +
+    '<option value="toc">目次（単語番号）</option>' +
     chapterOptions +
     '<option value="index">索引</option>' +
-    '<option value="all">全体（軽量・目次ページ番号なし）</option>' +
+    '<option value="all">全体（軽量・目次は単語番号）</option>' +
     '<option value="all-paged">全体（版組・目次ページ番号あり）</option>';
   if ([...el.printPartSelect.options].some((option) => option.value === selected)) {
     el.printPartSelect.value = selected;
@@ -1053,7 +1053,7 @@ function renderContentsNav() {
           forPrintToc
             ? `<a class="contents-section book-toc-link${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" href="#section-${escapeHtml(section.key)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
                 section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
-              }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
+              }</span><span class="book-toc-word-range" aria-label="単語番号 ${escapeHtml(numberRangeText)}">${escapeHtml(numberRangeText)}</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
             : `<button type="button" class="contents-section${withChapters ? " is-nested" : ""}${group ? " is-grouped" : ""}" data-nav-target="section-${escapeHtml(section.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span>${
               section.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span>` : ""
