@@ -812,6 +812,16 @@ body.is-printing-book[data-print-engine="native"] .book-toc-link::after { conten
 }
 
 body.is-printing-book > .view-panel { display: block !important; }
+/* Paged.js が画面用DOMをページ化する段階でも、各前付けを必ず別ページから始める。 */
+body.is-printing-book > .front-matter-page ~ .front-matter-page,
+body.is-printing-book > .front-matter-page ~ .book-toc-page {
+  break-before: page;
+  page-break-before: always;
+}
+body.is-printing-book > .book-toc-page ~ .word-list {
+  break-before: page;
+  page-break-before: always;
+}
 body.is-printing-book > .topbar,
 body.is-printing-book > .subbar,
 body.is-printing-book > .section-nav,
