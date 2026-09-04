@@ -123,6 +123,10 @@ assert.match(indexSource, /value="b5"/);
 assert.match(indexSource, /value="a5"/);
 assert.match(indexSource, /id="printFontSize"/);
 assert.match(indexSource, /id="printLineHeight"/);
+assert.match(indexSource, /id="printPagination"/);
+assert.match(indexSource, /value="standard" selected>標準（Chapterごと）/);
+assert.match(indexSource, /value="compact">省スペース（連続）/);
+assert.match(indexSource, /value="section">Sectionごと（従来）/);
 assert.match(indexSource, /id="printExampleColumns"/);
 assert.match(indexSource, /id="printTocColumns"[\s\S]*<option value="2">2段<\/option>/);
 assert.match(indexSource, /選択範囲を印刷/);
@@ -212,6 +216,10 @@ assert.match(printStyleSource, /\.print-progress-overlay\s*\{\s*display:\s*none 
 assert.match(printStyleSource, /data-print-part="all-paged"[\s\S]*\.word-list[\s\S]*break-before:\s*page/);
 assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry\s*\{[\s\S]*border-top:/);
 assert.match(printStyleSource, /\.section-divider\s*\{[\s\S]*break-after:\s*avoid-page/);
+assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.section-group\.has-chapter-divider:not\(:first-of-type\)/);
+assert.match(printStyleSource, /data-print-pagination="section"[\s\S]*\.section-group:not\(:first-of-type\)/);
+assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.entry\s*\{[\s\S]*break-inside:\s*auto/);
+assert.match(printStyleSource, /\.entry-head,[\s\S]*\.notes-block\s*\{[\s\S]*break-inside:\s*avoid/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
 assert.match(
@@ -236,6 +244,8 @@ assert.match(appSource, /PAGE_PARAMS\.get\("mode"\) === "print"/);
 assert.match(appSource, /classList\.toggle\("is-print-mode", PRINT_UI_MODE\)/);
 assert.match(appSource, /--print-font-size/);
 assert.match(appSource, /--print-line-height/);
+assert.match(appSource, /PRINT_PAGINATION_MODES = new Set\(\["standard", "compact", "section"\]\)/);
+assert.match(appSource, /dataset\.printPagination = pagination/);
 assert.match(appSource, /--print-example-columns/);
 assert.match(appSource, /--print-toc-columns/);
 assert.match(appSource, /PRINT_PAGE_SIZES = new Set\(\["a4", "b5", "a5"\]\)/);
@@ -252,6 +262,7 @@ assert.match(indexSource, /id="printProgressOverlay"[\s\S]*id="printProgressBar"
 assert.match(appSource, /url\.searchParams\.set\("pageSize", el\.printPageSize\.value\)/);
 assert.match(appSource, /url\.searchParams\.set\("fontSize", el\.printFontSize\.value\)/);
 assert.match(appSource, /url\.searchParams\.set\("lineHeight", el\.printLineHeight\.value\)/);
+assert.match(appSource, /url\.searchParams\.set\("pagination", el\.printPagination\.value\)/);
 assert.match(appSource, /url\.searchParams\.set\("exampleColumns", el\.printExampleColumns\.value\)/);
 assert.match(appSource, /url\.searchParams\.set\("tocColumns", el\.printTocColumns\.value\)/);
 assert.match(appSource, /pagedjs@0\.4\.3/);
