@@ -1675,7 +1675,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     break-before: avoid-page;
     page-break-before: avoid;
   }
-  .book-toc-nav > .book-toc-link:first-child {
+  .book-toc-nav > .contents-group:first-child,
+  .book-toc-nav > .contents-group:first-child > .book-toc-link:first-child {
     break-before: avoid-page;
     page-break-before: avoid;
   }
