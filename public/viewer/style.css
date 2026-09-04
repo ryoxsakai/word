@@ -1554,7 +1554,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   margin: 12mm 12mm 16mm;
 
   @bottom-center {
-    content: counter(page);
+    content: none;
     color: #666;
     font-family: "M PLUS 2", sans-serif;
     font-size: 8pt;
@@ -1564,17 +1564,17 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 @page print-a4 { size: 210mm 297mm; }
 @page print-b5 { size: 182mm 257mm; }
 @page print-a5 { size: 148mm 210mm; }
-@page print-a4-no-number {
+@page print-a4-numbered {
   size: 210mm 297mm;
-  @bottom-center { content: none; }
+  @bottom-center { content: counter(page); }
 }
-@page print-b5-no-number {
+@page print-b5-numbered {
   size: 182mm 257mm;
-  @bottom-center { content: none; }
+  @bottom-center { content: counter(page); }
 }
-@page print-a5-no-number {
+@page print-a5-numbered {
   size: 148mm 210mm;
-  @bottom-center { content: none; }
+  @bottom-center { content: counter(page); }
 }
 
 body.is-printing-book[data-print-page-size="a4"],
@@ -1584,12 +1584,12 @@ body.is-printing-book[data-print-page-size="b5"] > .view-panel { page: print-b5;
 body.is-printing-book[data-print-page-size="a5"],
 body.is-printing-book[data-print-page-size="a5"] > .view-panel { page: print-a5; }
 
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a4"],
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a4"] > .view-panel { page: print-a4-no-number; }
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="b5"],
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="b5"] > .view-panel { page: print-b5-no-number; }
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a5"],
-body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a5"] > .view-panel { page: print-a5-no-number; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"],
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"] > .view-panel { page: print-a4-numbered; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"],
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"] > .view-panel { page: print-b5-numbered; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"],
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > .view-panel { page: print-a5-numbered; }
 
 @media print {
   html { font-size: var(--print-font-size, 10pt); }
