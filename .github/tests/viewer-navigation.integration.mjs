@@ -85,6 +85,7 @@ assert.match(contentsNavSource, /data-nav-target="group-/);
 assert.match(contentsNavSource, /contents-section[\s\S]*is-grouped/);
 assert.match(contentsNavSource, /sectionNumberRanges\(state\.indexWords\)/);
 assert.match(contentsNavSource, /title="登録ナンバー"/);
+assert.match(contentsNavSource, /class="book-toc-word-range" aria-label="単語番号 \$\{escapeHtml\(numberRangeText\)\}"/);
 
 const bottomNavSource = appSource.slice(
   appSource.indexOf("function setBottomNavContent"),
@@ -125,7 +126,8 @@ assert.match(indexSource, /id="printLineHeight"/);
 assert.match(indexSource, /id="printExampleColumns"/);
 assert.match(indexSource, /id="printTocColumns"[\s\S]*<option value="2">2段<\/option>/);
 assert.match(indexSource, /選択範囲を印刷/);
-assert.match(indexSource, /value="all">全体（軽量・目次ページ番号なし）/);
+assert.match(indexSource, /value="toc">目次（単語番号）/);
+assert.match(indexSource, /value="all">全体（軽量・目次は単語番号）/);
 assert.match(indexSource, /value="all-paged">全体（版組・目次ページ番号あり）/);
 assert.match(indexSource, /id="bookTocNav"/);
 const printOrder = [
@@ -171,6 +173,14 @@ assert.match(
 assert.doesNotMatch(
   styleSource,
   /body\.is-printing-book \.book-toc-link::after\s*\{[\s\S]*target-counter\(attr\(href\), page\)/
+);
+assert.match(
+  styleSource,
+  /data-print-engine="native"[\s\S]*\.contents-section \.book-toc-word-range\s*\{[\s\S]*display:\s*inline/
+);
+assert.match(
+  styleSource,
+  /data-print-part="toc"[\s\S]*\.contents-section \.book-toc-word-range\s*\{[\s\S]*display:\s*inline/
 );
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
 assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
