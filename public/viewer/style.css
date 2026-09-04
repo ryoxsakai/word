@@ -1647,6 +1647,12 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   }
   .book-page h1 { margin-bottom: 1rem; }
   .book-page h2 { break-after: avoid; }
+  body.is-printing-book .book-toc-heading {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
   .book-structure-grid article,
   .chapter-overview li,
   .book-note,
@@ -1666,6 +1672,13 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     display: block;
     columns: var(--print-toc-columns, 1);
     column-gap: 8mm;
+    break-before: avoid-page;
+    page-break-before: avoid;
+  }
+  .book-toc-nav > .contents-group:first-child,
+  .book-toc-nav > .contents-group:first-child > .book-toc-link:first-child {
+    break-before: avoid-page;
+    page-break-before: avoid;
   }
   .book-toc-nav .book-toc-link { margin-bottom: 0.35rem; }
   .book-toc-nav .contents-item-subtitle,

@@ -130,6 +130,7 @@ assert.match(indexSource, /value="toc">目次（単語番号）/);
 assert.match(indexSource, /value="all">全体（軽量・目次は単語番号）/);
 assert.match(indexSource, /value="all-paged">全体（版組・目次ページ番号あり）/);
 assert.match(indexSource, /id="bookTocNav"/);
+assert.match(indexSource, /class="book-toc-heading"[\s\S]*<h1>目次<\/h1>[\s\S]*id="bookTocNav"/);
 const printOrder = [
   'id="bookIntroduction"',
   'id="bookStructure"',
@@ -213,6 +214,18 @@ assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry\s*
 assert.match(printStyleSource, /\.section-divider\s*\{[\s\S]*break-after:\s*avoid-page/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
+assert.match(
+  printStyleSource,
+  /\.book-toc-heading\s*\{[\s\S]*break-after:\s*avoid-page;[\s\S]*page-break-after:\s*avoid/
+);
+assert.match(
+  printStyleSource,
+  /\.book-toc-nav\s*\{[\s\S]*break-before:\s*avoid-page;[\s\S]*page-break-before:\s*avoid/
+);
+assert.match(
+  printStyleSource,
+  /\.book-toc-nav > \.contents-group:first-child,[\s\S]*\.contents-group:first-child > \.book-toc-link:first-child[\s\S]*break-before:\s*avoid-page/
+);
 assert.match(printStyleSource, /\.index-columns\s*\{[\s\S]*column-fill:\s*auto/);
 assert.match(printStyleSource, /\.index-group\s*\{\s*break-inside:\s*auto/);
 assert.match(appSource, /const CROSSOVER_LIST_ID = "crossover-v3"/);
