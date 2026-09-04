@@ -169,11 +169,11 @@ assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s
 assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
 assert.match(
   styleSource,
-  /\.print-page-break-before\s*\{[\s\S]*break-before:\s*page !important;[\s\S]*page-break-before:\s*always !important/
+  /\.print-page-break-before\s*\{[\s\S]*break-before:\s*page;[\s\S]*page-break-before:\s*always/
 );
 assert.match(
   appSource,
-  /const printPanels = \[\.\.\.document\.querySelectorAll\("body > \.view-panel"\)\];[\s\S]*classList\.toggle\("print-page-break-before", index > 0\)/
+  /const printPanels = \[\.\.\.document\.querySelectorAll\("body > \.view-panel"\)\];[\s\S]*classList\.add\("is-active"\)[\s\S]*setAttribute\("aria-hidden", "false"\)[\s\S]*classList\.toggle\("print-page-break-before", index > 0\)/
 );
 assert.match(styleSource, /@page print-a4\s*\{\s*size:\s*210mm 297mm/);
 assert.match(styleSource, /@page print-b5\s*\{\s*size:\s*182mm 257mm/);
