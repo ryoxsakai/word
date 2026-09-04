@@ -164,7 +164,14 @@ assert.match(contentsNavSource, /class="contents-subgroup book-toc-link" href="#
 assert.match(contentsNavSource, /class="contents-section book-toc-link/);
 assert.match(styleSource, /@bottom-center\s*\{\s*content:\s*counter\(page\)/);
 assert.doesNotMatch(styleSource, /counter\(pages\)/);
-assert.match(styleSource, /target-counter\(attr\(href\), page\)/);
+assert.match(
+  styleSource,
+  /body\.is-printing-book \.book-toc-nav \.contents-section\.book-toc-link::after\s*\{[\s\S]*target-counter\(attr\(href\), page\)/
+);
+assert.doesNotMatch(
+  styleSource,
+  /body\.is-printing-book \.book-toc-link::after\s*\{[\s\S]*target-counter\(attr\(href\), page\)/
+);
 assert.match(styleSource, /body\.is-printing-book \.view-panel\s*\{\s*display:\s*block !important/);
 assert.match(styleSource, /body\.is-printing-book \.front-matter-page[\s\S]*break-after:\s*page/);
 assert.match(
