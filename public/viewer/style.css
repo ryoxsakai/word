@@ -1622,10 +1622,18 @@ body.is-printing-book[data-print-page-size="a5"] > .view-panel { page: print-a5;
   .device-guide-grid article,
   .app-guide-list li { break-inside: avoid; page-break-inside: avoid; }
   .book-toc-nav .book-toc-link {
+    break-inside: avoid;
+    page-break-inside: avoid;
     border-color: #aaa !important;
     background: #fff !important;
     color: #111 !important;
   }
+  .book-toc-nav {
+    display: block;
+    columns: var(--print-toc-columns, 1);
+    column-gap: 8mm;
+  }
+  .book-toc-nav .book-toc-link { margin-bottom: 0.35rem; }
   .book-toc-nav .contents-item-subtitle,
   .book-toc-nav .contents-item-count { color: #444 !important; }
   .book-toc-nav .contents-chapter { border-width: 0 0 1px; border-radius: 0; }
