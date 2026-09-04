@@ -791,6 +791,7 @@ body.is-loading .section-nav { display: none; }
 }
 .book-toc-link { display: flex; align-items: center; gap: 0.6rem; }
 .book-toc-page-no { display: none; }
+.book-toc-word-range { display: none; }
 body.is-printing-book .book-toc-nav .contents-section.book-toc-link::after {
   content: target-counter(attr(href), page);
   flex: none;
@@ -801,6 +802,15 @@ body.is-printing-book .book-toc-nav .contents-section.book-toc-link::after {
 }
 body.is-printing-book[data-print-part="toc"] .book-toc-nav .contents-section.book-toc-link::after { content: none; }
 body.is-printing-book[data-print-engine="native"] .book-toc-nav .contents-section.book-toc-link::after { content: none; }
+body.is-printing-book[data-print-engine="native"] .book-toc-nav .contents-section .book-toc-word-range,
+body.is-printing-book[data-print-part="toc"] .book-toc-nav .contents-section .book-toc-word-range {
+  display: inline;
+  flex: none;
+  margin-left: auto;
+  min-width: 5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 .book-toc-nav .contents-item-subtitle,
 .book-toc-nav .contents-item-count { color: var(--text-muted); }
 .print-part-title { display: none; }
@@ -1554,6 +1564,18 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 @page print-a4 { size: 210mm 297mm; }
 @page print-b5 { size: 182mm 257mm; }
 @page print-a5 { size: 148mm 210mm; }
+@page print-a4-no-number {
+  size: 210mm 297mm;
+  @bottom-center { content: none; }
+}
+@page print-b5-no-number {
+  size: 182mm 257mm;
+  @bottom-center { content: none; }
+}
+@page print-a5-no-number {
+  size: 148mm 210mm;
+  @bottom-center { content: none; }
+}
 
 body.is-printing-book[data-print-page-size="a4"],
 body.is-printing-book[data-print-page-size="a4"] > .view-panel { page: print-a4; }
@@ -1561,6 +1583,13 @@ body.is-printing-book[data-print-page-size="b5"],
 body.is-printing-book[data-print-page-size="b5"] > .view-panel { page: print-b5; }
 body.is-printing-book[data-print-page-size="a5"],
 body.is-printing-book[data-print-page-size="a5"] > .view-panel { page: print-a5; }
+
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a4"],
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a4"] > .view-panel { page: print-a4-no-number; }
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="b5"],
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="b5"] > .view-panel { page: print-b5-no-number; }
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a5"],
+body.is-printing-book:not([data-print-part="all-paged"])[data-print-page-size="a5"] > .view-panel { page: print-a5-no-number; }
 
 @media print {
   html { font-size: var(--print-font-size, 10pt); }
