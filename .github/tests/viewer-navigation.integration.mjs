@@ -106,6 +106,9 @@ assert.match(sectionShellSource, /data-group-key/);
 assert.match(sectionShellSource, /hierarchyIcon\("chapter"\)/);
 assert.match(sectionShellSource, /hierarchyIcon\("group"\)/);
 assert.match(sectionShellSource, /hierarchyIcon\("section"\)/);
+assert.match(sectionShellSource, /role="heading" aria-level="2"/);
+assert.match(sectionShellSource, /role="heading" aria-level="3"/);
+assert.match(sectionShellSource, /role="heading" aria-level="4"/);
 assert.match(sectionShellSource, /chapter-tone-/);
 assert.doesNotMatch(sectionShellSource, /単語一覧/);
 assert.match(styleSource, /\.contents-section\.is-grouped\s*\{/);
@@ -121,6 +124,7 @@ const labelDividerSource = appSource.slice(
   appSource.indexOf("function renderLoadedSection")
 );
 assert.match(labelDividerSource, /hierarchyIcon\("label"\)/);
+assert.match(labelDividerSource, /role="heading" aria-level="5"/);
 assert.match(labelDividerSource, /class="label-count">\$\{countByLabelKey\.get\(labelKey\)\}語/);
 assert.doesNotMatch(labelDividerSource, /fa-solid fa-tag/);
 
