@@ -89,6 +89,7 @@ const el = {
   printFontSize: document.getElementById("printFontSize"),
   printLineHeight: document.getElementById("printLineHeight"),
   printExampleColumns: document.getElementById("printExampleColumns"),
+  printTocColumns: document.getElementById("printTocColumns"),
   printStatus: document.getElementById("printStatus"),
   printProgressOverlay: document.getElementById("printProgressOverlay"),
   printProgressLabel: document.getElementById("printProgressLabel"),
@@ -132,11 +133,13 @@ function applyPrintSettings() {
   const fontSize = boundedPrintSetting(el.printFontSize.value, 10, 8, 14);
   const lineHeight = boundedPrintSetting(el.printLineHeight.value, 1.5, 1.2, 2);
   const exampleColumns = boundedIntegerPrintSetting(el.printExampleColumns.value, 2, 1, 3);
+  const tocColumns = boundedIntegerPrintSetting(el.printTocColumns.value, 1, 1, 2);
   document.documentElement.dataset.printPageSize = pageSize;
   document.body.dataset.printPageSize = pageSize;
   document.documentElement.style.setProperty("--print-font-size", `${fontSize}pt`);
   document.documentElement.style.setProperty("--print-line-height", String(lineHeight));
   document.documentElement.style.setProperty("--print-example-columns", String(exampleColumns));
+  document.documentElement.style.setProperty("--print-toc-columns", String(tocColumns));
 }
 
 document.body.classList.toggle("is-print-mode", PRINT_UI_MODE);
@@ -144,10 +147,12 @@ el.printPageSize.value = normalizedPrintPageSize(PAGE_PARAMS.get("pageSize"));
 el.printFontSize.value = String(boundedPrintSetting(PAGE_PARAMS.get("fontSize"), 10, 8, 14));
 el.printLineHeight.value = String(boundedPrintSetting(PAGE_PARAMS.get("lineHeight"), 1.5, 1.2, 2));
 el.printExampleColumns.value = String(boundedIntegerPrintSetting(PAGE_PARAMS.get("exampleColumns"), 2, 1, 3));
+el.printTocColumns.value = String(boundedIntegerPrintSetting(PAGE_PARAMS.get("tocColumns"), 1, 1, 2));
 el.printPageSize.addEventListener("change", applyPrintSettings);
 el.printFontSize.addEventListener("change", applyPrintSettings);
 el.printLineHeight.addEventListener("change", applyPrintSettings);
 el.printExampleColumns.addEventListener("change", applyPrintSettings);
+el.printTocColumns.addEventListener("change", applyPrintSettings);
 applyPrintSettings();
 
 let printProgressHideTimer;
@@ -1568,6 +1573,7 @@ function openDedicatedPrintView() {
   url.searchParams.set("fontSize", el.printFontSize.value);
   url.searchParams.set("lineHeight", el.printLineHeight.value);
   url.searchParams.set("exampleColumns", el.printExampleColumns.value);
+  url.searchParams.set("tocColumns", el.printTocColumns.value);
   if (selected.startsWith("chapter:")) {
     url.searchParams.set("part", "chapter");
     url.searchParams.set("chapter", selected.slice("chapter:".length));
