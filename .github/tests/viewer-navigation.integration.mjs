@@ -103,11 +103,26 @@ const sectionShellSource = appSource.slice(
 assert.match(sectionShellSource, /group-divider/);
 assert.match(sectionShellSource, /group-title/);
 assert.match(sectionShellSource, /data-group-key/);
+assert.match(sectionShellSource, /hierarchyIcon\("chapter"\)/);
+assert.match(sectionShellSource, /hierarchyIcon\("group"\)/);
+assert.match(sectionShellSource, /hierarchyIcon\("section"\)/);
+assert.match(sectionShellSource, /chapter-tone-/);
 assert.doesNotMatch(sectionShellSource, /単語一覧/);
 assert.match(styleSource, /\.contents-section\.is-grouped\s*\{/);
 assert.match(styleSource, /\.contents-chapter\s*\{[\s\S]*font-weight:\s*800/);
 assert.match(styleSource, /\.contents-subgroup\s*\{[\s\S]*border-left:\s*3px/);
 assert.match(styleSource, /\.group-divider\s*\{/);
+assert.match(styleSource, /\.chapter-divider::before,[\s\S]*\.chapter-divider::after/);
+assert.match(styleSource, /\.section-group\.chapter-tone-2\s*\{/);
+assert.match(styleSource, /\.label-divider::after\s*\{[\s\S]*flex:\s*1 1 auto/);
+
+const labelDividerSource = appSource.slice(
+  appSource.indexOf("function renderSectionEntriesHtml"),
+  appSource.indexOf("function renderLoadedSection")
+);
+assert.match(labelDividerSource, /hierarchyIcon\("label"\)/);
+assert.match(labelDividerSource, /class="label-count">\$\{countByLabelKey\.get\(labelKey\)\}語/);
+assert.doesNotMatch(labelDividerSource, /fa-solid fa-tag/);
 
 for (const view of ["introduction", "structure", "badges", "app-guide", "toc"]) {
   assert.match(indexSource, new RegExp(`data-book-view="${view}"`));
