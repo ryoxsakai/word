@@ -24,6 +24,10 @@ ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
 # 毎分この件数まで、発音記号登録済みで音声がない見出し語を自動生成する。
 AUDIO_AUTO_BATCH_SIZE = "5"
 AUDIO_AUTO_ENABLED = "true"
+# Images run only for explicitly queued words; the API key must be set as a Worker Secret.
+ILLUSTRATIONS_ENABLED = "true"
+ILLUSTRATION_MODEL = "gpt-image-2"
+ILLUSTRATION_QUALITY = "medium"
 
 [triggers]
 crons = ["* * * * *"]
@@ -36,3 +40,7 @@ database_id = "5bb1bc51-a169-4686-bc34-97e181d536f6"
 [[r2_buckets]]
 binding = "AUDIO_BUCKET"
 bucket_name = "vocab-audio"
+
+[[r2_buckets]]
+binding = "ILLUSTRATION_BUCKET"
+bucket_name = "vocab-illustrations"
