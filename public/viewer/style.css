@@ -1349,6 +1349,24 @@ body.is-printing-book > .loading-msg { display: none !important; }
   gap: 0.55rem;
 }
 
+.entry-content { min-width: 0; }
+.entry-content.has-illustration {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  align-items: start;
+  gap: 1rem;
+}
+.entry-content > .entry-card { min-width: 0; }
+.entry-illustration { margin: 0; width: 100%; break-inside: avoid; }
+.entry-illustration img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; background: white; }
+@media (max-width: 600px) {
+  .entry-content.has-illustration { grid-template-columns: minmax(0, 1fr) 80px; gap: .6rem; }
+}
+@media print {
+  .entry-content.has-illustration { grid-template-columns: minmax(0, 1fr) 25mm; gap: 3mm; }
+  .entry-illustration { page-break-inside: avoid; }
+}
+
 /* 意味が折り返して複数行になっても、品詞バッジは全体の中央ではなく1行目に揃える */
 .sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
 .sense-line.sense-primary { font-weight: 700; }

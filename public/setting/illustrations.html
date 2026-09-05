@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>crossover イラスト</title>
+  <link rel="stylesheet" href="./illustrations.css">
+</head>
+<body>
+  <header><div><a href="./index.html">← 単語帳の設定</a><h1>crossover <span>イラスト</span></h1></div>
+    <a href="../index.html?list=crossover-v3" target="_blank" rel="noopener">単語帳を開く ↗</a></header>
+  <main>
+    <p class="intro">白黒の線画で、単語の意味をひとつずつ。完成した画像は単語帳に自動で表示されます。</p>
+    <p id="configuration" class="notice" hidden></p>
+    <div class="toolbar">
+      <label>Section <select id="section" aria-label="Sectionを選ぶ"></select></label>
+      <button id="refresh" type="button">更新</button>
+      <button id="selectMissing" type="button">未作成を選択（最大20語）</button>
+      <button id="generateSelected" class="primary" type="button" disabled>選択した語を生成</button>
+    </div>
+    <p id="status" role="status" aria-live="polite">読み込み中…</p>
+    <p class="hint">依頼は1件ずつ順に処理します。生成・再生成にはAPI利用料がかかります。差し替え中も現在の画像を表示します。</p>
+    <div id="words" class="word-grid"></div>
+  </main>
+  <dialog id="detail">
+    <form id="briefForm">
+      <div class="dialog-head"><h2 id="detailTitle"></h2><button id="closeDetail" type="button" aria-label="閉じる">閉じる</button></div>
+      <label>描く語義<select id="sense" required></select></label>
+      <label>描く場面<textarea id="scene" maxlength="2500" rows="4" placeholder="例：大きさが著しく違う2つの植物と、その差に驚く人物。空欄なら語義に合わせて場面を作ります。"></textarea></label>
+      <label>避けたい描写<textarea id="avoid" maxlength="1000" rows="2" placeholder="誤解につながる描写など"></textarea></label>
+      <p class="hint">白黒・人物の形・余白などの共通ルールと参考画像は毎回自動で適用します。</p>
+      <div class="dialog-actions"><button type="submit">指示を保存</button><button id="generateWord" class="primary" type="button">保存して生成</button></div>
+      <p id="detailStatus" role="status" aria-live="polite"></p>
+    </form>
+    <h3>生成履歴</h3><div id="history"></div>
+  </dialog>
+  <script type="module" src="./illustrations.js"></script>
+</body>
+</html>

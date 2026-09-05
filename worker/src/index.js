@@ -24,6 +24,7 @@ import {
   reconcileAutomaticAudioJobs,
 } from "./audio-auto-generation.js";
 import { normalizeSenseMeaning } from "./sense-normalization.js";
+import { handleIllustrationRoute, illustrationUrl, processIllustrationQueue } from "./word-illustrations.js";
 
 /** 仮想の親リスト（全単語マスター）の ID */
 const MASTER_LIST_ID = "__master__";
@@ -598,7 +599,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     chapterId != null && chapterPositionById.has(chapterId) ? `${chapterLabel} ${chapterPositionById.get(chapterId)}` : null;
 
   const ids = items.map((r) => r.id);
-  const [sensesRows, derivativesRows, examplesRows, tagsRows, audioRows] = await Promise.all([
+  const [sensesRows, derivativesRows, examplesRows, tagsRows, audioRows, illustrationRows] = await Promise.all([
     selectInChunks(
       db,
       (ph) => `SELECT word_id AS wordId, pos, meaning, pronunciation, is_primary AS isPrimary, sort_order AS sortOrder FROM senses WHERE word_id IN (${ph}) ORDER BY word_id, sort_order, id`,
@@ -624,9 +625,14 @@ async function listWordsInListFull(db, listId, options = {}) {
          FROM word_audio WHERE variant_key = 'primary' AND is_stale = 0 AND word_id IN (${ph})`,
       ids
     ),
+    listId === "crossover-v3" ? selectInChunks(db, (ph) =>
+      `SELECT a.word_id AS wordId, a.job_id AS jobId, j.meaning FROM word_illustrations a
+       JOIN illustration_jobs j ON j.id=a.job_id WHERE a.word_id IN (${ph}) AND j.status='ready'`, ids) : [],
   ]);
 
   const sensesByWord = groupByWordId(sensesRows);
+  const illustrationsByWord = new Map(illustrationRows.map(r => [r.wordId,
+    { url: illustrationUrl(r.wordId, r.jobId), jobId: r.jobId, meaning: r.meaning }]));
   const derivativesByWord = groupByWordId(derivativesRows);
   const examplesByWord = groupByWordId(examplesRows);
   const audioByWord = new Map(
@@ -654,6 +660,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     pronunciation: r.pronunciation,
     audioUrl: audioByWord.get(r.id)?.url || null,
     generatedAudio: audioByWord.get(r.id) || null,
+    illustration: illustrationsByWord.get(r.id) || null,
     etymology: r.etymology,
     notes: r.notes,
     synonyms: r.synonyms,
@@ -2737,6 +2744,9 @@ export default {
     const url = new URL(request.url);
     const { pathname } = url;
 
+    const illustrationResponse = await handleIllustrationRoute(request, env);
+    if (illustrationResponse) return illustrationResponse;
+
     const mcpResponse = await handleMcpRoute(request, env);
     if (mcpResponse) return mcpResponse;
 
@@ -2898,6 +2908,7 @@ export default {
     }
   },
   async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(processIllustrationQueue(env).catch(() => console.error("Illustration queue processing failed")));
     const reviewSamples = generatePronunciationReviewSamples(env)
       .then((samples) => console.log("Pronunciation review samples", samples.length))
       .catch((error) => console.error("Pronunciation review sample generation failed", error));
