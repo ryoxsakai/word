@@ -10,16 +10,16 @@
   <header><div><a href="./index.html">← 単語帳の設定</a><h1>crossover <span>イラスト</span></h1></div>
     <a href="../index.html?list=crossover-v3" target="_blank" rel="noopener">単語帳を開く ↗</a></header>
   <main>
-    <p class="intro">白黒の線画で、単語の意味をひとつずつ。完成した画像は単語帳に自動で表示されます。</p>
+    <p class="intro">チャットで作った画像を確認し、OKの画像を単語帳に登録できます。差し替え前の画像も履歴に残ります。</p>
     <p id="configuration" class="notice" hidden></p>
     <div class="toolbar">
       <label>Section <select id="section" aria-label="Sectionを選ぶ"></select></label>
       <button id="refresh" type="button">更新</button>
       <button id="selectMissing" type="button">未作成を選択（最大20語）</button>
-      <button id="generateSelected" class="primary" type="button" disabled>選択した語を生成</button>
+      <button id="generateSelected" type="button" disabled>選択した語をAPI生成（別料金）</button>
     </div>
     <p id="status" role="status" aria-live="polite">読み込み中…</p>
-    <p class="hint">依頼は1件ずつ順に処理します。生成・再生成にはAPI利用料がかかります。差し替え中も現在の画像を表示します。</p>
+    <p class="hint">作成済み画像の登録では画像生成APIを使いません。API生成を選んだ場合のみ別途API利用料がかかります。</p>
     <div id="words" class="word-grid"></div>
   </main>
   <dialog id="detail">
@@ -28,11 +28,23 @@
       <label>描く語義<select id="sense" required></select></label>
       <label>描く場面<textarea id="scene" maxlength="2500" rows="4" placeholder="例：大きさが著しく違う2つの植物と、その差に驚く人物。空欄なら語義に合わせて場面を作ります。"></textarea></label>
       <label>避けたい描写<textarea id="avoid" maxlength="1000" rows="2" placeholder="誤解につながる描写など"></textarea></label>
-      <p class="hint">白黒・人物の形・余白などの共通ルールと参考画像は毎回自動で適用します。</p>
-      <div class="dialog-actions"><button type="submit">指示を保存</button><button id="generateWord" class="primary" type="button">保存して生成</button></div>
+      <div class="dialog-actions"><button type="submit">指示を保存</button><button id="copyPrompt" type="button">チャット用プロンプトをコピー</button></div>
+      <p class="hint">画風の見本：<a href="../shared/illustration-references/v1-key.png" target="_blank" rel="noopener">key</a> · <a href="../shared/illustration-references/v1-significant.png" target="_blank" rel="noopener">significant</a>。プロンプトと一緒にチャットへ添付できます。</p>
+      <fieldset class="upload-panel">
+        <legend>チャットで作った画像を登録</legend>
+        <label>PNG画像（8MB以下）<input id="uploadFile" type="file" accept="image/png,.png"></label>
+        <img id="uploadPreview" alt="登録する画像のプレビュー" width="200" height="200" hidden>
+        <label>実際に使用したプロンプト<textarea id="uploadPrompt" maxlength="30000" rows="4" placeholder="生成時のプロンプトを貼り付けてください"></textarea></label>
+        <label><input id="uploadApproved" type="checkbox">この画像と語義を確認しました。単語帳に表示してOKです。</label>
+        <button id="importWord" class="primary" type="button" disabled>OK・この画像を登録</button>
+      </fieldset>
+      <details><summary>APIで生成する（別料金）</summary>
+        <p class="hint">共通ルールと見本画像を使って生成し、完成後すぐに表示します。チャットの月額プランとは別にAPI利用料がかかります。</p>
+        <button id="generateWord" type="button">保存してAPI生成（別料金）</button>
+      </details>
       <p id="detailStatus" role="status" aria-live="polite"></p>
     </form>
-    <h3>生成履歴</h3><div id="history"></div>
+    <h3>画像の履歴</h3><div id="history"></div>
   </dialog>
   <script type="module" src="./illustrations.js"></script>
 </body>

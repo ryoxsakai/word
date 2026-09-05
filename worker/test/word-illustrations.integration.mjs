@@ -3,7 +3,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHmac, randomUUID } from 'node:crypto';
 import { Miniflare } from 'miniflare';
 import { enqueueIllustration, processIllustrationQueue, saveIllustrationBrief, restoreIllustration,
-  handleIllustrationRoute, wordHistory, illustrationConfiguration, generateIllustration } from '../src/word-illustrations.js';
+  handleIllustrationRoute, wordHistory, illustrationConfiguration, generateIllustration, importIllustration } from '../src/word-illustrations.js';
+import { decodeIllustrationPng } from '../src/illustration-upload.js';
 import { handleIllustrationMcp } from '../src/illustration-mcp.js';
 
 function sqlStatements(sql) {
@@ -134,5 +135,80 @@ try {
   assert.equal((await handleIllustrationMcp(rpcRequest('tools/call','generate_word_illustration',token('vocab:read')),env)).status,403);
   const get=await handleIllustrationMcp(rpcRequest('tools/call','get_word_illustration',token()),env);
   assert.equal((await get.json()).result.structuredContent.currentId,firstId);
+
+  // Chat-approved uploads work without any generation API configuration or calls.
+  const uploadEnv={...env,OPENAI_API_KEY:'',ASSETS:null,ILLUSTRATIONS_ENABLED:'false'};
+  assert.equal(illustrationConfiguration(uploadEnv).ready,false);
+  assert.equal(illustrationConfiguration(uploadEnv).importReady,true);
+  const uploadId=randomUUID(), beforeUploadCalls=calls;
+  const upload={requestId:uploadId,approved:true,expectedCurrentId:firstId,pos:'形',meaning:'重要な・主要な',
+    scene:'approved scene',avoid:'',prompt:'Actual prompt used in chat.',imageBase64:png.toString('base64')};
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,approved:false}),/OK/);
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,expectedCurrentId:undefined}),/表示中画像ID/);
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,expectedCurrentId:null}),e=>e.status===409);
+  await assert.rejects(()=>importIllustration(uploadEnv,'outside',upload),e=>e.status===404);
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,meaning:'wrong'}),/登録語義/);
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,imageBase64:Buffer.from('<svg/>').toString('base64')}),/PNG/);
+  const corrupt=Buffer.from(png);corrupt[corrupt.length-1]^=1;
+  assert.throws(()=>decodeIllustrationPng(corrupt.toString('base64')),/チェックサム/);
+  assert.throws(()=>decodeIllustrationPng(png.subarray(0,40).toString('base64')),/PNG/);
+  assert.throws(()=>decodeIllustrationPng('A'.repeat(12*1024*1024)),/8MB/);
+  const uploadRoute=(body,auth=token())=>handleIllustrationRoute(new Request(origin+'/mcp-editor/api/illustrations/words/key/import',{
+    method:'POST',headers:{'content-type':'application/json',...(auth?{Authorization:'Bearer '+auth}:{})},body:JSON.stringify(body)}),uploadEnv);
+  assert.equal((await uploadRoute(upload,null)).status,401);
+  assert.equal((await uploadRoute(upload,token('vocab:read'))).status,403);
+  assert.equal((await uploadRoute({...upload,approved:false})).status,400);
+  const uploaded=await uploadRoute(upload);
+  assert.equal(uploaded.status,200);
+  const imported=await uploaded.json();
+  assert.equal(imported.id,uploadId); assert.equal(imported.current,true);
+  const uploadedHistory=await wordHistory(uploadEnv,'key');
+  assert.equal(uploadedHistory.currentId,uploadId);
+  assert.equal(uploadedHistory.history[0].source,'approved-upload');
+  assert.ok(uploadedHistory.history[0].approvedAt);
+  assert.equal(uploadedHistory.history[0].prompt,upload.prompt);
+  assert.match(uploadedHistory.history[0].imageSha256,/^[a-f0-9]{64}$/);
+  assert.ok(uploadedHistory.suggestedPrompt);
+  const stored=await handleIllustrationRoute(new Request(origin+imported.url),uploadEnv);
+  assert.deepEqual(Buffer.from(await stored.arrayBuffer()),png);
+  assert.equal((await importIllustration(uploadEnv,'key',upload)).alreadyImported,true);
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,prompt:'changed'}),e=>e.status===409);
+  await assert.rejects(()=>enqueueIllustration(env,'key',uploadId),e=>e.status===409);
+  await restoreIllustration(uploadEnv,'key',firstId);
+  assert.equal((await importIllustration(uploadEnv,'key',upload)).current,false,'retry must not republish an older image');
+  assert.equal((await wordHistory(uploadEnv,'key')).currentId,firstId);
+
+  const failEnv={...uploadEnv,ILLUSTRATION_BUCKET:{put:async()=>{throw new Error('storage offline')}}};
+  const failedImportId=randomUUID();
+  await assert.rejects(()=>importIllustration(failEnv,'key',{...upload,requestId:failedImportId}),e=>e.status===503);
+  assert.equal((await wordHistory(uploadEnv,'key')).currentId,firstId);
+  assert.equal((await DB.prepare('SELECT status FROM illustration_jobs WHERE id=?').bind(failedImportId).first()).status,'failed');
+  // The unique active-word reservation protects both uploads and API jobs.
+  let uploadEntered,uploadRelease;
+  const uploadStarted=new Promise(r=>uploadEntered=r),uploadBlock=new Promise(r=>uploadRelease=r);
+  const slowEnv={...uploadEnv,ILLUSTRATION_BUCKET:{put:async(...args)=>{uploadEntered();await uploadBlock;return ILLUSTRATION_BUCKET.put(...args)}}};
+  const concurrentId=randomUUID();
+  const inFlight=importIllustration(slowEnv,'key',{...upload,requestId:concurrentId});
+  await uploadStarted;
+  await assert.rejects(()=>importIllustration(uploadEnv,'key',{...upload,requestId:randomUUID()}),e=>e.status===409);
+  await assert.rejects(()=>restoreIllustration(uploadEnv,'key',uploadId),e=>e.status===409);
+  assert.equal((await enqueueIllustration(env,'key',randomUUID())).id,concurrentId);
+  uploadRelease(); await inFlight;
+  await restoreIllustration(uploadEnv,'key',firstId);
+  assert.equal(calls,beforeUploadCalls,'imports and restorations must not call OpenAI');
+
+  assert.ok(tools.find(t=>t.name==='import_word_illustration'));
+  const rpcUpload=(auth,approved=true)=>new Request(origin+'/mcp',{method:'POST',
+    headers:{'content-type':'application/json',...(auth?{Authorization:'Bearer '+auth}:{})},body:JSON.stringify({jsonrpc:'2.0',id:2,method:'tools/call',params:{
+      name:'vocab.import_word_illustration',arguments:{...upload,word_id:'key',request_id:randomUUID(),expected_current_id:firstId,image_base64:upload.imageBase64,approved},
+    }})});
+  assert.equal((await handleIllustrationMcp(rpcUpload(),uploadEnv)).status,401);
+  assert.equal((await handleIllustrationMcp(rpcUpload(token('vocab:read')),uploadEnv)).status,403);
+  assert.equal((await (await handleIllustrationMcp(rpcUpload(token(),false),uploadEnv)).json()).result.isError,true);
+  const mcpImport=(await (await handleIllustrationMcp(rpcUpload(token()),uploadEnv)).json()).result;
+  assert.equal(mcpImport.isError,false);assert.equal(mcpImport.structuredContent.current,true);
+  assert.equal(calls,beforeUploadCalls);
+  assert.equal((await processIllustrationQueue(env)).state,'idle');
   console.log('Illustrations: OAuth, prompts, provider form, R2, idempotency, overlapping cron, automatic publication, failed/stuck jobs, cancel, restore, MCP passed');
+  console.log('Approved imports: no API key, approval, valid PNG, stale pointer, idempotency, R2 failure, concurrent writes, authenticated HTTP/MCP passed');
 } finally { globalThis.fetch=originalFetch; await mf.dispose(); }

@@ -25,6 +25,12 @@ dialog { width: min(720px,94vw); max-height: 90vh; border: 0; border-radius: 16p
 dialog::backdrop { background: #15203960; }.dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 dialog h2 { margin: 0 0 16px; }dialog label { display: grid; gap: 7px; margin: 14px 0; }textarea { width: 100%; resize: vertical; }
 .dialog-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.upload-panel { margin: 22px 0; padding: 16px; border: 1px solid #c9d2e0; border-radius: 10px; min-width: 0; }
+.upload-panel legend { font-weight: 650; padding: 0 6px; }
+.upload-panel img { max-width: 100%; object-fit: contain; }
+.upload-panel label:has(input[type=checkbox]) { display: flex; align-items: flex-start; line-height: 1.6; }
+.upload-panel input[type=checkbox] { flex: none; margin-top: 5px; }
+.upload-panel input[type=file] { max-width: 100%; }
 .history-item { border-top: 1px solid #e1e5ec; padding: 16px 0; display: grid; grid-template-columns: 130px minmax(0,1fr); gap: 16px; }
 .history-item img { width: 130px; height: 130px; object-fit: contain; }.history-item p { margin: 0 0 8px; font-size: 13px; }
 details { grid-column: 1/-1; font-size: 13px; }pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f3f5f8; padding: 12px; }

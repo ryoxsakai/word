@@ -1,5 +1,6 @@
 import { ILLUSTRATION_LIST_ID, PROMPT_VERSION, REFERENCE_PATHS, defaultBrief, buildIllustrationPrompt } from './illustration-prompt.js';
 import { MCP_READ_SCOPE, MCP_WRITE_SCOPE, verifyMcpAccess, oauthErrorResponse } from './mcp-oauth.js';
+import { decodeIllustrationPng, MAX_IMAGE_BASE64 } from './illustration-upload.js';
 
 const ADMIN = '/mcp-editor/api/illustrations';
 const PUBLIC = '/mcp-viewer/api/illustrations';
@@ -14,7 +15,7 @@ export function illustrationConfiguration(env) {
   if (!env.ILLUSTRATION_BUCKET) missing.push('ILLUSTRATION_BUCKET');
   if (!env.ASSETS) missing.push('ASSETS');
   const enabled = String(env.ILLUSTRATIONS_ENABLED ?? 'true') !== 'false';
-  return { ready: !missing.length && enabled, enabled, missing, promptVersion: PROMPT_VERSION,
+  return { ready: !missing.length && enabled, enabled, missing, importReady: !!env.ILLUSTRATION_BUCKET, promptVersion: PROMPT_VERSION,
     model: env.ILLUSTRATION_MODEL || 'gpt-image-2', quality: env.ILLUSTRATION_QUALITY || 'medium' };
 }
 
@@ -60,9 +61,9 @@ export async function enqueueIllustration(env, wordId, requestId) {
   if (!UUID.test(requestId || '')) fail('requestIdにはUUIDを指定してください');
   const word = await illustrationWord(env, wordId);
   // A lost HTTP response can be retried with the same ID without another paid generation.
-  const existing = await env.DB.prepare('SELECT id, word_id AS wordId, status FROM illustration_jobs WHERE id = ?').bind(requestId).first();
+  const existing = await env.DB.prepare('SELECT id, word_id AS wordId, status, source FROM illustration_jobs WHERE id = ?').bind(requestId).first();
   if (existing) {
-    if (existing.wordId !== wordId) fail('requestIdが別の単語で使用されています', 409);
+    if (existing.wordId !== wordId || existing.source !== 'api') fail('requestIdが別の依頼で使用されています', 409);
     return existing;
   }
   const config = illustrationConfiguration(env);
@@ -118,11 +119,54 @@ export async function generateIllustration(env, job) {
   return { bytes, usage: data.usage || null, requestId };
 }
 
+export async function importIllustration(env, wordId, input) {
+  if (input?.approved !== true) fail('この画像へのユーザーのOKを確認してから登録してください');
+  if (!UUID.test(input.requestId || '')) fail('requestIdにはUUIDを指定してください');
+  if (input.expectedCurrentId !== null && !UUID.test(input.expectedCurrentId || '')) fail('確認時の表示中画像IDを指定してください');
+  if (typeof input.prompt !== 'string' || !input.prompt.trim() || input.prompt.length > 30000) fail('実際に使用したプロンプトを指定してください（30000文字以内）');
+  if (!env.ILLUSTRATION_BUCKET) fail('画像保存先が未設定です', 503);
+  const word = await illustrationWord(env, wordId);
+  const brief = validateBrief(word, input);
+  const { bytes, width, height } = decodeIllustrationPng(input.imageBase64);
+  const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+  const existing = await env.DB.prepare('SELECT * FROM illustration_jobs WHERE id=?').bind(input.requestId).first();
+  if (existing) {
+    if (existing.word_id !== wordId || existing.source !== 'approved-upload' || existing.input_sha256 !== hash
+      || existing.prompt !== input.prompt || Object.keys(brief).some(k => existing[k] !== brief[k])) fail('requestIdが異なる内容の依頼で使用されています', 409);
+    // A retry must never move the pointer back after a later replacement or restoration.
+    if (existing.status !== 'ready') fail('登録処理中、または失敗した依頼です。履歴を確認してください', 409);
+    const current = await env.DB.prepare('SELECT job_id FROM word_illustrations WHERE word_id=?').bind(wordId).first();
+    return { id: existing.id, wordId, status: 'ready', url: illustrationUrl(wordId, existing.id), current: current?.job_id === existing.id, alreadyImported: true };
+  }
+  // Release abandoned upload reservations even when the paid API is disabled.
+  await env.DB.prepare(`UPDATE illustration_jobs SET status='failed', finished_at=datetime('now'), error='画像の登録が中断されました。'
+    WHERE source='approved-upload' AND status='processing' AND started_at < datetime('now','-16 minutes')`).run();
+  const reserved = await env.DB.prepare(`INSERT OR IGNORE INTO illustration_jobs
+    (id,word_id,status,spelling,pos,meaning,scene,avoid,prompt,prompt_version,reference_paths,model,quality,source,input_sha256,approved_at,started_at)
+    SELECT ?,?,'processing',?,?,?,?,?,?,'approved-upload-v1','[]','external','original','approved-upload',?,datetime('now'),datetime('now')
+    WHERE (SELECT job_id FROM word_illustrations WHERE word_id=?) IS ?`).bind(input.requestId, wordId,
+      word.spelling, brief.pos, brief.meaning, brief.scene, brief.avoid, input.prompt, hash, wordId, input.expectedCurrentId).run();
+  if (!reserved.meta.changes) fail('表示中の画像が変わったか、別の処理が進行中です。履歴を確認してから登録してください', 409);
+  const objectKey = `illustrations/${encodeURIComponent(wordId)}/${input.requestId}.png`;
+  try {
+    await env.ILLUSTRATION_BUCKET.put(objectKey, bytes, { httpMetadata: { contentType: 'image/png' } });
+    await env.DB.batch([
+      env.DB.prepare(`UPDATE illustration_jobs SET status='ready',object_key=?,finished_at=datetime('now') WHERE id=? AND status='processing'`).bind(objectKey, input.requestId),
+      env.DB.prepare(`INSERT INTO word_illustrations(word_id,job_id) SELECT word_id,id FROM illustration_jobs WHERE id=? AND status='ready'
+        ON CONFLICT(word_id) DO UPDATE SET job_id=excluded.job_id,updated_at=datetime('now')`).bind(input.requestId),
+    ]);
+  } catch {
+    await env.DB.prepare(`UPDATE illustration_jobs SET status='failed',error='画像の保存に失敗しました。',finished_at=datetime('now') WHERE id=? AND status='processing'`).bind(input.requestId).run();
+    fail('画像を保存できませんでした。現在の画像は履歴で確認できます', 503);
+  }
+  return { id: input.requestId, wordId, status: 'ready', source: 'approved-upload', url: illustrationUrl(wordId, input.requestId), current: true, width, height };
+}
+
 export async function processIllustrationQueue(env, { generate = generateIllustration } = {}) {
   if (!illustrationConfiguration(env).ready) return { state: 'not-configured' };
   // Never automatically repeat a paid call after a crash/timeout: the provider may have completed it.
   await env.DB.prepare(`UPDATE illustration_jobs SET status='failed', finished_at=datetime('now'),
-    error='処理が中断されました。課金重複を避けるため自動再試行しません。履歴を確認して再生成してください。'
+    error='処理が中断されました。自動再試行はしていません。履歴を確認してください。'
     WHERE status='processing' AND started_at < datetime('now', '-16 minutes')`).run();
   const job = await env.DB.prepare(`UPDATE illustration_jobs SET status='processing', started_at=datetime('now')
     WHERE id = (SELECT id FROM illustration_jobs WHERE status='queued' ORDER BY created_at, rowid LIMIT 1)
@@ -194,15 +238,16 @@ export async function wordHistory(env, wordId) {
   const word = await illustrationWord(env, wordId);
   const brief = await getBrief(env, word);
   const history = await env.DB.prepare(`SELECT id,status,pos,meaning,scene,avoid,prompt,prompt_version AS promptVersion,
-    model,quality,error,created_at AS createdAt,finished_at AS finishedAt FROM illustration_jobs WHERE word_id=? ORDER BY rowid DESC LIMIT 30`).bind(wordId).all();
+    model,quality,source,input_sha256 AS imageSha256,approved_at AS approvedAt,error,created_at AS createdAt,finished_at AS finishedAt FROM illustration_jobs WHERE word_id=? ORDER BY rowid DESC LIMIT 30`).bind(wordId).all();
   const current = await env.DB.prepare('SELECT job_id AS id FROM word_illustrations WHERE word_id=?').bind(wordId).first();
-  return { word, brief, currentId: current?.id || null, history: history.results.map(j => ({ ...j,
+  return { word, brief, suggestedPrompt: buildIllustrationPrompt(word, brief), referencePaths: REFERENCE_PATHS, currentId: current?.id || null, history: history.results.map(j => ({ ...j,
     url: j.status === 'ready' ? illustrationUrl(wordId,j.id) : null })) };
 }
 
-async function readBody(request) {
+async function readBody(request, maxLength = 20000) {
+  if (Number(request.headers.get('content-length')) > maxLength) fail('送信内容が大きすぎます', 413);
   const text = await request.text();
-  if (text.length > 20000) fail('送信内容が大きすぎます', 413);
+  if (text.length > maxLength) fail('送信内容が大きすぎます', 413);
   try { return JSON.parse(text); } catch { fail('JSONが不正です'); }
 }
 
@@ -243,6 +288,7 @@ export async function handleIllustrationRoute(request, env) {
     if (parts[0] === 'words' && parts[1]) {
       const wordId = parts[1];
       if (parts.length === 2 && request.method === 'GET') return finish(json(await wordHistory(env,wordId)));
+      if (parts.length === 3 && parts[2] === 'import' && request.method === 'POST') return finish(json(await importIllustration(env,wordId,await readBody(request, MAX_IMAGE_BASE64 + 200000))));
       if (parts.length === 3 && parts[2] === 'brief' && request.method === 'PUT') return finish(json(await saveIllustrationBrief(env,wordId,await readBody(request))));
       if (parts.length === 3 && parts[2] === 'restore' && request.method === 'POST') return finish(json(await restoreIllustration(env,wordId,(await readBody(request)).jobId)));
     }
