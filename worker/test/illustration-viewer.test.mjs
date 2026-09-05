@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { renderWordIllustration, prepareIllustrationsForPrint } from '../../public/shared/illustrations.js';
+assert.equal(renderWordIllustration({spelling:'key'},'https://vocab.lrnr.jp'),'');
+assert.equal(renderWordIllustration({illustration:{url:'javascript:alert(1)'}},'https://vocab.lrnr.jp'),'');
+const rendered=renderWordIllustration({spelling:'key',illustration:{url:'/mcp-viewer/api/illustrations/key/11111111-1111-1111-1111-111111111111.png',meaning:'<重要>"'}},'https://vocab.lrnr.jp');
+assert.match(rendered,/https:\/\/vocab.lrnr.jp\/mcp-viewer/);
+assert.match(rendered,/&lt;重要&gt;&quot;/);
+let decoded=0;
+const img={loading:'lazy',decode:async()=>{decoded++}};
+await prepareIllustrationsForPrint({querySelectorAll:()=>[img]});
+assert.equal(img.loading,'eager');assert.equal(decoded,1);
+await assert.rejects(()=>prepareIllustrationsForPrint({querySelectorAll:()=>[{decode:async()=>{throw new Error('missing image')}}]}),/missing image/);
+console.log('Illustration viewer: escaping, URL restriction and print image readiness passed');

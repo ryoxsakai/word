@@ -8,6 +8,7 @@ import {
   renderWordListMarkup,
   escapeHtml,
 } from "../shared/markup.js";
+import { renderWordIllustration, prepareIllustrationsForPrint } from "../shared/illustrations.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../shared/word-index.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
@@ -612,6 +613,7 @@ function renderEntry(w) {
     ? `<span class="learning-badge badge-awl" title="Academic Word List${awlSublist ? ` Sublist ${escapeHtml(awlSublist)}` : ""}">AWL${awlSublist ? ` ${escapeHtml(awlSublist)}` : ""}</span>`
     : "";
   const generatedAudioUrl = w.generatedAudio?.url || "";
+  const illustrationHtml = renderWordIllustration(w, VIEWER_API_BASE || location.origin);
 
   return `
   <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
@@ -625,6 +627,7 @@ function renderEntry(w) {
         ${cautionHtml}
       </div>
       ${familyLine}
+      <div class="entry-content${illustrationHtml ? " has-illustration" : ""}">
       <div class="entry-card">
         ${sensesHtml}
         ${examplesHtml}
@@ -635,6 +638,8 @@ function renderEntry(w) {
         ${relatedWordsHtml}
         ${etymologyHtml}
         ${notesHtml}
+      </div>
+      ${illustrationHtml}
       </div>
     </div>
   </article>`;
@@ -1765,6 +1770,7 @@ async function printWholeBook() {
     prepareLightweightPrintDom();
     setPrintProgress(45, "印刷レイアウトを準備中");
     if (document.fonts?.ready) await document.fonts.ready;
+    await prepareIllustrationsForPrint(document);
     await waitForPrintLayout();
     if (PRINT_PART !== "all") {
       await loadPagedJs();

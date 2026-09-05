@@ -39,6 +39,9 @@ jobs:
       - name: Test data migrations
         run: npm run test:migrations
 
+      - name: Test illustration generation and automatic publication
+        run: npm run test:illustrations
+
       - name: Create D1 database if it doesn't exist yet (bootstrap only)
         if: ${{ inputs.bootstrap_d1 == true }}
         run: |
@@ -50,6 +53,10 @@ jobs:
       - name: Ensure pronunciation audio bucket exists
         continue-on-error: true
         run: npx wrangler r2 bucket create vocab-audio
+
+      - name: Ensure illustration bucket exists
+        run: |
+          npx wrangler r2 bucket info vocab-illustrations || npx wrangler r2 bucket create vocab-illustrations
 
       - name: Deploy Worker
         run: npx wrangler deploy
