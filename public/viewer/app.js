@@ -629,8 +629,10 @@ function renderEntry(w) {
       ${familyLine}
       <div class="entry-content${illustrationHtml ? " has-illustration" : ""}">
       <div class="entry-card">
+        ${illustrationHtml}
         ${sensesHtml}
         ${examplesHtml}
+        <div class="entry-notes">
         ${derivativesHtml}
         ${irregularFormsHtml}
         ${synonymsHtml}
@@ -638,8 +640,8 @@ function renderEntry(w) {
         ${relatedWordsHtml}
         ${etymologyHtml}
         ${notesHtml}
+        </div>
       </div>
-      ${illustrationHtml}
       </div>
     </div>
   </article>`;
