@@ -1344,27 +1344,33 @@ body.is-printing-book > .loading-msg { display: none !important; }
 
 .entry-card {
   margin-top: 0.15rem;
+  min-width: 0;
+}
+
+.entry-content { min-width: 0; }
+.entry-card::after { content: ""; display: block; clear: both; }
+.entry-card > .sense-line + .sense-line,
+.entry-card > .example-list,
+.entry-notes:not(:empty) { margin-top: 0.55rem; }
+.entry-notes {
+  clear: both;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
 }
-
-.entry-content { min-width: 0; }
-.entry-content.has-illustration {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 128px;
-  align-items: start;
-  gap: 1rem;
+.entry-notes:empty { display: none; }
+.entry-illustration {
+  float: right;
+  margin: 0 0 0.65rem 1rem;
+  width: 128px;
+  break-inside: avoid;
 }
-.entry-content > .entry-card { min-width: 0; }
-.entry-illustration { margin: 0; width: 100%; break-inside: avoid; }
 .entry-illustration img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; background: white; }
 @media (max-width: 600px) {
-  .entry-content.has-illustration { grid-template-columns: minmax(0, 1fr) 80px; gap: .6rem; }
+  .entry-illustration { width: 80px; margin-left: 0.6rem; }
 }
 @media print {
-  .entry-content.has-illustration { grid-template-columns: minmax(0, 1fr) 25mm; gap: 3mm; }
-  .entry-illustration { page-break-inside: avoid; }
+  .entry-illustration { width: 25mm; margin-left: 3mm; page-break-inside: avoid; }
 }
 
 /* 意味が折り返して複数行になっても、品詞バッジは全体の中央ではなく1行目に揃える */
@@ -1440,6 +1446,9 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .example-phrase, .example-translation { grid-column: 2; min-width: 0; overflow-wrap: break-word; }
 .example-phrase { color: var(--text); }
 .example-translation { color: var(--text-muted); font-size: 0.7em; }
+@media (max-width: 600px) {
+  .example-list { grid-template-columns: minmax(0, 1fr); }
+}
 
 .derivative-items { display: inline; }
 /* white-space:nowrapで1項目を1行にまとめていたが、項目自体が画面幅を超える場合に
