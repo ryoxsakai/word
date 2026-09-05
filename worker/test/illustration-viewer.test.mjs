@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { renderWordIllustration, prepareIllustrationsForPrint } from '../../public/shared/illustrations.js';
 assert.equal(renderWordIllustration({spelling:'key'},'https://vocab.lrnr.jp'),'');
 assert.equal(renderWordIllustration({illustration:{url:'javascript:alert(1)'}},'https://vocab.lrnr.jp'),'');
@@ -10,4 +11,10 @@ const img={loading:'lazy',decode:async()=>{decoded++}};
 await prepareIllustrationsForPrint({querySelectorAll:()=>[img]});
 assert.equal(img.loading,'eager');assert.equal(decoded,1);
 await assert.rejects(()=>prepareIllustrationsForPrint({querySelectorAll:()=>[{decode:async()=>{throw new Error('missing image')}}]}),/missing image/);
+const viewerCss=readFileSync(new URL('../../public/viewer/style.css',import.meta.url),'utf8');
+const viewerJs=readFileSync(new URL('../../public/viewer/app.js',import.meta.url),'utf8');
+assert.match(viewerCss,/\.entry-illustration\s*\{[^}]*float:\s*right/s);
+assert.match(viewerCss,/\.entry-notes\s*\{[^}]*clear:\s*both/s);
+assert.match(viewerCss,/@media \(max-width: 600px\) \{\n  \.example-list \{ grid-template-columns: minmax\(0, 1fr\); \}\n\}/);
+assert.match(viewerJs,/<div class="entry-notes">[\s\S]*?\$\{derivativesHtml\}[\s\S]*?\$\{notesHtml\}/);
 console.log('Illustration viewer: escaping, URL restriction and print image readiness passed');
