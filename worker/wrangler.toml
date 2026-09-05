@@ -25,7 +25,7 @@ ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
 AUDIO_AUTO_BATCH_SIZE = "5"
 AUDIO_AUTO_ENABLED = "true"
 # Images run only for explicitly queued words; the API key must be set as a Worker Secret.
-ILLUSTRATIONS_ENABLED = "true"
+ILLUSTRATIONS_ENABLED = "false"
 ILLUSTRATION_MODEL = "gpt-image-2"
 ILLUSTRATION_QUALITY = "medium"
 

@@ -1,5 +1,6 @@
 import { verifyMcpAccess, oauthErrorResponse, MCP_READ_SCOPE, MCP_WRITE_SCOPE } from './mcp-oauth.js';
-import { wordHistory, illustrationConfiguration, saveIllustrationBrief, enqueueIllustration, restoreIllustration } from './word-illustrations.js';
+import { wordHistory, illustrationConfiguration, saveIllustrationBrief, enqueueIllustration, restoreIllustration, importIllustration } from './word-illustrations.js';
+import { MAX_IMAGE_BASE64 } from './illustration-upload.js';
 
 const schema = (properties, required) => ({ type:'object', properties, required, additionalProperties:false });
 const text = { type:'string' };
@@ -7,6 +8,12 @@ const definitions = [
   { name:'get_word_illustration', title:'単語のイラストと生成履歴',
     description:'crossoverの単語IDを指定し、描く語義・場面・表示中画像・生成履歴・設定状態を確認します。',
     inputSchema:schema({word_id:text},['word_id']), readOnly:true },
+  { name:'import_word_illustration', title:'OKをもらった画像を単語帳に登録',
+    description:'チャットで作成してユーザーに提示し、その画像・対象単語について明示的なOKをもらったPNGだけを登録・公開します。OK前は実行しないでください。画像生成APIは呼びません。先にget_word_illustrationで語義とcurrentIdを確認し、expected_current_idへ指定（初回はnull）。image_base64は承認されたPNGファイルのBase64（data URL不可、8MB以下）。promptには実際に使った生成プロンプトを記録。request_idはUUID。同じ送信の再試行は同じ値を使い、画像や語義を変更しないでください。成功後はurlを確認。PNGのBase64はファイルからコードで読み、チャット本文へ出力しないでください。',
+    inputSchema:schema({word_id:text,request_id:{type:'string',format:'uuid'},approved:{type:'boolean',enum:[true]},
+      expected_current_id:{type:['string','null']},pos:text,meaning:text,scene:text,avoid:text,prompt:{type:'string',maxLength:30000},
+      image_base64:{type:'string',maxLength:MAX_IMAGE_BASE64}},
+      ['word_id','request_id','approved','expected_current_id','pos','meaning','scene','avoid','prompt','image_base64']) },
   { name:'generate_word_illustration', title:'単語イラストを生成・差し替え',
     description:'crossoverの1単語の白黒線画をAPI生成待ちへ登録します。生成成功時に単語帳へ自動表示し、既存画像は履歴に残します。API利用料が発生します。先にget_word_illustrationで登録語義を確認し、posとmeaningをそのまま指定してください。request_idはUUIDとし、通信再試行時は同じ値を使ってください。',
     inputSchema:schema({word_id:text,request_id:{type:'string',format:'uuid'},pos:text,meaning:text,scene:text,avoid:text},['word_id','request_id','pos','meaning','scene','avoid']) },
@@ -37,7 +44,7 @@ export async function handleIllustrationMcp(request, env, delegate) {
   const name=String(message.params?.name || '').replace(/^vocab\./,'');
   const tool=definitions.find(t=>t.name===name);
   if(message.method!=='tools/call' || !tool)return null;
-  // Paid generation always requires OAuth, including in the legacy anonymous-write mode.
+  // Both paid generation and approved imports always require OAuth.
   const scopes=tool.readOnly?[MCP_READ_SCOPE]:[MCP_READ_SCOPE,MCP_WRITE_SCOPE];
   try { await verifyMcpAccess(request,env,scopes); }
   catch(e) { return oauthErrorResponse(request,e,scopes); }
@@ -46,6 +53,9 @@ export async function handleIllustrationMcp(request, env, delegate) {
   try {
     let data;
     if(name==='get_word_illustration') data={...await wordHistory(env,args.word_id),config:illustrationConfiguration(env)};
+    if(name==='import_word_illustration') data=await importIllustration(env,args.word_id,{
+      ...args, requestId:args.request_id, expectedCurrentId:args.expected_current_id, imageBase64:args.image_base64,
+    });
     if(name==='generate_word_illustration') {
       await saveIllustrationBrief(env,args.word_id,args);
       data=await enqueueIllustration(env,args.word_id,args.request_id);
