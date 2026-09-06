@@ -94,6 +94,13 @@
 
 * { box-sizing: border-box; }
 
+/* iOS Safariの文字自動拡大を無効にし、類義語・対義語・関連語・語源・活用・メモを
+   アプリの文字サイズ設定どおりに表示する。補足欄だけが本文より大きくなるのを防ぐ。 */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
