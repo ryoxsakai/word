@@ -1993,7 +1993,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     page-break-before: always;
   }
   body[data-print-pagination="standard"] .print-chapter-door {
-    min-height: var(--chapter-door-height, 271mm);
+    min-height: calc(var(--chapter-door-height, 271mm) - 1mm);
     margin-bottom: 0;
     color: #ffffff;
     background-color: var(--chapter-color-deep);
@@ -2116,8 +2116,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .section-entries.has-print-entry-rail {
     position: relative;
   }
-  .section-entries.has-print-entry-rail::before {
-    content: "";
+  .section-entries.has-print-entry-rail > .print-entry-rail-line {
     position: absolute;
     z-index: 0;
     top: 0;
@@ -2126,7 +2125,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     width: 1px;
     background: color-mix(in srgb, var(--accent) 18%, var(--border));
   }
-  body:not([data-print-pagination="section"]) .section-entries.has-print-entry-rail::before { left: 1.05rem; }
+  body:not([data-print-pagination="section"]) .section-entries.has-print-entry-rail > .print-entry-rail-line { left: 1.05rem; }
   .section-group > .section-entries > .entry.print-entry-fragment-continues { border-bottom: 0; }
   body:not([data-print-pagination="section"]) .entry-no {
     position: absolute;
