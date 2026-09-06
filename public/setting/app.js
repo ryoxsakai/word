@@ -69,6 +69,7 @@ let dragState = null; // { type: "word" | "section", id } | { type: "repeat-row"
 
 const el = {
   layout: document.getElementById("layout"),
+  loadingProgress: document.getElementById("loadingProgress"),
   toast: document.getElementById("toast"),
   themeToggleBtn: document.getElementById("themeToggleBtn"),
   menuToggle: document.getElementById("menuToggle"),
@@ -2255,8 +2256,42 @@ function nextSuggestedNo() {
   return max + 1;
 }
 
+const WORD_EDITOR_LOADING_DELAY_MS = 250;
+let wordEditorLoadingDepth = 0;
+let wordEditorLoadingDelayTimer;
+let wordEditorLoadingFinishTimer;
+
+function revealWordEditorProgress() {
+  if (wordEditorLoadingDepth === 0) return;
+  el.loadingProgress.classList.remove("is-completing");
+  el.loadingProgress.hidden = false;
+}
+
+function beginWordEditorLoading() {
+  wordEditorLoadingDepth += 1;
+  if (wordEditorLoadingDepth > 1) return;
+  clearTimeout(wordEditorLoadingDelayTimer);
+  clearTimeout(wordEditorLoadingFinishTimer);
+  wordEditorLoadingDelayTimer = setTimeout(revealWordEditorProgress, WORD_EDITOR_LOADING_DELAY_MS);
+}
+
+function endWordEditorLoading() {
+  wordEditorLoadingDepth = Math.max(0, wordEditorLoadingDepth - 1);
+  if (wordEditorLoadingDepth > 0) return;
+  clearTimeout(wordEditorLoadingDelayTimer);
+  if (el.loadingProgress.hidden) return;
+  el.loadingProgress.classList.add("is-completing");
+  wordEditorLoadingFinishTimer = setTimeout(() => {
+    if (wordEditorLoadingDepth > 0) return;
+    el.loadingProgress.hidden = true;
+    el.loadingProgress.classList.remove("is-completing");
+  }, 180);
+}
+
 async function openWordEditor(wordId) {
-  const [detail] = await Promise.all([
+  beginWordEditorLoading();
+  try {
+    const [detail] = await Promise.all([
     api(`/words/${encodeURIComponent(wordId)}`),
     ensureEditorReferences().catch(() => {}),
   ]);
@@ -2315,6 +2350,9 @@ async function openWordEditor(wordId) {
   setEditorOpen(true);
   updateEditorListFields();
   renderWordTable();
+  } finally {
+    endWordEditorLoading();
+  }
 }
 
 function closeEditor() {

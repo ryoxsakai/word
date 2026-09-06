@@ -59,6 +59,35 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---- loading feedback ---- */
+
+.loading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  height: 3px;
+  overflow: hidden;
+  background: rgba(47, 157, 116, 0.16);
+  opacity: 1;
+  transition: opacity 0.18s ease;
+}
+.loading-progress::before {
+  content: "";
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: 999px;
+  background: #2f9d74;
+  animation: loading-progress 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.loading-progress.is-completing { opacity: 0; }
+@keyframes loading-progress {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(340%); }
+}
+
 /* ---- layout ---- */
 
 .layout {
@@ -1572,4 +1601,6 @@ legend .hint {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
   }
+  .loading-progress::before { animation: none; }
+  .loading-progress { transition: none; }
 }
