@@ -205,9 +205,27 @@ try {
   );
   assert.equal(tokenResponse.status, 200);
   const tokenDocument = await tokenResponse.json();
-  assert.equal(tokenDocument.expires_in, 3600);
+  assert.equal(tokenDocument.expires_in, 43200);
   const accessToken = tokenDocument.access_token;
   assert.ok(accessToken);
+  const tokenClaims = JSON.parse(Buffer.from(accessToken.split(".")[1], "base64url").toString());
+  assert.equal(tokenClaims.exp - tokenClaims.iat, 43200);
+  const originalNow = Date.now;
+  try {
+    Date.now = () => (tokenClaims.iat + 43199) * 1000;
+    const beforeExpiry = await rpc(env, accessToken, "/mcp-write", 901, "tools/call", {
+      name: "list_notebooks", arguments: {},
+    });
+    assert.equal(beforeExpiry.status, 200);
+    Date.now = () => tokenClaims.exp * 1000;
+    const atExpiry = await rpc(env, accessToken, "/mcp-write", 902, "tools/call", {
+      name: "list_notebooks", arguments: {},
+    });
+    assert.equal(atExpiry.status, 401);
+    assert.equal(atExpiry.body.error, "invalid_token");
+  } finally {
+    Date.now = originalNow;
+  }
 
   const replay = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/token", {
