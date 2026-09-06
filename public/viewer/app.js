@@ -1704,7 +1704,14 @@ function registerPagedProgressHandler(sectionKeys) {
 
       const firstSectionNode = sectionNodes[0];
       for (const entries of pageElement?.querySelectorAll?.(".section-entries") || []) {
-        if (entries.querySelector(".entry")) entries.classList.add("has-print-entry-rail");
+        if (!entries.querySelector(".entry")) continue;
+        entries.classList.add("has-print-entry-rail");
+        if (!entries.querySelector(":scope > .print-entry-rail-line")) {
+          const rail = document.createElement("span");
+          rail.className = "print-entry-rail-line";
+          rail.setAttribute("aria-hidden", "true");
+          entries.prepend(rail);
+        }
       }
       const entryNodes = [...(pageElement?.querySelectorAll?.(".entry[data-word-id]") || [])];
       const firstEntry = entryNodes[0];
