@@ -227,9 +227,9 @@ assert.match(styleSource, /@page print-a5\s*\{\s*size:\s*148mm 210mm/);
 assert.match(styleSource, /@page print-a4-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
 assert.match(styleSource, /@page print-b5-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
 assert.match(styleSource, /@page print-a5-numbered\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*counter\(page\)/);
-assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a4"\] > \.view-panel\s*\{\s*page:\s*print-a4/);
-assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="b5"\] > \.view-panel\s*\{\s*page:\s*print-b5/);
-assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a5"\] > \.view-panel\s*\{\s*page:\s*print-a5/);
+assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a4"\] > \.view-panel,\s*body\.is-printing-book\[data-print-page-size="a4"\] \.print-chapter-door\s*\{\s*page:\s*print-a4/);
+assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="b5"\] > \.view-panel,\s*body\.is-printing-book\[data-print-page-size="b5"\] \.print-chapter-door\s*\{\s*page:\s*print-b5/);
+assert.match(styleSource, /body\.is-printing-book\[data-print-page-size="a5"\] > \.view-panel,\s*body\.is-printing-book\[data-print-page-size="a5"\] \.print-chapter-door\s*\{\s*page:\s*print-a5/);
 assert.match(
   styleSource,
   /body\.is-printing-book\[data-print-part="all-paged"\]\[data-print-page-size="a4"\][\s\S]*page:\s*print-a4-numbered/
@@ -239,6 +239,7 @@ const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print
 assert.match(printStyleSource, /\.print-progress-overlay\s*\{\s*display:\s*none !important/);
 assert.match(printStyleSource, /data-print-part="all-paged"[\s\S]*\.word-list[\s\S]*break-before:\s*page/);
 assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry\s*\{[\s\S]*border-top:\s*0;[\s\S]*border-bottom:\s*1px dashed/);
+assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry:last-child\s*\{\s*border-bottom:\s*0/);
 assert.match(printStyleSource, /\.section-divider\s*\{[\s\S]*break-after:\s*avoid-page/);
 assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.print-chapter-door\s*\{[\s\S]*break-inside:\s*auto;[\s\S]*break-after:\s*page/);
 assert.match(printStyleSource, /\.print-chapter-door:not\(:first-child\)\s*\{[\s\S]*break-before:\s*page/);
@@ -262,6 +263,8 @@ assert.match(appSource, /previousLastEntry\.dataset\.wordId === firstEntry\.data
 assert.match(appSource, /function removeLeadingEmptyChapterPrintPages\(\)[\s\S]*PRINT_PART !== "chapter"[\s\S]*\.pagedjs_page_content[\s\S]*firstPage\.remove\(\)/);
 assert.match(appSource, /afterRendered\(flow\)[\s\S]*removeLeadingEmptyChapterPrintPages\(\)/);
 assert.match(printStyleSource, /\.entry-head,[\s\S]*\.notes-block\s*\{[\s\S]*break-inside:\s*avoid/);
+assert.match(printStyleSource, /\.entry-content,[\s\S]*\.entry-notes\s*\{[\s\S]*break-inside:\s*auto/);
+assert.match(printStyleSource, /\.entry-notes\s*\{[\s\S]*clear:\s*none;[\s\S]*display:\s*block/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
 assert.match(
@@ -291,6 +294,10 @@ assert.match(appSource, /dataset\.printPagination = pagination/);
 assert.match(appSource, /--print-example-columns/);
 assert.match(appSource, /--print-toc-columns/);
 assert.match(appSource, /PRINT_PAGE_SIZES = new Set\(\["a4", "b5", "a5"\]\)/);
+assert.match(appSource, /PRINT_PAGE_DIMENSIONS = \{ a4: "210mm 297mm", b5: "182mm 257mm", a5: "148mm 210mm" \}/);
+assert.match(appSource, /function applyDynamicPrintPageRule\(pageSize\)[\s\S]*dynamicPrintPageStyle[\s\S]*PRINT_PAGE_DIMENSIONS\[pageSize\][\s\S]*margin: 12mm 12mm 14mm/);
+assert.match(appSource, /const pageNumberContent = PRINT_PART === "all-paged" \? "counter\(page\)" : "none"/);
+assert.match(appSource, /applyPrintSettings\(\)[\s\S]*applyDynamicPrintPageRule\(pageSize\)/);
 assert.match(appSource, /dataset\.printPageSize = pageSize/);
 assert.match(appSource, /document\.body\.dataset\.printPageSize = pageSize/);
 assert.match(appSource, /function setPrintProgress\(percent, label\)/);

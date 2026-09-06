@@ -38,6 +38,7 @@ const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.poly
 const PRINT_PAGE_SIZES = new Set(["a4", "b5", "a5"]);
 const PRINT_PAGINATION_MODES = new Set(["standard", "compact", "section"]);
 const PRINT_PAGE_SIZE_LABELS = { a4: "A4", b5: "B5", a5: "A5" };
+const PRINT_PAGE_DIMENSIONS = { a4: "210mm 297mm", b5: "182mm 257mm", a5: "148mm 210mm" };
 const CIRCLED_SENSE_NUMBERS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱", "⑲", "⑳"];
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
@@ -154,6 +155,26 @@ function normalizedPrintPagination(rawValue) {
   return PRINT_PAGINATION_MODES.has(rawValue) ? rawValue : "standard";
 }
 
+function applyDynamicPrintPageRule(pageSize) {
+  let pageStyle = document.getElementById("dynamicPrintPageStyle");
+  if (!pageStyle) {
+    pageStyle = document.createElement("style");
+    pageStyle.id = "dynamicPrintPageStyle";
+    document.head.appendChild(pageStyle);
+  }
+  const pageNumberContent = PRINT_PART === "all-paged" ? "counter(page)" : "none";
+  pageStyle.textContent = `@page {
+    size: ${PRINT_PAGE_DIMENSIONS[pageSize]};
+    margin: 12mm 12mm 14mm;
+    @bottom-center {
+      content: ${pageNumberContent};
+      color: #666;
+      font-family: "M PLUS 2", sans-serif;
+      font-size: 8pt;
+    }
+  }`;
+}
+
 function applyPrintSettings() {
   const pageSize = normalizedPrintPageSize(el.printPageSize.value);
   const pagination = normalizedPrintPagination(el.printPagination.value);
@@ -169,6 +190,7 @@ function applyPrintSettings() {
   document.documentElement.style.setProperty("--print-line-height", String(lineHeight));
   document.documentElement.style.setProperty("--print-example-columns", String(exampleColumns));
   document.documentElement.style.setProperty("--print-toc-columns", String(tocColumns));
+  applyDynamicPrintPageRule(pageSize);
 }
 
 document.body.classList.toggle("is-print-mode", PRINT_UI_MODE);
