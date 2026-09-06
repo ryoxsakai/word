@@ -714,6 +714,8 @@ async function getViewerIndex(db, listId, request) {
     .prepare(
       `SELECT w.id AS id, w.spelling AS spelling, w.derived_from_id AS derivedFromId,
               w.synonyms AS synonyms, w.antonyms AS antonyms, w.related_words AS relatedWords,
+              (SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'oxford5000' LIMIT 1) AS oxfordLevel,
+              (SELECT t.tag_value FROM tags t WHERE t.word_id = w.id AND t.tag_key = 'cefr_provisional' LIMIT 1) AS cefrProvisional,
               li.no AS no, li.branch AS branch, li.section_id AS sectionId,
               li.label_id AS labelId, sl.name AS labelName, sl.sort_order AS labelSortOrder,
               s.subtitle AS sectionSubtitle, s.description AS sectionDescription, s.sort_order AS sectionSortOrder,
@@ -808,6 +810,10 @@ async function getViewerIndex(db, listId, request) {
       synonyms: item.synonyms,
       antonyms: item.antonyms,
       relatedWords: item.relatedWords,
+      tags: {
+        ...(item.oxfordLevel ? { oxford5000: item.oxfordLevel } : {}),
+        ...(item.cefrProvisional ? { cefr_provisional: item.cefrProvisional } : {}),
+      },
       derivatives: derivativesByWord.get(item.id) || [],
       phrases: (phrasesByWord.get(item.id) || []).map((phrase) => phrase.sentence),
     };

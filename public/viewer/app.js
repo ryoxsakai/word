@@ -12,7 +12,7 @@ import { renderWordIllustration, prepareIllustrationsForPrint } from "../shared/
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../shared/word-index.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
-import { cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
+import { CEFR_LEVELS, cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { groupDerivativeSenses } from "../shared/derivatives.js";
 import { attachPullToRefresh } from "../shared/pull-to-refresh.js";
 import { playPronunciation } from "../shared/speech.js";
@@ -80,6 +80,7 @@ const state = {
   renderNotesMarkup: null,
   search: "",
   searchMatches: null,
+  eikenLevel: "all",
   indexRendered: false,
   activeView: "list", // "list" | "index" | front matter page
 };
@@ -111,6 +112,7 @@ const el = {
   printProgressPercent: document.getElementById("printProgressPercent"),
   printProgressBar: document.getElementById("printProgressBar"),
   searchInput: document.getElementById("searchInput"),
+  eikenFilter: document.getElementById("eikenFilter"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
   jumpInput: document.getElementById("jumpInput"),
@@ -480,6 +482,19 @@ function wordHaystack(w) {
   return parts.filter(Boolean).join(" ").toLowerCase();
 }
 
+function matchesEikenLevel(word) {
+  if (state.eikenLevel === "all") return true;
+  const wordLevelIndex = CEFR_LEVELS.indexOf(effectiveCefrLevel(word.tags));
+  const selectedLevelIndex = CEFR_LEVELS.indexOf(state.eikenLevel);
+  return wordLevelIndex >= 0 && selectedLevelIndex >= 0 && wordLevelIndex <= selectedLevelIndex;
+}
+
+function sectionMatchesEikenLevel(sectionKey) {
+  return state.eikenLevel === "all" || state.indexWords.some(
+    (word) => String(word.sectionKey) === String(sectionKey) && matchesEikenLevel(word)
+  );
+}
+
 function renderEntry(w) {
   const isBranch = w.branch > 0;
   const haystack = wordHaystack(w);
@@ -616,7 +631,7 @@ function renderEntry(w) {
   const illustrationHtml = renderWordIllustration(w, VIEWER_API_BASE || location.origin);
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}" data-cefr="${escapeHtml(cefrLevel)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
@@ -858,7 +873,7 @@ function setupLazySectionObserver() {
 // 独立見出し語に加え、派生語・類義語・対義語から収録元の見出し語へ戻る参照も索引に含める。
 // 参照語自身が独立見出し語として収録済みの場合は、独立見出し語を優先する。
 function buildAlphabeticalIndex() {
-  return buildAlphabeticalIndexEntries(state.indexWords);
+  return buildAlphabeticalIndexEntries(state.indexWords.filter(matchesEikenLevel));
 }
 
 function renderIndexEntryHtml(e) {
@@ -963,7 +978,9 @@ function setBottomNavContent(html, ariaLabel) {
 }
 
 function renderSectionNav() {
-  const sections = state.sections.filter((section) => section.id != null);
+  const sections = state.sections.filter(
+    (section) => section.id != null && sectionMatchesEikenLevel(section.key)
+  );
   const html = sections
     .map((section) => `<button type="button" data-section-key="${escapeHtml(String(section.key))}">${escapeHtml(section.name)}</button>`)
     .join("");
@@ -1155,15 +1172,19 @@ el.sectionNav.addEventListener("click", async (e) => {
 
 function applyFilters() {
   const q = state.search.trim().toLowerCase();
+  const selectedLevelIndex = CEFR_LEVELS.indexOf(state.eikenLevel);
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
     const haystack = entry.dataset.haystack || "";
-    const matches = state.searchMatches ? state.searchMatches.has(entry.dataset.wordId) : haystack.includes(q);
-    entry.hidden = !!q && !matches;
+    const matchesSearch = !q || (state.searchMatches ? state.searchMatches.has(entry.dataset.wordId) : haystack.includes(q));
+    const wordLevelIndex = CEFR_LEVELS.indexOf(entry.dataset.cefr || "");
+    const matchesEiken = state.eikenLevel === "all" || (wordLevelIndex >= 0 && wordLevelIndex <= selectedLevelIndex);
+    entry.hidden = !(matchesSearch && matchesEiken);
   });
 
   const sectionGroups = [...el.wordList.querySelectorAll(".section-group")];
-  if (!q) {
+  const filtering = !!q || state.eikenLevel !== "all";
+  if (!filtering) {
     for (const group of sectionGroups) group.hidden = false;
     el.wordList.querySelectorAll(".chapter-divider, .group-divider, .section-divider, .label-divider").forEach((divider) => {
       divider.hidden = false;
@@ -1177,7 +1198,10 @@ function applyFilters() {
   for (const group of sectionGroups) {
     const entriesContainer = group.querySelector(":scope > .section-entries");
     const groupChildren = entriesContainer ? [...entriesContainer.children] : [];
-    const hasVisibleEntry = groupChildren.some((child) => child.classList.contains("entry") && !child.hidden);
+    const isLoaded = group.classList.contains("is-loaded");
+    const hasVisibleEntry = isLoaded
+      ? groupChildren.some((child) => child.classList.contains("entry") && !child.hidden)
+      : !q && sectionMatchesEikenLevel(group.dataset.sectionKey);
     groupHasVisibleEntry.set(group, hasVisibleEntry);
     const sectionDivider = group.querySelector(":scope > .section-divider");
     if (sectionDivider) sectionDivider.hidden = !hasVisibleEntry;
@@ -1274,6 +1298,15 @@ function clearSearchForNavigation() {
   applyFilters();
 }
 
+function clearEikenFilterForWord(word) {
+  if (matchesEikenLevel(word)) return;
+  state.eikenLevel = "all";
+  el.eikenFilter.value = "all";
+  state.indexRendered = false;
+  applyFilters();
+  renderActiveBottomNav();
+}
+
 function clearNavigationAnchors() {
   for (const group of navigationAnchorGroups) group.classList.remove("is-navigation-anchor");
   navigationAnchorGroups = [];
@@ -1366,6 +1399,7 @@ async function navigateToWord(id, { historyMode = "push" } = {}) {
   const generation = ++navigationGeneration;
   if (state.activeView !== "list") setActiveView("list");
   clearSearchForNavigation();
+  clearEikenFilterForWord(meta);
   if (!(await prepareNavigationSection(meta.sectionKey, generation))) return false;
   const target = document.getElementById(`word-${normalizedId}`);
   if (!target) {
@@ -1496,6 +1530,14 @@ async function runSearch() {
 }
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
+
+el.eikenFilter.addEventListener("change", () => {
+  state.eikenLevel = el.eikenFilter.value;
+  applyFilters();
+  state.indexRendered = false;
+  if (state.activeView === "index") renderAlphabeticalIndex();
+  renderActiveBottomNav();
+});
 
 el.jumpForm.addEventListener("submit", async (e) => {
   e.preventDefault();
