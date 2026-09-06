@@ -252,6 +252,8 @@ assert.match(appSource, /className = "print-running-header"[\s\S]*meta\.chapter[
 assert.match(appSource, /entries\.classList\.add\("has-print-entry-rail"\)/);
 assert.match(appSource, /className = "print-entry-rail-line"[\s\S]*entries\.prepend\(rail\)/);
 assert.match(appSource, /previousLastEntry\.dataset\.wordId === firstEntry\.dataset\.wordId[\s\S]*print-entry-fragment-continues/);
+assert.match(appSource, /function removeLeadingEmptyChapterPrintPages\(\)[\s\S]*PRINT_PART !== "chapter"[\s\S]*\.pagedjs_page_content[\s\S]*firstPage\.remove\(\)/);
+assert.match(appSource, /afterRendered\(flow\)[\s\S]*removeLeadingEmptyChapterPrintPages\(\)/);
 assert.match(printStyleSource, /\.entry-head,[\s\S]*\.notes-block\s*\{[\s\S]*break-inside:\s*avoid/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
