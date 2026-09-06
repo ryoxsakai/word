@@ -221,6 +221,7 @@ button { font-family: inherit; }
   color: var(--topbar-accent);
   background: var(--topbar-accent-soft);
 }
+.topbar-row--primary .settings-toggle { margin-left: auto; }
 .menu-toggle-bar {
   display: block;
   width: 1.1rem;
