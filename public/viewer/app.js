@@ -1706,6 +1706,15 @@ function registerPagedProgressHandler(sectionKeys) {
       for (const entries of pageElement?.querySelectorAll?.(".section-entries") || []) {
         if (entries.querySelector(".entry")) entries.classList.add("has-print-entry-rail");
       }
+      const entryNodes = [...(pageElement?.querySelectorAll?.(".entry[data-word-id]") || [])];
+      const firstEntry = entryNodes[0];
+      const lastEntry = entryNodes.at(-1);
+      if (this.previousLastEntry && firstEntry
+        && this.previousLastEntry.dataset.wordId === firstEntry.dataset.wordId) {
+        this.previousLastEntry.classList.add("print-entry-fragment-continues");
+        firstEntry.classList.add("print-entry-fragment-continuation");
+      }
+      this.previousLastEntry = lastEntry || null;
       const isChapterDoor = !!pageElement?.querySelector?.(".print-chapter-door");
       const startsWithSectionHeading = !!firstSectionNode?.querySelector?.(".section-divider");
       if (firstSectionNode && !isChapterDoor && !startsWithSectionHeading) {
