@@ -238,6 +238,7 @@ assert.match(styleSource, /\.print-progress-overlay\s*\{[\s\S]*position:\s*fixed
 const printStyleSource = styleSource.slice(styleSource.lastIndexOf("@media print"));
 assert.match(printStyleSource, /\.print-progress-overlay\s*\{\s*display:\s*none !important/);
 assert.match(printStyleSource, /data-print-part="all-paged"[\s\S]*\.word-list[\s\S]*break-before:\s*page/);
+assert.match(printStyleSource, /data-print-engine="paged"\]\[data-print-pagination="standard"\] \.word-list\s*\{\s*display:\s*contents/);
 assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry\s*\{[\s\S]*border-top:\s*0;[\s\S]*border-bottom:\s*1px dashed/);
 assert.match(printStyleSource, /\.section-divider\s*\{[\s\S]*break-after:\s*avoid-page/);
 assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.print-chapter-door\s*\{[\s\S]*break-inside:\s*auto;[\s\S]*break-after:\s*page/);
