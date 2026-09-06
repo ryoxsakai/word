@@ -1939,6 +1939,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     font-size: 20pt;
   }
   .word-list { max-width: 100%; padding: 0; }
+  body[data-print-engine="paged"][data-print-pagination="standard"] .word-list { display: contents; }
   .index-list { max-width: 100%; padding: 0; }
   .section-group { margin-right: 0; margin-left: 0; padding-top: 0; --hierarchy-copy-column: 17mm; }
   .section-group > .chapter-divider { margin-right: 0; margin-left: 0; }
