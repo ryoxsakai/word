@@ -1699,9 +1699,9 @@ function registerPagedProgressHandler(sectionKeys) {
     const group = groupKey !== "none" ? groupByKey.get(groupKey) : null;
     const sourceNode = document.querySelector(`.section-group[data-section-key="${CSS.escape(sectionKey)}"]`);
     return [sectionKey, {
-      chapter: chapter?.name || "Chapter",
-      group: group?.name || "",
-      section: section.name || "Section",
+      chapter: [chapter?.name || "Chapter", chapter?.subtitle].filter(Boolean).join(" "),
+      group: group ? [group.name, group.subtitle].filter(Boolean).join(" ") : "",
+      section: [section.name || "Section", section.subtitle].filter(Boolean).join(" "),
       color: getComputedStyle(sourceNode || document.documentElement).getPropertyValue("--chapter-color-deep").trim() || "#123b63",
     }];
   }));
@@ -1751,7 +1751,7 @@ function registerPagedProgressHandler(sectionKeys) {
           header.style.setProperty("--print-header-color", meta.color);
           const left = document.createElement("span");
           left.className = "print-running-header-left";
-          left.textContent = meta.group ? `${meta.chapter} · ${meta.group}` : meta.chapter;
+          left.textContent = meta.group ? `${meta.chapter} / ${meta.group}` : meta.chapter;
           const right = document.createElement("span");
           right.className = "print-running-header-right";
           right.textContent = meta.section;
