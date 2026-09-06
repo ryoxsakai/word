@@ -249,6 +249,10 @@ assert.match(printStyleSource, /\.print-running-header\s*\{[\s\S]*border-bottom:
 assert.match(appSource, /function preparePrintHierarchy\(\)[\s\S]*className = "print-heading-stack"[\s\S]*classList\.add\("print-chapter-door"\)[\s\S]*sectionGroup\.before\(chapterDivider\)/);
 assert.match(appSource, /const firstChapterDoor = el\.wordList\.querySelector[\s\S]*el\.wordList\.before\(firstChapterDoor\)/);
 assert.match(appSource, /className = "print-running-header"[\s\S]*meta\.chapter[\s\S]*meta\.section/);
+assert.match(appSource, /chapter:\s*\[chapter\?\.name \|\| "Chapter", chapter\?\.subtitle\]\.filter\(Boolean\)\.join\(" "\)/);
+assert.match(appSource, /group:\s*group \? \[group\.name, group\.subtitle\]\.filter\(Boolean\)\.join\(" "\) : ""/);
+assert.match(appSource, /section:\s*\[section\.name \|\| "Section", section\.subtitle\]\.filter\(Boolean\)\.join\(" "\)/);
+assert.match(appSource, /`\$\{meta\.chapter\} \/ \$\{meta\.group\}`/);
 assert.match(appSource, /entries\.classList\.add\("has-print-entry-rail"\)/);
 assert.match(appSource, /className = "print-entry-rail-line"[\s\S]*entries\.prepend\(rail\)/);
 assert.match(appSource, /previousLastEntry\.dataset\.wordId === firstEntry\.dataset\.wordId[\s\S]*print-entry-fragment-continues/);
