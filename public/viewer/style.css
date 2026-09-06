@@ -1149,9 +1149,9 @@ body.is-printing-book > .loading-msg { display: none !important; }
   grid-template-columns: var(--hierarchy-copy-column) minmax(0, 1fr);
   align-items: center;
   gap: 0;
-  min-height: 3.65rem;
+  min-height: 2.75rem;
   margin: 0 0 0.45rem;
-  padding: 0.68rem 0.9rem 0.68rem 0;
+  padding: 0.34rem 0.9rem 0.34rem 0;
   background: linear-gradient(100deg, color-mix(in srgb, var(--chapter-color) 12%, var(--surface)), color-mix(in srgb, var(--chapter-color) 5%, var(--surface)));
   border: 1px solid color-mix(in srgb, var(--chapter-color) 30%, var(--border));
   border-radius: 9px;
@@ -1789,6 +1789,10 @@ body.is-printing-book[data-print-page-size="b5"] > .view-panel { page: print-b5;
 body.is-printing-book[data-print-page-size="a5"],
 body.is-printing-book[data-print-page-size="a5"] > .view-panel { page: print-a5; }
 
+body[data-print-page-size="a4"] { --chapter-door-height: 271mm; }
+body[data-print-page-size="b5"] { --chapter-door-height: 231mm; }
+body[data-print-page-size="a5"] { --chapter-door-height: 184mm; }
+
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"],
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"] > .view-panel { page: print-a4-numbered; }
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"],
@@ -1946,11 +1950,17 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     break-after: avoid-page;
     page-break-after: avoid;
   }
-  /* 標準はChapter単位、省スペースは連続、従来設定はSection単位で改ページする。 */
+  /* 標準はChapterを独立した扉ページにし、省スペースは連続、従来設定はSection単位で改ページする。 */
   body[data-print-pagination="standard"] .section-group.has-chapter-divider:not(:first-of-type),
   body[data-print-pagination="section"] .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
+  }
+  body[data-print-pagination="standard"] .chapter-divider {
+    min-height: var(--chapter-door-height, 271mm);
+    margin-bottom: 0;
+    break-after: page;
+    page-break-after: always;
   }
   .chapter-divider {
     break-inside: avoid;
