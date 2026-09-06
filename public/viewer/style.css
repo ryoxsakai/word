@@ -1406,7 +1406,26 @@ body.is-printing-book > .loading-msg { display: none !important; }
 }
 
 /* 意味が折り返して複数行になっても、品詞バッジは全体の中央ではなく1行目に揃える */
-.sense-line { display: flex; align-items: baseline; gap: 0.45rem; font-size: 0.98rem; }
+.sense-line {
+  --sense-row-height: calc(0.98rem * var(--font-scale, 1) * 1.5);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.98rem;
+  line-height: var(--sense-row-height);
+}
+.sense-line:not(.sense-primary) {
+  --sense-row-height: calc(0.85rem * var(--font-scale, 1) * 1.5);
+}
+/* Align fixed badges to the first text-line box, including wrapped meanings. */
+.sense-line > .pos-badge {
+  margin-top: max(0px, calc((var(--sense-row-height) - 1.5em) / 2));
+}
+.sense-line > .sense-pron,
+.sense-line .sense-meaning {
+  min-width: 0;
+  line-height: var(--sense-row-height);
+}
 .sense-line.sense-primary { font-weight: 700; }
 .sense-line:not(.sense-primary) { font-size: 0.85rem; }
 .sense-line:not(.sense-primary) .sense-meaning { color: var(--text-muted); font-weight: 400; }
@@ -1435,20 +1454,28 @@ body.is-printing-book > .loading-msg { display: none !important; }
   align-items: center;
   gap: 0.25rem 0.7rem;
 }
-.sense-item { display: inline-flex; align-items: center; gap: 0.3rem; }
+.sense-item {
+  display: inline-flex;
+  align-items: flex-start;
+  max-width: 100%;
+  min-width: 0;
+  gap: 0.3rem;
+}
+.sense-items { min-width: 0; align-items: flex-start; }
+.sense-item .sense-meaning { overflow-wrap: anywhere; }
 .sense-number {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25em;
-  height: 1.25em;
+  width: 1.5em;
+  height: 1.5em;
   border-radius: 50%;
   border: 0.5px solid currentColor;
   font-size: 0.68em;
   font-weight: 700;
   line-height: 1;
-  transform: translateY(1px);
+  margin-top: max(0px, calc((var(--sense-row-height) - 1.5em) / 2));
 }
 /* ①(見出しの意味)だけを目立たせ、同じ行内の②以降は控えめにする */
 .sense-line.sense-primary .sense-item:not(.sense-item-primary) .sense-meaning {
