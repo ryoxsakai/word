@@ -1668,6 +1668,24 @@ function loadPagedJs() {
   });
 }
 
+function removeLeadingEmptyChapterPrintPages() {
+  if (PRINT_PART !== "chapter") return 0;
+  let removed = 0;
+  while (true) {
+    const firstPage = document.querySelector(".pagedjs_page");
+    const content = firstPage?.querySelector(".pagedjs_page_content");
+    if (!content) break;
+    const copy = content.cloneNode(true);
+    copy.querySelectorAll(".print-running-header").forEach((header) => header.remove());
+    const hasText = !!copy.textContent?.trim();
+    const hasMedia = !!copy.querySelector("img, svg, canvas, video, iframe, object");
+    if (hasText || hasMedia) break;
+    firstPage.remove();
+    removed += 1;
+  }
+  return removed;
+}
+
 function registerPagedProgressHandler(sectionKeys) {
   if (!window.Paged?.Handler || !window.Paged?.registerHandlers) return false;
   const sectionIndexByKey = new Map(sectionKeys.map((key, index) => [String(key), index]));
@@ -1750,7 +1768,8 @@ function registerPagedProgressHandler(sectionKeys) {
     }
 
     afterRendered(flow) {
-      const totalPages = Number(flow?.total) || renderedPages;
+      const removedPages = removeLeadingEmptyChapterPrintPages();
+      const totalPages = Math.max(0, (Number(flow?.total) || renderedPages) - removedPages);
       setPrintProgress(96, `版組完了（${pageSizeLabel}・${totalPages}ページ）`);
     }
   }
