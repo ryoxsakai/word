@@ -1995,6 +1995,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   body[data-print-pagination="standard"] .print-chapter-door {
     min-height: calc(var(--chapter-door-height, 271mm) - 1mm);
     margin-bottom: 0;
+    break-inside: auto;
+    page-break-inside: auto;
     color: #ffffff;
     background-color: var(--chapter-color-deep);
     background-image:
