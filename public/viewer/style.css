@@ -2001,8 +2001,11 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     page-break-before: always;
   }
   body[data-print-pagination="standard"] .print-chapter-door {
+    align-content: center;
+    height: calc(var(--chapter-door-height, 271mm) - 1mm);
     min-height: calc(var(--chapter-door-height, 271mm) - 1mm);
     margin-bottom: 0;
+    padding-left: 8mm;
     break-inside: auto;
     page-break-inside: auto;
     color: #ffffff;
@@ -2148,6 +2151,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   body:not([data-print-pagination="section"]) .entry-card { display: block; }
   body:not([data-print-pagination="section"]) .entry-body > * + * { margin-top: 0.28rem; }
   body:not([data-print-pagination="section"]) .entry-card > * + * { margin-top: 0.38rem; }
+  /* 補足欄を画像の下まで強制的に送らず、画像横の空きを本文として利用する。 */
+  .entry-notes { clear: none; }
   .entry-head,
   .family-block,
   .sense-line,
