@@ -1246,7 +1246,6 @@ body.is-printing-book > .loading-msg { display: none !important; }
   align-items: center;
   justify-content: center;
   align-self: start;
-  transform: translateY(1px);
   min-height: 1.9rem;
   padding: 0.18rem 0.35rem;
   border: 1px solid color-mix(in srgb, var(--chapter-color-deep) 82%, #000000);
@@ -1260,6 +1259,12 @@ body.is-printing-book > .loading-msg { display: none !important; }
   padding-top: 0.15rem;
 }
 .entry-no:hover { color: #ffffff; filter: brightness(1.12); }
+
+/* 閲覧画面では番号ボックスと見出し行を同じ高さにし、双方の中心線を揃える。 */
+@media screen {
+  .entry-head,
+  .entry-no { min-height: calc(1.9rem * var(--font-scale, 1)); }
+}
 
 /* grid/flexアイテムは既定でmin-width:autoとなり、中に改行できない長い単語があると
    それに押されて.entry(ひいてはページ全体)が横スクロールしてしまう。min-width:0で
