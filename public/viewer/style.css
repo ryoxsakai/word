@@ -1420,6 +1420,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 /* Align fixed badges to the first text-line box, including wrapped meanings. */
 .sense-line > .pos-badge {
   margin-top: max(0px, calc((var(--sense-row-height) - 1.5em) / 2));
+  transform: translateY(1px);
 }
 .sense-line > .sense-pron,
 .sense-line .sense-meaning {
@@ -1450,32 +1451,25 @@ body.is-printing-book > .loading-msg { display: none !important; }
 /* 同一品詞の意味をまとめた行: 番号は版組時にも安定する実体要素で表示する。 */
 .sense-items {
   display: inline-flex;
+  min-width: 0;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 0.25rem 0.7rem;
 }
 .sense-item {
   display: inline-flex;
-  align-items: flex-start;
+  align-items: baseline;
   max-width: 100%;
   min-width: 0;
   gap: 0.3rem;
 }
-.sense-items { min-width: 0; align-items: flex-start; }
 .sense-item .sense-meaning { overflow-wrap: anywhere; }
 .sense-number {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5em;
-  height: 1.5em;
-  border-radius: 50%;
-  border: 0.5px solid currentColor;
-  font-size: 0.68em;
-  font-weight: 700;
-  line-height: 1;
-  margin-top: max(0px, calc((var(--sense-row-height) - 1.5em) / 2));
+  font-family: "M PLUS 2", system-ui, sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  line-height: var(--sense-row-height);
 }
 /* ①(見出しの意味)だけを目立たせ、同じ行内の②以降は控えめにする */
 .sense-line.sense-primary .sense-item:not(.sense-item-primary) .sense-meaning {
@@ -1556,6 +1550,14 @@ body.is-printing-book > .loading-msg { display: none !important; }
   border: 1px solid currentColor;
   text-align: justify;
   text-align-last: justify;
+}
+.notes-label-text {
+  position: relative;
+  top: -2px;
+  display: block;
+  width: 100%;
+  text-align: inherit;
+  text-align-last: inherit;
 }
 .notes-content { flex: 1; min-width: 0; overflow-wrap: break-word; }
 .notes-block.notes-derivative { color: #00695c; }
