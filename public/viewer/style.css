@@ -1448,6 +1448,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   font-size: 0.68em;
   font-weight: 700;
   line-height: 1;
+  transform: translateY(1px);
 }
 /* ①(見出しの意味)だけを目立たせ、同じ行内の②以降は控えめにする */
 .sense-line.sense-primary .sense-item:not(.sense-item-primary) .sense-meaning {
@@ -1488,7 +1489,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
    overflow-wrapで長い単語単体でも折り返せるようにする */
 .derivative-item { margin-right: 1.1em; overflow-wrap: break-word; }
 .derivative-item:last-child { margin-right: 0; }
-.pos-badge.derivative-pos { opacity: 0.6; vertical-align: middle; }
+.pos-badge.derivative-pos { opacity: 0.6; vertical-align: middle; transform: translateY(1px); }
 .derivative-word { font-weight: 600; }
 .derivative-sense { margin-left: 0.35em; }
 .derivative-sense .derivative-pos { margin-right: 0.2em; }
