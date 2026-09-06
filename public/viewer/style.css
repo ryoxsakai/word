@@ -508,18 +508,16 @@ body.is-loading .section-nav { display: none; }
   font-size: 0.82rem;
   line-height: 1.3;
 }
-/* 文字(A, Bなど)ごとに独立した段組みにする。全体を1つのcolumnsにまとめて流し込むと、
-   同じ列の中でa→bのように文字が混ざってしまい、印刷時に見出しの区切りが分かりにくくなるため */
-.index-group { break-inside: avoid-page; margin-bottom: 0.9rem; }
+/* 見出しも単語と同じ段組みに流し、頭文字の切り替わりだけを控えめな余白で示す */
 .index-letter {
   font-size: 1.05rem;
   font-weight: 700;
-  margin: 0 0 0.3rem;
-  padding-bottom: 0.15rem;
-  border-bottom: 2px solid var(--accent);
+  margin: 0.7rem 0 0.16rem;
   color: var(--text);
-  break-after: avoid-page;
+  break-after: avoid;
+  page-break-after: avoid;
 }
+.index-letter:first-child { margin-top: 0; }
 .index-columns {
   columns: 4;
   column-gap: 1.4rem;
@@ -944,6 +942,27 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   color: #fff;
 }
 
+.index-columns-row { display: flex; align-items: center; gap: 0.5rem; }
+.index-columns-label { font-size: 0.78rem; color: var(--text-muted); }
+.index-columns-steps { display: inline-flex; gap: 0.25rem; }
+.index-columns-btn {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.index-columns-btn[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
 /* ---- テーマ切り替え（ハンバーガーメニュー内） ---- */
 
 .theme-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
@@ -1013,10 +1032,10 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
   .word-list { max-width: 100%; padding: 0; }
   .index-list { max-width: 100%; padding: 0; }
   .index-columns {
-    columns: 2 !important;
+    columns: var(--index-print-columns, 2) !important;
     column-gap: 1.1rem;
   }
-  .index-group { break-inside: avoid-page; page-break-inside: avoid; }
+  .index-letter { break-after: avoid; page-break-after: avoid; }
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
