@@ -1427,6 +1427,14 @@ body.is-printing-book > .loading-msg { display: none !important; }
   min-width: 0;
   line-height: var(--sense-row-height);
 }
+/* Keep meanings and their numbers level with the optically lowered POS badge.
+   Move the whole group once so wrapped lines retain their spacing. */
+.sense-line > .sense-meaning,
+.sense-line > .sense-items,
+.sense-line > .sense-pron {
+  position: relative;
+  top: 1px;
+}
 .sense-line.sense-primary { font-weight: 700; }
 .sense-line:not(.sense-primary) { font-size: 0.85rem; }
 .sense-line:not(.sense-primary) .sense-meaning { color: var(--text-muted); font-weight: 400; }
@@ -1552,8 +1560,6 @@ body.is-printing-book > .loading-msg { display: none !important; }
   text-align-last: justify;
 }
 .notes-label-text {
-  position: relative;
-  top: -2px;
   display: block;
   width: 100%;
   text-align: inherit;
