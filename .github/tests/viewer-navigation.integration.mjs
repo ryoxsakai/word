@@ -244,6 +244,9 @@ assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.print-c
 assert.match(printStyleSource, /\.print-chapter-door:not\(:first-child\)\s*\{[\s\S]*break-before:\s*page/);
 assert.match(printStyleSource, /data-print-pagination="section"[\s\S]*\.section-group:not\(:first-of-type\)/);
 assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.entry\s*\{[\s\S]*break-inside:\s*auto/);
+assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.entry\s*\{[\s\S]*padding:\s*0\.78rem 0 0\.78rem 3\.3rem/);
+assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.entry-no\s*\{[\s\S]*width:\s*2\.75rem/);
+assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.section-entries\.has-print-entry-rail > \.print-entry-rail-line\s*\{\s*left:\s*1\.375rem/);
 assert.match(printStyleSource, /\.section-entries\.has-print-entry-rail > \.print-entry-rail-line\s*\{[\s\S]*bottom:\s*0;[\s\S]*width:\s*1px/);
 assert.match(printStyleSource, /\.print-running-header\s*\{[\s\S]*border-bottom:\s*0\.7mm solid var\(--print-header-color/);
 assert.match(appSource, /function preparePrintHierarchy\(\)[\s\S]*className = "print-heading-stack"[\s\S]*classList\.add\("print-chapter-door"\)[\s\S]*sectionGroup\.before\(chapterDivider\)/);
