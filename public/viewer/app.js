@@ -1760,12 +1760,19 @@ function registerPagedProgressHandler(sectionKeys) {
         && this.previousLastEntry.dataset.wordId === firstEntry.dataset.wordId) {
         this.previousLastEntry.classList.add("print-entry-fragment-continues");
         firstEntry.classList.add("print-entry-fragment-continuation");
+        const firstFragmentBlock = firstEntry.querySelector(
+          ".entry-card > .sense-line, .entry-card > .example-list, .entry-notes > .notes-block"
+        );
+        firstFragmentBlock?.classList.add("print-fragment-first-block");
       }
       this.previousLastEntry = lastEntry || null;
       const isChapterDoor = !!pageElement?.querySelector?.(".print-chapter-door");
       const startsWithSectionHeading = !!firstSectionNode?.querySelector?.(".section-divider");
+      const firstPageMeta = firstSectionNode
+        ? sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey))
+        : null;
       if (firstSectionNode && !isChapterDoor && !startsWithSectionHeading) {
-        const meta = sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey));
+        const meta = firstPageMeta;
         if (meta) {
           const header = document.createElement("div");
           header.className = "print-running-header";
@@ -1780,6 +1787,16 @@ function registerPagedProgressHandler(sectionKeys) {
           header.append(left, right);
           pageElement.prepend(header);
         }
+      }
+      if (!isChapterDoor && pageElement?.querySelector?.(".section-group, .entry")) {
+        const footer = document.createElement("div");
+        footer.className = "print-running-footer";
+        footer.setAttribute("aria-hidden", "true");
+        footer.style.setProperty("--print-header-color", firstPageMeta?.color || "#123b63");
+        const pageNumberSlot = document.createElement("span");
+        pageNumberSlot.className = "print-page-number-slot";
+        footer.append(pageNumberSlot);
+        pageElement.append(footer);
       }
 
       const calculatedPercent = totalSections && highestSectionIndex >= 0

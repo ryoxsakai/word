@@ -1980,7 +1980,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, .print-running-header, mark {
+  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, .print-running-header, .print-running-footer, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -2172,6 +2172,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
     display: block;
   }
   .entry-notes > * + * { margin-top: 0.55rem; }
+  /* ページ内の通常間隔は保ち、継続ページの先頭に来たブロックだけ余白を取り除く。 */
+  .entry.print-entry-fragment-continuation .print-fragment-first-block { margin-top: 0 !important; }
   .entry-head,
   .family-block,
   .sense-line,
@@ -2215,4 +2217,21 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   }
   .print-running-header-left { flex: 1 1 auto; }
   .print-running-header-right { flex: 0 1 42%; text-align: right; }
+  .print-running-footer {
+    position: absolute;
+    z-index: 20;
+    right: 12mm;
+    bottom: 3mm;
+    left: 12mm;
+    height: 7mm;
+    padding-top: 1.5mm;
+    border-top: 0.7mm solid var(--print-header-color, #123b63);
+    color: var(--print-header-color, #123b63);
+  }
+  .print-page-number-slot {
+    display: block;
+    width: 12mm;
+    height: 4mm;
+    margin: 0 auto;
+  }
 }
