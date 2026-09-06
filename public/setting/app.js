@@ -133,6 +133,10 @@ const el = {
   filterTarget1900: document.getElementById("filterTarget1900"),
   filterTarget1400: document.getElementById("filterTarget1400"),
   selectionCount: document.getElementById("selectionCount"),
+  selectionBar: document.getElementById("selectionBar"),
+  notebookOperations: document.getElementById("notebookOperations"),
+  tableDetailsBtn: document.getElementById("tableDetailsBtn"),
+  wordTablePane: document.getElementById("wordTablePane"),
   selectAllMasterBtn: document.getElementById("selectAllMasterBtn"),
   clearSelectionBtn: document.getElementById("clearSelectionBtn"),
   addToNotebookBtn: document.getElementById("addToNotebookBtn"),
@@ -432,6 +436,7 @@ function formatCautionBadgeCell(w, type) {
 function updateSelectionUi() {
   const n = state.selectedWordIds.size;
   el.selectionCount.textContent = `${n}語選択`;
+  el.selectionBar.hidden = n === 0;
   el.addToNotebookBtn.disabled = n === 0;
   el.moveToSectionBtn.disabled = n === 0;
 }
@@ -439,6 +444,7 @@ function updateSelectionUi() {
 function updateListModeUi() {
   const master = isMasterView();
   const notebook = isNotebookView();
+  el.notebookOperations.hidden = !notebook;
   el.masterToolbar.hidden = !master;
   el.addToNotebookBtn.hidden = !master;
   el.addToNotebookSettingsBtn.hidden = !master;
@@ -1093,10 +1099,10 @@ function getVisibleWordIds() {
 function renderWordTableHead() {
   if (isMasterView()) {
     el.wordTableHead.innerHTML =
-      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}</tr>`;
+      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th class="col-spelling">スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}</tr>`;
   } else {
     el.wordTableHead.innerHTML =
-      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並び替え</th></tr>`;
+      `<tr><th class="col-check"><input type="checkbox" id="checkAllWords" aria-label="表示中の単語を全選択" /></th><th class="col-no">no.</th><th class="col-spelling">スペル</th><th class="col-meaning">意味</th>${LEVEL_COLUMNS_HEAD}${PRON_COLUMNS_HEAD}<th class="col-move">並替</th></tr>`;
   }
   const checkAll = document.getElementById("checkAllWords");
   const visibleIds = getVisibleWordIds();
@@ -1860,6 +1866,13 @@ function buildWordRow(w) {
   });
   tr.addEventListener("click", (e) => {
     if (e.target.closest(".col-check")) return;
+    openWordEditor(w.id);
+  });
+  tr.tabIndex = 0;
+  tr.setAttribute("aria-label", `${w.spelling}を編集`);
+  tr.addEventListener("keydown", (e) => {
+    if (e.target !== tr || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
     openWordEditor(w.id);
   });
   return tr;
@@ -2716,6 +2729,16 @@ el.menuToggle.addEventListener("click", (e) => {
   e.stopPropagation();
   toggleTopbarMenu();
 });
+el.topbarMenu.addEventListener("click", (e) => {
+  if (e.target.closest("#listManageBtn, #newChapterBtn, #newSectionBtn, #newLabelBtn")) closeTopbarMenu();
+});
+el.tableDetailsBtn.addEventListener("click", () => {
+  const expanded = el.tableDetailsBtn.getAttribute("aria-pressed") !== "true";
+  el.wordTablePane.classList.toggle("show-table-details", expanded);
+  el.tableDetailsBtn.setAttribute("aria-pressed", String(expanded));
+  el.tableDetailsBtn.textContent = expanded ? "基本列" : "詳細列";
+  el.tableDetailsBtn.title = expanded ? "番号・スペル・意味を中心に表示" : "レベル・発音・注意項目の列を表示";
+});
 document.addEventListener("click", (e) => {
   if (!el.topbarMenu.classList.contains("is-open")) return;
   if (el.topbarMenu.contains(e.target) || el.menuToggle.contains(e.target)) return;
@@ -2895,7 +2918,7 @@ el.themeToggleBtn.addEventListener("click", () => {
 applyTheme(localStorage.getItem(THEME_KEY));
 
 // 検索窓の表示状態をlocalStorageから復元する(inputへのフォーカスは初期表示時には行わない)。
-if (localStorage.getItem(SEARCH_VISIBLE_KEY) === "1") {
+if (localStorage.getItem(SEARCH_VISIBLE_KEY) !== "0") {
   el.tableSearchRow.hidden = false;
   el.toggleSearchBtn.setAttribute("aria-expanded", "true");
   el.toggleSearchBtn.classList.add("is-active");
