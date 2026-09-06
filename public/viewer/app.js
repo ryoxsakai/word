@@ -1671,6 +1671,22 @@ function loadPagedJs() {
 function registerPagedProgressHandler(sectionKeys) {
   if (!window.Paged?.Handler || !window.Paged?.registerHandlers) return false;
   const sectionIndexByKey = new Map(sectionKeys.map((key, index) => [String(key), index]));
+  const chapterByKey = new Map(state.chapters.map((chapter) => [String(chapter.key), chapter]));
+  const groupByKey = new Map(state.groups.map((group) => [String(group.key), group]));
+  const sectionMetaByKey = new Map(state.sections.map((section) => {
+    const sectionKey = String(section.key);
+    const chapterKey = String(section.chapterKey);
+    const groupKey = section.groupId != null ? String(section.groupKey) : "none";
+    const chapter = chapterByKey.get(chapterKey);
+    const group = groupKey !== "none" ? groupByKey.get(groupKey) : null;
+    const sourceNode = document.querySelector(`.section-group[data-section-key="${CSS.escape(sectionKey)}"]`);
+    return [sectionKey, {
+      chapter: chapter?.name || "Chapter",
+      group: group?.name || "",
+      section: section.name || "Section",
+      color: getComputedStyle(sourceNode || document.documentElement).getPropertyValue("--chapter-color-deep").trim() || "#123b63",
+    }];
+  }));
   const totalSections = sectionKeys.length;
   const pageSizeLabel = PRINT_PAGE_SIZE_LABELS[normalizedPrintPageSize(el.printPageSize.value)];
   let renderedPages = 0;
@@ -1684,6 +1700,30 @@ function registerPagedProgressHandler(sectionKeys) {
       for (const sectionNode of sectionNodes) {
         const index = sectionIndexByKey.get(String(sectionNode.dataset.sectionKey));
         if (index != null) highestSectionIndex = Math.max(highestSectionIndex, index);
+      }
+
+      const firstSectionNode = sectionNodes[0];
+      for (const entries of pageElement?.querySelectorAll?.(".section-entries") || []) {
+        if (entries.querySelector(".entry")) entries.classList.add("has-print-entry-rail");
+      }
+      const isChapterDoor = !!pageElement?.querySelector?.(".print-chapter-door");
+      const startsWithSectionHeading = !!firstSectionNode?.querySelector?.(".section-divider");
+      if (firstSectionNode && !isChapterDoor && !startsWithSectionHeading) {
+        const meta = sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey));
+        if (meta) {
+          const header = document.createElement("div");
+          header.className = "print-running-header";
+          header.setAttribute("aria-hidden", "true");
+          header.style.setProperty("--print-header-color", meta.color);
+          const left = document.createElement("span");
+          left.className = "print-running-header-left";
+          left.textContent = meta.group ? `${meta.chapter} · ${meta.group}` : meta.chapter;
+          const right = document.createElement("span");
+          right.className = "print-running-header-right";
+          right.textContent = meta.section;
+          header.append(left, right);
+          pageElement.prepend(header);
+        }
       }
 
       const calculatedPercent = totalSections && highestSectionIndex >= 0
@@ -1701,6 +1741,30 @@ function registerPagedProgressHandler(sectionKeys) {
 
   window.Paged.registerHandlers(PrintProgressHandler);
   return true;
+}
+
+function preparePrintHierarchy() {
+  for (const sectionGroup of [...el.wordList.querySelectorAll(".section-group")]) {
+    const groupDivider = sectionGroup.querySelector(":scope > .group-divider");
+    const sectionDivider = sectionGroup.querySelector(":scope > .section-divider");
+    if (groupDivider && sectionDivider) {
+      const headingStack = document.createElement("div");
+      headingStack.className = "print-heading-stack";
+      groupDivider.before(headingStack);
+      headingStack.append(groupDivider, sectionDivider);
+    }
+
+    if (document.body.dataset.printPagination !== "standard") continue;
+    const chapterDivider = sectionGroup.querySelector(":scope > .chapter-divider");
+    if (!chapterDivider) continue;
+    const sectionStyle = getComputedStyle(sectionGroup);
+    chapterDivider.style.setProperty("--chapter-color-deep", sectionStyle.getPropertyValue("--chapter-color-deep"));
+    chapterDivider.style.setProperty("--chapter-color", sectionStyle.getPropertyValue("--chapter-color"));
+    chapterDivider.style.setProperty("--hierarchy-copy-column", "17mm");
+    chapterDivider.classList.add("print-chapter-door");
+    sectionGroup.before(chapterDivider);
+    sectionGroup.classList.remove("has-chapter-divider");
+  }
 }
 
 function printSectionKeys() {
@@ -1751,6 +1815,7 @@ function prepareLightweightPrintDom() {
       if (String(group.dataset.chapterKey) !== String(PRINT_CHAPTER_KEY)) group.remove();
     }
   }
+  preparePrintHierarchy();
   document.querySelectorAll("[data-haystack]").forEach((node) => node.removeAttribute("data-haystack"));
   document.querySelectorAll(".speak-btn, .copy-link-btn, .blank-toggle").forEach((node) => {
     if (node.classList.contains("blank-toggle")) node.replaceWith(document.createTextNode(node.textContent || ""));

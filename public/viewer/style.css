@@ -1949,10 +1949,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .section-group > .section-entries > .label-divider { margin-right: 0; margin-left: 0; }
   .section-group > .section-entries > .entry { margin-right: 0; margin-left: 0; }
   .section-group > .section-entries > .entry {
-    border-top: 1px dashed var(--border);
-    border-bottom: 0;
-  }
-  .section-group > .section-entries > .entry:last-child {
+    border-top: 0;
     border-bottom: 1px dashed var(--border);
   }
   .example-list {
@@ -1967,7 +1964,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, mark {
+  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, .print-running-header, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -1984,18 +1981,63 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     break-after: avoid-page;
     page-break-after: avoid;
   }
+  .print-heading-stack {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
   /* 標準はChapterを独立した扉ページにし、省スペースは連続、従来設定はSection単位で改ページする。 */
-  body[data-print-pagination="standard"] .section-group.has-chapter-divider:not(:first-of-type),
   body[data-print-pagination="section"] .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
   }
-  body[data-print-pagination="standard"] .chapter-divider {
+  body[data-print-pagination="standard"] .print-chapter-door {
     min-height: var(--chapter-door-height, 271mm);
     margin-bottom: 0;
+    color: #ffffff;
+    background-color: var(--chapter-color-deep);
+    background-image:
+      radial-gradient(circle at 88% 14%, transparent 0 25mm, rgba(255, 255, 255, 0.14) 25.2mm 25.8mm, transparent 26mm),
+      radial-gradient(circle at 9% 88%, transparent 0 18mm, rgba(255, 255, 255, 0.1) 18.2mm 18.7mm, transparent 19mm),
+      repeating-linear-gradient(135deg, transparent 0 13mm, rgba(255, 255, 255, 0.035) 13mm 13.5mm),
+      linear-gradient(145deg, var(--chapter-color-deep), var(--chapter-color));
+    border: 0;
+    box-shadow: none;
+    break-before: page;
+    page-break-before: always;
     break-after: page;
     page-break-after: always;
   }
+  body[data-print-pagination="standard"] .print-chapter-door::before,
+  body[data-print-pagination="standard"] .print-chapter-door::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    display: block;
+    border: 0.7mm solid rgba(255, 255, 255, 0.11);
+    border-radius: 50%;
+  }
+  body[data-print-pagination="standard"] .print-chapter-door::before {
+    top: 18mm;
+    right: 16mm;
+    width: 54mm;
+    height: 54mm;
+    box-shadow: 0 0 0 9mm rgba(255, 255, 255, 0.025), 0 0 0 18mm rgba(255, 255, 255, 0.018);
+  }
+  body[data-print-pagination="standard"] .print-chapter-door::after {
+    right: -14mm;
+    bottom: 20mm;
+    width: 76mm;
+    height: 76mm;
+  }
+  body[data-print-pagination="standard"] .print-chapter-door .hierarchy-icon-chapter {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.42);
+  }
+  body[data-print-pagination="standard"] .print-chapter-door .chapter-title,
+  body[data-print-pagination="standard"] .print-chapter-door .chapter-subtitle { color: #ffffff; }
   .chapter-divider {
     break-inside: avoid;
     grid-template-columns: var(--hierarchy-copy-column) minmax(0, 1fr);
@@ -2068,7 +2110,21 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     break-inside: auto;
     page-break-inside: auto;
   }
-  body:not([data-print-pagination="section"]) .entry::before { left: 1.05rem; }
+  .entry::before { display: none; }
+  .section-entries.has-print-entry-rail {
+    position: relative;
+  }
+  .section-entries.has-print-entry-rail::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    bottom: 0;
+    left: 1.32rem;
+    width: 1px;
+    background: color-mix(in srgb, var(--accent) 18%, var(--border));
+  }
+  body:not([data-print-pagination="section"]) .section-entries.has-print-entry-rail::before { left: 1.05rem; }
   body:not([data-print-pagination="section"]) .entry-no {
     position: absolute;
     top: 0.78rem;
@@ -2094,4 +2150,33 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   }
   .section-group { content-visibility: visible; contain: none; }
   .section-loading, .section-load-error { display: none !important; }
+
+  body[data-print-engine="paged"] .pagedjs_page_content { position: relative; }
+  .print-running-header {
+    position: absolute;
+    z-index: 20;
+    top: -9.5mm;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8mm;
+    height: 7mm;
+    padding: 0 0 1.5mm;
+    border-bottom: 0.7mm solid var(--print-header-color, #123b63);
+    color: var(--print-header-color, #123b63);
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .print-running-header-left,
+  .print-running-header-right {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .print-running-header-left { flex: 1 1 auto; }
+  .print-running-header-right { flex: 0 1 42%; text-align: right; }
 }
