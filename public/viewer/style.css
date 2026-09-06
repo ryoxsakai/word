@@ -1246,7 +1246,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   align-items: center;
   justify-content: center;
   align-self: start;
-  transform: translateY(-1px);
+  transform: translateY(1px);
   min-height: 1.9rem;
   padding: 0.18rem 0.35rem;
   border: 1px solid color-mix(in srgb, var(--chapter-color-deep) 82%, #000000);
