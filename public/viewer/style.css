@@ -1825,22 +1825,28 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 }
 
 body.is-printing-book[data-print-page-size="a4"],
-body.is-printing-book[data-print-page-size="a4"] > .view-panel { page: print-a4; }
+body.is-printing-book[data-print-page-size="a4"] > .view-panel,
+body.is-printing-book[data-print-page-size="a4"] .print-chapter-door { page: print-a4; }
 body.is-printing-book[data-print-page-size="b5"],
-body.is-printing-book[data-print-page-size="b5"] > .view-panel { page: print-b5; }
+body.is-printing-book[data-print-page-size="b5"] > .view-panel,
+body.is-printing-book[data-print-page-size="b5"] .print-chapter-door { page: print-b5; }
 body.is-printing-book[data-print-page-size="a5"],
-body.is-printing-book[data-print-page-size="a5"] > .view-panel { page: print-a5; }
+body.is-printing-book[data-print-page-size="a5"] > .view-panel,
+body.is-printing-book[data-print-page-size="a5"] .print-chapter-door { page: print-a5; }
 
 body[data-print-page-size="a4"] { --chapter-door-height: 271mm; }
 body[data-print-page-size="b5"] { --chapter-door-height: 231mm; }
 body[data-print-page-size="a5"] { --chapter-door-height: 184mm; }
 
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"],
-body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"] > .view-panel { page: print-a4-numbered; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"] > .view-panel,
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a4"] .print-chapter-door { page: print-a4-numbered; }
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"],
-body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"] > .view-panel { page: print-b5-numbered; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"] > .view-panel,
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="b5"] .print-chapter-door { page: print-b5-numbered; }
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"],
-body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > .view-panel { page: print-a5-numbered; }
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > .view-panel,
+body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .print-chapter-door { page: print-a5-numbered; }
 
 @media print {
   html { font-size: var(--print-font-size, 10pt); }
@@ -1960,6 +1966,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     border-top: 0;
     border-bottom: 1px dashed var(--border);
   }
+  /* Section帯が次の区切りになるため、直前の点線は重ねない。 */
+  .section-group > .section-entries > .entry:last-child { border-bottom: 0; }
   .example-list {
     grid-template-columns: repeat(var(--print-example-columns, 2), minmax(0, 1fr));
   }
@@ -2151,8 +2159,19 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   body:not([data-print-pagination="section"]) .entry-card { display: block; }
   body:not([data-print-pagination="section"]) .entry-body > * + * { margin-top: 0.28rem; }
   body:not([data-print-pagination="section"]) .entry-card > * + * { margin-top: 0.38rem; }
-  /* 補足欄を画像の下まで強制的に送らず、画像横の空きを本文として利用する。 */
-  .entry-notes { clear: none; }
+  /* 補足欄を画像の下まで強制的に送らず、ページ末尾の残りも本文として利用する。
+     flexの縦コンテナは版組時に一塊になりやすいため、印刷時だけ通常フローへ戻す。 */
+  .entry-content,
+  .entry-card,
+  .entry-notes {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .entry-notes {
+    clear: none;
+    display: block;
+  }
+  .entry-notes > * + * { margin-top: 0.55rem; }
   .entry-head,
   .family-block,
   .sense-line,
