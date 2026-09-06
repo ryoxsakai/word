@@ -1,6 +1,6 @@
 const TOKEN_AUDIENCE = "vocab-mcp";
 const AUTH_CODE_TTL_SECONDS = 5 * 60;
-const ACCESS_TOKEN_TTL_SECONDS = 60 * 60;
+const ACCESS_TOKEN_TTL_SECONDS = 12 * 60 * 60;
 
 export const MCP_READ_SCOPE = "vocab:read";
 export const MCP_WRITE_SCOPE = "vocab:write";
@@ -202,8 +202,8 @@ function authorizationForm(authorization, error = "") {
       : "単語帳の閲覧を許可します。";
   const errorMessage = error ? `<p class="error" role="alert">${escapeHtml(error)}</p>` : "";
   const note = isEditorLogin
-    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は有効期間1時間のトークンが使用されます。"
-    : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間1時間のトークンが使用されます。";
+    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は有効期間12時間のトークンが使用されます。"
+    : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間12時間のトークンが使用されます。";
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title>
