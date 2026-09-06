@@ -1988,7 +1988,6 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     page-break-after: avoid;
   }
   /* 標準はChapterを独立した扉ページにし、省スペースは連続、従来設定はSection単位で改ページする。 */
-  body[data-print-pagination="standard"] .section-group.has-chapter-divider:not(:first-of-type),
   body[data-print-pagination="section"] .section-group:not(:first-of-type) {
     break-before: page;
     page-break-before: always;
@@ -2011,10 +2010,6 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     page-break-after: always;
   }
   body[data-print-pagination="standard"] .print-chapter-door:not(:first-child) {
-    break-before: page;
-    page-break-before: always;
-  }
-  body[data-print-pagination="standard"] .print-chapter-door + .print-heading-stack {
     break-before: page;
     page-break-before: always;
   }
