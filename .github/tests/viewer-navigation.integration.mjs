@@ -240,7 +240,8 @@ assert.match(printStyleSource, /\.print-progress-overlay\s*\{\s*display:\s*none 
 assert.match(printStyleSource, /data-print-part="all-paged"[\s\S]*\.word-list[\s\S]*break-before:\s*page/);
 assert.match(printStyleSource, /\.section-group > \.section-entries > \.entry\s*\{[\s\S]*border-top:\s*0;[\s\S]*border-bottom:\s*1px dashed/);
 assert.match(printStyleSource, /\.section-divider\s*\{[\s\S]*break-after:\s*avoid-page/);
-assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.print-chapter-door\s*\{[\s\S]*break-before:\s*page;[\s\S]*break-after:\s*page/);
+assert.match(printStyleSource, /data-print-pagination="standard"[\s\S]*\.print-chapter-door\s*\{[\s\S]*break-after:\s*page/);
+assert.match(printStyleSource, /\.print-chapter-door:not\(:first-child\)\s*\{[\s\S]*break-before:\s*page/);
 assert.match(printStyleSource, /data-print-pagination="section"[\s\S]*\.section-group:not\(:first-of-type\)/);
 assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.entry\s*\{[\s\S]*break-inside:\s*auto/);
 assert.match(printStyleSource, /\.section-entries\.has-print-entry-rail::before\s*\{[\s\S]*bottom:\s*0;[\s\S]*width:\s*1px/);
@@ -248,6 +249,7 @@ assert.match(printStyleSource, /\.print-running-header\s*\{[\s\S]*border-bottom:
 assert.match(appSource, /function preparePrintHierarchy\(\)[\s\S]*className = "print-heading-stack"[\s\S]*classList\.add\("print-chapter-door"\)[\s\S]*sectionGroup\.before\(chapterDivider\)/);
 assert.match(appSource, /className = "print-running-header"[\s\S]*meta\.chapter[\s\S]*meta\.section/);
 assert.match(appSource, /entries\.classList\.add\("has-print-entry-rail"\)/);
+assert.match(appSource, /previousLastEntry\.dataset\.wordId === firstEntry\.dataset\.wordId[\s\S]*print-entry-fragment-continues/);
 assert.match(printStyleSource, /\.entry-head,[\s\S]*\.notes-block\s*\{[\s\S]*break-inside:\s*avoid/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
