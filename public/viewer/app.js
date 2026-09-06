@@ -1778,8 +1778,6 @@ function preparePrintHierarchy() {
     chapterDivider.style.setProperty("--chapter-color", sectionStyle.getPropertyValue("--chapter-color"));
     chapterDivider.style.setProperty("--hierarchy-copy-column", "17mm");
     chapterDivider.classList.add("print-chapter-door");
-    sectionGroup.before(chapterDivider);
-    sectionGroup.classList.remove("has-chapter-divider");
   }
 }
 
