@@ -2121,7 +2121,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
   /* 標準・省スペースでは、見出し語と各情報行を保ったまま安全な行間だけで分割する。 */
   body:not([data-print-pagination="section"]) .entry {
     display: block;
-    padding: 0.78rem 0 0.78rem 2.65rem;
+    padding: 0.78rem 0 0.78rem 3.3rem;
     break-inside: auto;
     page-break-inside: auto;
   }
@@ -2138,13 +2138,13 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > 
     width: 1px;
     background: color-mix(in srgb, var(--accent) 18%, var(--border));
   }
-  body:not([data-print-pagination="section"]) .section-entries.has-print-entry-rail > .print-entry-rail-line { left: 1.05rem; }
+  body:not([data-print-pagination="section"]) .section-entries.has-print-entry-rail > .print-entry-rail-line { left: 1.375rem; }
   .section-group > .section-entries > .entry.print-entry-fragment-continues { border-bottom: 0; }
   body:not([data-print-pagination="section"]) .entry-no {
     position: absolute;
     top: 0.78rem;
     left: 0;
-    width: 2.1rem;
+    width: 2.75rem;
     min-height: 1.65rem;
   }
   body:not([data-print-pagination="section"]) .entry-body,
