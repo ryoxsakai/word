@@ -40,6 +40,17 @@
       <input id="jumpInput" type="text" inputmode="numeric" placeholder="42" />
       <button type="submit">ジャンプ</button>
     </form>
+    <div class="eiken-row">
+      <label for="eikenFilter">英検</label>
+      <select id="eikenFilter">
+        <option value="all">すべて表示</option>
+        <option value="A1">3級まで（A1）</option>
+        <option value="A2">準2級・準2級プラスまで（A2）</option>
+        <option value="B1">2級まで（B1）</option>
+        <option value="B2">準1級まで（B2）</option>
+        <option value="C1">1級まで（C1）</option>
+      </select>
+    </div>
     <div class="fontsize-row">
       <span class="fontsize-label">文字サイズ</span>
       <div class="fontsize-steps" id="fontSizeSteps" role="group" aria-label="文字サイズ（5段階）">

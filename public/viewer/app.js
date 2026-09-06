@@ -9,6 +9,7 @@ const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
+const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
 
@@ -18,6 +19,7 @@ const state = {
   words: [],
   wordIndex: new Map(), // spelling(lower) -> {id, no}
   search: "",
+  eikenLevel: "all",
   activeView: "list", // "list" | "index"
 };
 
@@ -30,6 +32,7 @@ const el = {
   contentsMenu: document.getElementById("contentsMenu"),
   contentsNav: document.getElementById("contentsNav"),
   searchInput: document.getElementById("searchInput"),
+  eikenFilter: document.getElementById("eikenFilter"),
   sectionNav: document.getElementById("sectionNav"),
   jumpForm: document.getElementById("jumpForm"),
   jumpInput: document.getElementById("jumpInput"),
@@ -273,6 +276,14 @@ function wordHaystack(w) {
   return parts.filter(Boolean).join(" ").toLowerCase();
 }
 
+function matchesEikenLevel(w) {
+  if (state.eikenLevel === "all") return true;
+  const wordLevel = String(w.oxfordLevel || "").toUpperCase();
+  const wordIndex = CEFR_ORDER.indexOf(wordLevel);
+  const selectedIndex = CEFR_ORDER.indexOf(state.eikenLevel);
+  return wordIndex >= 0 && selectedIndex >= 0 && wordIndex <= selectedIndex;
+}
+
 function renderEntry(w) {
   const isBranch = w.branch > 0;
   const haystack = wordHaystack(w);
@@ -385,7 +396,7 @@ function renderEntry(w) {
   ].join("");
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}" data-cefr="${escapeHtml(String(w.oxfordLevel || "").toUpperCase())}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
@@ -467,10 +478,12 @@ function renderWords() {
 function buildAlphabeticalIndex() {
   const entries = [];
   for (const w of state.words) {
+    if (!matchesEikenLevel(w)) continue;
     entries.push({ spelling: w.spelling, loc: w.seqNo, targetId: w.id, isRef: false });
   }
   const derivSeen = new Set();
   for (const w of state.words) {
+    if (!matchesEikenLevel(w)) continue;
     for (const d of w.derivatives || []) {
       const plain = stripMarkup(d.word || "");
       if (!plain) continue;
@@ -666,24 +679,46 @@ el.sectionNav.addEventListener("click", (e) => {
 
 function applyFilters() {
   const q = state.search.trim().toLowerCase();
+  const selectedIndex = CEFR_ORDER.indexOf(state.eikenLevel);
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
     const haystack = entry.dataset.haystack || "";
-    entry.hidden = !(!q || haystack.includes(q));
+    const wordLevelIndex = CEFR_ORDER.indexOf(entry.dataset.cefr || "");
+    const matchesSearch = !q || haystack.includes(q);
+    const matchesEiken = state.eikenLevel === "all" || (wordLevelIndex >= 0 && wordLevelIndex <= selectedIndex);
+    entry.hidden = !(matchesSearch && matchesEiken);
   });
 
-  let currentDivider = null;
-  let dividerHasVisible = false;
-  for (const child of el.wordList.children) {
-    if (child.classList.contains("section-divider")) {
-      if (currentDivider) currentDivider.hidden = !dividerHasVisible;
-      currentDivider = child;
-      dividerHasVisible = false;
-    } else if (child.classList.contains("entry") && !child.hidden) {
-      dividerHasVisible = true;
+  // 絞り込み後に空になったセクションとチャプターの見出しも隠す。
+  const children = [...el.wordList.children];
+  children.forEach((child, index) => {
+    if (!child.classList.contains("section-divider")) return;
+    let hasVisible = false;
+    for (let i = index + 1; i < children.length; i += 1) {
+      if (children[i].classList.contains("section-divider") || children[i].classList.contains("chapter-divider")) break;
+      if (children[i].classList.contains("entry") && !children[i].hidden) hasVisible = true;
     }
-  }
-  if (currentDivider) currentDivider.hidden = !dividerHasVisible;
+    child.hidden = !hasVisible;
+  });
+  children.forEach((child, index) => {
+    if (!child.classList.contains("chapter-divider")) return;
+    let hasVisible = false;
+    for (let i = index + 1; i < children.length; i += 1) {
+      if (children[i].classList.contains("chapter-divider")) break;
+      if (children[i].classList.contains("entry") && !children[i].hidden) hasVisible = true;
+    }
+    child.hidden = !hasVisible;
+  });
+
+  // 空になったセクション／チャプターへのナビゲーションも表示しない。
+  el.sectionNav.querySelectorAll("button[data-section-key]").forEach((button) => {
+    const divider = document.getElementById(`section-${button.dataset.sectionKey}`);
+    button.hidden = !divider || divider.hidden;
+  });
+  el.contentsNav.querySelectorAll("button[data-nav-target]").forEach((button) => {
+    const target = document.getElementById(button.dataset.navTarget);
+    button.hidden = !target || target.hidden;
+  });
 }
 
 // ---- 発音 / リンクコピー / 空所トグル ----
@@ -769,6 +804,9 @@ function revealAndScroll(target) {
   if (target.hidden) {
     state.search = "";
     el.searchInput.value = "";
+    state.eikenLevel = "all";
+    el.eikenFilter.value = "all";
+    renderAlphabeticalIndex();
     applyFilters();
   }
   scrollToTarget(target, "center");
@@ -850,6 +888,12 @@ el.searchInput.addEventListener("input", () => {
 });
 
 el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
+
+el.eikenFilter.addEventListener("change", () => {
+  state.eikenLevel = el.eikenFilter.value;
+  applyFilters();
+  renderAlphabeticalIndex();
+});
 
 el.jumpForm.addEventListener("submit", (e) => {
   e.preventDefault();
