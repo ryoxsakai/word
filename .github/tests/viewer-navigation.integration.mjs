@@ -193,6 +193,9 @@ assert.match(contentsNavSource, /bookTocNav\.innerHTML = renderItems\(true\)/);
 assert.match(contentsNavSource, /class="contents-chapter book-toc-link" href="#/);
 assert.match(contentsNavSource, /class="contents-subgroup book-toc-link" href="#group-/);
 assert.match(contentsNavSource, /class="contents-section book-toc-link/);
+assert.match(contentsNavSource, /contents-chapter book-toc-link[\s\S]*hierarchyIcon\("chapter"\)/);
+assert.match(contentsNavSource, /contents-subgroup book-toc-link[\s\S]*hierarchyIcon\("group"\)/);
+assert.match(contentsNavSource, /book-toc-chapter chapter-tone-/);
 assert.match(styleSource, /@page\s*\{[\s\S]*@bottom-center\s*\{\s*content:\s*none/);
 assert.doesNotMatch(styleSource, /counter\(pages\)/);
 assert.match(
@@ -250,6 +253,8 @@ assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) 
 assert.match(printStyleSource, /body:not\(\[data-print-pagination="section"\]\) \.section-entries\.has-print-entry-rail > \.print-entry-rail-line\s*\{\s*left:\s*1\.375rem/);
 assert.match(printStyleSource, /\.section-entries\.has-print-entry-rail > \.print-entry-rail-line\s*\{[\s\S]*bottom:\s*0;[\s\S]*width:\s*1px/);
 assert.match(printStyleSource, /\.print-running-header\s*\{[\s\S]*border-bottom:\s*0\.7mm solid var\(--print-header-color/);
+assert.match(printStyleSource, /\.print-running-footer\s*\{[\s\S]*bottom:\s*3mm;[\s\S]*border-top:\s*0\.7mm solid var\(--print-header-color/);
+assert.match(printStyleSource, /\.print-page-number-slot\s*\{[\s\S]*height:\s*4mm;[\s\S]*margin:\s*0 auto/);
 assert.match(appSource, /function preparePrintHierarchy\(\)[\s\S]*className = "print-heading-stack"[\s\S]*classList\.add\("print-chapter-door"\)[\s\S]*sectionGroup\.before\(chapterDivider\)/);
 assert.match(appSource, /const firstChapterDoor = el\.wordList\.querySelector[\s\S]*el\.wordList\.before\(firstChapterDoor\)/);
 assert.match(appSource, /className = "print-running-header"[\s\S]*meta\.chapter[\s\S]*meta\.section/);
@@ -260,13 +265,18 @@ assert.match(appSource, /`\$\{meta\.chapter\} \/ \$\{meta\.group\}`/);
 assert.match(appSource, /entries\.classList\.add\("has-print-entry-rail"\)/);
 assert.match(appSource, /className = "print-entry-rail-line"[\s\S]*entries\.prepend\(rail\)/);
 assert.match(appSource, /previousLastEntry\.dataset\.wordId === firstEntry\.dataset\.wordId[\s\S]*print-entry-fragment-continues/);
+assert.match(appSource, /firstFragmentBlock[\s\S]*\.entry-card > \.example-list[\s\S]*print-fragment-first-block/);
+assert.match(appSource, /className = "print-running-footer"[\s\S]*className = "print-page-number-slot"[\s\S]*pageElement\.append\(footer\)/);
 assert.match(appSource, /function removeLeadingEmptyChapterPrintPages\(\)[\s\S]*PRINT_PART !== "chapter"[\s\S]*\.pagedjs_page_content[\s\S]*firstPage\.remove\(\)/);
 assert.match(appSource, /afterRendered\(flow\)[\s\S]*removeLeadingEmptyChapterPrintPages\(\)/);
 assert.match(printStyleSource, /\.entry-head,[\s\S]*\.notes-block\s*\{[\s\S]*break-inside:\s*avoid/);
 assert.match(printStyleSource, /\.entry-content,[\s\S]*\.entry-notes\s*\{[\s\S]*break-inside:\s*auto/);
 assert.match(printStyleSource, /\.entry-notes\s*\{[\s\S]*clear:\s*none;[\s\S]*display:\s*block/);
+assert.match(printStyleSource, /\.entry\.print-entry-fragment-continuation \.print-fragment-first-block\s*\{\s*margin-top:\s*0 !important/);
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
+assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*column-fill:\s*balance;[\s\S]*column-rule:\s*0\.35mm solid/);
+assert.match(printStyleSource, /\.book-toc-nav \.contents-chapter\s*\{[\s\S]*background:\s*linear-gradient\(115deg, var\(--chapter-color-deep\), var\(--chapter-color\)\) !important/);
 assert.match(
   printStyleSource,
   /\.book-toc-heading\s*\{[\s\S]*break-after:\s*avoid-page;[\s\S]*page-break-after:\s*avoid/

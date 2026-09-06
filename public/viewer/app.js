@@ -1069,7 +1069,7 @@ function renderContentsNav() {
 
   const numberRanges = sectionNumberRanges(state.indexWords);
   const renderItems = (forPrintToc = false) => state.chapters
-    .map((chapter) => {
+    .map((chapter, chapterIndex) => {
       const chapterTarget = withSections ? `chapter-frame-${chapter.key}` : `chapter-${chapter.key}`;
       const chapterSections = state.sections.filter(
         (section) => withSections && String(section.chapterKey) === String(chapter.key)
@@ -1079,7 +1079,7 @@ function renderContentsNav() {
         firstSectionKey != null ? ` data-nav-section-key="${escapeHtml(String(firstSectionKey))}"` : "";
       const chapterButton = withChapters
         ? forPrintToc
-          ? `<a class="contents-chapter book-toc-link" href="#${escapeHtml(chapterTarget)}">
+          ? `<a class="contents-chapter book-toc-link" href="#${escapeHtml(chapterTarget)}">${hierarchyIcon("chapter")}
             <span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span>${
               chapter.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span>` : ""
             }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
@@ -1105,7 +1105,7 @@ function renderContentsNav() {
         if (group && groupKey !== previousGroupKey) {
           sectionParts.push(
             forPrintToc
-              ? `<a class="contents-subgroup book-toc-link" href="#group-${escapeHtml(group.key)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
+              ? `<a class="contents-subgroup book-toc-link" href="#group-${escapeHtml(group.key)}">${hierarchyIcon("group")}<span class="contents-item-text"><span class="contents-item-name">${escapeHtml(group.name)}</span>${
                   group.subtitle ? `<span class="contents-item-subtitle">${escapeHtml(group.subtitle)}</span>` : ""
                 }</span><span class="book-toc-page-no" aria-label="掲載ページ"></span></a>`
               : `<button type="button" class="contents-subgroup" data-nav-target="group-${escapeHtml(group.key)}" data-nav-section-key="${escapeHtml(String(section.key))}">
@@ -1131,7 +1131,8 @@ function renderContentsNav() {
         );
       }
       const sections = sectionParts.join("");
-      return `<div class="contents-group">${chapterButton}${sections}</div>`;
+      const printTocClass = forPrintToc ? ` book-toc-chapter chapter-tone-${(chapterIndex % 6) + 1}` : "";
+      return `<div class="contents-group${printTocClass}">${chapterButton}${sections}</div>`;
     })
     .join("");
   el.contentsNav.innerHTML = renderItems(false);
@@ -1760,12 +1761,19 @@ function registerPagedProgressHandler(sectionKeys) {
         && this.previousLastEntry.dataset.wordId === firstEntry.dataset.wordId) {
         this.previousLastEntry.classList.add("print-entry-fragment-continues");
         firstEntry.classList.add("print-entry-fragment-continuation");
+        const firstFragmentBlock = firstEntry.querySelector(
+          ".entry-card > .sense-line, .entry-card > .example-list, .entry-notes > .notes-block"
+        );
+        firstFragmentBlock?.classList.add("print-fragment-first-block");
       }
       this.previousLastEntry = lastEntry || null;
       const isChapterDoor = !!pageElement?.querySelector?.(".print-chapter-door");
       const startsWithSectionHeading = !!firstSectionNode?.querySelector?.(".section-divider");
+      const firstPageMeta = firstSectionNode
+        ? sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey))
+        : null;
       if (firstSectionNode && !isChapterDoor && !startsWithSectionHeading) {
-        const meta = sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey));
+        const meta = firstPageMeta;
         if (meta) {
           const header = document.createElement("div");
           header.className = "print-running-header";
@@ -1780,6 +1788,16 @@ function registerPagedProgressHandler(sectionKeys) {
           header.append(left, right);
           pageElement.prepend(header);
         }
+      }
+      if (!isChapterDoor && pageElement?.querySelector?.(".section-group, .entry")) {
+        const footer = document.createElement("div");
+        footer.className = "print-running-footer";
+        footer.setAttribute("aria-hidden", "true");
+        footer.style.setProperty("--print-header-color", firstPageMeta?.color || "#123b63");
+        const pageNumberSlot = document.createElement("span");
+        pageNumberSlot.className = "print-page-number-slot";
+        footer.append(pageNumberSlot);
+        pageElement.append(footer);
       }
 
       const calculatedPercent = totalSections && highestSectionIndex >= 0
