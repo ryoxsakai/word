@@ -38,6 +38,7 @@ const PAGED_JS_URL = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.poly
 const PRINT_PAGE_SIZES = new Set(["a4", "b5", "a5"]);
 const PRINT_PAGINATION_MODES = new Set(["standard", "compact", "section"]);
 const PRINT_PAGE_SIZE_LABELS = { a4: "A4", b5: "B5", a5: "A5" };
+const CIRCLED_SENSE_NUMBERS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫", "⑬", "⑭", "⑮", "⑯", "⑰", "⑱", "⑲", "⑳"];
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
@@ -51,6 +52,10 @@ const HIERARCHY_ICONS = {
 
 function hierarchyIcon(kind) {
   return HIERARCHY_ICONS[kind] || "";
+}
+
+function formatSenseNumber(number) {
+  return CIRCLED_SENSE_NUMBERS[number - 1] || `(${number})`;
 }
 
 const BLANK_RE = /(＿{2,}|_{3,})/;
@@ -535,7 +540,7 @@ function renderEntry(w) {
           ? `<span class="sense-items">${items
               .map(
                 (s, index) =>
-                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-number">${index + 1}</span><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
+                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-number">${formatSenseNumber(index + 1)}</span><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
               )
               .join("")}</span>`
           : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;
@@ -563,7 +568,7 @@ function renderEntry(w) {
 
   const derivativeGroups = groupDerivativeSenses(w.derivatives || []);
   const derivativesHtml = derivativeGroups.length
-    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge">派生語</span><span class="notes-content derivative-items">${derivativeGroups
+    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge"><span class="notes-label-text">派生語</span></span><span class="notes-content derivative-items">${derivativeGroups
         .map((group) => {
           const senses = group.senses
             .map(
@@ -576,22 +581,22 @@ function renderEntry(w) {
     : "";
 
   const irregularFormsHtml = w.irregularForms
-    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge">不規則</span><span class="notes-content">${renderMarkup(w.irregularForms, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge"><span class="notes-label-text">不規則</span></span><span class="notes-content">${renderMarkup(w.irregularForms, { resolve: resolveRef })}</span></div>`
     : "";
   const etymologyHtml = w.etymology
-    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge">語源</span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge"><span class="notes-label-text">語源</span></span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
     : "";
   const synonymsHtml = w.synonyms
-    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge">類義語</span><span class="notes-content">${renderWordListMarkup(w.synonyms, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge"><span class="notes-label-text">類義語</span></span><span class="notes-content">${renderWordListMarkup(w.synonyms, { resolve: resolveRef })}</span></div>`
     : "";
   const antonymsHtml = w.antonyms
-    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge">対義語</span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge"><span class="notes-label-text">対義語</span></span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
     : "";
   const relatedWordsHtml = w.relatedWords
-    ? `<div class="notes-block notes-related"><span class="notes-label related-badge">関連語</span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
+    ? `<div class="notes-block notes-related"><span class="notes-label related-badge"><span class="notes-label-text">関連語</span></span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge">メモ</span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling })}</span></div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge"><span class="notes-label-text">メモ</span></span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling })}</span></div>`
     : "";
 
   const cautionHtml = [
