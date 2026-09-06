@@ -821,11 +821,50 @@ body.is-loading .section-nav { display: none; }
 .app-guide-list span { display: block; }
 .app-guide-list span { color: var(--text-muted); font-size: 0.88rem; }
 .book-toc-nav { gap: 0.6rem; }
+.book-toc-chapter {
+  --chapter-color-deep: #123b63;
+  --chapter-color: #1f6f9f;
+}
+.book-toc-chapter.chapter-tone-2 { --chapter-color-deep: #14565c; --chapter-color: #23827e; }
+.book-toc-chapter.chapter-tone-3 { --chapter-color-deep: #353e76; --chapter-color: #5c67a5; }
+.book-toc-chapter.chapter-tone-4 { --chapter-color-deep: #5d365f; --chapter-color: #875987; }
+.book-toc-chapter.chapter-tone-5 { --chapter-color-deep: #713e30; --chapter-color: #a85c43; }
+.book-toc-chapter.chapter-tone-6 { --chapter-color-deep: #31563f; --chapter-color: #5c8265; }
 .book-toc-nav .contents-chapter,
 .book-toc-nav .contents-subgroup,
 .book-toc-nav .contents-section {
   color: var(--text);
   text-decoration: none;
+}
+.book-toc-nav .contents-chapter {
+  color: #ffffff;
+  background: linear-gradient(115deg, var(--chapter-color-deep), var(--chapter-color));
+  border-color: var(--chapter-color-deep);
+}
+.book-toc-nav .contents-chapter .contents-item-subtitle { color: rgba(255, 255, 255, 0.82); }
+.book-toc-nav .contents-subgroup {
+  color: color-mix(in srgb, var(--chapter-color-deep) 88%, var(--text));
+  background: color-mix(in srgb, var(--chapter-color) 11%, var(--surface));
+  border-left-color: var(--chapter-color);
+}
+.book-toc-nav .contents-section {
+  border-bottom: 1px solid color-mix(in srgb, var(--chapter-color) 20%, var(--border));
+}
+.book-toc-nav .hierarchy-icon { flex: none; }
+.book-toc-nav .hierarchy-icon-chapter {
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0.3rem;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.book-toc-nav .hierarchy-icon-group {
+  width: 1.2rem;
+  height: 1.2rem;
+  padding: 0.16rem;
+  color: var(--chapter-color-deep);
+  background: color-mix(in srgb, var(--chapter-color) 14%, var(--surface));
 }
 .book-toc-link { display: flex; align-items: center; gap: 0.6rem; }
 .book-toc-page-no { display: none; }
@@ -1922,14 +1961,13 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .book-toc-nav .book-toc-link {
     break-inside: avoid;
     page-break-inside: avoid;
-    border-color: #aaa !important;
-    background: #fff !important;
-    color: #111 !important;
   }
   .book-toc-nav {
     display: block;
     columns: var(--print-toc-columns, 1);
-    column-gap: 8mm;
+    column-fill: balance;
+    column-gap: 10mm;
+    column-rule: 0.35mm solid #9aa2a6;
     break-before: avoid-page;
     page-break-before: avoid;
   }
@@ -1941,11 +1979,31 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .book-toc-nav .book-toc-link { margin-bottom: 0.35rem; }
   .book-toc-nav .contents-item-subtitle,
   .book-toc-nav .contents-item-count { color: #444 !important; }
-  .book-toc-nav .contents-chapter { border-width: 0 0 1px; border-radius: 0; }
+  .book-toc-nav .contents-chapter {
+    border: 0;
+    border-radius: 1.8mm;
+    background: linear-gradient(115deg, var(--chapter-color-deep), var(--chapter-color)) !important;
+    color: #ffffff !important;
+  }
+  .book-toc-nav .contents-chapter .contents-item-subtitle { color: rgba(255, 255, 255, 0.82) !important; }
   .book-toc-nav .contents-subgroup {
-    border-width: 0 0 0 3px;
-    border-radius: 0;
+    border-width: 0 0 0 1mm;
+    border-left-color: var(--chapter-color) !important;
+    border-radius: 0 1.2mm 1.2mm 0;
+    background: color-mix(in srgb, var(--chapter-color) 11%, #ffffff) !important;
+    color: var(--chapter-color-deep) !important;
     margin-top: 0.18rem;
+  }
+  .book-toc-nav .contents-section {
+    border-color: color-mix(in srgb, var(--chapter-color) 24%, #b8bec3) !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  .book-toc-nav,
+  .book-toc-nav .book-toc-link,
+  .book-toc-nav .hierarchy-icon {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .print-part-title {
     display: block;
@@ -1980,7 +2038,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .index-entry { break-inside: avoid; page-break-inside: avoid; }
 
   /* 背景色・枠線を印刷でも維持する（ブラウザ既定では背景が省かれるため明示） */
-  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, .print-running-header, mark {
+  body, .section-group, .section-divider, .group-divider, .chapter-divider, .label-divider, .hierarchy-icon, .entry, .entry-card, .pos-badge, .caution-badge, .notes-label, .print-running-header, .print-running-footer, mark {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -2172,6 +2230,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
     display: block;
   }
   .entry-notes > * + * { margin-top: 0.55rem; }
+  /* ページ内の通常間隔は保ち、継続ページの先頭に来たブロックだけ余白を取り除く。 */
+  .entry.print-entry-fragment-continuation .print-fragment-first-block { margin-top: 0 !important; }
   .entry-head,
   .family-block,
   .sense-line,
@@ -2215,4 +2275,21 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   }
   .print-running-header-left { flex: 1 1 auto; }
   .print-running-header-right { flex: 0 1 42%; text-align: right; }
+  .print-running-footer {
+    position: absolute;
+    z-index: 20;
+    right: 12mm;
+    bottom: 3mm;
+    left: 12mm;
+    height: 7mm;
+    padding-top: 1.5mm;
+    border-top: 0.7mm solid var(--print-header-color, #123b63);
+    color: var(--print-header-color, #123b63);
+  }
+  .print-page-number-slot {
+    display: block;
+    width: 12mm;
+    height: 4mm;
+    margin: 0 auto;
+  }
 }
