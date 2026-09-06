@@ -1039,15 +1039,23 @@ body.is-printing-book > .loading-msg { display: none !important; }
   margin: 0 0 1rem;
   padding: 1.15rem 1.35rem 1.15rem 0;
   overflow: hidden;
-  color: var(--chapter-color-deep);
-  background: #ffffff;
-  border: 1px solid color-mix(in srgb, var(--chapter-color) 48%, var(--border));
+  color: #ffffff;
+  background-color: var(--chapter-color-deep);
+  background-image: linear-gradient(122deg, var(--chapter-color-deep), var(--chapter-color));
+  border: 1px solid color-mix(in srgb, var(--chapter-color-deep) 74%, #000000);
   border-radius: 16px;
-  box-shadow: 0 10px 28px color-mix(in srgb, var(--chapter-color-deep) 18%, transparent);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--chapter-color-deep) 8%, transparent);
   scroll-margin-top: 6.2rem;
 }
 .chapter-divider::before,
-.chapter-divider::after { display: none; }
+.chapter-divider::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.19);
+  border-radius: 50%;
+}
 .chapter-divider::before {
   width: 15rem;
   height: 9rem;
@@ -1068,9 +1076,9 @@ body.is-printing-book > .loading-msg { display: none !important; }
   width: 3.2rem;
   height: 3.2rem;
   padding: 0.55rem;
-  color: var(--chapter-color-deep);
-  background: color-mix(in srgb, var(--chapter-color) 10%, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--chapter-color) 30%, var(--border));
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
   stroke-width: 1.55;
 }
@@ -1084,14 +1092,14 @@ body.is-printing-book > .loading-msg { display: none !important; }
   gap: 0.12rem;
 }
 .chapter-title {
-  color: var(--chapter-color-deep);
+  color: #ffffff;
   font-size: 1.58rem;
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.015em;
 }
 .chapter-subtitle {
-  color: var(--chapter-color);
+  color: rgba(255, 255, 255, 0.84);
   font-size: 0.94rem;
   font-weight: 500;
   line-height: 1.35;
@@ -1107,11 +1115,11 @@ body.is-printing-book > .loading-msg { display: none !important; }
   margin: 0 0 0.8rem;
   padding: 0.85rem 1rem 0.85rem 0;
   color: var(--text);
-  background: #ffffff;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--chapter-color) 10%, var(--surface)), var(--surface) 72%);
   border: 1px solid color-mix(in srgb, var(--chapter-color) 36%, var(--border));
   border-left: 1px solid color-mix(in srgb, var(--chapter-color) 36%, var(--border));
   border-radius: 11px;
-  box-shadow: 0 5px 16px color-mix(in srgb, var(--chapter-color-deep) 8%, transparent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--chapter-color-deep) 5%, transparent);
   scroll-margin-top: 6.2rem;
 }
 .hierarchy-icon-group {
@@ -1144,7 +1152,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   min-height: 2.75rem;
   margin: 0 0 0.45rem;
   padding: 0.34rem 0.9rem 0.34rem 0;
-  background: #ffffff;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--chapter-color) 12%, var(--surface)), color-mix(in srgb, var(--chapter-color) 5%, var(--surface)));
   border: 1px solid color-mix(in srgb, var(--chapter-color) 30%, var(--border));
   border-radius: 9px;
   scroll-margin-top: 6.2rem;
