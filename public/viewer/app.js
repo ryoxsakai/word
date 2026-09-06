@@ -7,6 +7,7 @@ const API = `${API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
+const INDEX_PRINT_COLUMNS_KEY = "vocab-viewer-index-print-columns";
 // 文字サイズ5段階（level -> --font-scale の倍率）。3が標準(等倍)。
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -46,6 +47,7 @@ const el = {
   backToTopBtn: document.getElementById("backToTopBtn"),
   toast: document.getElementById("toast"),
   fontSizeSteps: document.getElementById("fontSizeSteps"),
+  indexPrintColumns: document.getElementById("indexPrintColumns"),
   ptrIndicator: document.getElementById("ptrIndicator"),
 };
 
@@ -506,38 +508,25 @@ function renderIndexEntryHtml(e) {
     </div>`;
 }
 
-// 印刷時にa/bなど文字ごとに独立した段組みで区切れるよう、先頭文字でグループ化する
-// (1つの巨大なcolumnsに流し込むと、同じ列内でa→bのように文字が混ざってしまうため)。
-function groupIndexEntriesByLetter(entries) {
-  const groups = [];
-  let current = null;
-  for (const e of entries) {
-    const letter = (e.spelling[0] || "").toUpperCase();
-    if (!current || current.letter !== letter) {
-      current = { letter, items: [] };
-      groups.push(current);
-    }
-    current.items.push(e);
-  }
-  return groups;
-}
-
+// アルファベット見出しと単語を1つの段組みに連続して流す。
+// 頭文字が変わる位置では見出しの前に小さな余白だけを入れ、段やページを強制的に切り替えない。
 function renderAlphabeticalIndex() {
   const entries = buildAlphabeticalIndex();
   if (entries.length === 0) {
     el.indexList.innerHTML = '<p class="index-empty">単語がまだ登録されていません。</p>';
     return;
   }
-  const groups = groupIndexEntriesByLetter(entries);
-  el.indexList.innerHTML = groups
-    .map(
-      (g) => `
-    <div class="index-group">
-      <h2 class="index-letter">${escapeHtml(g.letter)}</h2>
-      <div class="index-columns">${g.items.map(renderIndexEntryHtml).join("")}</div>
-    </div>`
-    )
-    .join("");
+  let previousLetter = "";
+  const parts = [];
+  for (const entry of entries) {
+    const letter = (entry.spelling[0] || "").toUpperCase();
+    if (letter !== previousLetter) {
+      parts.push(`<h2 class="index-letter">${escapeHtml(letter)}</h2>`);
+      previousLetter = letter;
+    }
+    parts.push(renderIndexEntryHtml(entry));
+  }
+  el.indexList.innerHTML = `<div class="index-columns">${parts.join("")}</div>`;
 }
 
 function setActiveView(view) {
@@ -1000,6 +989,30 @@ if (el.fontSizeSteps) {
 }
 
 applyFontSize(Number(localStorage.getItem(FONT_SIZE_KEY)) || 3);
+
+// ---- 索引の印刷段数 ----
+
+function applyIndexPrintColumns(columns) {
+  const value = [2, 3, 4].includes(Number(columns)) ? Number(columns) : 2;
+  document.documentElement.style.setProperty("--index-print-columns", String(value));
+  if (el.indexPrintColumns) {
+    el.indexPrintColumns.querySelectorAll(".index-columns-btn").forEach((button) => {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.indexColumns) === value));
+    });
+  }
+}
+
+if (el.indexPrintColumns) {
+  el.indexPrintColumns.addEventListener("click", (event) => {
+    const button = event.target.closest(".index-columns-btn");
+    if (!button) return;
+    const columns = Number(button.dataset.indexColumns);
+    localStorage.setItem(INDEX_PRINT_COLUMNS_KEY, String(columns));
+    applyIndexPrintColumns(columns);
+  });
+}
+
+applyIndexPrintColumns(Number(localStorage.getItem(INDEX_PRINT_COLUMNS_KEY)) || 2);
 
 // ---- プルリフレッシュ ----
 
