@@ -28,6 +28,7 @@ const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
+const PRINT_SETTINGS_KEY = "vocab-viewer-print-settings-v1";
 const CROSSOVER_LIST_ID = "crossover-v3";
 const PAGE_PARAMS = new URLSearchParams(window.location.search);
 const PRINT_BOOK_MODE = PAGE_PARAMS.get("print") === "book";
@@ -137,6 +138,21 @@ const el = {
 
 const LOADING_DELAY_MS = 250;
 
+function readStoredPrintSettings() {
+  try {
+    const settings = JSON.parse(localStorage.getItem(PRINT_SETTINGS_KEY) || "null");
+    return settings && typeof settings === "object" && !Array.isArray(settings) ? settings : {};
+  } catch {
+    return {};
+  }
+}
+
+const storedPrintSettings = readStoredPrintSettings();
+
+function initialPrintSetting(paramName) {
+  return PAGE_PARAMS.has(paramName) ? PAGE_PARAMS.get(paramName) : storedPrintSettings[paramName];
+}
+
 function boundedPrintSetting(rawValue, fallback, min, max) {
   const value = Number(rawValue);
   return Number.isFinite(value) && value >= min && value <= max ? value : fallback;
@@ -193,19 +209,42 @@ function applyPrintSettings() {
   applyDynamicPrintPageRule(pageSize);
 }
 
+function savePrintSettings() {
+  const settings = {
+    pageSize: normalizedPrintPageSize(el.printPageSize.value),
+    fontSize: String(boundedPrintSetting(el.printFontSize.value, 10, 8, 14)),
+    lineHeight: String(boundedPrintSetting(el.printLineHeight.value, 1.5, 1.2, 2)),
+    pagination: normalizedPrintPagination(el.printPagination.value),
+    exampleColumns: String(boundedIntegerPrintSetting(el.printExampleColumns.value, 2, 1, 3)),
+    tocColumns: String(boundedIntegerPrintSetting(el.printTocColumns.value, 1, 1, 2)),
+  };
+  try {
+    localStorage.setItem(PRINT_SETTINGS_KEY, JSON.stringify(settings));
+  } catch {
+    // プライベートブラウズ等で保存できない場合も、現在の印刷操作は継続する。
+  }
+}
+
+function handlePrintSettingChange() {
+  applyPrintSettings();
+  savePrintSettings();
+}
+
 document.body.classList.toggle("is-print-mode", PRINT_UI_MODE);
-el.printPageSize.value = normalizedPrintPageSize(PAGE_PARAMS.get("pageSize"));
-el.printFontSize.value = String(boundedPrintSetting(PAGE_PARAMS.get("fontSize"), 10, 8, 14));
-el.printLineHeight.value = String(boundedPrintSetting(PAGE_PARAMS.get("lineHeight"), 1.5, 1.2, 2));
-el.printPagination.value = normalizedPrintPagination(PAGE_PARAMS.get("pagination"));
-el.printExampleColumns.value = String(boundedIntegerPrintSetting(PAGE_PARAMS.get("exampleColumns"), 2, 1, 3));
-el.printTocColumns.value = String(boundedIntegerPrintSetting(PAGE_PARAMS.get("tocColumns"), 1, 1, 2));
-el.printPageSize.addEventListener("change", applyPrintSettings);
-el.printFontSize.addEventListener("change", applyPrintSettings);
-el.printLineHeight.addEventListener("change", applyPrintSettings);
-el.printPagination.addEventListener("change", applyPrintSettings);
-el.printExampleColumns.addEventListener("change", applyPrintSettings);
-el.printTocColumns.addEventListener("change", applyPrintSettings);
+el.printPageSize.value = normalizedPrintPageSize(initialPrintSetting("pageSize"));
+el.printFontSize.value = String(boundedPrintSetting(initialPrintSetting("fontSize"), 10, 8, 14));
+el.printLineHeight.value = String(boundedPrintSetting(initialPrintSetting("lineHeight"), 1.5, 1.2, 2));
+el.printPagination.value = normalizedPrintPagination(initialPrintSetting("pagination"));
+el.printExampleColumns.value = String(boundedIntegerPrintSetting(initialPrintSetting("exampleColumns"), 2, 1, 3));
+el.printTocColumns.value = String(boundedIntegerPrintSetting(initialPrintSetting("tocColumns"), 1, 1, 2));
+[
+  el.printPageSize,
+  el.printFontSize,
+  el.printLineHeight,
+  el.printPagination,
+  el.printExampleColumns,
+  el.printTocColumns,
+].forEach((control) => control.addEventListener("change", handlePrintSettingChange));
 applyPrintSettings();
 
 let printProgressHideTimer;
