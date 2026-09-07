@@ -162,6 +162,24 @@ export async function importIllustration(env, wordId, input) {
   return { id: input.requestId, wordId, status: 'ready', source: 'approved-upload', url: illustrationUrl(wordId, input.requestId), current: true, width, height };
 }
 
+export async function failIllustrationRequest(env, wordId, requestId) {
+  if (!UUID.test(requestId || '')) fail('requestIdにはUUIDを指定してください');
+  await illustrationWord(env, wordId);
+  const job = await env.DB.prepare('SELECT id,word_id AS wordId,status,source,started_at AS startedAt FROM illustration_jobs WHERE id=?')
+    .bind(requestId).first();
+  if (!job) fail('画像登録の依頼が見つかりません', 404);
+  if (job.wordId !== wordId) fail('requestIdが指定した単語の依頼ではありません', 409);
+  if (job.source !== 'approved-upload') fail('承認済み画像の登録依頼だけを失敗扱いに変更できます', 409);
+  if (job.status === 'failed') return { id: requestId, wordId, status: 'failed', alreadyFailed: true };
+  if (job.status !== 'processing') fail('処理中の画像登録依頼だけを失敗扱いに変更できます', 409);
+  const result = await env.DB.prepare(`UPDATE illustration_jobs
+    SET status='failed',finished_at=datetime('now'),error='管理操作により失敗扱いに変更されました。'
+    WHERE id=? AND word_id=? AND source='approved-upload' AND status='processing'
+      AND started_at < datetime('now','-16 minutes')`).bind(requestId, wordId).run();
+  if (!result.meta.changes) fail('開始から16分以内の画像登録依頼は失敗扱いに変更できません', 409);
+  return { id: requestId, wordId, status: 'failed' };
+}
+
 export async function processIllustrationQueue(env, { generate = generateIllustration } = {}) {
   if (!illustrationConfiguration(env).ready) return { state: 'not-configured' };
   // Never automatically repeat a paid call after a crash/timeout: the provider may have completed it.
