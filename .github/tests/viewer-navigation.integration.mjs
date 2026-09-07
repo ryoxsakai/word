@@ -281,6 +281,7 @@ assert.match(printStyleSource, /\.entry\.print-entry-fragment-continuation \.pri
 assert.match(printStyleSource, /\.example-list\s*\{[\s\S]*--print-example-columns/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*columns:\s*var\(--print-toc-columns, 1\)/);
 assert.match(printStyleSource, /\.book-toc-nav\s*\{[\s\S]*column-fill:\s*balance;[\s\S]*column-rule:\s*0\.35mm solid/);
+assert.match(printStyleSource, /\.book-toc-nav > \.book-toc-chapter \+ \.book-toc-chapter\s*\{\s*margin-top:\s*0\.4rem/);
 assert.match(printStyleSource, /\.book-toc-nav \.contents-chapter\s*\{[\s\S]*background:\s*linear-gradient\(115deg, var\(--chapter-color-deep\), var\(--chapter-color\)\) !important/);
 assert.match(printStyleSource, /\.book-toc-nav \.contents-section\.book-toc-link\s*\{[\s\S]*margin-bottom:\s*0;[\s\S]*padding-top:\s*0\.22rem;[\s\S]*padding-bottom:\s*0\.22rem/);
 assert.match(printStyleSource, /\.book-toc-nav \.contents-section\s*\{[\s\S]*border:\s*0 !important/);
