@@ -1976,6 +1976,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
     break-before: avoid-page;
     page-break-before: avoid;
   }
+  .book-toc-nav > .book-toc-chapter + .book-toc-chapter { margin-top: 0.4rem; }
   .book-toc-nav .book-toc-link { margin-bottom: 0.35rem; }
   .book-toc-nav .contents-group { gap: 0.05rem; }
   .book-toc-nav .contents-section.book-toc-link {
