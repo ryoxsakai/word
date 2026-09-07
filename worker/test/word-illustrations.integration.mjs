@@ -3,7 +3,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHmac, randomUUID } from 'node:crypto';
 import { Miniflare } from 'miniflare';
 import { enqueueIllustration, processIllustrationQueue, saveIllustrationBrief, restoreIllustration,
-  handleIllustrationRoute, wordHistory, illustrationConfiguration, generateIllustration, importIllustration } from '../src/word-illustrations.js';
+  handleIllustrationRoute, wordHistory, illustrationConfiguration, generateIllustration, importIllustration,
+  failIllustrationRequest } from '../src/word-illustrations.js';
 import { decodeIllustrationPng } from '../src/illustration-upload.js';
 import { handleIllustrationMcp } from '../src/illustration-mcp.js';
 
@@ -178,6 +179,32 @@ try {
   assert.equal((await importIllustration(uploadEnv,'key',upload)).current,false,'retry must not republish an older image');
   assert.equal((await wordHistory(uploadEnv,'key')).currentId,firstId);
 
+  const staleUploadId=randomUUID();
+  await DB.prepare(`INSERT INTO illustration_jobs
+    (id,word_id,status,spelling,pos,meaning,scene,avoid,prompt,prompt_version,reference_paths,model,quality,source,input_sha256,approved_at,started_at)
+    SELECT ?,'key','processing',spelling,pos,meaning,scene,avoid,prompt,prompt_version,reference_paths,model,quality,source,input_sha256,approved_at,datetime('now','-17 minutes')
+    FROM illustration_jobs WHERE id=?`).bind(staleUploadId,uploadId).run();
+  const rpcFail=(auth,confirm=true)=>new Request(origin+'/mcp',{method:'POST',
+    headers:{'content-type':'application/json',...(auth?{Authorization:'Bearer '+auth}:{})},body:JSON.stringify({jsonrpc:'2.0',id:3,method:'tools/call',params:{
+      name:'vocab.fail_word_illustration_request',arguments:{word_id:'key',request_id:staleUploadId,confirm},
+    }})});
+  assert.equal((await handleIllustrationMcp(rpcFail(token('vocab:read')),uploadEnv)).status,403);
+  assert.equal((await (await handleIllustrationMcp(rpcFail(token(),false),uploadEnv)).json()).result.isError,true);
+  const failedByMcp=(await (await handleIllustrationMcp(rpcFail(token()),uploadEnv)).json()).result;
+  assert.equal(failedByMcp.isError,false); assert.equal(failedByMcp.structuredContent.status,'failed');
+  assert.equal((await failIllustrationRequest(uploadEnv,'key',staleUploadId)).alreadyFailed,true,'repeat is idempotent');
+  assert.equal((await wordHistory(uploadEnv,'key')).currentId,firstId,'forcing a stale request to fail does not change the displayed image');
+  await assert.rejects(()=>failIllustrationRequest(uploadEnv,'key',firstId),e=>e.status===409,'ready jobs cannot be changed');
+  await assert.rejects(()=>failIllustrationRequest(uploadEnv,'significant',staleUploadId),e=>e.status===409,'word id must match');
+
+  const recentUploadId=randomUUID();
+  await DB.prepare(`INSERT INTO illustration_jobs
+    (id,word_id,status,spelling,pos,meaning,scene,avoid,prompt,prompt_version,reference_paths,model,quality,source,input_sha256,approved_at,started_at)
+    SELECT ?,'key','processing',spelling,pos,meaning,scene,avoid,prompt,prompt_version,reference_paths,model,quality,source,input_sha256,approved_at,datetime('now')
+    FROM illustration_jobs WHERE id=?`).bind(recentUploadId,uploadId).run();
+  await assert.rejects(()=>failIllustrationRequest(uploadEnv,'key',recentUploadId),e=>e.status===409,'recent requests stay protected');
+  await DB.prepare("UPDATE illustration_jobs SET status='failed',finished_at=datetime('now') WHERE id=?").bind(recentUploadId).run();
+
   const failEnv={...uploadEnv,ILLUSTRATION_BUCKET:{put:async()=>{throw new Error('storage offline')}}};
   const failedImportId=randomUUID();
   await assert.rejects(()=>importIllustration(failEnv,'key',{...upload,requestId:failedImportId}),e=>e.status===503);
@@ -198,6 +225,7 @@ try {
   assert.equal(calls,beforeUploadCalls,'imports and restorations must not call OpenAI');
 
   assert.ok(tools.find(t=>t.name==='import_word_illustration'));
+  assert.equal(tools.find(t=>t.name==='fail_word_illustration_request').annotations.destructiveHint,true);
   const rpcUpload=(auth,approved=true)=>new Request(origin+'/mcp',{method:'POST',
     headers:{'content-type':'application/json',...(auth?{Authorization:'Bearer '+auth}:{})},body:JSON.stringify({jsonrpc:'2.0',id:2,method:'tools/call',params:{
       name:'vocab.import_word_illustration',arguments:{...upload,word_id:'key',request_id:randomUUID(),expected_current_id:firstId,image_base64:upload.imageBase64,approved},
