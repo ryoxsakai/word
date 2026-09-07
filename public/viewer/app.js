@@ -1865,6 +1865,22 @@ function printPartLabel() {
   return chapter ? `Chapter ${chapterIndex + 1} ${chapter.name}` : "Chapter";
 }
 
+function preparePrintIllustrationWrapping() {
+  if (document.body.dataset.printPagination === "section") return;
+  for (const entryBody of document.querySelectorAll(".entry-body")) {
+    const entryCard = entryBody.querySelector(":scope > .entry-content > .entry-card");
+    const illustration = entryCard?.querySelector(":scope > .entry-illustration");
+    const firstSense = entryCard?.querySelector(":scope > .sense-line");
+    if (!illustration || !entryCard) continue;
+
+    // 見出しと最初の意味行を画像より先に流す。画像がページ末尾に収まらない場合も、
+    // 先行する本文が余白を使い、画像は次のページで残りの内容と回り込める。
+    if (firstSense) firstSense.after(illustration);
+    else entryCard.prepend(illustration);
+    entryBody.closest(".entry")?.classList.add("has-print-anchored-illustration");
+  }
+}
+
 function prepareLightweightPrintDom() {
   document.body.dataset.printPart = PRINT_PART;
   if (["index", "all", "all-paged"].includes(PRINT_PART) && !state.indexRendered) renderAlphabeticalIndex();
@@ -1893,6 +1909,7 @@ function prepareLightweightPrintDom() {
     }
   }
   preparePrintHierarchy();
+  preparePrintIllustrationWrapping();
   document.querySelectorAll("[data-haystack]").forEach((node) => node.removeAttribute("data-haystack"));
   document.querySelectorAll(".speak-btn, .copy-link-btn, .blank-toggle").forEach((node) => {
     if (node.classList.contains("blank-toggle")) node.replaceWith(document.createTextNode(node.textContent || ""));

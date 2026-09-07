@@ -2221,6 +2221,10 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   }
   body:not([data-print-pagination="section"]) .entry-body,
   body:not([data-print-pagination="section"]) .entry-card { display: block; }
+  /* 最初の意味行の後から画像をfloatさせ、ページ末尾の余白を本文で利用する。 */
+  body:not([data-print-pagination="section"]) .entry.has-print-anchored-illustration .entry-illustration {
+    margin-top: 0;
+  }
   body:not([data-print-pagination="section"]) .entry-body > * + * { margin-top: 0.28rem; }
   body:not([data-print-pagination="section"]) .entry-card > * + * { margin-top: 0.38rem; }
   /* 補足欄を画像の下まで強制的に送らず、ページ末尾の残りも本文として利用する。

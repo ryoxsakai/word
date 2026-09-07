@@ -334,6 +334,8 @@ assert.match(appSource, /selected === "all-paged"/);
 assert.match(appSource, /window\.confirm\("全体の版組には長い時間がかかり/);
 assert.match(appSource, /String\(section\.chapterKey\) === String\(PRINT_CHAPTER_KEY\)/);
 assert.match(appSource, /function prepareLightweightPrintDom\(\)/);
+assert.match(appSource, /function preparePrintIllustrationWrapping\(\)[\s\S]*printPagination === "section"[\s\S]*firstSense\.after\(illustration\)[\s\S]*has-print-anchored-illustration/);
+assert.match(appSource, /preparePrintHierarchy\(\);[\s\S]*preparePrintIllustrationWrapping\(\);/);
 assert.match(appSource, /\["index", "all", "all-paged"\]\.includes\(PRINT_PART\)/);
 assert.match(appSource, /if \(!keepIds\.has\(panel\.id\)\) panel\.remove\(\)/);
 assert.match(appSource, /if \(view === "index" && !state\.indexRendered\) renderAlphabeticalIndex\(\)/);
