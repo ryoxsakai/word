@@ -1,5 +1,5 @@
 import { verifyMcpAccess, oauthErrorResponse, MCP_READ_SCOPE, MCP_WRITE_SCOPE } from './mcp-oauth.js';
-import { wordHistory, illustrationConfiguration, saveIllustrationBrief, enqueueIllustration, restoreIllustration, importIllustration } from './word-illustrations.js';
+import { wordHistory, illustrationConfiguration, saveIllustrationBrief, enqueueIllustration, restoreIllustration, importIllustration, failIllustrationRequest } from './word-illustrations.js';
 import { MAX_IMAGE_BASE64 } from './illustration-upload.js';
 
 const schema = (properties, required) => ({ type:'object', properties, required, additionalProperties:false });
@@ -20,10 +20,14 @@ const definitions = [
   { name:'restore_word_illustration', title:'過去のイラストに戻す',
     description:'生成履歴で確認した画像IDに表示を戻します。新しい画像生成・API課金は行いません。',
     inputSchema:schema({word_id:text,job_id:text},['word_id','job_id']) },
+  { name:'fail_word_illustration_request', title:'中断した画像登録を失敗扱いにする',
+    description:'16分以上processingのまま残った承認済み画像の登録依頼を、対象単語とrequest_idを指定してfailedへ変更します。API生成依頼、待機中・完了済み依頼、現在の表示画像は変更しません。実行前にget_word_illustrationで履歴を確認してください。',
+    inputSchema:schema({word_id:text,request_id:{type:'string',format:'uuid'},confirm:{type:'boolean',enum:[true]}},['word_id','request_id','confirm']),
+    destructive:true },
 ];
-export const ILLUSTRATION_MCP_TOOLS = definitions.flatMap(({readOnly,...tool}) => {
+export const ILLUSTRATION_MCP_TOOLS = definitions.flatMap(({readOnly,destructive,...tool}) => {
   const value={...tool,securitySchemes:[{type:'oauth2',scopes:readOnly?[MCP_READ_SCOPE]:[MCP_READ_SCOPE,MCP_WRITE_SCOPE]}],
-    annotations:{readOnlyHint:!!readOnly,destructiveHint:false,openWorldHint:!readOnly}};
+    annotations:{readOnlyHint:!!readOnly,destructiveHint:!!destructive,openWorldHint:!readOnly}};
   return [value,{...value,name:'vocab.'+value.name}];
 });
 
@@ -61,6 +65,10 @@ export async function handleIllustrationMcp(request, env, delegate) {
       data=await enqueueIllustration(env,args.word_id,args.request_id);
     }
     if(name==='restore_word_illustration') data=await restoreIllustration(env,args.word_id,args.job_id);
+    if(name==='fail_word_illustration_request') {
+      if(args.confirm!==true) throw Object.assign(new Error('失敗扱いへの変更を確認してください'),{status:400});
+      data=await failIllustrationRequest(env,args.word_id,args.request_id);
+    }
     result={isError:false,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)}]};
   } catch(e) { result={isError:true,content:[{type:'text',text:e.status?e.message:'イラストの処理に失敗しました'}]}; }
   return Response.json({jsonrpc:'2.0',id:message.id,result},{headers:{'cache-control':'no-store','access-control-allow-origin':'*'}});
