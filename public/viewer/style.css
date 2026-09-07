@@ -320,8 +320,9 @@ button { font-family: inherit; }
 .contents-menu-heading--sections {
   margin-top: 0.8rem;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--topbar-border);
+  border-top: 0;
 }
+body.is-print-mode .contents-menu-heading--sections { border-top: 1px solid var(--topbar-border); }
 .print-mode-only { display: none !important; }
 .print-mode-exit {
   align-items: center;
@@ -1040,6 +1041,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .section-group + .section-group { padding-top: 1.1rem; }
 .section-group.has-group-divider { padding-top: 1.6rem; }
 .section-group.has-chapter-divider { padding-top: 2.2rem; }
+.word-list > .section-group.has-chapter-divider:first-child { padding-top: 0; }
 
 /* 4階層の左端を同じ誌面グリッドへ揃え、サイズ・濃度・余白で親子関係を示す。 */
 .section-group > .chapter-divider,
