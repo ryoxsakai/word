@@ -1006,7 +1006,14 @@ async function ensureIdioms() {
   if (!state.currentListId) return;
   const listId = state.currentListId;
   const generation = listLoadGeneration;
-  el.idiomList.innerHTML = '<p class="index-empty">熟語を読み込み中...</p>';
+  const skeletonRow = `<div class="idiom-entry">
+    <span class="skeleton-headword skeleton-line"></span>
+    <span class="skeleton-meaning skeleton-line"></span>
+  </div>`;
+  el.idiomList.innerHTML = `<div class="idiom-loading">
+    <p class="loading-label" role="status">熟語を読み込み中...</p>
+    <div aria-hidden="true">${skeletonRow.repeat(4)}</div>
+  </div>`;
   el.idiomList.setAttribute("aria-busy", "true");
   const promise = (async () => {
     try {
