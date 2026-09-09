@@ -917,6 +917,9 @@ body.is-printing-book > .loading-msg { display: none !important; }
 
 .word-list { max-width: 1040px; margin: 0 auto; padding: 1.25rem clamp(0.9rem, 3vw, 2rem) 3rem; }
 .idiom-entries { margin: 0; }
+.idiom-loading .idiom-entry { align-items: center; padding: 1.1rem 0; }
+.idiom-loading .skeleton-headword { width: 70%; }
+.idiom-loading .skeleton-meaning { width: 85%; justify-self: end; }
 .idiom-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 1.4rem; padding: 0.65rem 0; border-bottom: 1px dotted var(--border); break-inside: avoid; }
 .idiom-phrase { min-width: 0; text-align: left; font-weight: 600; overflow-wrap: anywhere; }
 .idiom-meanings { min-width: 0; margin: 0; text-align: right; }
@@ -1782,6 +1785,7 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 /* 保存された no ではなく、単語一覧の文字だけを --font-scale 倍して拡大縮小する。
    既存ルールは書き換えず、.word-list 配下の上書きとして定義（既定値1で従来と同じ見た目）。 */
 :root { --font-scale: 1; }
+.word-list .idiom-entry { font-size: calc(1rem * var(--font-scale)); }
 .word-list .section-title { font-size: calc(1.02rem * var(--font-scale)); }
 .word-list .section-subtitle { font-size: calc(0.9rem * var(--font-scale)); }
 .word-list .section-count { font-size: calc(0.9rem * var(--font-scale)); }
