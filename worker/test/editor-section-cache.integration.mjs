@@ -144,6 +144,9 @@ try {
   await db.prepare("INSERT INTO idiom_word_refs (sense_id,word_id) VALUES ('cache-sense','cache-alpha')").run();
   const idioms = await (await fetchApi("/lists/editor-cache-test/idioms")).json();
   assert.equal(idioms.entries[0].meanings[0].refs[0].wordId, "cache-alpha");
+  const publicIdioms = await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms");
+  assert.equal(publicIdioms.status, 200);
+  assert.deepEqual(await publicIdioms.json(), idioms, "public viewer route serves the independent collection");
   const full = await (await fetchApi("/lists/editor-cache-test/words/full")).json();
   assert.equal(full.words.find(w=>w.id === "cache-alpha").relatedIdiomCount, 1);
   assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 405);
