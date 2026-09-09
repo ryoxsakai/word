@@ -138,12 +138,14 @@ try {
 
   const idiomsBefore = await (await fetchApi("/lists/editor-cache-test/idioms")).json();
   assert.equal(idiomsBefore.managed, false);
-  await db.prepare("INSERT INTO idiom_sections VALUES ('editor-cache-test', 'test', 'Test', 'test', 'Test', 1, 1)").run();
+  await db.prepare("INSERT INTO idiom_sections (list_id,section_key,subtitle,chapter_key,chapter_subtitle,chapter_order,sort_order,group_key,group_subtitle,group_order) VALUES ('editor-cache-test', 'test', 'Test', 'test', 'Test', 1, 1, 'test-group', 'Test Group', 1)").run();
   await db.prepare("INSERT INTO idioms (id,list_id,phrase,section_key) VALUES ('cache-idiom','editor-cache-test','alpha phrase','test')").run();
   await db.prepare("INSERT INTO idiom_senses (id,idiom_id,meaning) VALUES ('cache-sense','cache-idiom','意味')").run();
   await db.prepare("INSERT INTO idiom_word_refs (sense_id,word_id) VALUES ('cache-sense','cache-alpha')").run();
   const idioms = await (await fetchApi("/lists/editor-cache-test/idioms")).json();
   assert.equal(idioms.entries[0].meanings[0].refs[0].wordId, "cache-alpha");
+  assert.equal(idioms.chapters[0].sections[0].groupKey, 'test-group');
+  assert.equal(idioms.chapters[0].sections[0].groupSubtitle, 'Test Group');
   const publicIdioms = await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms");
   assert.equal(publicIdioms.status, 200);
   assert.deepEqual(await publicIdioms.json(), idioms, "public viewer route serves the independent collection");
