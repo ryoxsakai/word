@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "test:speech": "node test/speech.test.mjs",
-    "test:idioms": "node test/idioms.integration.mjs && node test/editor-section-cache.integration.mjs",
+    "test:idioms": "node test/idioms.integration.mjs && node test/idiom-reorganization.integration.mjs && node test/editor-section-cache.integration.mjs",
     "test:elevenlabs": "node test/elevenlabs.test.mjs",
     "test:audio": "node test/word-audio.integration.mjs && node test/automatic-word-audio.integration.mjs",
     "test:mcp-write": "node test/mcp-write.integration.mjs",
