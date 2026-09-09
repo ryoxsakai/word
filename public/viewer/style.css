@@ -918,24 +918,20 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .word-list { max-width: 1040px; margin: 0 auto; padding: 1.25rem clamp(0.9rem, 3vw, 2rem) 3rem; }
 .idiom-entries { margin: 0; }
 .related-idioms-link { color: var(--chapter-color-deep); background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
-.idiom-loading .idiom-entry { align-items: center; padding: 1.1rem 0; }
+.idiom-loading-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 1.4rem; align-items: center; padding: 1.1rem 0; }
 .idiom-loading .skeleton-headword { width: 70%; }
 .idiom-loading .skeleton-meaning { width: 85%; justify-self: end; }
-.idiom-entry { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 1.4rem; padding: 0.65rem 0; border-bottom: 1px dotted var(--border); break-inside: avoid; }
-.idiom-phrase { min-width: 0; text-align: left; font-weight: 600; overflow-wrap: anywhere; }
-.idiom-meanings { min-width: 0; margin: 0; text-align: right; }
-.idiom-sense { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.8rem; align-items: baseline; }
-.idiom-sense + .idiom-sense { margin-top: 0.3rem; }
-.idiom-meaning { overflow-wrap: anywhere; }
-.idiom-refs { min-width: 3.5ch; max-width: 9ch; text-align: right; font-variant-numeric: tabular-nums; }
-.idiom-ref { color: var(--chapter-color-deep); text-underline-offset: 0.2em; }
+.idiom-entry { break-inside: avoid; }
+.idiom-phrase { margin: 0; text-align: left; overflow-wrap: anywhere; }
+.idiom-sense + .idiom-sense { margin-top: 0.6rem; }
+.idiom-sense .sense-meaning { overflow-wrap: anywhere; }
+.idiom-refs { margin-top: 0.2rem; text-align: right; color: var(--text-muted); font-size: calc(0.72rem * var(--font-scale)); line-height: 1.6; font-variant-numeric: tabular-nums; }
+.idiom-ref { display: inline-block; padding: 0.15em 0.3em; color: inherit; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
+.idiom-ref:hover { color: var(--chapter-color-deep); text-decoration-color: currentColor; }
 .idiom-ref:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-@media (max-width: 520px) {
-  .idiom-entry { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 0.65rem; }
-  .idiom-sense { gap: 0.4rem; }
-}
+.idiom-entry .idiom-no { cursor: default; }
+.idiom-entry .idiom-no:hover { filter: none; }
 @media print {
-  .idiom-entry { padding: 1.8mm 0; }
   .idiom-ref { color: inherit; text-decoration: none; }
   .idiom-list .section-divider, .idiom-list .chapter-divider { break-after: avoid; }
 }
