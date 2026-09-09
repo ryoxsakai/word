@@ -13,7 +13,7 @@ export function renderIdiomEntry(item, origin) {
         ${illustration}
         ${item.meanings.map(sense => `<div class="idiom-sense">
           <div class="sense-line sense-primary"><span class="sense-meaning">${escapeHtml(sense.meaning)}</span></div>
-          ${sense.refs.length ? `<div class="idiom-refs"><span class="idiom-ref-label">単語</span> ${sense.refs.map(ref => `<a class="idiom-ref" href="#word-${escapeHtml(encodeURIComponent(ref.wordId))}" data-word-id="${escapeHtml(ref.wordId)}" aria-label="${escapeHtml(ref.spelling)}、単語番号${escapeHtml(ref.no)}">${escapeHtml(ref.no)}</a>`).join(" ")}</div>` : ""}
+          ${sense.refs.length ? `<div class="idiom-refs" aria-label="参照単語"><svg class="idiom-ref-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg> ${[...sense.refs].sort((a, b) => Number(a.source === "synonym") - Number(b.source === "synonym")).map(ref => `<a class="idiom-ref" href="#word-${escapeHtml(encodeURIComponent(ref.wordId))}" data-word-id="${escapeHtml(ref.wordId)}" aria-label="${escapeHtml(ref.spelling)}、単語番号${escapeHtml(ref.no)}">${escapeHtml(ref.spelling)} (no.  ${escapeHtml(ref.no)})</a>`).join(' <span aria-hidden="true">·</span> ')}</div>` : ""}
         </div>`).join("")}
       </div></div>
     </div>

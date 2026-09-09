@@ -80,6 +80,16 @@ assert.equal(db.prepare("SELECT count(*) AS n FROM examples WHERE word_id='get' 
 const baseline=normalized(actual.entries);db.exec(sql);
 assert.deepEqual(normalized((await readIdioms(d1(db),'crossover-v3')).entries),baseline,'rerunning does not resurrect retired entries');
 assert.equal(db.prepare("SELECT count(*) AS n FROM examples WHERE word_id='do' AND type='phrase'").get().n,3);
+// The follow-up synonym link is sense-specific and safe to reapply.
+db.prepare("INSERT OR IGNORE INTO words(id,spelling) VALUES ('disappoint','disappoint')").run();
+if (!db.prepare("SELECT 1 FROM list_items WHERE list_id='crossover-v3' AND word_id='disappoint'").get()) db.exec("INSERT INTO list_items VALUES ('crossover-v3','disappoint')");
+const referenceSql=fs.readFileSync(new URL('../migrations/0040_idiom_synonym_reference.sql',import.meta.url),'utf8');
+const beforeRefs=db.prepare('SELECT count(*) AS n FROM idiom_word_refs').get().n;
+db.exec(referenceSql);
+db.exec(referenceSql);
+assert.equal(db.prepare('SELECT count(*) AS n FROM idiom_word_refs').get().n,beforeRefs+1);
+assert.deepEqual(db.prepare("SELECT word_id FROM idiom_word_refs WHERE sense_id='crossover-idiom-7528c72e52b5b45f9f756667:0' ORDER BY word_id").all().map(r=>r.word_id),['disappoint','let']);
+assert.deepEqual(db.prepare("SELECT word_id FROM idiom_word_refs WHERE sense_id='crossover-idiom-1db34f07f6188f08d7614b78:0'").all().map(r=>r.word_id),['let']);
 db.close();
 
 // Concurrent changes are retained, including idiom senses about to be retired.

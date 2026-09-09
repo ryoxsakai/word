@@ -10,7 +10,7 @@ const source = await readFile(new URL("../../public/viewer/app.js", import.meta.
 const code = source.slice(source.indexOf("async function ensureIdioms()"), source.indexOf("function setActiveView(view)"));
 const attrs = new Map();
 const panel = { innerHTML: "", setAttribute: (k,v) => attrs.set(k,v), removeAttribute: k => attrs.delete(k), addEventListener() {} };
-const state = { currentListId: "crossover-v3", indexWords: [{id: "submit", seqNo: "1315"}], idiomEntries: null, idiomGroups: [], idiomPromise: null, activeView: "list", search: "" };
+const state = { currentListId: "crossover-v3", indexWords: [{id: "submit", spelling: "submit", seqNo: "1315"}], idiomEntries: null, idiomGroups: [], idiomPromise: null, activeView: "list", search: "" };
 let resolveFetch;
 let fetches = 0;
 const context = vm.createContext({ state, el: {idiomList: panel}, listLoadGeneration: 1,
@@ -32,7 +32,7 @@ assert.match(panel.innerHTML, /Chapter 1/);
 assert.match(panel.innerHTML, /Section 1/);
 assert.match(panel.innerHTML, /hand O in/);
 assert.match(panel.innerHTML, /href="#word-submit"/);
-assert.match(panel.innerHTML, />1315<\/a>/);
+assert.match(panel.innerHTML, />submit \(no\.  1315\)<\/a>/);
 assert.match(panel.innerHTML, /class="entry idiom-entry"/);
 assert.match(panel.innerHTML, /data-idiom-no="1"/);
 assert.match(panel.innerHTML, /class="entry-body"/);
@@ -96,3 +96,11 @@ assert.match(illustrated,/class="entry-illustration"/);
 assert.match(illustrated,/loading="lazy"/);
 assert.doesNotMatch(renderIdiomEntry({key:'unsafe',no:'3',phrase:'<script>',meanings:[]},'https://vocab.lrnr.jp'), /<script>/);
 console.log('Idiom word-card layout, stable numbering, navigation and future illustration tests passed');
+const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meanings:[{meaning:'Oを失望させる',refs:[
+  {wordId:'disappoint',spelling:'disappoint',no:'1034',source:'synonym'},
+  {wordId:'let',spelling:'let',no:'923',source:'phrase'},
+]}]},'https://vocab.lrnr.jp');
+assert.match(linked,/class="idiom-ref-icon" aria-hidden="true"/);
+assert.match(linked,/href="#word-let"[^>]*>let \(no\.  923\)<\/a>/);
+assert.match(linked,/href="#word-disappoint"[^>]*>disappoint \(no\.  1034\)<\/a>/);
+assert(linked.indexOf('href="#word-let"')<linked.indexOf('href="#word-disappoint"'));
