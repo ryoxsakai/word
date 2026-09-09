@@ -85,6 +85,8 @@ state.search='take';
 state.eikenLevel='all';
 context.renderIdioms();
 assert.match(panel.innerHTML,/data-idiom-no="2"/, 'search preserves the complete-list number');
+assert.match(panel.innerHTML,/引き継ぐ/, 'unlinked idioms and meanings remain searchable in the all-levels view');
+assert.doesNotMatch(panel.innerHTML,/idiom-refs|idiom-ref-icon/, 'unlinked meanings have no reference icon or empty reference row');
 let bottom='';
 context.setBottomNavContent=html=>{bottom=html;};
 context.el.contentsNav={innerHTML:''};
