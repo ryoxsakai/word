@@ -927,6 +927,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .idiom-sense .sense-meaning { overflow-wrap: anywhere; }
 .idiom-refs { margin-top: 0.2rem; text-align: right; color: var(--text-muted); font-size: calc(0.72rem * var(--font-scale)); line-height: 1.6; font-variant-numeric: tabular-nums; }
 .idiom-ref { display: inline-block; padding: 0.15em 0.3em; color: inherit; text-decoration-color: var(--border); text-underline-offset: 0.2em; }
+.idiom-ref-icon { width: 1em; height: 1em; vertical-align: -0.15em; }
 .idiom-ref:hover { color: var(--chapter-color-deep); text-decoration-color: currentColor; }
 .idiom-ref:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .idiom-entry .idiom-no { cursor: default; }
