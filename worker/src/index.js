@@ -2809,6 +2809,11 @@ export default {
           return await listLists(env.DB);
         }
 
+        const idiomListMatch = pathname.match(/^\/mcp-viewer\/api\/lists\/([^/]+)\/idioms\/?$/);
+        if (idiomListMatch) {
+          return await handleApi(request, env, ["api", "lists", decodeURIComponent(idiomListMatch[1]), "idioms"], "GET");
+        }
+
         const fullListMatch = pathname.match(
           /^\/mcp-viewer\/api\/lists\/([^/]+)\/words\/full\/?$/
         );
