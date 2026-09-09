@@ -24,6 +24,7 @@ import {
 } from "./webmcp.js";
 import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
 import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences } from "../shared/idioms.js";
+import { renderIdiomEntry } from "./idiom-entry.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -1009,7 +1010,7 @@ async function ensureIdioms() {
   if (!state.currentListId) return;
   const listId = state.currentListId;
   const generation = listLoadGeneration;
-  const skeletonRow = `<div class="idiom-entry">
+  const skeletonRow = `<div class="idiom-loading-row">
     <span class="skeleton-headword skeleton-line"></span>
     <span class="skeleton-meaning skeleton-line"></span>
   </div>`;
@@ -1066,7 +1067,7 @@ function renderIdioms() {
     const heading = index === 0 ? `<div class="chapter-divider" id="${chapterId}" role="heading" aria-level="2">${hierarchyIcon("chapter")}<div class="chapter-title-row"><span class="chapter-title">${escapeHtml(chapter.name)}</span><span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span></div></div>` : "";
     return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}" aria-labelledby="${sectionId}">${heading}
       <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="3">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
-      <dl class="idiom-entries">${section.items.map(item => `<div class="idiom-entry"><dt class="idiom-phrase">${escapeHtml(item.phrase)}</dt><dd class="idiom-meanings">${item.meanings.map(sense => `<div class="idiom-sense"><span class="idiom-meaning">${escapeHtml(sense.meaning)}</span><span class="idiom-refs">${sense.refs.map(ref => `<a class="idiom-ref" href="#word-${escapeHtml(encodeURIComponent(ref.wordId))}" data-word-id="${escapeHtml(ref.wordId)}" aria-label="${escapeHtml(ref.spelling)}、単語番号${escapeHtml(ref.no)}">${escapeHtml(ref.no)}</a>`).join(" ")}</span></div>`).join("")}</dd></div>`).join("")}</dl>
+      <div class="idiom-entries">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE)).join("")}</div>
     </section>`;
   }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
   if (state.activeView === "idioms") {
@@ -1078,7 +1079,7 @@ function renderIdioms() {
 function renderIdiomNavigation() {
   const groups = visibleIdiomGroups();
   setBottomNavContent(groups.flatMap(chapter => chapter.sections).map(section =>
-    `<button type="button" data-idiom-target="idiom-section-${section.key}">${escapeHtml(section.subtitle)}</button>`).join(""), "熟語のセクション");
+    `<button type="button" data-idiom-target="idiom-section-${section.key}" title="${escapeHtml(section.subtitle)}">${escapeHtml(section.name)}</button>`).join(""), "熟語のセクション");
   el.contentsNav.innerHTML = groups.map(chapter => `<div class="contents-group"><button type="button" class="contents-chapter" data-idiom-target="idiom-chapter-${chapter.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span><span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span></span></button>${chapter.sections.map(section => `<button type="button" class="contents-section is-nested" data-idiom-target="idiom-section-${section.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span><span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span></span></button>`).join("")}</div>`).join("");
 }
 

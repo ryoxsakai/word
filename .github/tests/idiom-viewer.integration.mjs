@@ -3,6 +3,7 @@ import vm from "node:vm";
 import { readFile } from "node:fs/promises";
 import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, IDIOM_CHAPTERS } from "../../public/shared/idioms.js";
 import { escapeHtml } from "../../public/shared/markup.js";
+import { renderIdiomEntry } from "../../public/viewer/idiom-entry.js";
 
 // Exercise the real loader/filter/renderer without fetching or rendering a browser page.
 const source = await readFile(new URL("../../public/viewer/app.js", import.meta.url), "utf8");
@@ -14,7 +15,7 @@ let resolveFetch;
 let fetches = 0;
 const context = vm.createContext({ state, el: {idiomList: panel}, listLoadGeneration: 1,
   api: () => { fetches++; return new Promise(resolve => { resolveFetch = resolve; }); },
-  buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, escapeHtml, matchesEikenLevel: () => true, hierarchyIcon: () => "",
+  buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, renderIdiomEntry, VIEWER_API_BASE: "https://vocab.lrnr.jp/mcp-viewer", escapeHtml, matchesEikenLevel: () => true, hierarchyIcon: () => "",
 });
 vm.runInContext(code, context);
 const first = context.ensureIdioms();
@@ -32,6 +33,11 @@ assert.match(panel.innerHTML, /Section 1/);
 assert.match(panel.innerHTML, /hand O in/);
 assert.match(panel.innerHTML, /href="#word-submit"/);
 assert.match(panel.innerHTML, />1315<\/a>/);
+assert.match(panel.innerHTML, /class="entry idiom-entry"/);
+assert.match(panel.innerHTML, /data-idiom-no="1"/);
+assert.match(panel.innerHTML, /class="entry-body"/);
+assert.match(panel.innerHTML, /class="headword idiom-phrase"/);
+assert.doesNotMatch(panel.innerHTML, /<figure/, "no empty image box before images are registered");
 assert.equal(attrs.has("aria-busy"), false);
 assert.doesNotMatch(panel.innerHTML, /skeleton-line/);
 state.search = "提出";
@@ -68,3 +74,25 @@ assert.match(panel.innerHTML, /hand O in/);
 // No fixed reference numbers: reordering changes the displayed number.
 assert.equal(resolveIdiomReferences(entries, [{id: "submit", spelling: "submit", seqNo: "42"}])[0].meanings[0].refs[0].no, "42");
 console.log("Idiom viewer loading, filtering, rendering, retry and stale-response tests passed");
+
+const ordered=groupIdiomEntries([
+  {key:'b',phrase:'take over',sectionKey:'take',meanings:[{meaning:'引き継ぐ',refs:[]}]},
+  {key:'a',phrase:'look up',sectionKey:'look',meanings:[{meaning:'調べる',refs:[]}]},
+]);
+assert.deepEqual(ordered.flatMap(c=>c.sections.flatMap(s=>s.items.map(i=>[i.key,i.no]))),[['a','1'],['b','2']], 'numbers follow Chapter/Section order, not fetch order');
+state.idiomGroups=ordered;
+state.search='take';
+state.eikenLevel='all';
+context.renderIdioms();
+assert.match(panel.innerHTML,/data-idiom-no="2"/, 'search preserves the complete-list number');
+let bottom='';
+context.setBottomNavContent=html=>{bottom=html;};
+context.el.contentsNav={innerHTML:''};
+context.renderIdiomNavigation();
+assert.match(bottom,/>Section 2<\/button>/);
+assert.doesNotMatch(bottom,/>take<\/button>/);
+const illustrated=renderIdiomEntry({...ordered[0].sections[0].items[0], illustration:{url:'/mcp-viewer/api/illustrations/example/abc123.png',meaning:'調べる'}},'https://vocab.lrnr.jp');
+assert.match(illustrated,/class="entry-illustration"/);
+assert.match(illustrated,/loading="lazy"/);
+assert.doesNotMatch(renderIdiomEntry({key:'unsafe',no:'3',phrase:'<script>',meanings:[]},'https://vocab.lrnr.jp'), /<script>/);
+console.log('Idiom word-card layout, stable numbering, navigation and future illustration tests passed');

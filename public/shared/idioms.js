@@ -136,10 +136,11 @@ export function resolveIdiomReferences(entries, metadata) {
 
 export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
   let sectionNumber = 0;
+  let entryNumber = 0;
   return chapters.map((chapter, chapterIndex) => ({
     ...chapter, name: `Chapter ${chapterIndex + 1}`, tone: (chapterIndex % 6) + 1,
     sections: chapter.sections.map(section => ({
-      ...section, items: entries.filter(entry => entry.sectionKey === section.key),
+      ...section, items: entries.filter(entry => entry.sectionKey === section.key).map(entry => ({ ...entry, no: String(++entryNumber) })),
     })).filter(section => section.items.length).map(section => ({ ...section, name: `Section ${++sectionNumber}` })),
   })).filter(chapter => chapter.sections.length);
 }
