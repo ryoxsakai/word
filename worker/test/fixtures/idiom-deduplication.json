@@ -1,0 +1,1452 @@
+[
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-1f09fa3105ab3d9bab3082b6",
+        "phrase": "take pride in O / Ving",
+        "sectionKey": "take",
+        "meanings": [
+          {
+            "id": "crossover-idiom-1f09fa3105ab3d9bab3082b6:0",
+            "meaning": "O・Vすることを誇りに思う",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-98f8021aa9aeebcedfad1423",
+        "phrase": "take pride in O/Ving",
+        "sectionKey": "take",
+        "meanings": [
+          {
+            "id": "crossover-idiom-98f8021aa9aeebcedfad1423:0",
+            "meaning": "O／Vすることを誇りに思う",
+            "refs": [
+              {
+                "wordId": "proud",
+                "source": "phrase"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-1f09fa3105ab3d9bab3082b6",
+      "phrase": "take pride in O / Ving",
+      "sectionKey": "take",
+      "meanings": [
+        {
+          "id": "crossover-idiom-1f09fa3105ab3d9bab3082b6:0",
+          "meaning": "O・Vすることを誇りに思う",
+          "refs": [
+            {
+              "wordId": "proud",
+              "source": "phrase"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-13b97ee43f9968b70b73876d",
+        "phrase": "carry out O",
+        "sectionKey": "carry",
+        "meanings": [
+          {
+            "id": "crossover-idiom-13b97ee43f9968b70b73876d:0",
+            "meaning": "Oを実行する",
+            "refs": [
+              {
+                "wordId": "conduct",
+                "source": "relatedWords"
+              },
+              {
+                "wordId": "implement",
+                "source": "synonym"
+              },
+              {
+                "wordId": "perform",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-379952c5a7a5f6b7393ee214",
+        "phrase": "carry out",
+        "sectionKey": "carry",
+        "meanings": [
+          {
+            "id": "crossover-idiom-379952c5a7a5f6b7393ee214:0",
+            "meaning": "実行する",
+            "refs": [
+              {
+                "wordId": "conduct",
+                "source": "synonyms"
+              },
+              {
+                "wordId": "implement",
+                "source": "synonyms"
+              },
+              {
+                "wordId": "perform",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-13b97ee43f9968b70b73876d",
+      "phrase": "carry out O",
+      "sectionKey": "carry",
+      "meanings": [
+        {
+          "id": "crossover-idiom-13b97ee43f9968b70b73876d:0",
+          "meaning": "Oを実行する",
+          "refs": [
+            {
+              "wordId": "conduct",
+              "source": "relatedWords"
+            },
+            {
+              "wordId": "implement",
+              "source": "synonym"
+            },
+            {
+              "wordId": "perform",
+              "source": "synonym"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-603a72f0a091aa94c03eaa8a",
+        "phrase": "get in touch (with O)",
+        "sectionKey": "get",
+        "meanings": [
+          {
+            "id": "crossover-idiom-603a72f0a091aa94c03eaa8a:0",
+            "meaning": "Oと連絡を取る",
+            "refs": [
+              {
+                "wordId": "contact",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-f4bf73167773be3caaf85b53",
+        "phrase": "get in touch with A",
+        "sectionKey": "get",
+        "meanings": [
+          {
+            "id": "crossover-idiom-f4bf73167773be3caaf85b53:0",
+            "meaning": "Aと連絡を取る",
+            "refs": [
+              {
+                "wordId": "contact",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-603a72f0a091aa94c03eaa8a",
+      "phrase": "get in touch (with O)",
+      "sectionKey": "get",
+      "meanings": [
+        {
+          "id": "crossover-idiom-603a72f0a091aa94c03eaa8a:0",
+          "meaning": "Oと連絡を取る",
+          "refs": [
+            {
+              "wordId": "contact",
+              "source": "synonym"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-71728e3395239bc6de1fd6e7",
+        "phrase": "for sure / for certain",
+        "sectionKey": "prep-for",
+        "meanings": [
+          {
+            "id": "crossover-idiom-71728e3395239bc6de1fd6e7:r39-2a3a30439b20",
+            "meaning": "確かに",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-d8b8c1fea965302e7f35d3a3",
+        "phrase": "for sure",
+        "sectionKey": "prep-for",
+        "meanings": [
+          {
+            "id": "crossover-idiom-d8b8c1fea965302e7f35d3a3:r39-2a3a30439b20",
+            "meaning": "確かに",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-71728e3395239bc6de1fd6e7",
+      "phrase": "for sure / for certain",
+      "sectionKey": "prep-for",
+      "meanings": [
+        {
+          "id": "crossover-idiom-71728e3395239bc6de1fd6e7:r39-2a3a30439b20",
+          "meaning": "確かに",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-10797a16dd2364c9d975abaa",
+        "phrase": "for lack / want of O",
+        "sectionKey": "prep-for",
+        "meanings": [
+          {
+            "id": "crossover-idiom-10797a16dd2364c9d975abaa:0",
+            "meaning": "Oがない・不足しているために",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-17db0510d90b0a60d9984920",
+        "phrase": "for want of O",
+        "sectionKey": "prep-for",
+        "meanings": [
+          {
+            "id": "crossover-idiom-17db0510d90b0a60d9984920:0",
+            "meaning": "Oが不足して",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-10797a16dd2364c9d975abaa",
+      "phrase": "for lack / want of O",
+      "sectionKey": "prep-for",
+      "meanings": [
+        {
+          "id": "crossover-idiom-10797a16dd2364c9d975abaa:0",
+          "meaning": "Oがない・不足しているために",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-2278142c2d79dac473627eb2",
+        "phrase": "get rid of B",
+        "sectionKey": "get",
+        "meanings": [
+          {
+            "id": "crossover-idiom-2278142c2d79dac473627eb2:0",
+            "meaning": "Bを取り除く",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-23192e46cad7904896aeb651",
+        "phrase": "get rid of",
+        "sectionKey": "get",
+        "meanings": [
+          {
+            "id": "crossover-idiom-23192e46cad7904896aeb651:0",
+            "meaning": "取り除く",
+            "refs": [
+              {
+                "wordId": "remove",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-2278142c2d79dac473627eb2",
+      "phrase": "get rid of O",
+      "sectionKey": "get",
+      "meanings": [
+        {
+          "id": "crossover-idiom-2278142c2d79dac473627eb2:0",
+          "meaning": "Oを取り除く",
+          "refs": [
+            {
+              "wordId": "remove",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-113dea2e3d8e5870dec63754",
+        "phrase": "keep / bear O in mind",
+        "sectionKey": "keep",
+        "meanings": [
+          {
+            "id": "crossover-idiom-113dea2e3d8e5870dec63754:r39-8e2645a5c8e5",
+            "meaning": "Oを心に留めておく・忘れない",
+            "refs": [
+              {
+                "wordId": "remember",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-5add16d8a03284941b48e45e",
+        "phrase": "keep O in mind",
+        "sectionKey": "keep",
+        "meanings": [
+          {
+            "id": "crossover-idiom-5add16d8a03284941b48e45e:r39-51a487b6da94",
+            "meaning": "Oを心に留めておく",
+            "refs": [
+              {
+                "wordId": "remember",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-113dea2e3d8e5870dec63754",
+      "phrase": "keep / bear O in mind",
+      "sectionKey": "keep",
+      "meanings": [
+        {
+          "id": "crossover-idiom-113dea2e3d8e5870dec63754:r39-8e2645a5c8e5",
+          "meaning": "Oを心に留めておく・忘れない",
+          "refs": [
+            {
+              "wordId": "remember",
+              "source": "synonym"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-b3e80debf04c83f72e3f30dd",
+        "phrase": "set aside O",
+        "sectionKey": "set",
+        "meanings": [
+          {
+            "id": "crossover-idiom-b3e80debf04c83f72e3f30dd:0",
+            "meaning": "Oを取っておく；Oを脇に置く",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-42af1f776fb24907db3ade02",
+        "phrase": "set A aside",
+        "sectionKey": "set",
+        "meanings": [
+          {
+            "id": "crossover-idiom-42af1f776fb24907db3ade02:0",
+            "meaning": "Aを取っておく",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-b3e80debf04c83f72e3f30dd",
+      "phrase": "set aside O",
+      "sectionKey": "set",
+      "meanings": [
+        {
+          "id": "crossover-idiom-b3e80debf04c83f72e3f30dd:0",
+          "meaning": "Oを取っておく；Oを脇に置く",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-58ac063ca086ef9e92392579",
+        "phrase": "talk O into Ving",
+        "sectionKey": "talk",
+        "meanings": [
+          {
+            "id": "crossover-idiom-58ac063ca086ef9e92392579:0",
+            "meaning": "Oを説得してVさせる",
+            "refs": [
+              {
+                "wordId": "persuade",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-b20ba6cd3fa6bc5552e5dcd2",
+        "phrase": "talk into",
+        "sectionKey": "talk",
+        "meanings": [
+          {
+            "id": "crossover-idiom-b20ba6cd3fa6bc5552e5dcd2:0",
+            "meaning": "〜するよう説得する",
+            "refs": [
+              {
+                "wordId": "persuade",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-58ac063ca086ef9e92392579",
+      "phrase": "talk O into Ving",
+      "sectionKey": "talk",
+      "meanings": [
+        {
+          "id": "crossover-idiom-58ac063ca086ef9e92392579:0",
+          "meaning": "Oを説得してVさせる",
+          "refs": [
+            {
+              "wordId": "persuade",
+              "source": "synonym"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-c578307225cb6228d283c2e6",
+        "phrase": "talk O out of Ving",
+        "sectionKey": "talk",
+        "meanings": [
+          {
+            "id": "crossover-idiom-c578307225cb6228d283c2e6:0",
+            "meaning": "Oを説得してVさせない",
+            "refs": [
+              {
+                "wordId": "persuade",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-d8ce7a520e98fef722e683ed",
+        "phrase": "talk out of",
+        "sectionKey": "talk",
+        "meanings": [
+          {
+            "id": "crossover-idiom-d8ce7a520e98fef722e683ed:0",
+            "meaning": "〜しないよう説得する",
+            "refs": [
+              {
+                "wordId": "persuade",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-c578307225cb6228d283c2e6",
+      "phrase": "talk O out of Ving",
+      "sectionKey": "talk",
+      "meanings": [
+        {
+          "id": "crossover-idiom-c578307225cb6228d283c2e6:0",
+          "meaning": "Oを説得してVさせない",
+          "refs": [
+            {
+              "wordId": "persuade",
+              "source": "synonym"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-90942dda5be0e5011209d65b",
+        "phrase": "with / in regard to O",
+        "sectionKey": "prep-with",
+        "meanings": [
+          {
+            "id": "crossover-idiom-90942dda5be0e5011209d65b:0",
+            "meaning": "Oに関して",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-f7a6b763b8942e03db99cb36",
+        "phrase": "with regard to O",
+        "sectionKey": "prep-with",
+        "meanings": [
+          {
+            "id": "crossover-idiom-f7a6b763b8942e03db99cb36:0",
+            "meaning": "Oに関して",
+            "refs": [
+              {
+                "wordId": "regarding",
+                "source": "phrase"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-90942dda5be0e5011209d65b",
+      "phrase": "with / in regard to O",
+      "sectionKey": "prep-with",
+      "meanings": [
+        {
+          "id": "crossover-idiom-90942dda5be0e5011209d65b:0",
+          "meaning": "Oに関して",
+          "refs": [
+            {
+              "wordId": "regarding",
+              "source": "phrase"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-6de915d036cd0353c34b96db",
+        "phrase": "give up O",
+        "sectionKey": "give",
+        "meanings": [
+          {
+            "id": "crossover-idiom-6de915d036cd0353c34b96db:0",
+            "meaning": "Oを諦める",
+            "refs": [
+              {
+                "wordId": "abandon",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-bcfea9f848bc62a0d99600b0",
+        "phrase": "give up",
+        "sectionKey": "give",
+        "meanings": [
+          {
+            "id": "crossover-idiom-bcfea9f848bc62a0d99600b0:0",
+            "meaning": "を断念する",
+            "refs": [
+              {
+                "wordId": "abandon",
+                "source": "synonyms"
+              },
+              {
+                "wordId": "sacrifice",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-6de915d036cd0353c34b96db",
+      "phrase": "give up O",
+      "sectionKey": "give",
+      "meanings": [
+        {
+          "id": "crossover-idiom-6de915d036cd0353c34b96db:0",
+          "meaning": "Oを諦める・断念する",
+          "refs": [
+            {
+              "wordId": "abandon",
+              "source": "synonym"
+            },
+            {
+              "wordId": "sacrifice",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-7528c72e52b5b45f9f756667",
+        "phrase": "let O down / let down O",
+        "sectionKey": "let",
+        "meanings": [
+          {
+            "id": "crossover-idiom-7528c72e52b5b45f9f756667:0",
+            "meaning": "Oを失望させる",
+            "refs": [
+              {
+                "wordId": "disappoint",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-1db34f07f6188f08d7614b78",
+        "phrase": "let O down",
+        "sectionKey": "let",
+        "meanings": [
+          {
+            "id": "crossover-idiom-1db34f07f6188f08d7614b78:0",
+            "meaning": "Oを下に降ろす（「Oを失望させる」のほか）",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-7528c72e52b5b45f9f756667",
+      "phrase": "let O down / let down O",
+      "sectionKey": "let",
+      "meanings": [
+        {
+          "id": "crossover-idiom-7528c72e52b5b45f9f756667:0",
+          "meaning": "Oを失望させる",
+          "refs": [
+            {
+              "wordId": "disappoint",
+              "source": "synonym"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-1db34f07f6188f08d7614b78:0",
+          "meaning": "Oを下に降ろす（「Oを失望させる」のほか）",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-4fe4f7b8fcef78ba3c6f21d6",
+        "phrase": "take down O",
+        "sectionKey": "take",
+        "meanings": [
+          {
+            "id": "crossover-idiom-4fe4f7b8fcef78ba3c6f21d6:0",
+            "meaning": "Oを書き留める／建築物などを取り壊す",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-c457331c15c468632162d9ed",
+        "phrase": "take O down",
+        "sectionKey": "take",
+        "meanings": [
+          {
+            "id": "crossover-idiom-c457331c15c468632162d9ed:0",
+            "meaning": "Oを下に降ろす（「書き留める・取り壊す」のほか）",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-4fe4f7b8fcef78ba3c6f21d6",
+      "phrase": "take down O",
+      "sectionKey": "take",
+      "meanings": [
+        {
+          "id": "crossover-idiom-4fe4f7b8fcef78ba3c6f21d6:0",
+          "meaning": "Oを書き留める／建築物などを取り壊す",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-c457331c15c468632162d9ed:0",
+          "meaning": "Oを下に降ろす（「書き留める・取り壊す」のほか）",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-e474786262d098dc19af38a1",
+        "phrase": "turn in O",
+        "sectionKey": "turn",
+        "meanings": [
+          {
+            "id": "crossover-idiom-e474786262d098dc19af38a1:0",
+            "meaning": "Oを提出する・Oを引き渡す・Oを返却する",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-53d37a0c3232f28315a80964",
+        "phrase": "turn O in",
+        "sectionKey": "turn",
+        "meanings": [
+          {
+            "id": "crossover-idiom-53d37a0c3232f28315a80964:0",
+            "meaning": "Oを内側に折り込む（「提出する・引き渡す」のほか）",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-e474786262d098dc19af38a1",
+      "phrase": "turn in O",
+      "sectionKey": "turn",
+      "meanings": [
+        {
+          "id": "crossover-idiom-e474786262d098dc19af38a1:0",
+          "meaning": "Oを提出する・Oを引き渡す・Oを返却する",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-53d37a0c3232f28315a80964:0",
+          "meaning": "Oを内側に折り込む（「提出する・引き渡す」のほか）",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-87039455adcd2e36236f67ee",
+        "phrase": "pick up O",
+        "sectionKey": "pick",
+        "meanings": [
+          {
+            "id": "crossover-idiom-87039455adcd2e36236f67ee:0",
+            "meaning": "Oを車に乗せる・Oを拾う",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-5ebf74c9c0344ee5ad25a813",
+        "phrase": "pick O up",
+        "sectionKey": "pick",
+        "meanings": [
+          {
+            "id": "crossover-idiom-5ebf74c9c0344ee5ad25a813:0",
+            "meaning": "言語・技能のOを自然に身につける／信号などのOを受信・感知する",
+            "refs": [
+              {
+                "wordId": "acquire",
+                "source": "relatedWords"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-87039455adcd2e36236f67ee",
+      "phrase": "pick up O",
+      "sectionKey": "pick",
+      "meanings": [
+        {
+          "id": "crossover-idiom-87039455adcd2e36236f67ee:0",
+          "meaning": "Oを車に乗せる・Oを拾う",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-5ebf74c9c0344ee5ad25a813:0",
+          "meaning": "言語・技能のOを自然に身につける／信号などのOを受信・感知する",
+          "refs": [
+            {
+              "wordId": "acquire",
+              "source": "relatedWords"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-98ca6ecf31bb3a85eb2c8b35",
+        "phrase": "put O aside",
+        "sectionKey": "put",
+        "meanings": [
+          {
+            "id": "crossover-idiom-98ca6ecf31bb3a85eb2c8b35:0",
+            "meaning": "Oをわきに置く／Oを取っておく／問題などのOをひとまず後回しにする",
+            "refs": [
+              {
+                "wordId": "reserve",
+                "source": "relatedWords"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-2082df18270b548268991bd3",
+        "phrase": "put aside O",
+        "sectionKey": "put",
+        "meanings": [
+          {
+            "id": "crossover-idiom-2082df18270b548268991bd3:0",
+            "meaning": "Oを蓄える・Oを脇に置く・Oを取っておく",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-98ca6ecf31bb3a85eb2c8b35",
+      "phrase": "put O aside",
+      "sectionKey": "put",
+      "meanings": [
+        {
+          "id": "crossover-idiom-98ca6ecf31bb3a85eb2c8b35:0",
+          "meaning": "Oをわきに置く／Oを取っておく／問題などのOをひとまず後回しにする",
+          "refs": [
+            {
+              "wordId": "reserve",
+              "source": "relatedWords"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-2082df18270b548268991bd3:0",
+          "meaning": "Oを蓄える・Oを脇に置く・Oを取っておく",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-ef5ca7f3ce156932bd67f803",
+        "phrase": "put O down",
+        "sectionKey": "put",
+        "meanings": [
+          {
+            "id": "crossover-idiom-ef5ca7f3ce156932bd67f803:0",
+            "meaning": "Oを書き留める／Oを置く／Oをけなす／頭金などのOを払う",
+            "refs": [
+              {
+                "wordId": "note",
+                "source": "relatedWords"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-77c0fe88db9e4c042c3412eb",
+        "phrase": "put down O",
+        "sectionKey": "put",
+        "meanings": [
+          {
+            "id": "crossover-idiom-77c0fe88db9e4c042c3412eb:0",
+            "meaning": "Oを置く・Oを鎮める・抑える",
+            "refs": [
+              {
+                "wordId": "suppress",
+                "source": "relatedWords"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-ef5ca7f3ce156932bd67f803",
+      "phrase": "put O down",
+      "sectionKey": "put",
+      "meanings": [
+        {
+          "id": "crossover-idiom-ef5ca7f3ce156932bd67f803:0",
+          "meaning": "Oを書き留める／Oを置く／Oをけなす／頭金などのOを払う",
+          "refs": [
+            {
+              "wordId": "note",
+              "source": "relatedWords"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-77c0fe88db9e4c042c3412eb:0",
+          "meaning": "Oを置く・Oを鎮める・抑える",
+          "refs": [
+            {
+              "wordId": "suppress",
+              "source": "relatedWords"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-3112f846d6dd1458fe1e3b36",
+        "phrase": "set up O",
+        "sectionKey": "set",
+        "meanings": [
+          {
+            "id": "crossover-idiom-3112f846d6dd1458fe1e3b36:0",
+            "meaning": "Oを設立する；Oを設置する",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-ec153694483b2b7d1ccc1bff",
+        "phrase": "set up",
+        "sectionKey": "set",
+        "meanings": [
+          {
+            "id": "crossover-idiom-ec153694483b2b7d1ccc1bff:0",
+            "meaning": "設立する",
+            "refs": [
+              {
+                "wordId": "establish",
+                "source": "synonyms"
+              },
+              {
+                "wordId": "found",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-3112f846d6dd1458fe1e3b36",
+      "phrase": "set up O",
+      "sectionKey": "set",
+      "meanings": [
+        {
+          "id": "crossover-idiom-3112f846d6dd1458fe1e3b36:0",
+          "meaning": "Oを設立する；Oを設置する",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-ec153694483b2b7d1ccc1bff:0",
+          "meaning": "Oを設立する",
+          "refs": [
+            {
+              "wordId": "establish",
+              "source": "synonyms"
+            },
+            {
+              "wordId": "found",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-211771b9db140f75e409d605",
+        "phrase": "stand for O",
+        "sectionKey": "stand",
+        "meanings": [
+          {
+            "id": "crossover-idiom-211771b9db140f75e409d605:0",
+            "meaning": "Oを意味する・Oの略である／Oを支持する／Oを許容する・我慢する",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-7d843341d5813857f007d06d",
+        "phrase": "stand for",
+        "sectionKey": "stand",
+        "meanings": [
+          {
+            "id": "crossover-idiom-7d843341d5813857f007d06d:0",
+            "meaning": "を表す",
+            "refs": [
+              {
+                "wordId": "represent",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-211771b9db140f75e409d605",
+      "phrase": "stand for O",
+      "sectionKey": "stand",
+      "meanings": [
+        {
+          "id": "crossover-idiom-211771b9db140f75e409d605:0",
+          "meaning": "Oを意味する・Oの略である／Oを支持する／Oを許容する・我慢する",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-7d843341d5813857f007d06d:0",
+          "meaning": "Oを意味する・表す",
+          "refs": [
+            {
+              "wordId": "represent",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-817856cb8a562f5e9070c1cb",
+        "phrase": "give birth to O",
+        "sectionKey": "give",
+        "meanings": [
+          {
+            "id": "crossover-idiom-817856cb8a562f5e9070c1cb:0",
+            "meaning": "Oを産む・Oを生み出す",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-a89d52b7a43e169bb5235a02",
+        "phrase": "give birth to",
+        "sectionKey": "give",
+        "meanings": [
+          {
+            "id": "crossover-idiom-a89d52b7a43e169bb5235a02:0",
+            "meaning": "産む",
+            "refs": [
+              {
+                "wordId": "bear",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-817856cb8a562f5e9070c1cb",
+      "phrase": "give birth to O",
+      "sectionKey": "give",
+      "meanings": [
+        {
+          "id": "crossover-idiom-817856cb8a562f5e9070c1cb:0",
+          "meaning": "Oを産む・Oを生み出す",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-a89d52b7a43e169bb5235a02:0",
+          "meaning": "Oを産む",
+          "refs": [
+            {
+              "wordId": "bear",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-cbeb6dc610f6ea599f7cd9a9",
+        "phrase": "by way of O",
+        "sectionKey": "prep-by",
+        "meanings": [
+          {
+            "id": "crossover-idiom-cbeb6dc610f6ea599f7cd9a9:0",
+            "meaning": "O経由で・Oとして",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-d4297736d1a22a2e82ea08bc",
+        "phrase": "by way of",
+        "sectionKey": "prep-by",
+        "meanings": [
+          {
+            "id": "crossover-idiom-d4297736d1a22a2e82ea08bc:0",
+            "meaning": "〜経由で",
+            "refs": [
+              {
+                "wordId": "via",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-cbeb6dc610f6ea599f7cd9a9",
+      "phrase": "by way of O",
+      "sectionKey": "prep-by",
+      "meanings": [
+        {
+          "id": "crossover-idiom-cbeb6dc610f6ea599f7cd9a9:0",
+          "meaning": "O経由で・Oとして",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-d4297736d1a22a2e82ea08bc:0",
+          "meaning": "〜経由で",
+          "refs": [
+            {
+              "wordId": "via",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-ffbf8138bb8e16c8e32fba5c",
+        "phrase": "on / in behalf of O",
+        "sectionKey": "prep-on",
+        "meanings": [
+          {
+            "id": "crossover-idiom-ffbf8138bb8e16c8e32fba5c:0",
+            "meaning": "Oを代表して・Oのために",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-ae244c48610132eee62a0e14",
+        "phrase": "on behalf of A",
+        "sectionKey": "prep-on",
+        "meanings": [
+          {
+            "id": "crossover-idiom-ae244c48610132eee62a0e14:0",
+            "meaning": "Aを代表して",
+            "refs": []
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-ffbf8138bb8e16c8e32fba5c",
+      "phrase": "on / in behalf of O",
+      "sectionKey": "prep-on",
+      "meanings": [
+        {
+          "id": "crossover-idiom-ffbf8138bb8e16c8e32fba5c:0",
+          "meaning": "Oを代表して・Oのために",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-ae244c48610132eee62a0e14:0",
+          "meaning": "Aを代表して",
+          "refs": []
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-0da76ff75b2527e0d22a43fd",
+        "phrase": "bring about O",
+        "sectionKey": "bring",
+        "meanings": [
+          {
+            "id": "crossover-idiom-0da76ff75b2527e0d22a43fd:0",
+            "meaning": "Oを引き起こす",
+            "refs": [
+              {
+                "wordId": "cause",
+                "source": "synonym"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-4dfbee4af4d5d7fc68057dd5",
+        "phrase": "bring about",
+        "sectionKey": "bring",
+        "meanings": [
+          {
+            "id": "crossover-idiom-4dfbee4af4d5d7fc68057dd5:0",
+            "meaning": "招く",
+            "refs": [
+              {
+                "wordId": "spell",
+                "source": "synonyms"
+              }
+            ]
+          },
+          {
+            "id": "crossover-idiom-4dfbee4af4d5d7fc68057dd5:1",
+            "meaning": "実現する",
+            "refs": [
+              {
+                "wordId": "effect",
+                "source": "synonyms"
+              }
+            ]
+          },
+          {
+            "id": "crossover-idiom-4dfbee4af4d5d7fc68057dd5:2",
+            "meaning": "引き起こす",
+            "refs": [
+              {
+                "wordId": "cause",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-0da76ff75b2527e0d22a43fd",
+      "phrase": "bring about O",
+      "sectionKey": "bring",
+      "meanings": [
+        {
+          "id": "crossover-idiom-0da76ff75b2527e0d22a43fd:0",
+          "meaning": "Oを引き起こす",
+          "refs": [
+            {
+              "wordId": "cause",
+              "source": "synonym"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-4dfbee4af4d5d7fc68057dd5:0",
+          "meaning": "招く",
+          "refs": [
+            {
+              "wordId": "spell",
+              "source": "synonyms"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-4dfbee4af4d5d7fc68057dd5:1",
+          "meaning": "実現する",
+          "refs": [
+            {
+              "wordId": "effect",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-192197cc97c43d8f77f7dd3e",
+        "phrase": "go into O",
+        "sectionKey": "go",
+        "meanings": [
+          {
+            "id": "crossover-idiom-192197cc97c43d8f77f7dd3e:0",
+            "meaning": "問題などのOを詳しく調べる（「Oに入る」のほか）",
+            "refs": [
+              {
+                "wordId": "investigate",
+                "source": "synonym"
+              }
+            ]
+          },
+          {
+            "id": "crossover-idiom-192197cc97c43d8f77f7dd3e:1",
+            "meaning": "Oに入る",
+            "refs": [
+              {
+                "wordId": "enter",
+                "source": "phrase"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-22549075bbdd24c976088a1f",
+        "phrase": "go into",
+        "sectionKey": "go",
+        "meanings": [
+          {
+            "id": "crossover-idiom-22549075bbdd24c976088a1f:0",
+            "meaning": "入る",
+            "refs": [
+              {
+                "wordId": "enter",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-192197cc97c43d8f77f7dd3e",
+      "phrase": "go into O",
+      "sectionKey": "go",
+      "meanings": [
+        {
+          "id": "crossover-idiom-192197cc97c43d8f77f7dd3e:0",
+          "meaning": "問題などのOを詳しく調べる（「Oに入る」のほか）",
+          "refs": [
+            {
+              "wordId": "investigate",
+              "source": "synonym"
+            }
+          ]
+        },
+        {
+          "id": "crossover-idiom-192197cc97c43d8f77f7dd3e:1",
+          "meaning": "Oに入る",
+          "refs": [
+            {
+              "wordId": "enter",
+              "source": "phrase"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "before": [
+      {
+        "key": "crossover-idiom-d2bcafe0638d9b2c1bbd0a4e",
+        "phrase": "pass on O",
+        "sectionKey": "pass",
+        "meanings": [
+          {
+            "id": "crossover-idiom-d2bcafe0638d9b2c1bbd0a4e:0",
+            "meaning": "物・情報などOを次に回す・伝える",
+            "refs": []
+          }
+        ]
+      },
+      {
+        "key": "crossover-idiom-0a7895cfc6391aac96b41435",
+        "phrase": "pass on",
+        "sectionKey": "pass",
+        "meanings": [
+          {
+            "id": "crossover-idiom-0a7895cfc6391aac96b41435:0",
+            "meaning": "を伝える・遺伝させる",
+            "refs": [
+              {
+                "wordId": "transmit",
+                "source": "synonyms"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "after": {
+      "key": "crossover-idiom-d2bcafe0638d9b2c1bbd0a4e",
+      "phrase": "pass on O",
+      "sectionKey": "pass",
+      "meanings": [
+        {
+          "id": "crossover-idiom-d2bcafe0638d9b2c1bbd0a4e:0",
+          "meaning": "物・情報などOを次に回す・伝える",
+          "refs": []
+        },
+        {
+          "id": "crossover-idiom-0a7895cfc6391aac96b41435:0",
+          "meaning": "を伝える・遺伝させる",
+          "refs": [
+            {
+              "wordId": "transmit",
+              "source": "synonyms"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
