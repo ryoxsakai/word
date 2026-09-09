@@ -917,6 +917,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 
 .word-list { max-width: 1040px; margin: 0 auto; padding: 1.25rem clamp(0.9rem, 3vw, 2rem) 3rem; }
 .idiom-entries { margin: 0; }
+.related-idioms-link { color: var(--chapter-color-deep); background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
 .idiom-loading .idiom-entry { align-items: center; padding: 1.1rem 0; }
 .idiom-loading .skeleton-headword { width: 70%; }
 .idiom-loading .skeleton-meaning { width: 85%; justify-self: end; }
