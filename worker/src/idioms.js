@@ -1,7 +1,7 @@
 // Idioms are independent of word fields. Reference numbers/tags are resolved by
 // the viewer against its current notebook index, never stored in this table.
 export async function readIdioms(db, listId) {
-  const { results: sections } = await db.prepare(`SELECT section_key AS key, subtitle,
+  const { results: sections } = await db.prepare(`SELECT *, section_key AS key, subtitle,
     chapter_key AS chapterKey, chapter_subtitle AS chapterSubtitle,
     chapter_order AS chapterOrder, sort_order AS sortOrder
     FROM idiom_sections WHERE list_id = ? ORDER BY chapter_order, sort_order`).bind(listId).all();
@@ -25,7 +25,9 @@ export async function readIdioms(db, listId) {
       chapter = { key: section.chapterKey, subtitle: section.chapterSubtitle, sections: [] };
       chapters.push(chapter);
     }
-    chapter.sections.push({ key: section.key, subtitle: section.subtitle });
+    chapter.sections.push({ key: section.key, subtitle: section.subtitle,
+      ...(section.group_key ? { groupKey: section.group_key, groupSubtitle: section.group_subtitle, groupOrder: section.group_order } : {}),
+    });
   }
   return { managed: sections.length > 0, chapters, entries: [...entries.values()] };
 }

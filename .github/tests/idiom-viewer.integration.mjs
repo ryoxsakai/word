@@ -98,6 +98,22 @@ assert.match(illustrated,/class="entry-illustration"/);
 assert.match(illustrated,/loading="lazy"/);
 assert.doesNotMatch(renderIdiomEntry({key:'unsafe',no:'3',phrase:'<script>',meanings:[]},'https://vocab.lrnr.jp'), /<script>/);
 console.log('Idiom word-card layout, stable numbering, navigation and future illustration tests passed');
+
+const curriculum=JSON.parse(await readFile(new URL('../../worker/test/fixtures/grammar-curriculum.json',import.meta.url),'utf8')).after;
+state.idiomGroups=groupIdiomEntries(curriculum.entries,curriculum.chapters);
+state.search='';
+context.renderIdioms();
+context.renderIdiomNavigation();
+assert.equal((panel.innerHTML.match(/class="group-divider"/g)||[]).length,22);
+assert.match(panel.innerHTML,/Group 1/);
+assert.match(panel.innerHTML,/決まった形を取る第2文型動詞/);
+assert.equal((context.el.contentsNav.innerHTML.match(/class="contents-subgroup"/g)||[]).length,22);
+state.search='go bad';
+context.renderIdioms();
+assert.match(panel.innerHTML,/Group 1/);
+assert.match(panel.innerHTML,/Section 1/);
+assert.match(panel.innerHTML,/go bad/);
+console.log('Grammar Group headings, navigation and stable filtered hierarchy passed');
 const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meanings:[{meaning:'Oを失望させる',refs:[
   {wordId:'disappoint',spelling:'disappoint',no:'1034',source:'synonym'},
   {wordId:'let',spelling:'let',no:'923',source:'phrase'},

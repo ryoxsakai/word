@@ -1,0 +1,5896 @@
+[
+  {
+    "phrase": "go bad",
+    "meaning": "腐る",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 0
+  },
+  {
+    "phrase": "go bankrupt",
+    "meaning": "倒産する",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 1
+  },
+  {
+    "phrase": "go wrong (with O)",
+    "meaning": "Oに不具合が生じる・うまくいかなくなる",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 2
+  },
+  {
+    "phrase": "come true",
+    "meaning": "実現する",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 3
+  },
+  {
+    "phrase": "fall asleep",
+    "meaning": "寝入る",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 4
+  },
+  {
+    "phrase": "keep fit",
+    "meaning": "健康でいる",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 5
+  },
+  {
+    "phrase": "stay fit",
+    "meaning": "健康でいる",
+    "lecture": 1,
+    "section": "決まった形を取る第2文型動詞",
+    "candidateId": 5
+  },
+  {
+    "phrase": "agree with O",
+    "meaning": "〜と意見が一致する",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 21
+  },
+  {
+    "phrase": "agree to O",
+    "meaning": "〜に同意する",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 22
+  },
+  {
+    "phrase": "apologize to A for B",
+    "meaning": "AにBのことで謝る",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 23
+  },
+  {
+    "phrase": "complain about O",
+    "meaning": "〜について不満を言う",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 24
+  },
+  {
+    "phrase": "complain of O",
+    "meaning": "〜について不満を言う",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 24
+  },
+  {
+    "phrase": "graduate from O",
+    "meaning": "〜を卒業する",
+    "lecture": 1,
+    "section": "前置詞を伴う自動詞",
+    "candidateId": 25
+  },
+  {
+    "phrase": "do A good",
+    "meaning": "A に利益を与える",
+    "lecture": 1,
+    "section": "決まった形を取る第4文型動詞",
+    "candidateId": 26
+  },
+  {
+    "phrase": "do A harm",
+    "meaning": "A に損害を与える",
+    "lecture": 1,
+    "section": "決まった形を取る第4文型動詞",
+    "candidateId": 27
+  },
+  {
+    "phrase": "do A damage",
+    "meaning": "A に損害を与える",
+    "lecture": 1,
+    "section": "決まった形を取る第4文型動詞",
+    "candidateId": 27
+  },
+  {
+    "phrase": "do A a favor",
+    "meaning": "A のお願いを聞く",
+    "lecture": 1,
+    "section": "決まった形を取る第4文型動詞",
+    "candidateId": 28
+  },
+  {
+    "phrase": "ask A a favor",
+    "meaning": "A にお願いをする",
+    "lecture": 1,
+    "section": "決まった形を取る第4文型動詞",
+    "candidateId": 29
+  },
+  {
+    "phrase": "just now",
+    "meaning": "ちょうど今",
+    "lecture": 3,
+    "section": "時を表す表現",
+    "candidateId": 30
+  },
+  {
+    "phrase": "期間 ago",
+    "meaning": "〜前に",
+    "lecture": 3,
+    "section": "時を表す表現",
+    "candidateId": 31
+  },
+  {
+    "phrase": "last ＋時を表す名詞",
+    "meaning": "この前の〜に",
+    "lecture": 3,
+    "section": "時を表す表現",
+    "candidateId": 32
+  },
+  {
+    "phrase": "Shall I V?",
+    "meaning": "私がVしましょうか",
+    "lecture": 3,
+    "section": "未来・依頼の表現",
+    "candidateId": 33
+  },
+  {
+    "phrase": "Shall we V?",
+    "meaning": "一緒にVしましょうか",
+    "lecture": 3,
+    "section": "未来・依頼の表現",
+    "candidateId": 34
+  },
+  {
+    "phrase": "Will you V?",
+    "meaning": "Vしていただけますか",
+    "lecture": 3,
+    "section": "未来・依頼の表現",
+    "candidateId": 35
+  },
+  {
+    "phrase": "have been to O",
+    "meaning": "〜に行ったことがある",
+    "lecture": 3,
+    "section": "完了形の決まった表現",
+    "candidateId": 36
+  },
+  {
+    "phrase": "have gone to O",
+    "meaning": "〜に行ってしまった",
+    "lecture": 3,
+    "section": "完了形の決まった表現",
+    "candidateId": 37
+  },
+  {
+    "phrase": "cannot V too ＋形容詞・副詞",
+    "meaning": "いくら〜でもVしすぎることはない",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 43
+  },
+  {
+    "phrase": "cannot help Ving",
+    "meaning": "Vせずにはいられない",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 44
+  },
+  {
+    "phrase": "would like O",
+    "meaning": "Oが欲しい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 45
+  },
+  {
+    "phrase": "would rather V",
+    "meaning": "むしろ〜したい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 46
+  },
+  {
+    "phrase": "may well V",
+    "meaning": "たぶんVするだろう／Vするのも当然だ",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 47
+  },
+  {
+    "phrase": "may / might as well V",
+    "meaning": "ほかによい選択肢がないのでVしたほうがよい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 48
+  },
+  {
+    "phrase": "might as well V1 as V2",
+    "meaning": "V2するくらいならV1するほうがましだ",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": 49
+  },
+  {
+    "phrase": "be caught in O",
+    "meaning": "〜に遭う",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 50
+  },
+  {
+    "phrase": "be convinced of O",
+    "meaning": "〜を確信している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 51
+  },
+  {
+    "phrase": "be covered with O",
+    "meaning": "〜に覆われている",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 52
+  },
+  {
+    "phrase": "be disappointed at O",
+    "meaning": "〜に落胆している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 53
+  },
+  {
+    "phrase": "be disappointed in O",
+    "meaning": "〜に落胆している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 53
+  },
+  {
+    "phrase": "be disappointed with O",
+    "meaning": "〜に落胆している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 53
+  },
+  {
+    "phrase": "be dressed in O",
+    "meaning": "〜を着ている",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 54
+  },
+  {
+    "phrase": "be engaged in O",
+    "meaning": "〜に従事している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 55
+  },
+  {
+    "phrase": "be excited at O",
+    "meaning": "〜に興奮している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 56
+  },
+  {
+    "phrase": "be excited about O",
+    "meaning": "〜に興奮している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 56
+  },
+  {
+    "phrase": "be faced with O",
+    "meaning": "〜に直面している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 57
+  },
+  {
+    "phrase": "be filled with O",
+    "meaning": "〜に満たされている",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 58
+  },
+  {
+    "phrase": "be interested in O",
+    "meaning": "〜に興味がある",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 59
+  },
+  {
+    "phrase": "be married to O",
+    "meaning": "〜と結婚している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 60
+  },
+  {
+    "phrase": "be pleased with O",
+    "meaning": "〜に喜んでいる",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 61
+  },
+  {
+    "phrase": "be satisfied with O",
+    "meaning": "〜に満足している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 62
+  },
+  {
+    "phrase": "be surprised at O",
+    "meaning": "〜に驚いている",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 63
+  },
+  {
+    "phrase": "be worried about O",
+    "meaning": "〜を心配している",
+    "lecture": 6,
+    "section": "前置詞に注意する受動表現",
+    "candidateId": 64
+  },
+  {
+    "phrase": "seem to V",
+    "meaning": "〜するようだ",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 65
+  },
+  {
+    "phrase": "appear to V",
+    "meaning": "〜するようだ",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 65
+  },
+  {
+    "phrase": "happen to V",
+    "meaning": "たまたま〜する",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 66
+  },
+  {
+    "phrase": "come to V",
+    "meaning": "〜するようになる",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 67
+  },
+  {
+    "phrase": "get to V",
+    "meaning": "〜するようになる",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 67
+  },
+  {
+    "phrase": "learn to V",
+    "meaning": "〜できるようになる",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 68
+  },
+  {
+    "phrase": "fail to V",
+    "meaning": "〜しない・できない",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 69
+  },
+  {
+    "phrase": "manage to V",
+    "meaning": "なんとか〜する",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 70
+  },
+  {
+    "phrase": "be about to V",
+    "meaning": "まさにVしようとしている",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 71
+  },
+  {
+    "phrase": "be ready to V",
+    "meaning": "〜する準備ができている",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 72
+  },
+  {
+    "phrase": "be sure to V",
+    "meaning": "必ず〜する",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 73
+  },
+  {
+    "phrase": "be certain to V",
+    "meaning": "必ず〜する",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 73
+  },
+  {
+    "phrase": "be eager to V",
+    "meaning": "Vしたがっている",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 74
+  },
+  {
+    "phrase": "be anxious to V",
+    "meaning": "Vしたがっている",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 74
+  },
+  {
+    "phrase": "be willing to V",
+    "meaning": "〜する気がある",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 75
+  },
+  {
+    "phrase": "be likely to V",
+    "meaning": "〜しそうだ",
+    "lecture": 7,
+    "section": "to Vを伴う決まった表現",
+    "candidateId": 76
+  },
+  {
+    "phrase": "needless to say",
+    "meaning": "言うまでもなく",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 77
+  },
+  {
+    "phrase": "so to speak",
+    "meaning": "いわば",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 78
+  },
+  {
+    "phrase": "to be sure",
+    "meaning": "確かに",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 79
+  },
+  {
+    "phrase": "to begin with",
+    "meaning": "まずはじめに",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 80
+  },
+  {
+    "phrase": "to tell (you) the truth",
+    "meaning": "実を言うと",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 81
+  },
+  {
+    "phrase": "to be honest",
+    "meaning": "正直に言うと",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 82
+  },
+  {
+    "phrase": "strange to say",
+    "meaning": "奇妙なことに",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 83
+  },
+  {
+    "phrase": "to make matters worse",
+    "meaning": "さらに悪いことに",
+    "lecture": 7,
+    "section": "独立不定詞",
+    "candidateId": 84
+  },
+  {
+    "phrase": "decide to V",
+    "meaning": "Vすることを決める",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 85
+  },
+  {
+    "phrase": "plan to V",
+    "meaning": "Vすることを計画する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 86
+  },
+  {
+    "phrase": "hope to V",
+    "meaning": "Vすることを望む",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 87
+  },
+  {
+    "phrase": "expect to V",
+    "meaning": "Vするつもりである・Vすると予想する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 88
+  },
+  {
+    "phrase": "want to V",
+    "meaning": "Vすることをしたい",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 89
+  },
+  {
+    "phrase": "promise to V",
+    "meaning": "Vすることを約束する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 90
+  },
+  {
+    "phrase": "pretend to V",
+    "meaning": "Vすることをふりをする",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 91
+  },
+  {
+    "phrase": "hesitate to V",
+    "meaning": "Vすることをためらう",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 92
+  },
+  {
+    "phrase": "refuse to V",
+    "meaning": "Vすることを断る",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 93
+  },
+  {
+    "phrase": "mind Ving",
+    "meaning": "Vすることを嫌がる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 94
+  },
+  {
+    "phrase": "enjoy Ving",
+    "meaning": "Vすることを楽しむ",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 95
+  },
+  {
+    "phrase": "give up Ving",
+    "meaning": "Vすることを諦める",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 96
+  },
+  {
+    "phrase": "avoid Ving",
+    "meaning": "Vすることを避ける",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 97
+  },
+  {
+    "phrase": "finish Ving",
+    "meaning": "Vすることを終える",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 98
+  },
+  {
+    "phrase": "escape Ving",
+    "meaning": "Vすることを逃れる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 99
+  },
+  {
+    "phrase": "postpone Ving",
+    "meaning": "Vすることを延期する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 100
+  },
+  {
+    "phrase": "stop Ving",
+    "meaning": "Vすることをやめる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 101
+  },
+  {
+    "phrase": "deny Ving",
+    "meaning": "Vすることを否定する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 102
+  },
+  {
+    "phrase": "admit Ving",
+    "meaning": "Vすることを認める",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 103
+  },
+  {
+    "phrase": "practice Ving",
+    "meaning": "Vすることを練習する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 104
+  },
+  {
+    "phrase": "advise Ving",
+    "meaning": "Vすることを助言する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 105
+  },
+  {
+    "phrase": "mention Ving",
+    "meaning": "Vすることを言及する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 106
+  },
+  {
+    "phrase": "imagine Ving",
+    "meaning": "Vすることを想像する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 107
+  },
+  {
+    "phrase": "consider Ving",
+    "meaning": "Vすることを考慮する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 108
+  },
+  {
+    "phrase": "suggest Ving",
+    "meaning": "Vすることを提案する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 109
+  },
+  {
+    "phrase": "remember to V",
+    "meaning": "忘れずにVする",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 110
+  },
+  {
+    "phrase": "remember Ving",
+    "meaning": "〜したことを覚えている",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 111
+  },
+  {
+    "phrase": "forget to V",
+    "meaning": "Vするのを忘れる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 112
+  },
+  {
+    "phrase": "forget Ving",
+    "meaning": "〜したことを忘れる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 113
+  },
+  {
+    "phrase": "try to V",
+    "meaning": "〜しようとする",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 114
+  },
+  {
+    "phrase": "try Ving",
+    "meaning": "〜してみる",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 115
+  },
+  {
+    "phrase": "regret to V",
+    "meaning": "残念ながら〜する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 116
+  },
+  {
+    "phrase": "regret Ving",
+    "meaning": "〜したことを後悔する",
+    "lecture": 8,
+    "section": "to VとVingの選択",
+    "candidateId": 117
+  },
+  {
+    "phrase": "look forward to O / Ving",
+    "meaning": "O・Vすることを楽しみに待つ",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 118
+  },
+  {
+    "phrase": "object to Ving",
+    "meaning": "〜するのに反対する",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 119
+  },
+  {
+    "phrase": "be used to O / Ving",
+    "meaning": "〜するのに慣れている",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 120
+  },
+  {
+    "phrase": "What do you say to Ving?",
+    "meaning": "Vするのはどうですか",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 121
+  },
+  {
+    "phrase": "when it comes to O / Ving",
+    "meaning": "O・Vすることとなると",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 122
+  },
+  {
+    "phrase": "with a view to Ving",
+    "meaning": "〜する目的で",
+    "lecture": 8,
+    "section": "前置詞to＋Ving",
+    "candidateId": 123
+  },
+  {
+    "phrase": "物 need Ving",
+    "meaning": "物がVされる必要がある",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 124
+  },
+  {
+    "phrase": "物 want Ving",
+    "meaning": "物がVされる必要がある",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 124
+  },
+  {
+    "phrase": "be capable of Ving",
+    "meaning": "〜できる",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 125
+  },
+  {
+    "phrase": "on the point of Ving",
+    "meaning": "まさに〜しようとしている",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 126
+  },
+  {
+    "phrase": "make a point of Ving",
+    "meaning": "〜することにしている",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 127
+  },
+  {
+    "phrase": "there is no Ving",
+    "meaning": "〜できない",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 128
+  },
+  {
+    "phrase": "it is no use Ving",
+    "meaning": "〜しても無駄だ",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 129
+  },
+  {
+    "phrase": "it is no good Ving",
+    "meaning": "〜しても無駄だ",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 129
+  },
+  {
+    "phrase": "on Ving",
+    "meaning": "〜するとすぐに",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 130
+  },
+  {
+    "phrase": "in Ving",
+    "meaning": "〜する際には",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 131
+  },
+  {
+    "phrase": "feel like Ving",
+    "meaning": "〜したい気がする",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 132
+  },
+  {
+    "phrase": "insist on Ving",
+    "meaning": "〜するのを主張する",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 133
+  },
+  {
+    "phrase": "cannot help Ving",
+    "meaning": "Vせずにはいられない",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 134
+  },
+  {
+    "phrase": "be worth Ving",
+    "meaning": "〜する価値がある",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 135
+  },
+  {
+    "phrase": "spend O (in) Ving",
+    "meaning": "O を〜して費やす",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 136
+  },
+  {
+    "phrase": "be busy (in) Ving",
+    "meaning": "〜するのに忙しい",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 137
+  },
+  {
+    "phrase": "have difficulty (in) Ving",
+    "meaning": "〜するのに苦労する",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 138
+  },
+  {
+    "phrase": "have trouble (in) Ving",
+    "meaning": "〜するのに苦労する",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 138
+  },
+  {
+    "phrase": "have a hard time (in) Ving",
+    "meaning": "〜するのに苦労する",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 138
+  },
+  {
+    "phrase": "prevent O from Ving",
+    "meaning": "O が〜するのを妨げる",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 139
+  },
+  {
+    "phrase": "It goes without saying that S V",
+    "meaning": "SがVするのは言うまでもない",
+    "lecture": 8,
+    "section": "動名詞の慣用表現",
+    "candidateId": 140
+  },
+  {
+    "phrase": "considering O",
+    "meaning": "Oを考慮すると",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 141
+  },
+  {
+    "phrase": "given O",
+    "meaning": "Oを考慮すると",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 141
+  },
+  {
+    "phrase": "frankly speaking",
+    "meaning": "率直に言うと",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 142
+  },
+  {
+    "phrase": "generally speaking",
+    "meaning": "一般的に言うと",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 143
+  },
+  {
+    "phrase": "strictly speaking",
+    "meaning": "厳密に言うと",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 144
+  },
+  {
+    "phrase": "speaking of",
+    "meaning": "〜と言えば",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 145
+  },
+  {
+    "phrase": "talking of",
+    "meaning": "〜と言えば",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 145
+  },
+  {
+    "phrase": "judging from",
+    "meaning": "〜から判断すると",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 146
+  },
+  {
+    "phrase": "all things considered",
+    "meaning": "すべてを考慮すると",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 147
+  },
+  {
+    "phrase": "weather permitting",
+    "meaning": "天候が許せば",
+    "lecture": 9,
+    "section": "独立分詞構文",
+    "candidateId": 148
+  },
+  {
+    "phrase": "by the time S V",
+    "meaning": "〜までに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 151
+  },
+  {
+    "phrase": "every time S V",
+    "meaning": "〜するたびに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 156
+  },
+  {
+    "phrase": "each time S V",
+    "meaning": "〜するたびに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 156
+  },
+  {
+    "phrase": "as soon as S V",
+    "meaning": "SがVするとすぐに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 157
+  },
+  {
+    "phrase": "the moment S V",
+    "meaning": "SがVするとすぐに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 157
+  },
+  {
+    "phrase": "the instant S V",
+    "meaning": "SがVするとすぐに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 157
+  },
+  {
+    "phrase": "the minute S V",
+    "meaning": "SがVするとすぐに",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 157
+  },
+  {
+    "phrase": "as long as S V",
+    "meaning": "SがVするかぎり",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 158
+  },
+  {
+    "phrase": "so long as S V",
+    "meaning": "SがVするかぎり",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 158
+  },
+  {
+    "phrase": "on condition that S V",
+    "meaning": "SがVするという条件で・もしSがVするなら",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 160
+  },
+  {
+    "phrase": "provided that S V",
+    "meaning": "SがVするという条件で・もしSがVするなら",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 160
+  },
+  {
+    "phrase": "providing that S V",
+    "meaning": "SがVするという条件で・もしSがVするなら",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 160
+  },
+  {
+    "phrase": "supposing that S V",
+    "meaning": "SがVするという条件で・もしSがVするなら",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 160
+  },
+  {
+    "phrase": "even if S V",
+    "meaning": "たとえSがVしても",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 161
+  },
+  {
+    "phrase": "in case S V",
+    "meaning": "SがVする場合に備えて／SがVするといけないので",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 162
+  },
+  {
+    "phrase": "for fear that S V",
+    "meaning": "SがVする場合に備えて／SがVするといけないので",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 162
+  },
+  {
+    "phrase": "lest S V",
+    "meaning": "SがVする場合に備えて／SがVするといけないので",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 162
+  },
+  {
+    "phrase": "given (that) S V",
+    "meaning": "〜を考慮に入れると・仮定すると",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 163
+  },
+  {
+    "phrase": "now that S V",
+    "meaning": "今や〜なので",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 166
+  },
+  {
+    "phrase": "even though S V",
+    "meaning": "実際にSがVするにもかかわらず",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 167
+  },
+  {
+    "phrase": "whereas S V",
+    "meaning": "一方でSがVするのに対して",
+    "lecture": 10,
+    "section": "時・条件・譲歩",
+    "candidateId": 168
+  },
+  {
+    "phrase": "both A and B",
+    "meaning": "A と B の両方",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 170
+  },
+  {
+    "phrase": "either A or B",
+    "meaning": "A か B のどちらか",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 171
+  },
+  {
+    "phrase": "neither A nor B",
+    "meaning": "A も B もない",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 172
+  },
+  {
+    "phrase": "not A but B",
+    "meaning": "A ではなく B",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 173
+  },
+  {
+    "phrase": "not only A but (also) B",
+    "meaning": "A だけでなく B も",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 174
+  },
+  {
+    "phrase": "命令文, and S V",
+    "meaning": "〜しなさい、そうすればSがVする",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 175
+  },
+  {
+    "phrase": "命令文, or S V",
+    "meaning": "〜しなさい、さもないとSがVする",
+    "lecture": 10,
+    "section": "相関表現",
+    "candidateId": 176
+  },
+  {
+    "phrase": "see (to it) that S V",
+    "meaning": "SがVするように取り計らう",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 177
+  },
+  {
+    "phrase": "The fact is (that) S V",
+    "meaning": "実は〜",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 178
+  },
+  {
+    "phrase": "Rumor has it that S V",
+    "meaning": "噂[伝説]によれば〜",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 179
+  },
+  {
+    "phrase": "Legend has it that S V",
+    "meaning": "噂[伝説]によれば〜",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 179
+  },
+  {
+    "phrase": "The trouble is (that) S V",
+    "meaning": "困ったことに〜",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 180
+  },
+  {
+    "phrase": "(The) Chances are (that) S V",
+    "meaning": "たぶん〜だろう",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 181
+  },
+  {
+    "phrase": "take it for granted that S V",
+    "meaning": "SがVするのを当然と思う",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 182
+  },
+  {
+    "phrase": "in that S V",
+    "meaning": "〜という点で",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 183
+  },
+  {
+    "phrase": "the way S V",
+    "meaning": "〜するように",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 184
+  },
+  {
+    "phrase": "except that S V",
+    "meaning": "〜を除いて",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 185
+  },
+  {
+    "phrase": "as far as S V",
+    "meaning": "〜限り",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 186
+  },
+  {
+    "phrase": "so far as S V",
+    "meaning": "〜限り",
+    "lecture": 10,
+    "section": "that節を伴う表現",
+    "candidateId": 186
+  },
+  {
+    "phrase": "from A to B",
+    "meaning": "A から B まで",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 195
+  },
+  {
+    "phrase": "out of O",
+    "meaning": "〜の外に",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 201
+  },
+  {
+    "phrase": "in front of O",
+    "meaning": "〜の前方に",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 212
+  },
+  {
+    "phrase": "to one's surprise",
+    "meaning": "驚いたことに",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 232
+  },
+  {
+    "phrase": "under control",
+    "meaning": "制御・管理されて",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 237
+  },
+  {
+    "phrase": "die of O",
+    "meaning": "病気などのOで死ぬ",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 238
+  },
+  {
+    "phrase": "be familiar to O",
+    "meaning": "〜によく知られている",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 239
+  },
+  {
+    "phrase": "be anxious for O",
+    "meaning": "〜を熱望している",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 240
+  },
+  {
+    "phrase": "be concerned with O",
+    "meaning": "Oに関係している・Oを扱っている",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 241
+  },
+  {
+    "phrase": "be dependent on O",
+    "meaning": "〜に依存している",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 242
+  },
+  {
+    "phrase": "in time (for O)",
+    "meaning": "(〜に)間にあって",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 243
+  },
+  {
+    "phrase": "to the contrary",
+    "meaning": "それとは反対の",
+    "lecture": 11,
+    "section": "前置詞の決まった組合せ",
+    "candidateId": 244
+  },
+  {
+    "phrase": "according to O",
+    "meaning": "〜によれば",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 245
+  },
+  {
+    "phrase": "as to O",
+    "meaning": "Oに関して",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 246
+  },
+  {
+    "phrase": "as for O",
+    "meaning": "〈話題を転換して〉〜について言えば",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 247
+  },
+  {
+    "phrase": "as of O",
+    "meaning": "〜時点で・〜現在",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 248
+  },
+  {
+    "phrase": "on behalf of O",
+    "meaning": "Oを代表して・Oのために",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 249
+  },
+  {
+    "phrase": "in behalf of O",
+    "meaning": "Oを代表して・Oのために",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 249
+  },
+  {
+    "phrase": "along with O",
+    "meaning": "〜とともに",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 250
+  },
+  {
+    "phrase": "by means of O",
+    "meaning": "〜の手段によって",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 251
+  },
+  {
+    "phrase": "by way of O",
+    "meaning": "〜を経由して",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 252
+  },
+  {
+    "phrase": "apart from O",
+    "meaning": "〜は別にすると",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 253
+  },
+  {
+    "phrase": "aside from O",
+    "meaning": "〜は別にすると",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 253
+  },
+  {
+    "phrase": "except for O",
+    "meaning": "〜以外の点では",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 254
+  },
+  {
+    "phrase": "for fear of O",
+    "meaning": "〜を恐れて",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 255
+  },
+  {
+    "phrase": "for want of O",
+    "meaning": "〜がないので",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 256
+  },
+  {
+    "phrase": "for lack of O",
+    "meaning": "〜がないので",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 256
+  },
+  {
+    "phrase": "in the wake of O",
+    "meaning": "〜に続いて",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 257
+  },
+  {
+    "phrase": "in addition to O",
+    "meaning": "〜に加えて",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 258
+  },
+  {
+    "phrase": "instead of O",
+    "meaning": "〜の代わりに",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 259
+  },
+  {
+    "phrase": "in place of O",
+    "meaning": "〜の代わりに",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 260
+  },
+  {
+    "phrase": "with regard to O",
+    "meaning": "〜に関しては",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 261
+  },
+  {
+    "phrase": "in regard to O",
+    "meaning": "〜に関しては",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 261
+  },
+  {
+    "phrase": "regardless of O",
+    "meaning": "〜とは無関係に",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 262
+  },
+  {
+    "phrase": "in search of O",
+    "meaning": "〜を探して",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 263
+  },
+  {
+    "phrase": "in honor of O",
+    "meaning": "〜に敬意を表して・〜を祝して",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 264
+  },
+  {
+    "phrase": "in return for O",
+    "meaning": "〜のお返しに",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 265
+  },
+  {
+    "phrase": "in favor of O",
+    "meaning": "〜に賛成して",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 266
+  },
+  {
+    "phrase": "in terms of O",
+    "meaning": "〜の点で",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 267
+  },
+  {
+    "phrase": "in charge of O",
+    "meaning": "〜の担当で・責任で",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 268
+  },
+  {
+    "phrase": "out of O",
+    "meaning": "〜から",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 269
+  },
+  {
+    "phrase": "up to O",
+    "meaning": "〜まで",
+    "lecture": 11,
+    "section": "複合前置詞",
+    "candidateId": 270
+  },
+  {
+    "phrase": "what is called O",
+    "meaning": "いわゆるO",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 271
+  },
+  {
+    "phrase": "what is 比較級",
+    "meaning": "さらに(〜なことに)",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 272
+  },
+  {
+    "phrase": "what with A and (what with) B",
+    "meaning": "A やら B やらで",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 273
+  },
+  {
+    "phrase": "A is to B what C is to D",
+    "meaning": "A の B に対する関係は C の D に対する関係と同じだ",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 274
+  },
+  {
+    "phrase": "what few ＋複数名詞",
+    "meaning": "少ないながらもあるだけの〜",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 275
+  },
+  {
+    "phrase": "what little ＋不可算名詞",
+    "meaning": "少ないながらもあるだけの〜",
+    "lecture": 12,
+    "section": "whatを含む慣用表現",
+    "candidateId": 275
+  },
+  {
+    "phrase": "how soon",
+    "meaning": "あとどれくらいで",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 276
+  },
+  {
+    "phrase": "how late",
+    "meaning": "どれくらい遅くまで",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 277
+  },
+  {
+    "phrase": "how often",
+    "meaning": "どれくらい頻繁に",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 278
+  },
+  {
+    "phrase": "how far",
+    "meaning": "どれくらい遠くまで",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 279
+  },
+  {
+    "phrase": "What if S V?",
+    "meaning": "もしSがVしたらどうだろう",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 280
+  },
+  {
+    "phrase": "Why not V?",
+    "meaning": "Vしてはどうですか",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 281
+  },
+  {
+    "phrase": "What about O / Ving?",
+    "meaning": "〜はどうか",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 282
+  },
+  {
+    "phrase": "How about O / Ving?",
+    "meaning": "〜はどうか",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 283
+  },
+  {
+    "phrase": "how do you like O?",
+    "meaning": "〜はどうか",
+    "lecture": 13,
+    "section": "疑問詞の慣用表現",
+    "candidateId": 284
+  },
+  {
+    "phrase": "another + 数詞 + 複数形名詞",
+    "meaning": "さらにもう〜",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 285
+  },
+  {
+    "phrase": "each other",
+    "meaning": "お互いに",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 286
+  },
+  {
+    "phrase": "one another",
+    "meaning": "お互いに",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 286
+  },
+  {
+    "phrase": "one after the other",
+    "meaning": "順に・次々に",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 287
+  },
+  {
+    "phrase": "one after another",
+    "meaning": "次々に",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 288
+  },
+  {
+    "phrase": "other than",
+    "meaning": "〜以外の",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 289
+  },
+  {
+    "phrase": "none other than",
+    "meaning": "まさしく〜",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 290
+  },
+  {
+    "phrase": "just another",
+    "meaning": "ごく平凡な〜",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 291
+  },
+  {
+    "phrase": "A is one thing (and) B is another.",
+    "meaning": "A と B は別物である",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 292
+  },
+  {
+    "phrase": "every + 数詞 + 複数形名詞",
+    "meaning": "〜ごとに",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 294
+  },
+  {
+    "phrase": "every + other + 単数形名詞",
+    "meaning": "1〜おきに",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 295
+  },
+  {
+    "phrase": "none of your business",
+    "meaning": "あなたには関係ない",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 296
+  },
+  {
+    "phrase": "second to none",
+    "meaning": "1 番である",
+    "lecture": 14,
+    "section": "不定代名詞の慣用表現",
+    "candidateId": 297
+  },
+  {
+    "phrase": "make it",
+    "meaning": "間に合う",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 298
+  },
+  {
+    "phrase": "take it easy",
+    "meaning": "気楽にやる",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 299
+  },
+  {
+    "phrase": "That's it.",
+    "meaning": "これでおしまい",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 300
+  },
+  {
+    "phrase": "Let it be.",
+    "meaning": "そのままにしておきなさい",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 301
+  },
+  {
+    "phrase": "Let it go.",
+    "meaning": "そのことはもう気にしないで・忘れなさい",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 302
+  },
+  {
+    "phrase": "It can't be helped.",
+    "meaning": "仕方がない",
+    "lecture": 14,
+    "section": "itを含む慣用表現",
+    "candidateId": 303
+  },
+  {
+    "phrase": "make friends with",
+    "meaning": "〜と友達になる",
+    "lecture": 15,
+    "section": "複数形を使う慣用表現",
+    "candidateId": 328
+  },
+  {
+    "phrase": "change trains at",
+    "meaning": "〜で乗り換える",
+    "lecture": 15,
+    "section": "複数形を使う慣用表現",
+    "candidateId": 329
+  },
+  {
+    "phrase": "shake hands with",
+    "meaning": "〜と握手する",
+    "lecture": 15,
+    "section": "複数形を使う慣用表現",
+    "candidateId": 330
+  },
+  {
+    "phrase": "take turns Ving",
+    "meaning": "交代で〜する",
+    "lecture": 15,
+    "section": "複数形を使う慣用表現",
+    "candidateId": 331
+  },
+  {
+    "phrase": "a number of",
+    "meaning": "たくさんの〜",
+    "lecture": 15,
+    "section": "数量と冠詞の表現",
+    "candidateId": 342
+  },
+  {
+    "phrase": "the number of",
+    "meaning": "〜の数",
+    "lecture": 15,
+    "section": "数量と冠詞の表現",
+    "candidateId": 343
+  },
+  {
+    "phrase": "A present",
+    "meaning": "出席している A",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 362
+  },
+  {
+    "phrase": "A involved",
+    "meaning": "関係している A",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 363
+  },
+  {
+    "phrase": "A concerned",
+    "meaning": "関係している A",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 363
+  },
+  {
+    "phrase": "A available",
+    "meaning": "利用できる A",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 364
+  },
+  {
+    "phrase": "A imaginable",
+    "meaning": "考えうる限りの A",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 365
+  },
+  {
+    "phrase": "-thing / -one / -body + 形容詞",
+    "meaning": "〜な〜",
+    "lecture": 16,
+    "section": "形容詞の位置と組合せ",
+    "candidateId": 366
+  },
+  {
+    "phrase": "as a result",
+    "meaning": "その結果",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 413
+  },
+  {
+    "phrase": "in short",
+    "meaning": "要するに・つまり",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 416
+  },
+  {
+    "phrase": "in brief",
+    "meaning": "要するに・つまり",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 416
+  },
+  {
+    "phrase": "that is",
+    "meaning": "要するに・つまり",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 416
+  },
+  {
+    "phrase": "or else",
+    "meaning": "さもないと",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 417
+  },
+  {
+    "phrase": "for example",
+    "meaning": "例えば",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 418
+  },
+  {
+    "phrase": "for instance",
+    "meaning": "例えば",
+    "lecture": 16,
+    "section": "つなぎの副詞表現",
+    "candidateId": 418
+  },
+  {
+    "phrase": "as ＋形容詞・副詞＋ as possible",
+    "meaning": "できるだけ〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 419
+  },
+  {
+    "phrase": "as ＋形容詞・副詞＋ as ever",
+    "meaning": "相変わらず〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 420
+  },
+  {
+    "phrase": "as good as O",
+    "meaning": "Oも同然で",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 421
+  },
+  {
+    "phrase": "as ＋形容詞＋ a 名詞 as ever lived",
+    "meaning": "今までに類を見ないほど〜な人",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 422
+  },
+  {
+    "phrase": "not so much as V",
+    "meaning": "〜さえしない",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 423
+  },
+  {
+    "phrase": "without so much as Ving",
+    "meaning": "〜さえせずに",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 424
+  },
+  {
+    "phrase": "not so much A as B",
+    "meaning": "A というよりむしろ B",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 425
+  },
+  {
+    "phrase": "the 比較級, the 比較級",
+    "meaning": "〜すればするほどますます〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 426
+  },
+  {
+    "phrase": "比較級 and 比較級",
+    "meaning": "ますます〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 427
+  },
+  {
+    "phrase": "all the 比較級 + 理由",
+    "meaning": "〜なのでさらに〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 428
+  },
+  {
+    "phrase": "more or less",
+    "meaning": "多かれ少なかれ",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 429
+  },
+  {
+    "phrase": "know better than to V",
+    "meaning": "Vするほど愚かではない",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 430
+  },
+  {
+    "phrase": "sooner or later",
+    "meaning": "遅かれ早かれ",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 431
+  },
+  {
+    "phrase": "肯定文, much more O",
+    "meaning": "なおさら〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 432
+  },
+  {
+    "phrase": "肯定文, still more O",
+    "meaning": "なおさら〜",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 432
+  },
+  {
+    "phrase": "否定文, much less O",
+    "meaning": "なおさら〜ない",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 433
+  },
+  {
+    "phrase": "否定文, still less O",
+    "meaning": "なおさら〜ない",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 433
+  },
+  {
+    "phrase": "at one's best",
+    "meaning": "最高の状態で",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 434
+  },
+  {
+    "phrase": "at most",
+    "meaning": "多くとも",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 435
+  },
+  {
+    "phrase": "make the most of",
+    "meaning": "〜を最大限利用する",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 436
+  },
+  {
+    "phrase": "at least",
+    "meaning": "少なくとも",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 437
+  },
+  {
+    "phrase": "make the best of",
+    "meaning": "(不利な状況でも)〜を最大限利用する",
+    "lecture": 17,
+    "section": "比較の慣用表現",
+    "candidateId": 438
+  },
+  {
+    "phrase": "the last A to V",
+    "meaning": "最もVしそうにないA",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 447
+  },
+  {
+    "phrase": "be free from",
+    "meaning": "〜がない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 448
+  },
+  {
+    "phrase": "have yet to V",
+    "meaning": "まだ〜していない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 449
+  },
+  {
+    "phrase": "be yet to V",
+    "meaning": "まだ〜していない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 449
+  },
+  {
+    "phrase": "remain to be V-ed",
+    "meaning": "まだVされていない・今後Vされる必要がある",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 450
+  },
+  {
+    "phrase": "too ＋形容詞・副詞＋ to V",
+    "meaning": "〜すぎてVできない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 451
+  },
+  {
+    "phrase": "prevent A from Ving",
+    "meaning": "AがVするのを妨げる",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 452
+  },
+  {
+    "phrase": "above A",
+    "meaning": "人のAには理解できない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 453
+  },
+  {
+    "phrase": "beyond + 動作名詞",
+    "meaning": "〜を超えている・〜できない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 454
+  },
+  {
+    "phrase": "nothing but",
+    "meaning": "〜だけ",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 455
+  },
+  {
+    "phrase": "do nothing but V",
+    "meaning": "〜ばかりしている",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 456
+  },
+  {
+    "phrase": "not A but B",
+    "meaning": "A ではなく B",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 457
+  },
+  {
+    "phrase": "not only A but (also) B",
+    "meaning": "A だけでなく B も",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 458
+  },
+  {
+    "phrase": "It was not long before S 過去形",
+    "meaning": "ほどなくSが〜した",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 459
+  },
+  {
+    "phrase": "It will not be long before S V",
+    "meaning": "まもなくSがVするだろう",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 460
+  },
+  {
+    "phrase": "no more",
+    "meaning": "〈量・程度が〉もはや〜ない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 461
+  },
+  {
+    "phrase": "no longer",
+    "meaning": "〈今後は〉もはや〜ない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": 462
+  },
+  {
+    "phrase": "I think so.",
+    "meaning": "そう思う",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 463
+  },
+  {
+    "phrase": "I don't think so.",
+    "meaning": "そうは思わない",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 464
+  },
+  {
+    "phrase": "I hope so.",
+    "meaning": "そうだといいね",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 465
+  },
+  {
+    "phrase": "I hope not.",
+    "meaning": "違うといいね",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 466
+  },
+  {
+    "phrase": "I'm afraid so.",
+    "meaning": "残念ながらそうだ",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 467
+  },
+  {
+    "phrase": "I'm afraid not.",
+    "meaning": "残念ながら違う",
+    "lecture": 19,
+    "section": "応答・代用",
+    "candidateId": 468
+  },
+  {
+    "phrase": "if so",
+    "meaning": "もしそうであれば",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 469
+  },
+  {
+    "phrase": "if not (O)",
+    "meaning": "そう(〜)でないなら",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 470
+  },
+  {
+    "phrase": "if any",
+    "meaning": "もしあるなら・あるにしても",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 471
+  },
+  {
+    "phrase": "if ever",
+    "meaning": "もしするなら・するにしても",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 472
+  },
+  {
+    "phrase": "if anything",
+    "meaning": "どちらかといえば",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 473
+  },
+  {
+    "phrase": "if possible",
+    "meaning": "もし可能なら",
+    "lecture": 19,
+    "section": "省略を含む慣用表現",
+    "candidateId": 474
+  },
+  {
+    "phrase": "break out",
+    "meaning": "起こる",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 475
+  },
+  {
+    "phrase": "come about",
+    "meaning": "起こる",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 476
+  },
+  {
+    "phrase": "drop in",
+    "meaning": "立ち寄る",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 477
+  },
+  {
+    "phrase": "fall through",
+    "meaning": "失敗する",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 478
+  },
+  {
+    "phrase": "give in",
+    "meaning": "屈服する",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 479
+  },
+  {
+    "phrase": "go on",
+    "meaning": "続く",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 480
+  },
+  {
+    "phrase": "grow up",
+    "meaning": "成長する",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 481
+  },
+  {
+    "phrase": "hold on",
+    "meaning": "待つ",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 482
+  },
+  {
+    "phrase": "hurry up",
+    "meaning": "急ぐ",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 483
+  },
+  {
+    "phrase": "pass away",
+    "meaning": "亡くなる",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 484
+  },
+  {
+    "phrase": "show up",
+    "meaning": "現れる",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 485
+  },
+  {
+    "phrase": "stand out",
+    "meaning": "目立つ",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 486
+  },
+  {
+    "phrase": "take off",
+    "meaning": "離陸する",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 487
+  },
+  {
+    "phrase": "turn over",
+    "meaning": "ひっくり返る",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 488
+  },
+  {
+    "phrase": "run away",
+    "meaning": "逃げる",
+    "lecture": 20,
+    "section": "自動詞＋副詞",
+    "candidateId": 489
+  },
+  {
+    "phrase": "account for O",
+    "meaning": "〜を説明する，占める",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 490
+  },
+  {
+    "phrase": "apply for O",
+    "meaning": "〜に申し込む",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 491
+  },
+  {
+    "phrase": "burst into O",
+    "meaning": "突然〜になる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 492
+  },
+  {
+    "phrase": "burst out",
+    "meaning": "突然〜になる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 492
+  },
+  {
+    "phrase": "call for O",
+    "meaning": "〜を要求する，必要とする",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 493
+  },
+  {
+    "phrase": "care for O",
+    "meaning": "〜を好む",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 494
+  },
+  {
+    "phrase": "come across",
+    "meaning": "〜に偶然出くわす",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 495
+  },
+  {
+    "phrase": "consist of O",
+    "meaning": "〜からなる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 496
+  },
+  {
+    "phrase": "correspond to O",
+    "meaning": "〜に対応する",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 497
+  },
+  {
+    "phrase": "count on O",
+    "meaning": "〜に頼る",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 498
+  },
+  {
+    "phrase": "rely on O",
+    "meaning": "〜に頼る",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 498
+  },
+  {
+    "phrase": "deal with O",
+    "meaning": "〜に対処する",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 499
+  },
+  {
+    "phrase": "cope with O",
+    "meaning": "〜に対処する",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 499
+  },
+  {
+    "phrase": "dispense with O",
+    "meaning": "〜なしで済ます",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 500
+  },
+  {
+    "phrase": "do without O",
+    "meaning": "〜なしで済ます",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 501
+  },
+  {
+    "phrase": "fall on O",
+    "meaning": "《日付が》〜にあたる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 502
+  },
+  {
+    "phrase": "get over O",
+    "meaning": "〜を乗り越える，克服する",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 503
+  },
+  {
+    "phrase": "occur to O",
+    "meaning": "《考えが》〜の心に浮かぶ",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 504
+  },
+  {
+    "phrase": "refer to O",
+    "meaning": "〜に言及する",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 505
+  },
+  {
+    "phrase": "resort to O",
+    "meaning": "《暴力など》に訴える",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 506
+  },
+  {
+    "phrase": "result from O",
+    "meaning": "〜から生じる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 507
+  },
+  {
+    "phrase": "stem from O",
+    "meaning": "〜から生じる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 507
+  },
+  {
+    "phrase": "result in O",
+    "meaning": "《結果として》〜になる",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 508
+  },
+  {
+    "phrase": "run into O",
+    "meaning": "〜に偶然出くわす",
+    "lecture": 20,
+    "section": "動詞＋前置詞＋目的語",
+    "candidateId": 509
+  },
+  {
+    "phrase": "bring O about",
+    "meaning": "〜を起こす",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 510
+  },
+  {
+    "phrase": "bring O up",
+    "meaning": "〜を育てる",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 511
+  },
+  {
+    "phrase": "call O off",
+    "meaning": "〜を中止する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 512
+  },
+  {
+    "phrase": "carry O out",
+    "meaning": "〜を実行する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 513
+  },
+  {
+    "phrase": "figure O out",
+    "meaning": "〜を理解する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 514
+  },
+  {
+    "phrase": "give O away",
+    "meaning": "〜を配る",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 515
+  },
+  {
+    "phrase": "give O up",
+    "meaning": "〜を諦める",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 516
+  },
+  {
+    "phrase": "hand O in",
+    "meaning": "〜を提出する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 517
+  },
+  {
+    "phrase": "lay O off",
+    "meaning": "〜を《一時》解雇する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 518
+  },
+  {
+    "phrase": "leave O out",
+    "meaning": "〜を除外する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 519
+  },
+  {
+    "phrase": "let O down",
+    "meaning": "〜を失望させる",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 520
+  },
+  {
+    "phrase": "pick O up",
+    "meaning": "Oを拾い上げる・Oを車に乗せる",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 521
+  },
+  {
+    "phrase": "put O off",
+    "meaning": "〜を延期する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 522
+  },
+  {
+    "phrase": "try O on",
+    "meaning": "〜を試着する",
+    "lecture": 20,
+    "section": "他動詞＋目的語＋副詞",
+    "candidateId": 523
+  },
+  {
+    "phrase": "add up to O",
+    "meaning": "合計〜になる",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 524
+  },
+  {
+    "phrase": "catch up with O",
+    "meaning": "〜に追いつく",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 525
+  },
+  {
+    "phrase": "cut in on O",
+    "meaning": "〜に割り込む",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 526
+  },
+  {
+    "phrase": "do away with O",
+    "meaning": "〜を廃止する",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 527
+  },
+  {
+    "phrase": "get along with O",
+    "meaning": "〜とうまくやる",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 528
+  },
+  {
+    "phrase": "get down to O",
+    "meaning": "〜に本腰をいれる",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 529
+  },
+  {
+    "phrase": "get through with O",
+    "meaning": "Oを終える・済ませる",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 530
+  },
+  {
+    "phrase": "keep up with O",
+    "meaning": "〜についていく",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 531
+  },
+  {
+    "phrase": "look back on O",
+    "meaning": "〜を振り返る",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 532
+  },
+  {
+    "phrase": "look down on O",
+    "meaning": "〜を見下す",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 533
+  },
+  {
+    "phrase": "look up to O",
+    "meaning": "〜を尊敬する",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 534
+  },
+  {
+    "phrase": "make up for O",
+    "meaning": "〜を補う",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 535
+  },
+  {
+    "phrase": "make up with O",
+    "meaning": "〜と仲直りする",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 536
+  },
+  {
+    "phrase": "put up with O",
+    "meaning": "〜を我慢する",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 537
+  },
+  {
+    "phrase": "run out of O",
+    "meaning": "〜を使い果たす",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 538
+  },
+  {
+    "phrase": "run short of O",
+    "meaning": "〜が不足する",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 539
+  },
+  {
+    "phrase": "speak ill of O",
+    "meaning": "〜の悪口を言う",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 540
+  },
+  {
+    "phrase": "speak well of O",
+    "meaning": "〜をほめる",
+    "lecture": 20,
+    "section": "動詞＋副詞＋前置詞",
+    "candidateId": 541
+  },
+  {
+    "phrase": "above all",
+    "meaning": "特に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 542
+  },
+  {
+    "phrase": "in particular",
+    "meaning": "特に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 542
+  },
+  {
+    "phrase": "at ease",
+    "meaning": "気楽に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 543
+  },
+  {
+    "phrase": "at home",
+    "meaning": "気楽に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 543
+  },
+  {
+    "phrase": "at hand",
+    "meaning": "手元に・近くに／時が近づいて",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 544
+  },
+  {
+    "phrase": "at large",
+    "meaning": "捕まらないで",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 545
+  },
+  {
+    "phrase": "at present",
+    "meaning": "現在のところ",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 546
+  },
+  {
+    "phrase": "at last",
+    "meaning": "とうとう・ついに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 547
+  },
+  {
+    "phrase": "at length",
+    "meaning": "とうとう・ついに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 547
+  },
+  {
+    "phrase": "at random",
+    "meaning": "無作為に・手当たり次第に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 548
+  },
+  {
+    "phrase": "at will",
+    "meaning": "意のままに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 549
+  },
+  {
+    "phrase": "at work",
+    "meaning": "勤務中で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 550
+  },
+  {
+    "phrase": "on duty",
+    "meaning": "勤務中で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 550
+  },
+  {
+    "phrase": "off duty",
+    "meaning": "勤務外で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 551
+  },
+  {
+    "phrase": "before long",
+    "meaning": "まもなく",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 552
+  },
+  {
+    "phrase": "by chance",
+    "meaning": "たまたま",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 553
+  },
+  {
+    "phrase": "by accident",
+    "meaning": "たまたま",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 553
+  },
+  {
+    "phrase": "by degrees",
+    "meaning": "徐々に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 554
+  },
+  {
+    "phrase": "by mistake",
+    "meaning": "誤って",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 555
+  },
+  {
+    "phrase": "by nature",
+    "meaning": "生まれつき",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 556
+  },
+  {
+    "phrase": "by turns",
+    "meaning": "交互に・かわるがわる",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 557
+  },
+  {
+    "phrase": "for ages",
+    "meaning": "長い間",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 558
+  },
+  {
+    "phrase": "for a long time",
+    "meaning": "長い間",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 558
+  },
+  {
+    "phrase": "for certain",
+    "meaning": "確かに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 559
+  },
+  {
+    "phrase": "for sure",
+    "meaning": "確かに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 559
+  },
+  {
+    "phrase": "for good",
+    "meaning": "永久に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 560
+  },
+  {
+    "phrase": "for nothing",
+    "meaning": "無駄に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 561
+  },
+  {
+    "phrase": "in advance",
+    "meaning": "前もって",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 562
+  },
+  {
+    "phrase": "in common",
+    "meaning": "共通した",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 563
+  },
+  {
+    "phrase": "in detail",
+    "meaning": "詳細に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 564
+  },
+  {
+    "phrase": "in earnest",
+    "meaning": "真剣に・本格的に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 565
+  },
+  {
+    "phrase": "in person",
+    "meaning": "本人が直接・じかに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 566
+  },
+  {
+    "phrase": "in progress",
+    "meaning": "進行中で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 567
+  },
+  {
+    "phrase": "in private",
+    "meaning": "人前を避けて・内々に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 568
+  },
+  {
+    "phrase": "in public",
+    "meaning": "人前で・公然と",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 569
+  },
+  {
+    "phrase": "in short",
+    "meaning": "要するに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 570
+  },
+  {
+    "phrase": "in brief",
+    "meaning": "要するに",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 570
+  },
+  {
+    "phrase": "in turn",
+    "meaning": "今度は",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 571
+  },
+  {
+    "phrase": "on purpose",
+    "meaning": "わざと・故意に",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 572
+  },
+  {
+    "phrase": "under way",
+    "meaning": "進行中で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 573
+  },
+  {
+    "phrase": "in progress",
+    "meaning": "進行中で",
+    "lecture": 20,
+    "section": "名詞を含む2語の表現",
+    "candidateId": 573
+  },
+  {
+    "phrase": "at a loss",
+    "meaning": "途方に暮れて",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 574
+  },
+  {
+    "phrase": "at all costs",
+    "meaning": "是非とも",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 575
+  },
+  {
+    "phrase": "by all means",
+    "meaning": "是非とも",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 575
+  },
+  {
+    "phrase": "at first hand",
+    "meaning": "じかに",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 576
+  },
+  {
+    "phrase": "at second hand",
+    "meaning": "間接的に",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 577
+  },
+  {
+    "phrase": "by any chance",
+    "meaning": "ひょっとして",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 578
+  },
+  {
+    "phrase": "ill at ease",
+    "meaning": "不安だ",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 579
+  },
+  {
+    "phrase": "in a sense",
+    "meaning": "ある意味",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 580
+  },
+  {
+    "phrase": "in a way",
+    "meaning": "ある意味",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 580
+  },
+  {
+    "phrase": "in any case",
+    "meaning": "いずれにしても",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 581
+  },
+  {
+    "phrase": "in no time",
+    "meaning": "すぐに",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 582
+  },
+  {
+    "phrase": "on second thought(s)",
+    "meaning": "考え直して",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 583
+  },
+  {
+    "phrase": "on the go",
+    "meaning": "活動中で",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 584
+  },
+  {
+    "phrase": "to some extent",
+    "meaning": "ある程度",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 585
+  },
+  {
+    "phrase": "to some degree",
+    "meaning": "ある程度",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 585
+  },
+  {
+    "phrase": "in order",
+    "meaning": "稼働中で",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 586
+  },
+  {
+    "phrase": "out of order",
+    "meaning": "故障中で",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 587
+  },
+  {
+    "phrase": "in fashion",
+    "meaning": "流行して",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 588
+  },
+  {
+    "phrase": "out of fashion",
+    "meaning": "流行遅れで",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 589
+  },
+  {
+    "phrase": "within reach",
+    "meaning": "手の届く範囲で",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 590
+  },
+  {
+    "phrase": "out of reach",
+    "meaning": "手の届かないところに",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 591
+  },
+  {
+    "phrase": "to the point",
+    "meaning": "的を射た・要領を得た",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 592
+  },
+  {
+    "phrase": "off the point",
+    "meaning": "的外れの",
+    "lecture": 20,
+    "section": "名詞を含む3語の表現",
+    "candidateId": 593
+  },
+  {
+    "phrase": "all of a sudden",
+    "meaning": "突然",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 594
+  },
+  {
+    "phrase": "out of the blue",
+    "meaning": "突然",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 594
+  },
+  {
+    "phrase": "as a matter of fact",
+    "meaning": "実際には・実のところ",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 595
+  },
+  {
+    "phrase": "for the time being",
+    "meaning": "当面の間",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 596
+  },
+  {
+    "phrase": "for now",
+    "meaning": "当面の間",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 596
+  },
+  {
+    "phrase": "once and for all",
+    "meaning": "きっぱりと",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 597
+  },
+  {
+    "phrase": "in the long run",
+    "meaning": "長い目で見れば",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 598
+  },
+  {
+    "phrase": "out of the question",
+    "meaning": "論外で",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 599
+  },
+  {
+    "phrase": "the other way around",
+    "meaning": "あべこべで",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 600
+  },
+  {
+    "phrase": "wide of the mark",
+    "meaning": "的外れの",
+    "lecture": 20,
+    "section": "名詞を含む4語以上の表現",
+    "candidateId": 601
+  },
+  {
+    "phrase": "make sense",
+    "meaning": "意味をなす",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 602
+  },
+  {
+    "phrase": "take place",
+    "meaning": "起こる・行われる",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 603
+  },
+  {
+    "phrase": "kill time",
+    "meaning": "時間を潰す",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 604
+  },
+  {
+    "phrase": "lose face",
+    "meaning": "面目を失う",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 605
+  },
+  {
+    "phrase": "save face",
+    "meaning": "面目を守る",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 606
+  },
+  {
+    "phrase": "keep time",
+    "meaning": "時計が正確に時を刻む／拍子を取る",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 607
+  },
+  {
+    "phrase": "make money",
+    "meaning": "稼ぐ",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 608
+  },
+  {
+    "phrase": "lose weight",
+    "meaning": "体重を減らす",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 609
+  },
+  {
+    "phrase": "gain weight",
+    "meaning": "体重を増やす",
+    "lecture": 20,
+    "section": "動詞＋名詞",
+    "candidateId": 610
+  },
+  {
+    "phrase": "be popular among O",
+    "meaning": "〜の間で人気だ",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 611
+  },
+  {
+    "phrase": "be responsible for O",
+    "meaning": "〜に責任・原因がある",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 612
+  },
+  {
+    "phrase": "be suitable for O",
+    "meaning": "〜に適している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 613
+  },
+  {
+    "phrase": "be free from O",
+    "meaning": "〜がない",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 614
+  },
+  {
+    "phrase": "be free of O",
+    "meaning": "〜がない",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 614
+  },
+  {
+    "phrase": "be bound for O",
+    "meaning": "〜行きである",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 615
+  },
+  {
+    "phrase": "be rich in O",
+    "meaning": "〜に富んでいる",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 616
+  },
+  {
+    "phrase": "be late for O",
+    "meaning": "〜に遅れている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 617
+  },
+  {
+    "phrase": "be ready for O",
+    "meaning": "〜の準備ができている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 618
+  },
+  {
+    "phrase": "be afraid of O",
+    "meaning": "〜を恐れている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 619
+  },
+  {
+    "phrase": "be ashamed of O",
+    "meaning": "〜を恥じている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 620
+  },
+  {
+    "phrase": "be aware of O",
+    "meaning": "〜に気づいている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 621
+  },
+  {
+    "phrase": "be conscious of O",
+    "meaning": "〜に気づいている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 621
+  },
+  {
+    "phrase": "be consistent with O",
+    "meaning": "〜と一貫している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 622
+  },
+  {
+    "phrase": "be envious of O",
+    "meaning": "〜をねたんでいる",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 623
+  },
+  {
+    "phrase": "be jealous of O",
+    "meaning": "〜をねたんでいる",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 623
+  },
+  {
+    "phrase": "be fond of O",
+    "meaning": "〜を好んでいる",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 624
+  },
+  {
+    "phrase": "be ignorant of O",
+    "meaning": "〜に無知である",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 625
+  },
+  {
+    "phrase": "be short of O",
+    "meaning": "〜が不足している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 626
+  },
+  {
+    "phrase": "be sick of O",
+    "meaning": "〜にうんざりしている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 627
+  },
+  {
+    "phrase": "be weary of O",
+    "meaning": "〜にうんざりしている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 627
+  },
+  {
+    "phrase": "be keen on O",
+    "meaning": "〜に熱中している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 628
+  },
+  {
+    "phrase": "be true of O",
+    "meaning": "〜に当てはまる",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 629
+  },
+  {
+    "phrase": "be true to O",
+    "meaning": "〜に忠実である",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 630
+  },
+  {
+    "phrase": "be equal to O",
+    "meaning": "〜に匹敵する",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 631
+  },
+  {
+    "phrase": "be similar to O",
+    "meaning": "〜に似ている",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 632
+  },
+  {
+    "phrase": "be opposite to O",
+    "meaning": "〜と正反対である",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 633
+  },
+  {
+    "phrase": "be peculiar to O",
+    "meaning": "〜に特有である",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 634
+  },
+  {
+    "phrase": "be preferable to O",
+    "meaning": "〜より好ましい",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 635
+  },
+  {
+    "phrase": "be subject to O",
+    "meaning": "〜を受けやすい",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 636
+  },
+  {
+    "phrase": "be susceptible to O",
+    "meaning": "〜を受けやすい",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 636
+  },
+  {
+    "phrase": "be relevant to O",
+    "meaning": "〜に関連している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 637
+  },
+  {
+    "phrase": "be sensitive to O",
+    "meaning": "〜に敏感である",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 638
+  },
+  {
+    "phrase": "be busy with O",
+    "meaning": "〜で忙しい",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 639
+  },
+  {
+    "phrase": "be content with O",
+    "meaning": "〜に満足している",
+    "lecture": 21,
+    "section": "形容詞＋前置詞",
+    "candidateId": 640
+  },
+  {
+    "phrase": "be acquainted with O",
+    "meaning": "〜と知り合いである",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 641
+  },
+  {
+    "phrase": "be obsessed with O",
+    "meaning": "〜に夢中である",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 642
+  },
+  {
+    "phrase": "be addicted to O",
+    "meaning": "〜に依存している",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 643
+  },
+  {
+    "phrase": "be indifferent to O",
+    "meaning": "〜に無関心である",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 644
+  },
+  {
+    "phrase": "be concerned with O",
+    "meaning": "Oに関係している・Oを扱っている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 645
+  },
+  {
+    "phrase": "be absorbed in O",
+    "meaning": "〜に夢中である",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 646
+  },
+  {
+    "phrase": "be lost in O",
+    "meaning": "〜に夢中である",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 646
+  },
+  {
+    "phrase": "be fed up with O",
+    "meaning": "〜にうんざりしている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 647
+  },
+  {
+    "phrase": "be based on O",
+    "meaning": "〜に基づいている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 648
+  },
+  {
+    "phrase": "be opposed to O",
+    "meaning": "〜に反対している",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 649
+  },
+  {
+    "phrase": "be devoted to O",
+    "meaning": "〜に専念している",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 650
+  },
+  {
+    "phrase": "be dedicated to O",
+    "meaning": "〜に専念している",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 650
+  },
+  {
+    "phrase": "be accustomed to O",
+    "meaning": "〜に慣れている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 651
+  },
+  {
+    "phrase": "be used to O",
+    "meaning": "〜に慣れている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 651
+  },
+  {
+    "phrase": "be interested in O",
+    "meaning": "〜に興味がある",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 652
+  },
+  {
+    "phrase": "be engaged in O",
+    "meaning": "〜に従事している",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 653
+  },
+  {
+    "phrase": "be involved in O",
+    "meaning": "〜に関わっている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 654
+  },
+  {
+    "phrase": "be tired of O",
+    "meaning": "〜にうんざりしている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 655
+  },
+  {
+    "phrase": "be tired from O",
+    "meaning": "〜で疲れている",
+    "lecture": 21,
+    "section": "過去分詞＋前置詞",
+    "candidateId": 656
+  },
+  {
+    "phrase": "be allowed to V",
+    "meaning": "〜してもよい",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 657
+  },
+  {
+    "phrase": "be apt to V",
+    "meaning": "〜しがちだ",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 658
+  },
+  {
+    "phrase": "be prone to V",
+    "meaning": "〜しがちだ",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 658
+  },
+  {
+    "phrase": "be liable to V",
+    "meaning": "〜しがちだ",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 658
+  },
+  {
+    "phrase": "be bound to V",
+    "meaning": "必ず〜する",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 659
+  },
+  {
+    "phrase": "be sure to V",
+    "meaning": "必ず〜する",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 659
+  },
+  {
+    "phrase": "be certain to V",
+    "meaning": "必ず〜する",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 659
+  },
+  {
+    "phrase": "be eager to V",
+    "meaning": "〜したがっている",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 660
+  },
+  {
+    "phrase": "be anxious to V",
+    "meaning": "〜したがっている",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 660
+  },
+  {
+    "phrase": "be free to V",
+    "meaning": "自由に〜する",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 661
+  },
+  {
+    "phrase": "be likely to V",
+    "meaning": "〜しそうだ",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 662
+  },
+  {
+    "phrase": "be willing to V",
+    "meaning": "〜してもかまわない",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 663
+  },
+  {
+    "phrase": "be unwilling to V",
+    "meaning": "〜しがたらない",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 664
+  },
+  {
+    "phrase": "be expected to V",
+    "meaning": "Vすることを期待・予想されている",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 665
+  },
+  {
+    "phrase": "be reluctant to V",
+    "meaning": "〜したがらない",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 666
+  },
+  {
+    "phrase": "be supposed to V",
+    "meaning": "〜することになっている",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 667
+  },
+  {
+    "phrase": "be hesitant to V",
+    "meaning": "〜するのをためらう",
+    "lecture": 21,
+    "section": "形容詞・過去分詞＋to V",
+    "candidateId": 668
+  },
+  {
+    "phrase": "all at once",
+    "meaning": "突然に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 669
+  },
+  {
+    "phrase": "all of a sudden",
+    "meaning": "突然に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 669
+  },
+  {
+    "phrase": "all but",
+    "meaning": "ほとんど",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 670
+  },
+  {
+    "phrase": "as yet",
+    "meaning": "今までのところ",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 671
+  },
+  {
+    "phrase": "so far",
+    "meaning": "今までのところ",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 671
+  },
+  {
+    "phrase": "by and large",
+    "meaning": "概して",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 672
+  },
+  {
+    "phrase": "as a rule",
+    "meaning": "概して",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 672
+  },
+  {
+    "phrase": "be well off",
+    "meaning": "暮らし向きがよい・裕福だ",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 673
+  },
+  {
+    "phrase": "be badly off",
+    "meaning": "暮らし向きが悪い・貧しい",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 674
+  },
+  {
+    "phrase": "be poorly off",
+    "meaning": "暮らし向きが悪い・貧しい",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 674
+  },
+  {
+    "phrase": "inside out",
+    "meaning": "表裏が逆に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 675
+  },
+  {
+    "phrase": "upside down",
+    "meaning": "上下反対に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 676
+  },
+  {
+    "phrase": "in the first place",
+    "meaning": "まず初めに",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 677
+  },
+  {
+    "phrase": "first thing in the morning",
+    "meaning": "朝一番で",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 678
+  },
+  {
+    "phrase": "in vain",
+    "meaning": "無駄に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 679
+  },
+  {
+    "phrase": "let alone",
+    "meaning": "〜は言うまでもなく",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 680
+  },
+  {
+    "phrase": "on and off",
+    "meaning": "断続的に",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 681
+  },
+  {
+    "phrase": "in and out",
+    "meaning": "出たり入ったり",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 682
+  },
+  {
+    "phrase": "more often than not",
+    "meaning": "たいてい・多くの場合",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 683
+  },
+  {
+    "phrase": "most of the time",
+    "meaning": "たいてい・多くの場合",
+    "lecture": 21,
+    "section": "形容詞・副詞を含むその他の表現",
+    "candidateId": 683
+  },
+  {
+    "phrase": "in light of O",
+    "meaning": "〜を考慮して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 684
+  },
+  {
+    "phrase": "in spite of O",
+    "meaning": "〜にもかかわらず",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 685
+  },
+  {
+    "phrase": "for want of O",
+    "meaning": "〜が不足して・ないので",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 686
+  },
+  {
+    "phrase": "for lack of O",
+    "meaning": "〜が不足して・ないので",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 686
+  },
+  {
+    "phrase": "in search of O",
+    "meaning": "〜を探して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 687
+  },
+  {
+    "phrase": "by means of O",
+    "meaning": "〜を使って・〜によって",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 688
+  },
+  {
+    "phrase": "by way of O",
+    "meaning": "〜経由で",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 689
+  },
+  {
+    "phrase": "on top of O",
+    "meaning": "〜に加えて",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 690
+  },
+  {
+    "phrase": "in favor of O",
+    "meaning": "〜に賛成して・を支持して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 691
+  },
+  {
+    "phrase": "on account of O",
+    "meaning": "〜のために・〜の理由で",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 692
+  },
+  {
+    "phrase": "in charge of O",
+    "meaning": "〜を担当して・〜の責任で",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 693
+  },
+  {
+    "phrase": "with regard to O",
+    "meaning": "〜に関して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 694
+  },
+  {
+    "phrase": "with respect to O",
+    "meaning": "〜に関して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 694
+  },
+  {
+    "phrase": "in regard to O",
+    "meaning": "〜に関して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 694
+  },
+  {
+    "phrase": "in respect to O",
+    "meaning": "〜に関して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 694
+  },
+  {
+    "phrase": "in place of O",
+    "meaning": "〜の代わりに",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 695
+  },
+  {
+    "phrase": "in accordance with O",
+    "meaning": "〜に従って",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 696
+  },
+  {
+    "phrase": "in comparison with O",
+    "meaning": "〜と比較して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 697
+  },
+  {
+    "phrase": "in contrast to O",
+    "meaning": "〜と対照的に",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 698
+  },
+  {
+    "phrase": "in exchange for O",
+    "meaning": "〜と交換に",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 699
+  },
+  {
+    "phrase": "for the sake of O",
+    "meaning": "〜のために・〜の利益で",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 700
+  },
+  {
+    "phrase": "at the cost of O",
+    "meaning": "〜を犠牲にして",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 701
+  },
+  {
+    "phrase": "at the price of O",
+    "meaning": "〜を犠牲にして",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 701
+  },
+  {
+    "phrase": "at the expense of O",
+    "meaning": "〜を犠牲にして",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 701
+  },
+  {
+    "phrase": "in the face of O",
+    "meaning": "〜に直面して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 702
+  },
+  {
+    "phrase": "at the risk of O",
+    "meaning": "〜の危険を犯して",
+    "lecture": 21,
+    "section": "前置詞＋名詞＋前置詞",
+    "candidateId": 703
+  },
+  {
+    "phrase": "call it a day",
+    "meaning": "仕事を切り上げる",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 704
+  },
+  {
+    "phrase": "beat around the bush",
+    "meaning": "遠回しに言う",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 705
+  },
+  {
+    "phrase": "break the ice",
+    "meaning": "場を和ませる",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 706
+  },
+  {
+    "phrase": "under the weather",
+    "meaning": "体調が悪い",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 707
+  },
+  {
+    "phrase": "pull one's leg",
+    "meaning": "からかう",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 708
+  },
+  {
+    "phrase": "cost an arm and a leg",
+    "meaning": "非常に高額である",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 709
+  },
+  {
+    "phrase": "burn the midnight oil",
+    "meaning": "夜遅くまで働く",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 710
+  },
+  {
+    "phrase": "once in a blue moon",
+    "meaning": "ごくまれに",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 711
+  },
+  {
+    "phrase": "feel blue",
+    "meaning": "憂鬱である",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 712
+  },
+  {
+    "phrase": "spill the beans",
+    "meaning": "秘密を漏らす",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 713
+  },
+  {
+    "phrase": "get cold feet",
+    "meaning": "怖気付く",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 714
+  },
+  {
+    "phrase": "on cloud nine",
+    "meaning": "この上なく幸せである",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 715
+  },
+  {
+    "phrase": "sit on the fence",
+    "meaning": "決めかねている",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 716
+  },
+  {
+    "phrase": "keep one's fingers crossed",
+    "meaning": "幸運を祈る",
+    "lecture": 21,
+    "section": "慣用的な比喩表現",
+    "candidateId": 717
+  },
+  {
+    "phrase": "Nice to meet you.",
+    "meaning": "はじめまして",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 718
+  },
+  {
+    "phrase": "How do you do?",
+    "meaning": "はじめまして",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 718
+  },
+  {
+    "phrase": "It's a pleasure to meet you.",
+    "meaning": "お会いできてうれしいです",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 719
+  },
+  {
+    "phrase": "I'm glad to see you.",
+    "meaning": "お会いできてうれしいです",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 719
+  },
+  {
+    "phrase": "How is everything (going)?",
+    "meaning": "調子はいかがですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 720
+  },
+  {
+    "phrase": "How are things (going)?",
+    "meaning": "調子はいかがですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 720
+  },
+  {
+    "phrase": "What's up?",
+    "meaning": "調子はどう？",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 721
+  },
+  {
+    "phrase": "How's it going?",
+    "meaning": "調子はどう？",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 721
+  },
+  {
+    "phrase": "What's happening?",
+    "meaning": "調子はどう？",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 721
+  },
+  {
+    "phrase": "I'm fine.",
+    "meaning": "元気です",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 722
+  },
+  {
+    "phrase": "I'm doing well.",
+    "meaning": "元気です",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 722
+  },
+  {
+    "phrase": "Not too bad.",
+    "meaning": "まあまあです",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 723
+  },
+  {
+    "phrase": "Where are you from?",
+    "meaning": "出身はどちらですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 724
+  },
+  {
+    "phrase": "Where do you come from?",
+    "meaning": "出身はどちらですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 724
+  },
+  {
+    "phrase": "Who do you work for?",
+    "meaning": "どちらにお勤めですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 725
+  },
+  {
+    "phrase": "Where do you work?",
+    "meaning": "どちらにお勤めですか",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 725
+  },
+  {
+    "phrase": "It's been a long time since I saw you last.",
+    "meaning": "お久しぶりですね",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 726
+  },
+  {
+    "phrase": "See you later.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "So long.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "Good bye.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "See you soon.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "So long.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "Good bye.",
+    "meaning": "さようなら",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 727
+  },
+  {
+    "phrase": "Say hello to A.",
+    "meaning": "A によろしく",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 728
+  },
+  {
+    "phrase": "Remember me to A.",
+    "meaning": "A によろしく",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 728
+  },
+  {
+    "phrase": "Give my (best) regards to A.",
+    "meaning": "A によろしく",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": 728
+  },
+  {
+    "phrase": "May I speak to A?",
+    "meaning": "A をお願いできますか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 729
+  },
+  {
+    "phrase": "May I talk to A?",
+    "meaning": "A をお願いできますか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 729
+  },
+  {
+    "phrase": "Who's calling?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who is this?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who's calling?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who is it?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who's speaking?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who is this?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who's speaking?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Who is it?",
+    "meaning": "どなた様でしょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 730
+  },
+  {
+    "phrase": "Please hold on.",
+    "meaning": "電話を切らずにお待ちください",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 731
+  },
+  {
+    "phrase": "Please hold the line.",
+    "meaning": "電話を切らずにお待ちください",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 731
+  },
+  {
+    "phrase": "Please don't hang up yet.",
+    "meaning": "まだ電話を切らないでください",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 732
+  },
+  {
+    "phrase": "You are wanted on the phone.",
+    "meaning": "あなたに電話です",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 733
+  },
+  {
+    "phrase": "Shall I take a message?",
+    "meaning": "ご伝言を伺いましょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 734
+  },
+  {
+    "phrase": "May I take a message?",
+    "meaning": "ご伝言を伺いましょうか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 734
+  },
+  {
+    "phrase": "Can I leave a message (with A)?",
+    "meaning": "(A に)伝言を残したいのですが",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 735
+  },
+  {
+    "phrase": "May I leave a message (with A)?",
+    "meaning": "(A に)伝言を残したいのですが",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 735
+  },
+  {
+    "phrase": "You have the wrong number.",
+    "meaning": "番号を間違えています",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 736
+  },
+  {
+    "phrase": "The line is busy.",
+    "meaning": "お電話中です",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 737
+  },
+  {
+    "phrase": "The line is engaged.",
+    "meaning": "お電話中です",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 737
+  },
+  {
+    "phrase": "Will you answer the phone?",
+    "meaning": "電話に出てくれませんか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 738
+  },
+  {
+    "phrase": "A is on another line.",
+    "meaning": "A は別の電話に出ています",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 739
+  },
+  {
+    "phrase": "A is on another phone.",
+    "meaning": "A は別の電話に出ています",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 739
+  },
+  {
+    "phrase": "Hello?",
+    "meaning": "もしもし、聞こえますか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 740
+  },
+  {
+    "phrase": "Are you there?",
+    "meaning": "もしもし、聞こえますか",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": 740
+  },
+  {
+    "phrase": "May I help you?",
+    "meaning": "いらっしゃいませ・何かお手伝いしましょうか",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 741
+  },
+  {
+    "phrase": "Can I help you?",
+    "meaning": "いらっしゃいませ・何かお手伝いしましょうか",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 741
+  },
+  {
+    "phrase": "What can I do for you?",
+    "meaning": "いらっしゃいませ・何かお手伝いしましょうか",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 741
+  },
+  {
+    "phrase": "I'm just looking.",
+    "meaning": "見ているだけです",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 742
+  },
+  {
+    "phrase": "Please feel free to look around.",
+    "meaning": "どうぞご自由にご覧ください",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 743
+  },
+  {
+    "phrase": "What's the price of A?",
+    "meaning": "A はおいくらですか",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 744
+  },
+  {
+    "phrase": "How much is A?",
+    "meaning": "A はおいくらですか",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 744
+  },
+  {
+    "phrase": "Keep the change.",
+    "meaning": "お釣りはとっておいてください",
+    "lecture": 22,
+    "section": "買い物",
+    "candidateId": 745
+  },
+  {
+    "phrase": "May I take your order?",
+    "meaning": "ご注文を伺います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 746
+  },
+  {
+    "phrase": "Are you ready to order?",
+    "meaning": "ご注文を伺います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 746
+  },
+  {
+    "phrase": "Can I take your order?",
+    "meaning": "ご注文を伺います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 746
+  },
+  {
+    "phrase": "Are you ready to order?",
+    "meaning": "ご注文を伺います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 746
+  },
+  {
+    "phrase": "Have you been waited on?",
+    "meaning": "御用を伺っていますか",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 747
+  },
+  {
+    "phrase": "Have you been served?",
+    "meaning": "御用を伺っていますか",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 747
+  },
+  {
+    "phrase": "What is your specialty?",
+    "meaning": "この店のおすすめは何ですか",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 748
+  },
+  {
+    "phrase": "The same for me.",
+    "meaning": "私にも同じものをください",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 749
+  },
+  {
+    "phrase": "Same here.",
+    "meaning": "私にも同じものをください",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 749
+  },
+  {
+    "phrase": "I'm full.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "I've had enough.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "I'm full.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "I've had plenty.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "I'm full.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "I've had lots.",
+    "meaning": "お腹いっぱいです",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 750
+  },
+  {
+    "phrase": "Let's split the bill.",
+    "meaning": "割り勘にしましょう",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 751
+  },
+  {
+    "phrase": "Let me pay my bill.",
+    "meaning": "私の勘定分を支払います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 752
+  },
+  {
+    "phrase": "Let me pay my share.",
+    "meaning": "私の勘定分を支払います",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 752
+  },
+  {
+    "phrase": "It's on me.",
+    "meaning": "私がおごります",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 753
+  },
+  {
+    "phrase": "I'll treat you.",
+    "meaning": "私がおごります",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 753
+  },
+  {
+    "phrase": "It's my treat.",
+    "meaning": "私がおごります",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 753
+  },
+  {
+    "phrase": "Be my guest.",
+    "meaning": "私がおごります",
+    "lecture": 22,
+    "section": "レストラン",
+    "candidateId": 753
+  },
+  {
+    "phrase": "Do you mind if S V?",
+    "meaning": "Vしてもよいですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 754
+  },
+  {
+    "phrase": "Would you mind if S 過去形?",
+    "meaning": "Vしてもよいですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 754
+  },
+  {
+    "phrase": "Do you mind my Ving?",
+    "meaning": "Vしてもよいですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 754
+  },
+  {
+    "phrase": "Would you mind my Ving?",
+    "meaning": "Vしてもよいですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 754
+  },
+  {
+    "phrase": "Would you be kind enough to V?",
+    "meaning": "Vしていただけませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 755
+  },
+  {
+    "phrase": "Would you be good enough to V?",
+    "meaning": "Vしていただけませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 755
+  },
+  {
+    "phrase": "Would you do me a favor?",
+    "meaning": "お願いがあります",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 756
+  },
+  {
+    "phrase": "May I ask a favor of you?",
+    "meaning": "お願いがあります",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 756
+  },
+  {
+    "phrase": "Go ahead.",
+    "meaning": "どうぞ・かまいません",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 757
+  },
+  {
+    "phrase": "No problem.",
+    "meaning": "どうぞ・かまいません",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 757
+  },
+  {
+    "phrase": "By all means.",
+    "meaning": "どうぞ・かまいません",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 757
+  },
+  {
+    "phrase": "Certainly.",
+    "meaning": "どうぞ・かまいません",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 757
+  },
+  {
+    "phrase": "No way.",
+    "meaning": "いやだ",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 758
+  },
+  {
+    "phrase": "Absolutely not.",
+    "meaning": "だめです",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 759
+  },
+  {
+    "phrase": "What do you say to Ving?",
+    "meaning": "Vしませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 760
+  },
+  {
+    "phrase": "How about O / Ving?",
+    "meaning": "Vしませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 760
+  },
+  {
+    "phrase": "What about O / Ving?",
+    "meaning": "Vしませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 760
+  },
+  {
+    "phrase": "Why don't you V?",
+    "meaning": "Vしてはどうですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 761
+  },
+  {
+    "phrase": "Why not V?",
+    "meaning": "Vしてはどうですか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 761
+  },
+  {
+    "phrase": "Why don't we V?",
+    "meaning": "一緒にVしませんか",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 762
+  },
+  {
+    "phrase": "With pleasure.",
+    "meaning": "喜んで",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 763
+  },
+  {
+    "phrase": "After you.",
+    "meaning": "お先にどうぞ",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": 764
+  },
+  {
+    "phrase": "Thanks for Ving",
+    "meaning": "Vしてくれてありがとう",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 765
+  },
+  {
+    "phrase": "Don't mention it.",
+    "meaning": "どういたしまして",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 766
+  },
+  {
+    "phrase": "You're welcome.",
+    "meaning": "どういたしまして",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 766
+  },
+  {
+    "phrase": "Anytime.",
+    "meaning": "いつでもどうぞ",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 767
+  },
+  {
+    "phrase": "Never mind.",
+    "meaning": "お気になさらず",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 768
+  },
+  {
+    "phrase": "Don't worry.",
+    "meaning": "お気になさらず",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 768
+  },
+  {
+    "phrase": "I'm sorry to have kept you waiting.",
+    "meaning": "お待たせして申し訳ありません",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 769
+  },
+  {
+    "phrase": "Excuse me, but O",
+    "meaning": "すみませんが〜",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 770
+  },
+  {
+    "phrase": "Thanks, anyway.",
+    "meaning": "《断られたあとに》いずれにしても、ありがとう",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 771
+  },
+  {
+    "phrase": "I would appreciate it if you would V",
+    "meaning": "Vしていただけるとありがたいのですが",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 772
+  },
+  {
+    "phrase": "What is the matter (with you)?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "What's wrong?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "What's up?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "What is the problem (with you)?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "What's wrong?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "What's up?",
+    "meaning": "どうしましたか",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 773
+  },
+  {
+    "phrase": "I have a sore throat.",
+    "meaning": "喉が痛い",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 774
+  },
+  {
+    "phrase": "I have a toothache.",
+    "meaning": "歯が痛い",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 775
+  },
+  {
+    "phrase": "Take care (of yourself).",
+    "meaning": "お大事にどうぞ",
+    "lecture": 22,
+    "section": "感謝・謝罪・体調",
+    "candidateId": 776
+  },
+  {
+    "phrase": "allow O to V",
+    "meaning": "OがVするのを許す",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-739"
+  },
+  {
+    "phrase": "enable O to V",
+    "meaning": "OがVできるようにする",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-740"
+  },
+  {
+    "phrase": "force O to V",
+    "meaning": "OにVすることを強いる",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-741"
+  },
+  {
+    "phrase": "keep O C",
+    "meaning": "OをCの状態に保つ",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-742"
+  },
+  {
+    "phrase": "leave O C",
+    "meaning": "OをCの状態にしておく",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-743"
+  },
+  {
+    "phrase": "make O V",
+    "meaning": "OにVさせる",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-744"
+  },
+  {
+    "phrase": "have O V",
+    "meaning": "OにVしてもらう",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-745"
+  },
+  {
+    "phrase": "let O V",
+    "meaning": "OにVさせる",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-746"
+  },
+  {
+    "phrase": "see O V / see O Ving",
+    "meaning": "OがVするのを見る",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-747"
+  },
+  {
+    "phrase": "hear O V / hear O Ving",
+    "meaning": "OがVするのを聞く",
+    "lecture": 1,
+    "section": "目的語・補語の形",
+    "candidateId": "manual-748"
+  },
+  {
+    "phrase": "inform A of B",
+    "meaning": "AにBを知らせる",
+    "lecture": 2,
+    "section": "通知のof",
+    "candidateId": "manual-749"
+  },
+  {
+    "phrase": "remind A of B",
+    "meaning": "AにBを思い出させる",
+    "lecture": 2,
+    "section": "通知のof",
+    "candidateId": "manual-750"
+  },
+  {
+    "phrase": "convince A of B",
+    "meaning": "AにBを確信させる",
+    "lecture": 2,
+    "section": "通知のof",
+    "candidateId": "manual-751"
+  },
+  {
+    "phrase": "ask B of A",
+    "meaning": "AにBを求める",
+    "lecture": 2,
+    "section": "要求のof",
+    "candidateId": "manual-752"
+  },
+  {
+    "phrase": "demand B of A",
+    "meaning": "AにBを要求する",
+    "lecture": 2,
+    "section": "要求のof",
+    "candidateId": "manual-753"
+  },
+  {
+    "phrase": "rob A of B",
+    "meaning": "AからBを奪う",
+    "lecture": 2,
+    "section": "分離のof",
+    "candidateId": "manual-754"
+  },
+  {
+    "phrase": "deprive A of B",
+    "meaning": "AからBを奪う",
+    "lecture": 2,
+    "section": "分離のof",
+    "candidateId": "manual-755"
+  },
+  {
+    "phrase": "cure A of B",
+    "meaning": "Aの病気Bを治す",
+    "lecture": 2,
+    "section": "分離のof",
+    "candidateId": "manual-756"
+  },
+  {
+    "phrase": "blame A for B",
+    "meaning": "BのことでAを責める",
+    "lecture": 2,
+    "section": "理由のfor",
+    "candidateId": "manual-757"
+  },
+  {
+    "phrase": "thank A for B",
+    "meaning": "BのことでAに感謝する",
+    "lecture": 2,
+    "section": "理由のfor",
+    "candidateId": "manual-758"
+  },
+  {
+    "phrase": "praise A for B",
+    "meaning": "BのことでAを褒める",
+    "lecture": 2,
+    "section": "理由のfor",
+    "candidateId": "manual-759"
+  },
+  {
+    "phrase": "forgive A for B",
+    "meaning": "BのことでAを許す",
+    "lecture": 2,
+    "section": "理由のfor",
+    "candidateId": "manual-760"
+  },
+  {
+    "phrase": "exchange A for B",
+    "meaning": "AをBと交換する",
+    "lecture": 2,
+    "section": "交換のfor",
+    "candidateId": "manual-761"
+  },
+  {
+    "phrase": "mistake A for B",
+    "meaning": "AをBと間違える",
+    "lecture": 2,
+    "section": "交換のfor",
+    "candidateId": "manual-762"
+  },
+  {
+    "phrase": "turn A into B",
+    "meaning": "AをBに変える",
+    "lecture": 2,
+    "section": "変化のinto",
+    "candidateId": "manual-763"
+  },
+  {
+    "phrase": "translate A into B",
+    "meaning": "Aを言語Bに訳す",
+    "lecture": 2,
+    "section": "変化のinto",
+    "candidateId": "manual-764"
+  },
+  {
+    "phrase": "divide A into B",
+    "meaning": "AをBに分ける",
+    "lecture": 2,
+    "section": "変化のinto",
+    "candidateId": "manual-765"
+  },
+  {
+    "phrase": "provide A with B",
+    "meaning": "AにBを供給する",
+    "lecture": 2,
+    "section": "供給のwith",
+    "candidateId": "manual-766"
+  },
+  {
+    "phrase": "supply A with B",
+    "meaning": "AにBを供給する",
+    "lecture": 2,
+    "section": "供給のwith",
+    "candidateId": "manual-767"
+  },
+  {
+    "phrase": "equip A with B",
+    "meaning": "AにBを備え付ける",
+    "lecture": 2,
+    "section": "供給のwith",
+    "candidateId": "manual-768"
+  },
+  {
+    "phrase": "replace A with B",
+    "meaning": "AをBに取り替える",
+    "lecture": 2,
+    "section": "供給のwith",
+    "candidateId": "manual-769"
+  },
+  {
+    "phrase": "associate A with B",
+    "meaning": "AをBと結び付ける",
+    "lecture": 2,
+    "section": "接続のwith",
+    "candidateId": "manual-770"
+  },
+  {
+    "phrase": "confuse A with B",
+    "meaning": "AをBと混同する",
+    "lecture": 2,
+    "section": "接続のwith",
+    "candidateId": "manual-771"
+  },
+  {
+    "phrase": "identify A with B",
+    "meaning": "AをBと同一視する",
+    "lecture": 2,
+    "section": "接続のwith",
+    "candidateId": "manual-772"
+  },
+  {
+    "phrase": "devote A to B / Ving",
+    "meaning": "AをB・Vすることに捧げる",
+    "lecture": 2,
+    "section": "対象のto",
+    "candidateId": "manual-773"
+  },
+  {
+    "phrase": "expose A to B",
+    "meaning": "AをBにさらす",
+    "lecture": 2,
+    "section": "対象のto",
+    "candidateId": "manual-774"
+  },
+  {
+    "phrase": "adapt A to B",
+    "meaning": "AをBに適応させる",
+    "lecture": 2,
+    "section": "対象のto",
+    "candidateId": "manual-775"
+  },
+  {
+    "phrase": "regard A as B",
+    "meaning": "AをBとみなす",
+    "lecture": 2,
+    "section": "同一のas",
+    "candidateId": "manual-776"
+  },
+  {
+    "phrase": "look on A as B",
+    "meaning": "AをBとみなす",
+    "lecture": 2,
+    "section": "同一のas",
+    "candidateId": "manual-777"
+  },
+  {
+    "phrase": "distinguish A from B",
+    "meaning": "AをBと区別する",
+    "lecture": 2,
+    "section": "区別のfrom",
+    "candidateId": "manual-778"
+  },
+  {
+    "phrase": "tell A from B",
+    "meaning": "AをBと見分ける",
+    "lecture": 2,
+    "section": "区別のfrom",
+    "candidateId": "manual-779"
+  },
+  {
+    "phrase": "prevent A from Ving",
+    "meaning": "AがVするのを妨げる",
+    "lecture": 2,
+    "section": "妨害のfrom",
+    "candidateId": "manual-780"
+  },
+  {
+    "phrase": "keep A from Ving",
+    "meaning": "AがVするのを妨げる",
+    "lecture": 2,
+    "section": "妨害のfrom",
+    "candidateId": "manual-781"
+  },
+  {
+    "phrase": "protect A from B",
+    "meaning": "AをBから守る",
+    "lecture": 2,
+    "section": "妨害のfrom",
+    "candidateId": "manual-782"
+  },
+  {
+    "phrase": "persuade A into Ving",
+    "meaning": "Aを説得してVさせる",
+    "lecture": 2,
+    "section": "説得のinto・out of",
+    "candidateId": "manual-783"
+  },
+  {
+    "phrase": "persuade A out of Ving",
+    "meaning": "Aを説得してVさせない",
+    "lecture": 2,
+    "section": "説得のinto・out of",
+    "candidateId": "manual-784"
+  },
+  {
+    "phrase": "believe in O",
+    "meaning": "Oの存在・価値を信じる",
+    "lecture": 2,
+    "section": "その他の決まった語法",
+    "candidateId": "manual-785"
+  },
+  {
+    "phrase": "doubt whether S V",
+    "meaning": "SがVするかどうか疑わしく思う",
+    "lecture": 2,
+    "section": "その他の決まった語法",
+    "candidateId": "manual-786"
+  },
+  {
+    "phrase": "remind A to V",
+    "meaning": "AにVするよう思い出させる",
+    "lecture": 2,
+    "section": "その他の決まった語法",
+    "candidateId": "manual-787"
+  },
+  {
+    "phrase": "come up with O",
+    "meaning": "Oを思いつく",
+    "lecture": 2,
+    "section": "その他の決まった語法",
+    "candidateId": "manual-788"
+  },
+  {
+    "phrase": "It has been 期間 since S 過去形",
+    "meaning": "Sが〜してから期間がたつ",
+    "lecture": 3,
+    "section": "完了形の決まった表現",
+    "candidateId": "manual-789"
+  },
+  {
+    "phrase": "This is the first time S have V-ed",
+    "meaning": "SがVするのはこれが初めてだ",
+    "lecture": 3,
+    "section": "完了形の決まった表現",
+    "candidateId": "manual-790"
+  },
+  {
+    "phrase": "had better V",
+    "meaning": "Vしたほうがよい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": "manual-791"
+  },
+  {
+    "phrase": "used to V",
+    "meaning": "以前はVしたものだ",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": "manual-792"
+  },
+  {
+    "phrase": "would rather V1 than V2",
+    "meaning": "V2するよりV1したい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": "manual-793"
+  },
+  {
+    "phrase": "would like to V",
+    "meaning": "Vしたい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": "manual-794"
+  },
+  {
+    "phrase": "would like O to V",
+    "meaning": "OにVしてほしい",
+    "lecture": 4,
+    "section": "助動詞の慣用表現",
+    "candidateId": "manual-795"
+  },
+  {
+    "phrase": "but for O",
+    "meaning": "Oがなければ・Oがなかったなら",
+    "lecture": 5,
+    "section": "もし〜がなければ",
+    "candidateId": "manual-796"
+  },
+  {
+    "phrase": "if it were not for O",
+    "meaning": "Oがなければ",
+    "lecture": 5,
+    "section": "もし〜がなければ",
+    "candidateId": "manual-797"
+  },
+  {
+    "phrase": "if it had not been for O",
+    "meaning": "Oがなかったなら",
+    "lecture": 5,
+    "section": "もし〜がなければ",
+    "candidateId": "manual-798"
+  },
+  {
+    "phrase": "were it not for O",
+    "meaning": "Oがなければ",
+    "lecture": 5,
+    "section": "もし〜がなければ",
+    "candidateId": "manual-799"
+  },
+  {
+    "phrase": "had it not been for O",
+    "meaning": "Oがなかったなら",
+    "lecture": 5,
+    "section": "もし〜がなければ",
+    "candidateId": "manual-800"
+  },
+  {
+    "phrase": "I wish S 過去形",
+    "meaning": "Sが〜ならよいのに",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-801"
+  },
+  {
+    "phrase": "I wish S had V-ed",
+    "meaning": "SがVしていたらよかったのに",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-802"
+  },
+  {
+    "phrase": "if only S 過去形",
+    "meaning": "Sが〜でさえあればなあ",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-803"
+  },
+  {
+    "phrase": "as if S V / as though S V",
+    "meaning": "まるでSがVするかのように",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-804"
+  },
+  {
+    "phrase": "It is high time S 過去形",
+    "meaning": "もうSが〜してよいころだ",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-805"
+  },
+  {
+    "phrase": "would rather S 過去形",
+    "meaning": "Sが〜してくれたほうがよい",
+    "lecture": 5,
+    "section": "願望・仮定を表す形",
+    "candidateId": "manual-806"
+  },
+  {
+    "phrase": "too ＋形容詞・副詞＋ to V",
+    "meaning": "〜すぎてVできない",
+    "lecture": 7,
+    "section": "不定詞の慣用構文",
+    "candidateId": "manual-807"
+  },
+  {
+    "phrase": "形容詞・副詞＋ enough to V",
+    "meaning": "Vするほど十分に〜だ",
+    "lecture": 7,
+    "section": "不定詞の慣用構文",
+    "candidateId": "manual-808"
+  },
+  {
+    "phrase": "so ＋形容詞＋ as to V",
+    "meaning": "Vするほど〜だ",
+    "lecture": 7,
+    "section": "不定詞の慣用構文",
+    "candidateId": "manual-809"
+  },
+  {
+    "phrase": "only to V",
+    "meaning": "結局Vすることになる",
+    "lecture": 7,
+    "section": "不定詞の慣用構文",
+    "candidateId": "manual-810"
+  },
+  {
+    "phrase": "never to V",
+    "meaning": "その後二度とVしない",
+    "lecture": 7,
+    "section": "不定詞の慣用構文",
+    "candidateId": "manual-811"
+  },
+  {
+    "phrase": "keep O Ving",
+    "meaning": "OにVさせ続ける",
+    "lecture": 9,
+    "section": "分詞を伴う決まった形",
+    "candidateId": "manual-812"
+  },
+  {
+    "phrase": "have O V-ed",
+    "meaning": "OをVしてもらう／OをVされる",
+    "lecture": 9,
+    "section": "分詞を伴う決まった形",
+    "candidateId": "manual-813"
+  },
+  {
+    "phrase": "with O Ving",
+    "meaning": "OがVしている状態で",
+    "lecture": 9,
+    "section": "分詞を伴う決まった形",
+    "candidateId": "manual-814"
+  },
+  {
+    "phrase": "with O V-ed",
+    "meaning": "OがVされた状態で",
+    "lecture": 9,
+    "section": "分詞を伴う決まった形",
+    "candidateId": "manual-815"
+  },
+  {
+    "phrase": "no matter what S V",
+    "meaning": "Sが何をVしても",
+    "lecture": 12,
+    "section": "関係詞の決まった形",
+    "candidateId": "manual-816"
+  },
+  {
+    "phrase": "no matter how ＋形容詞・副詞＋ S V",
+    "meaning": "どんなに〜でも",
+    "lecture": 12,
+    "section": "関係詞の決まった形",
+    "candidateId": "manual-817"
+  },
+  {
+    "phrase": "as is often the case with O",
+    "meaning": "Oにはよくあることだが",
+    "lecture": 12,
+    "section": "関係詞の決まった形",
+    "candidateId": "manual-818"
+  },
+  {
+    "phrase": "what S used to be",
+    "meaning": "かつてのS",
+    "lecture": 12,
+    "section": "関係詞の決まった形",
+    "candidateId": "manual-819"
+  },
+  {
+    "phrase": "what S is",
+    "meaning": "現在のS",
+    "lecture": 12,
+    "section": "関係詞の決まった形",
+    "candidateId": "manual-820"
+  },
+  {
+    "phrase": "A as well as B",
+    "meaning": "BだけでなくAも",
+    "lecture": 13,
+    "section": "一致・話法に関わる表現",
+    "candidateId": "manual-821"
+  },
+  {
+    "phrase": "say to oneself",
+    "meaning": "心の中で思う・独り言を言う",
+    "lecture": 13,
+    "section": "一致・話法に関わる表現",
+    "candidateId": "manual-822"
+  },
+  {
+    "phrase": "a piece of O",
+    "meaning": "ひとつのO",
+    "lecture": 15,
+    "section": "数量と冠詞の表現",
+    "candidateId": "manual-823"
+  },
+  {
+    "phrase": "a pair of O",
+    "meaning": "一組のO",
+    "lecture": 15,
+    "section": "数量と冠詞の表現",
+    "candidateId": "manual-824"
+  },
+  {
+    "phrase": "by the hour",
+    "meaning": "時間単位で",
+    "lecture": 15,
+    "section": "数量と冠詞の表現",
+    "candidateId": "manual-825"
+  },
+  {
+    "phrase": "prefer A to B",
+    "meaning": "BよりAを好む",
+    "lecture": 17,
+    "section": "比較の決まった形",
+    "candidateId": "manual-826"
+  },
+  {
+    "phrase": "no more A than B",
+    "meaning": "Bでないのと同様にAではない",
+    "lecture": 17,
+    "section": "比較の決まった形",
+    "candidateId": "manual-827"
+  },
+  {
+    "phrase": "no less A than B",
+    "meaning": "Bであるのと同様にAである",
+    "lecture": 17,
+    "section": "比較の決まった形",
+    "candidateId": "manual-828"
+  },
+  {
+    "phrase": "as many O",
+    "meaning": "同数のO",
+    "lecture": 17,
+    "section": "比較の決まった形",
+    "candidateId": "manual-829"
+  },
+  {
+    "phrase": "倍数 as ＋形容詞・副詞＋ as O",
+    "meaning": "Oの〜倍ほど〜だ",
+    "lecture": 17,
+    "section": "比較の決まった形",
+    "candidateId": "manual-830"
+  },
+  {
+    "phrase": "not always",
+    "meaning": "いつも〜とは限らない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": "manual-831"
+  },
+  {
+    "phrase": "not necessarily",
+    "meaning": "必ずしも〜ではない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": "manual-832"
+  },
+  {
+    "phrase": "anything but O",
+    "meaning": "決してOではない",
+    "lecture": 18,
+    "section": "否定の慣用表現",
+    "candidateId": "manual-833"
+  },
+  {
+    "phrase": "It is A that S V",
+    "meaning": "SがVするのはAだ",
+    "lecture": 19,
+    "section": "強調・倒置の決まった形",
+    "candidateId": "manual-834"
+  },
+  {
+    "phrase": "not until O",
+    "meaning": "Oになって初めて",
+    "lecture": 19,
+    "section": "強調・倒置の決まった形",
+    "candidateId": "manual-835"
+  },
+  {
+    "phrase": "no sooner had S V-ed than S 過去形",
+    "meaning": "SがVするとすぐに〜した",
+    "lecture": 19,
+    "section": "強調・倒置の決まった形",
+    "candidateId": "manual-836"
+  },
+  {
+    "phrase": "hardly had S V-ed when S 過去形",
+    "meaning": "SがVするとすぐに〜した",
+    "lecture": 19,
+    "section": "強調・倒置の決まった形",
+    "candidateId": "manual-837"
+  },
+  {
+    "phrase": "Long time no see.",
+    "meaning": "久しぶり",
+    "lecture": 22,
+    "section": "あいさつ",
+    "candidateId": "manual-838"
+  },
+  {
+    "phrase": "Yes, let's.",
+    "meaning": "はい、そうしましょう",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": "manual-839"
+  },
+  {
+    "phrase": "No, let's not.",
+    "meaning": "いいえ、やめておきましょう",
+    "lecture": 22,
+    "section": "依頼・許可・提案・勧誘",
+    "candidateId": "manual-840"
+  },
+  {
+    "phrase": "Speaking.",
+    "meaning": "私です",
+    "lecture": 22,
+    "section": "電話",
+    "candidateId": "manual-841"
+  }
+]

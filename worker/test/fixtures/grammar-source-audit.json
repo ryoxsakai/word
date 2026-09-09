@@ -1,0 +1,8694 @@
+[
+  {
+    "lecture": 1,
+    "phrase": "go bad",
+    "meaning": "腐る",
+    "offset": 931,
+    "sourcePage": 2,
+    "candidateId": 0,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "go bankrupt",
+    "meaning": "倒産する",
+    "offset": 952,
+    "sourcePage": 2,
+    "candidateId": 1,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "go wrong (with …)",
+    "meaning": "(…に)不具合がある",
+    "offset": 972,
+    "sourcePage": 2,
+    "candidateId": 2,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "go wrong (with O)",
+      "Oに不具合が生じる・うまくいかなくなる"
+    ]
+  },
+  {
+    "lecture": 1,
+    "phrase": "come true",
+    "meaning": "実現する",
+    "offset": 1005,
+    "sourcePage": 2,
+    "candidateId": 3,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "fall asleep",
+    "meaning": "寝入る",
+    "offset": 1023,
+    "sourcePage": 2,
+    "candidateId": 4,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "keep[stay] fit",
+    "meaning": "健康でいる",
+    "offset": 1042,
+    "sourcePage": 2,
+    "candidateId": 5,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "lie – lay – lain – lying",
+    "meaning": "横たわる",
+    "offset": 1215,
+    "sourcePage": 2,
+    "candidateId": 6,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "lay – laid – laid – laying",
+    "meaning": "…を横たえる",
+    "offset": 1264,
+    "sourcePage": 2,
+    "candidateId": 7,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "rise – rose – risen – rising",
+    "meaning": "上がる",
+    "offset": 1302,
+    "sourcePage": 2,
+    "candidateId": 8,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "raise – raised – raised - raising",
+    "meaning": "…を上げる",
+    "offset": 1351,
+    "sourcePage": 2,
+    "candidateId": 9,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "answer",
+    "meaning": "…に答える",
+    "offset": 1412,
+    "sourcePage": 2,
+    "candidateId": 10,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "discuss",
+    "meaning": "…を話し合う",
+    "offset": 1464,
+    "sourcePage": 2,
+    "candidateId": 11,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "enter",
+    "meaning": "…に入る",
+    "offset": 1499,
+    "sourcePage": 2,
+    "candidateId": 12,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "marry",
+    "meaning": "…と結婚する",
+    "offset": 1551,
+    "sourcePage": 2,
+    "candidateId": 13,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "reach",
+    "meaning": "…に着く",
+    "offset": 1590,
+    "sourcePage": 2,
+    "candidateId": 14,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "resemble",
+    "meaning": "…に似ている",
+    "offset": 1642,
+    "sourcePage": 2,
+    "candidateId": 15,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "visit",
+    "meaning": "…を訪れる",
+    "offset": 1675,
+    "sourcePage": 2,
+    "candidateId": 16,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "mention",
+    "meaning": "…に言及する",
+    "offset": 1727,
+    "sourcePage": 2,
+    "candidateId": 17,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "approach",
+    "meaning": "…に近づく",
+    "offset": 1758,
+    "sourcePage": 2,
+    "candidateId": 18,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "oppose",
+    "meaning": "…に反対する",
+    "offset": 1810,
+    "sourcePage": 2,
+    "candidateId": 19,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "obey",
+    "meaning": "…に従う",
+    "offset": 1844,
+    "sourcePage": 2,
+    "candidateId": 20,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 1,
+    "phrase": "agree with …",
+    "meaning": "…と意見が一致する",
+    "offset": 1902,
+    "sourcePage": 2,
+    "candidateId": 21,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "agree to …",
+    "meaning": "…に同意する",
+    "offset": 1958,
+    "sourcePage": 2,
+    "candidateId": 22,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "apologize to 人 for 理由",
+    "meaning": "人に理由のことで謝る",
+    "offset": 1980,
+    "sourcePage": 2,
+    "candidateId": 23,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "apologize to A for B",
+      "AにBのことで謝る"
+    ]
+  },
+  {
+    "lecture": 1,
+    "phrase": "complain about[of] …",
+    "meaning": "…について不満を言う",
+    "offset": 2017,
+    "sourcePage": 2,
+    "candidateId": 24,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "graduate from …",
+    "meaning": "…を卒業する",
+    "offset": 2073,
+    "sourcePage": 2,
+    "candidateId": 25,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "do A good",
+    "meaning": "A に利益を与える",
+    "offset": 2884,
+    "sourcePage": 3,
+    "candidateId": 26,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "do A harm[damage]",
+    "meaning": "A に損害を与える",
+    "offset": 2933,
+    "sourcePage": 3,
+    "candidateId": 27,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "do A a favor",
+    "meaning": "A のお願いを聞く",
+    "offset": 2965,
+    "sourcePage": 3,
+    "candidateId": 28,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 1,
+    "phrase": "ask A a favor",
+    "meaning": "A にお願いをする",
+    "offset": 3014,
+    "sourcePage": 3,
+    "candidateId": 29,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 3,
+    "phrase": "just now",
+    "meaning": "ちょうど今",
+    "offset": 12623,
+    "sourcePage": 6,
+    "candidateId": 30,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 3,
+    "phrase": "〜 ago",
+    "meaning": "〜前",
+    "offset": 12653,
+    "sourcePage": 6,
+    "candidateId": 31,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "期間 ago",
+      "〜前に"
+    ]
+  },
+  {
+    "lecture": 3,
+    "phrase": "last 〜",
+    "meaning": "前の〜",
+    "offset": 12678,
+    "sourcePage": 6,
+    "candidateId": 32,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "last ＋時を表す名詞",
+      "この前の〜に"
+    ]
+  },
+  {
+    "lecture": 3,
+    "phrase": "Shall I 〜 ?",
+    "meaning": "私が〜しましょうか",
+    "offset": 13177,
+    "sourcePage": 6,
+    "candidateId": 33,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Shall I V?",
+      "私がVしましょうか"
+    ]
+  },
+  {
+    "lecture": 3,
+    "phrase": "Shall we 〜 ?",
+    "meaning": "一緒に〜しましょうか",
+    "offset": 13220,
+    "sourcePage": 6,
+    "candidateId": 34,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Shall we V?",
+      "一緒にVしましょうか"
+    ]
+  },
+  {
+    "lecture": 3,
+    "phrase": "Will you 〜 ?",
+    "meaning": "〜していただけますか",
+    "offset": 13249,
+    "sourcePage": 6,
+    "candidateId": 35,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Will you V?",
+      "Vしていただけますか"
+    ]
+  },
+  {
+    "lecture": 3,
+    "phrase": "have been to",
+    "meaning": "…に行ったことがある",
+    "offset": 14346,
+    "sourcePage": 7,
+    "candidateId": 36,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 3,
+    "phrase": "have gone to",
+    "meaning": "…に行ってしまった",
+    "offset": 14405,
+    "sourcePage": 7,
+    "candidateId": 37,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 4,
+    "phrase": "can",
+    "meaning": "…することがある",
+    "offset": 17506,
+    "sourcePage": 8,
+    "candidateId": 38,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 4,
+    "phrase": "can’t",
+    "meaning": "…するはずがない",
+    "offset": 17538,
+    "sourcePage": 8,
+    "candidateId": 39,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 4,
+    "phrase": "may[might]",
+    "meaning": "…するかもしれない",
+    "offset": 17556,
+    "sourcePage": 8,
+    "candidateId": 40,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 4,
+    "phrase": "must",
+    "meaning": "…するに違いない",
+    "offset": 17582,
+    "sourcePage": 8,
+    "candidateId": 41,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 4,
+    "phrase": "should",
+    "meaning": "…するはずだ",
+    "offset": 17599,
+    "sourcePage": 8,
+    "candidateId": 42,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 4,
+    "phrase": "can’t V … too 〜",
+    "meaning": "いくら〜でも…しすぎることはない",
+    "offset": 19520,
+    "sourcePage": 9,
+    "candidateId": 43,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "cannot V too ＋形容詞・副詞",
+      "いくら〜でもVしすぎることはない"
+    ]
+  },
+  {
+    "lecture": 4,
+    "phrase": "can’t help Ving",
+    "meaning": "…せざるを得ない・…せずにはいられない",
+    "offset": 19558,
+    "sourcePage": 9,
+    "candidateId": 44,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "cannot help Ving",
+      "Vせずにはいられない"
+    ]
+  },
+  {
+    "lecture": 4,
+    "phrase": "would like",
+    "meaning": "…が欲しい",
+    "offset": 19614,
+    "sourcePage": 9,
+    "candidateId": 45,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "would like O",
+      "Oが欲しい"
+    ]
+  },
+  {
+    "lecture": 4,
+    "phrase": "would rather V",
+    "meaning": "むしろ…したい",
+    "offset": 19685,
+    "sourcePage": 9,
+    "candidateId": 46,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 4,
+    "phrase": "may well V",
+    "meaning": "たぶん…だろう",
+    "offset": 19774,
+    "sourcePage": 9,
+    "candidateId": 47,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "may well V",
+      "たぶんVするだろう／Vするのも当然だ"
+    ]
+  },
+  {
+    "lecture": 4,
+    "phrase": "may[might] as well V",
+    "meaning": "…しても構わない",
+    "offset": 19829,
+    "sourcePage": 9,
+    "candidateId": 48,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "may / might as well V",
+      "ほかによい選択肢がないのでVしたほうがよい"
+    ]
+  },
+  {
+    "lecture": 4,
+    "phrase": "might as well V1 as V2",
+    "meaning": "V2 するのは V1 するようなものだ・V2 するくらいなら V1 したほうがましだ",
+    "offset": 19864,
+    "sourcePage": 9,
+    "candidateId": 49,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "might as well V1 as V2",
+      "V2するくらいならV1するほうがましだ"
+    ]
+  },
+  {
+    "lecture": 6,
+    "phrase": "be caught in",
+    "meaning": "…に遭う",
+    "offset": 27348,
+    "sourcePage": 13,
+    "candidateId": 50,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be convinced of",
+    "meaning": "…を確信している",
+    "offset": 27395,
+    "sourcePage": 13,
+    "candidateId": 51,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be covered with",
+    "meaning": "…に覆われている",
+    "offset": 27425,
+    "sourcePage": 13,
+    "candidateId": 52,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be disappointed at[in, with]",
+    "meaning": "…に落胆している",
+    "offset": 27472,
+    "sourcePage": 13,
+    "candidateId": 53,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be dressed in",
+    "meaning": "…を着ている",
+    "offset": 27515,
+    "sourcePage": 13,
+    "candidateId": 54,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be engaged in",
+    "meaning": "…に従事している",
+    "offset": 27562,
+    "sourcePage": 13,
+    "candidateId": 55,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be excited at[about]",
+    "meaning": "…に興奮している",
+    "offset": 27590,
+    "sourcePage": 13,
+    "candidateId": 56,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be faced with",
+    "meaning": "…に直面している",
+    "offset": 27637,
+    "sourcePage": 13,
+    "candidateId": 57,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be filled with",
+    "meaning": "…に満たされている",
+    "offset": 27665,
+    "sourcePage": 13,
+    "candidateId": 58,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be interested in",
+    "meaning": "…に興味がある",
+    "offset": 27712,
+    "sourcePage": 13,
+    "candidateId": 59,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be married to",
+    "meaning": "…と結婚している",
+    "offset": 27742,
+    "sourcePage": 13,
+    "candidateId": 60,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be pleased with",
+    "meaning": "…に喜んでいる",
+    "offset": 27789,
+    "sourcePage": 13,
+    "candidateId": 61,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be satisfied with",
+    "meaning": "…に満足している",
+    "offset": 27818,
+    "sourcePage": 13,
+    "candidateId": 62,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be surprised at",
+    "meaning": "…に驚いている",
+    "offset": 27865,
+    "sourcePage": 13,
+    "candidateId": 63,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 6,
+    "phrase": "be worried about",
+    "meaning": "…を心配している",
+    "offset": 27894,
+    "sourcePage": 13,
+    "candidateId": 64,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "seem[appear] to",
+    "meaning": "…するようだ",
+    "offset": 30928,
+    "sourcePage": 15,
+    "candidateId": 65,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "happen to",
+    "meaning": "たまたま…する",
+    "offset": 30974,
+    "sourcePage": 15,
+    "candidateId": 66,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "come[get] to",
+    "meaning": "…するようになる",
+    "offset": 30996,
+    "sourcePage": 15,
+    "candidateId": 67,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "learn to",
+    "meaning": "…できるようになる",
+    "offset": 31042,
+    "sourcePage": 15,
+    "candidateId": 68,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "fail to",
+    "meaning": "…しない・できない",
+    "offset": 31065,
+    "sourcePage": 15,
+    "candidateId": 69,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "manage to",
+    "meaning": "なんとか…する",
+    "offset": 31111,
+    "sourcePage": 15,
+    "candidateId": 70,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "be about to",
+    "meaning": "…するようだ",
+    "offset": 31151,
+    "sourcePage": 15,
+    "candidateId": 71,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be about to V",
+      "まさにVしようとしている"
+    ]
+  },
+  {
+    "lecture": 7,
+    "phrase": "be ready to",
+    "meaning": "…する準備ができている",
+    "offset": 31197,
+    "sourcePage": 15,
+    "candidateId": 72,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "be sure[certain] to",
+    "meaning": "必ず…する",
+    "offset": 31225,
+    "sourcePage": 15,
+    "candidateId": 73,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "be eager[anxious]to",
+    "meaning": "…したがっている",
+    "offset": 31271,
+    "sourcePage": 15,
+    "candidateId": 74,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be eager to V / be anxious to V",
+      "Vしたがっている"
+    ]
+  },
+  {
+    "lecture": 7,
+    "phrase": "be willing to",
+    "meaning": "…する気がある",
+    "offset": 31304,
+    "sourcePage": 15,
+    "candidateId": 75,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "be likely to",
+    "meaning": "…しそうだ",
+    "offset": 31350,
+    "sourcePage": 15,
+    "candidateId": 76,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "needless to say",
+    "meaning": "言うまでもなく",
+    "offset": 31381,
+    "sourcePage": 15,
+    "candidateId": 77,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "so to speak",
+    "meaning": "いわば",
+    "offset": 31427,
+    "sourcePage": 15,
+    "candidateId": 78,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "to be sure",
+    "meaning": "確かに",
+    "offset": 31447,
+    "sourcePage": 15,
+    "candidateId": 79,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "to begin with",
+    "meaning": "まずはじめに",
+    "offset": 31493,
+    "sourcePage": 15,
+    "candidateId": 80,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "to tell (you) the truth",
+    "meaning": "実を言うと",
+    "offset": 31518,
+    "sourcePage": 15,
+    "candidateId": 81,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "to be honest",
+    "meaning": "正直に言うと",
+    "offset": 31564,
+    "sourcePage": 15,
+    "candidateId": 82,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "strange to say",
+    "meaning": "奇妙なことに",
+    "offset": 31588,
+    "sourcePage": 15,
+    "candidateId": 83,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 7,
+    "phrase": "to make matters worse",
+    "meaning": "さらに悪いことに",
+    "offset": 31634,
+    "sourcePage": 15,
+    "candidateId": 84,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "decide",
+    "meaning": "決める",
+    "offset": 32578,
+    "sourcePage": 16,
+    "candidateId": 85,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "plan",
+    "meaning": "計画する",
+    "offset": 32610,
+    "sourcePage": 16,
+    "candidateId": 86,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "hope",
+    "meaning": "望む",
+    "offset": 32630,
+    "sourcePage": 16,
+    "candidateId": 87,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "expect",
+    "meaning": "するつもりだ",
+    "offset": 32642,
+    "sourcePage": 16,
+    "candidateId": 88,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "want",
+    "meaning": "したい",
+    "offset": 32674,
+    "sourcePage": 16,
+    "candidateId": 89,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "promise",
+    "meaning": "約束する",
+    "offset": 32694,
+    "sourcePage": 16,
+    "candidateId": 90,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "pretend",
+    "meaning": "ふりをする",
+    "offset": 32711,
+    "sourcePage": 16,
+    "candidateId": 91,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "hesitate",
+    "meaning": "ためらう",
+    "offset": 32743,
+    "sourcePage": 16,
+    "candidateId": 92,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "refuse",
+    "meaning": "断る",
+    "offset": 32763,
+    "sourcePage": 16,
+    "candidateId": 93,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "mind",
+    "meaning": "嫌がる",
+    "offset": 32794,
+    "sourcePage": 16,
+    "candidateId": 94,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "enjoy",
+    "meaning": "楽しむ",
+    "offset": 32820,
+    "sourcePage": 16,
+    "candidateId": 95,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "give up",
+    "meaning": "諦める",
+    "offset": 32837,
+    "sourcePage": 16,
+    "candidateId": 96,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "avoid",
+    "meaning": "避ける",
+    "offset": 32856,
+    "sourcePage": 16,
+    "candidateId": 97,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "finish",
+    "meaning": "終える",
+    "offset": 32871,
+    "sourcePage": 16,
+    "candidateId": 98,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "escape",
+    "meaning": "逃れる",
+    "offset": 32897,
+    "sourcePage": 16,
+    "candidateId": 99,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "postpone",
+    "meaning": "延期する",
+    "offset": 32914,
+    "sourcePage": 16,
+    "candidateId": 100,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "stop",
+    "meaning": "やめる",
+    "offset": 32931,
+    "sourcePage": 16,
+    "candidateId": 101,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "deny",
+    "meaning": "否定する",
+    "offset": 32945,
+    "sourcePage": 16,
+    "candidateId": 102,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "admit",
+    "meaning": "認める",
+    "offset": 32971,
+    "sourcePage": 16,
+    "candidateId": 103,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "practice",
+    "meaning": "練習する",
+    "offset": 32988,
+    "sourcePage": 16,
+    "candidateId": 104,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "advise",
+    "meaning": "助言する",
+    "offset": 33005,
+    "sourcePage": 16,
+    "candidateId": 105,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "mention",
+    "meaning": "言及する",
+    "offset": 33021,
+    "sourcePage": 16,
+    "candidateId": 106,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "imagine",
+    "meaning": "想像する",
+    "offset": 33037,
+    "sourcePage": 16,
+    "candidateId": 107,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "consider",
+    "meaning": "考慮する",
+    "offset": 33053,
+    "sourcePage": 16,
+    "candidateId": 108,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "suggest",
+    "meaning": "提案する",
+    "offset": 33070,
+    "sourcePage": 16,
+    "candidateId": 109,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "remember to V",
+    "meaning": "…することを覚えている",
+    "offset": 33112,
+    "sourcePage": 16,
+    "candidateId": 110,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "remember Ving",
+    "meaning": "…したことを覚えている",
+    "offset": 33141,
+    "sourcePage": 16,
+    "candidateId": 111,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "forget to V",
+    "meaning": "…することを忘れる",
+    "offset": 33171,
+    "sourcePage": 16,
+    "candidateId": 112,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "forget Ving",
+    "meaning": "…したことを忘れる",
+    "offset": 33214,
+    "sourcePage": 16,
+    "candidateId": 113,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "try to V",
+    "meaning": "…しようとする",
+    "offset": 33240,
+    "sourcePage": 16,
+    "candidateId": 114,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "try Ving",
+    "meaning": "…してみる",
+    "offset": 33283,
+    "sourcePage": 16,
+    "candidateId": 115,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "regret to V",
+    "meaning": "残念ながら…する",
+    "offset": 33302,
+    "sourcePage": 16,
+    "candidateId": 116,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "regret Ving",
+    "meaning": "…したことを後悔する",
+    "offset": 33345,
+    "sourcePage": 16,
+    "candidateId": 117,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "look forward to Ving",
+    "meaning": "…するのを楽しみにする",
+    "offset": 34032,
+    "sourcePage": 17,
+    "candidateId": 118,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "look forward to O / Ving",
+      "O・Vすることを楽しみに待つ"
+    ]
+  },
+  {
+    "lecture": 8,
+    "phrase": "object to Ving",
+    "meaning": "…するのに反対する",
+    "offset": 34104,
+    "sourcePage": 17,
+    "candidateId": 119,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "be used to Ving",
+    "meaning": "…するのに慣れている",
+    "offset": 34179,
+    "sourcePage": 17,
+    "candidateId": 120,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "What do you say to Ving …?",
+    "meaning": "…するのはどうですか",
+    "offset": 34257,
+    "sourcePage": 17,
+    "candidateId": 121,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "What do you say to Ving?",
+      "Vするのはどうですか"
+    ]
+  },
+  {
+    "lecture": 8,
+    "phrase": "When it comes to Ving … ,",
+    "meaning": "…するということになると",
+    "offset": 34331,
+    "sourcePage": 17,
+    "candidateId": 122,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "when it comes to O / Ving",
+      "O・Vすることとなると"
+    ]
+  },
+  {
+    "lecture": 8,
+    "phrase": "with a view to Ving",
+    "meaning": "…する目的で",
+    "offset": 34398,
+    "sourcePage": 17,
+    "candidateId": 123,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "物 need[want] Ving",
+    "meaning": "物が…される必要がある",
+    "offset": 34496,
+    "sourcePage": 17,
+    "candidateId": 124,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "物 need Ving / 物 want Ving",
+      "物がVされる必要がある"
+    ]
+  },
+  {
+    "lecture": 8,
+    "phrase": "be capable of Ving",
+    "meaning": "…できる",
+    "offset": 34576,
+    "sourcePage": 17,
+    "candidateId": 125,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "on the point of Ving",
+    "meaning": "まさに…しようとしている",
+    "offset": 34645,
+    "sourcePage": 17,
+    "candidateId": 126,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "make a point of Ving",
+    "meaning": "…することにしている",
+    "offset": 34715,
+    "sourcePage": 17,
+    "candidateId": 127,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "there is no Ving",
+    "meaning": "…できない",
+    "offset": 34791,
+    "sourcePage": 17,
+    "candidateId": 128,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "it is no use[good] Ving",
+    "meaning": "…しても無駄だ",
+    "offset": 34869,
+    "sourcePage": 17,
+    "candidateId": 129,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "on Ving",
+    "meaning": "…するとすぐに",
+    "offset": 34973,
+    "sourcePage": 17,
+    "candidateId": 130,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "in Ving",
+    "meaning": "…する際には",
+    "offset": 35018,
+    "sourcePage": 17,
+    "candidateId": 131,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "feel like Ving",
+    "meaning": "…したい気がする",
+    "offset": 35038,
+    "sourcePage": 17,
+    "candidateId": 132,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "insist on Ving",
+    "meaning": "…するのを主張する",
+    "offset": 35083,
+    "sourcePage": 17,
+    "candidateId": 133,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "can’t help Ving",
+    "meaning": "…せざるを得ない",
+    "offset": 35113,
+    "sourcePage": 17,
+    "candidateId": 134,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "cannot help Ving",
+      "Vせずにはいられない"
+    ]
+  },
+  {
+    "lecture": 8,
+    "phrase": "be worth Ving",
+    "meaning": "…する価値がある",
+    "offset": 35158,
+    "sourcePage": 17,
+    "candidateId": 135,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "spend O (in) Ving",
+    "meaning": "O を…して費やす",
+    "offset": 35186,
+    "sourcePage": 17,
+    "candidateId": 136,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "be busy (in) Ving",
+    "meaning": "…するのに忙しい",
+    "offset": 35231,
+    "sourcePage": 17,
+    "candidateId": 137,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "have difficulty[trouble / a hard time] (in) Ving",
+    "meaning": "…するのに苦労する",
+    "offset": 35263,
+    "sourcePage": 17,
+    "candidateId": 138,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "prevent O from Ving",
+    "meaning": "O が…するのを妨げる",
+    "offset": 35327,
+    "sourcePage": 17,
+    "candidateId": 139,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 8,
+    "phrase": "it goes without saying that",
+    "meaning": "…は言うまでもない",
+    "offset": 35364,
+    "sourcePage": 17,
+    "candidateId": 140,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "It goes without saying that S V",
+      "SがVするのは言うまでもない"
+    ]
+  },
+  {
+    "lecture": 9,
+    "phrase": "considering / given",
+    "meaning": "…を考慮すると",
+    "offset": 39006,
+    "sourcePage": 19,
+    "candidateId": 141,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "considering O / given O",
+      "Oを考慮すると"
+    ]
+  },
+  {
+    "lecture": 9,
+    "phrase": "frankly speaking",
+    "meaning": "率直に言うと",
+    "offset": 39057,
+    "sourcePage": 19,
+    "candidateId": 142,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "generally speaking",
+    "meaning": "一般的に言うと",
+    "offset": 39086,
+    "sourcePage": 19,
+    "candidateId": 143,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "strictly speaking",
+    "meaning": "厳密に言うと",
+    "offset": 39137,
+    "sourcePage": 19,
+    "candidateId": 144,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "speaking[talking] of",
+    "meaning": "…と言えば",
+    "offset": 39167,
+    "sourcePage": 19,
+    "candidateId": 145,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "judging from",
+    "meaning": "…から判断すると",
+    "offset": 39218,
+    "sourcePage": 19,
+    "candidateId": 146,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "all things considered",
+    "meaning": "すべてを考慮すると",
+    "offset": 39245,
+    "sourcePage": 19,
+    "candidateId": 147,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 9,
+    "phrase": "weather permitting",
+    "meaning": "天候が許せば",
+    "offset": 39296,
+    "sourcePage": 19,
+    "candidateId": 148,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "after",
+    "meaning": "…後に",
+    "offset": 40635,
+    "sourcePage": 20,
+    "candidateId": 149,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "before",
+    "meaning": "…前に",
+    "offset": 40669,
+    "sourcePage": 20,
+    "candidateId": 150,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "by the time",
+    "meaning": "…までに",
+    "offset": 40695,
+    "sourcePage": 20,
+    "candidateId": 151,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "until[till]",
+    "meaning": "…まで",
+    "offset": 40717,
+    "sourcePage": 20,
+    "candidateId": 152,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "when",
+    "meaning": "…時",
+    "offset": 40751,
+    "sourcePage": 20,
+    "candidateId": 153,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "since",
+    "meaning": "…以来",
+    "offset": 40777,
+    "sourcePage": 20,
+    "candidateId": 154,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "while",
+    "meaning": "…している間",
+    "offset": 40792,
+    "sourcePage": 20,
+    "candidateId": 155,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "every[each] time",
+    "meaning": "…するたびに",
+    "offset": 40826,
+    "sourcePage": 20,
+    "candidateId": 156,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "as soon as / the instant[moment, minute]",
+    "meaning": "…するとすぐに",
+    "offset": 40855,
+    "sourcePage": 20,
+    "candidateId": 157,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as soon as S V / the moment S V / the instant S V / the minute S V",
+      "SがVするとすぐに"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "as[so] long as / if only",
+    "meaning": "…するかぎり",
+    "offset": 40920,
+    "sourcePage": 20,
+    "candidateId": 158,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as long as S V / so long as S V",
+      "SがVするかぎり"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "unless",
+    "meaning": "…しないかぎり",
+    "offset": 40976,
+    "sourcePage": 20,
+    "candidateId": 159,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "if / on condition that / providing[provided, supposing, suppose]",
+    "meaning": "もし…なら",
+    "offset": 40996,
+    "sourcePage": 20,
+    "candidateId": 160,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "on condition that S V / provided that S V / providing that S V / supposing that S V",
+      "SがVするという条件で・もしSがVするなら"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "even if / granting[granted, assuming]",
+    "meaning": "たとえ…だとしても",
+    "offset": 41072,
+    "sourcePage": 20,
+    "candidateId": 161,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "even if S V",
+      "たとえSがVしても"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "in case / for fear (that) / lest",
+    "meaning": "…する場合に備えて，…するといけないから",
+    "offset": 41125,
+    "sourcePage": 20,
+    "candidateId": 162,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in case S V / for fear that S V / lest S V",
+      "SがVする場合に備えて／SがVするといけないので"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "given (that)",
+    "meaning": "…を考慮に入れると・仮定すると",
+    "offset": 41184,
+    "sourcePage": 20,
+    "candidateId": 163,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "once",
+    "meaning": "一旦…すると",
+    "offset": 41240,
+    "sourcePage": 20,
+    "candidateId": 164,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "because / as / since",
+    "meaning": "…なので",
+    "offset": 41733,
+    "sourcePage": 21,
+    "candidateId": 165,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "now that",
+    "meaning": "今や…なので",
+    "offset": 41779,
+    "sourcePage": 21,
+    "candidateId": 166,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "though / although / even though / while",
+    "meaning": "たとえ…だとしても",
+    "offset": 41811,
+    "sourcePage": 21,
+    "candidateId": 167,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "even though S V",
+      "実際にSがVするにもかかわらず"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "while / whereas",
+    "meaning": "…一方",
+    "offset": 41866,
+    "sourcePage": 21,
+    "candidateId": 168,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "whereas S V",
+      "一方でSがVするのに対して"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "whether",
+    "meaning": "…であろうと(なかろうと)",
+    "offset": 41912,
+    "sourcePage": 21,
+    "candidateId": 169,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 10,
+    "phrase": "both A and B",
+    "meaning": "A と B の両方",
+    "offset": 42712,
+    "sourcePage": 21,
+    "candidateId": 170,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "either A or B",
+    "meaning": "A か B のどちらか",
+    "offset": 42770,
+    "sourcePage": 21,
+    "candidateId": 171,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "neither A nor B",
+    "meaning": "A も B もない",
+    "offset": 42801,
+    "sourcePage": 21,
+    "candidateId": 172,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "not A but B",
+    "meaning": "A ではなく B",
+    "offset": 42859,
+    "sourcePage": 21,
+    "candidateId": 173,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "not only A but (also) B",
+    "meaning": "A だけでなく B も",
+    "offset": 42885,
+    "sourcePage": 21,
+    "candidateId": 174,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "命令文, and …",
+    "meaning": "〜しなさい、そうすれば…",
+    "offset": 42926,
+    "sourcePage": 21,
+    "candidateId": 175,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "命令文, and S V",
+      "〜しなさい、そうすればSがVする"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "命令文, or …",
+    "meaning": "〜しなさい、さもないと…",
+    "offset": 42984,
+    "sourcePage": 21,
+    "candidateId": 176,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "命令文, or S V",
+      "〜しなさい、さもないとSがVする"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "see (to it) that",
+    "meaning": "…するよう取り計らう・気を付ける",
+    "offset": 43029,
+    "sourcePage": 21,
+    "candidateId": 177,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "see (to it) that S V",
+      "SがVするように取り計らう"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "The fact is (that)",
+    "meaning": "実は…",
+    "offset": 43066,
+    "sourcePage": 21,
+    "candidateId": 178,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "Rumor[Legend] has it that",
+    "meaning": "噂[伝説]によれば…",
+    "offset": 43094,
+    "sourcePage": 21,
+    "candidateId": 179,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "The trouble is (that)",
+    "meaning": "困ったことに…",
+    "offset": 43159,
+    "sourcePage": 21,
+    "candidateId": 180,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "(The) Chances are (that)",
+    "meaning": "たぶん…だろう",
+    "offset": 43194,
+    "sourcePage": 21,
+    "candidateId": 181,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "take it for granted that",
+    "meaning": "…を当然と思う",
+    "offset": 43252,
+    "sourcePage": 21,
+    "candidateId": 182,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "take it for granted that S V",
+      "SがVするのを当然と思う"
+    ]
+  },
+  {
+    "lecture": 10,
+    "phrase": "in that",
+    "meaning": "…という点で",
+    "offset": 43300,
+    "sourcePage": 21,
+    "candidateId": 183,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "the way",
+    "meaning": "…するように",
+    "offset": 43358,
+    "sourcePage": 21,
+    "candidateId": 184,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "except that",
+    "meaning": "…を除いて",
+    "offset": 43378,
+    "sourcePage": 21,
+    "candidateId": 185,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 10,
+    "phrase": "as[so] far as",
+    "meaning": "…限り",
+    "offset": 43436,
+    "sourcePage": 21,
+    "candidateId": 186,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "after",
+    "meaning": "…以降に",
+    "offset": 44028,
+    "sourcePage": 22,
+    "candidateId": 187,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "before",
+    "meaning": "…以前に",
+    "offset": 44060,
+    "sourcePage": 22,
+    "candidateId": 188,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "in",
+    "meaning": "…後に",
+    "offset": 44094,
+    "sourcePage": 22,
+    "candidateId": 189,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "for",
+    "meaning": "…の間",
+    "offset": 44105,
+    "sourcePage": 22,
+    "candidateId": 190,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "during",
+    "meaning": "(出来事)の間",
+    "offset": 44137,
+    "sourcePage": 22,
+    "candidateId": 191,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "until[till]",
+    "meaning": "…までずっと",
+    "offset": 44171,
+    "sourcePage": 22,
+    "candidateId": 192,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "by",
+    "meaning": "…までに",
+    "offset": 44194,
+    "sourcePage": 22,
+    "candidateId": 193,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "since",
+    "meaning": "…以来",
+    "offset": 44226,
+    "sourcePage": 22,
+    "candidateId": 194,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "from A to B",
+    "meaning": "A から B まで",
+    "offset": 44260,
+    "sourcePage": 22,
+    "candidateId": 195,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "from",
+    "meaning": "…から",
+    "offset": 44299,
+    "sourcePage": 22,
+    "candidateId": 196,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "to",
+    "meaning": "…へ・まで",
+    "offset": 44331,
+    "sourcePage": 22,
+    "candidateId": 197,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "for",
+    "meaning": "…の方面へ",
+    "offset": 44365,
+    "sourcePage": 22,
+    "candidateId": 198,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "in",
+    "meaning": "…の中で",
+    "offset": 44379,
+    "sourcePage": 22,
+    "candidateId": 199,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "into",
+    "meaning": "…の中に",
+    "offset": 44411,
+    "sourcePage": 22,
+    "candidateId": 200,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "out of",
+    "meaning": "…の外に",
+    "offset": 44445,
+    "sourcePage": 22,
+    "candidateId": 201,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "on",
+    "meaning": "…の上に・接触して",
+    "offset": 44461,
+    "sourcePage": 22,
+    "candidateId": 202,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "over",
+    "meaning": "…の上全体に",
+    "offset": 44477,
+    "sourcePage": 22,
+    "candidateId": 203,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "under",
+    "meaning": "…の下全体に",
+    "offset": 44527,
+    "sourcePage": 22,
+    "candidateId": 204,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "around",
+    "meaning": "…の周りに",
+    "offset": 44544,
+    "sourcePage": 22,
+    "candidateId": 205,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "above",
+    "meaning": "…の上方に",
+    "offset": 44576,
+    "sourcePage": 22,
+    "candidateId": 206,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "below",
+    "meaning": "…の下方に",
+    "offset": 44610,
+    "sourcePage": 22,
+    "candidateId": 207,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "along",
+    "meaning": "…に沿って",
+    "offset": 44626,
+    "sourcePage": 22,
+    "candidateId": 208,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "beside",
+    "meaning": "…の横に",
+    "offset": 44658,
+    "sourcePage": 22,
+    "candidateId": 209,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "through",
+    "meaning": "…を通り抜けて",
+    "offset": 44692,
+    "sourcePage": 22,
+    "candidateId": 210,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "by",
+    "meaning": "…のそばに",
+    "offset": 44712,
+    "sourcePage": 22,
+    "candidateId": 211,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "in front of",
+    "meaning": "…の前方に",
+    "offset": 44744,
+    "sourcePage": 22,
+    "candidateId": 212,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "behind",
+    "meaning": "…の背後に",
+    "offset": 44778,
+    "sourcePage": 22,
+    "candidateId": 213,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "with",
+    "meaning": "…とともに",
+    "offset": 44795,
+    "sourcePage": 22,
+    "candidateId": 214,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "near",
+    "meaning": "…の近くに",
+    "offset": 44827,
+    "sourcePage": 22,
+    "candidateId": 215,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "from A to B",
+    "meaning": "A から B まで",
+    "offset": 44861,
+    "sourcePage": 22,
+    "candidateId": 216,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "about",
+    "meaning": "…について",
+    "offset": 44899,
+    "sourcePage": 22,
+    "candidateId": 217,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "against",
+    "meaning": "…に反対して",
+    "offset": 44931,
+    "sourcePage": 22,
+    "candidateId": 218,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "as",
+    "meaning": "…として",
+    "offset": 44965,
+    "sourcePage": 22,
+    "candidateId": 219,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "between",
+    "meaning": "(2 者)の間で",
+    "offset": 45060,
+    "sourcePage": 22,
+    "candidateId": 220,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "among",
+    "meaning": "(3 者以上)の間で",
+    "offset": 45092,
+    "sourcePage": 22,
+    "candidateId": 221,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "besides",
+    "meaning": "…に加えて",
+    "offset": 45126,
+    "sourcePage": 22,
+    "candidateId": 222,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "beyond",
+    "meaning": "…を超えて",
+    "offset": 45144,
+    "sourcePage": 22,
+    "candidateId": 223,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "except",
+    "meaning": "…を除いて",
+    "offset": 45176,
+    "sourcePage": 22,
+    "candidateId": 224,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "despite",
+    "meaning": "…にもかかわらず",
+    "offset": 45210,
+    "sourcePage": 22,
+    "candidateId": 225,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "like",
+    "meaning": "…のように",
+    "offset": 45231,
+    "sourcePage": 22,
+    "candidateId": 226,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "throughout",
+    "meaning": "…全体で",
+    "offset": 45263,
+    "sourcePage": 22,
+    "candidateId": 227,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "worth",
+    "meaning": "…の価値がある",
+    "offset": 45297,
+    "sourcePage": 22,
+    "candidateId": 228,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "at    …【速度】at 50 miles an hour",
+    "meaning": "時速 50 マイルで",
+    "offset": 45329,
+    "sourcePage": 22,
+    "candidateId": 229,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "on …【主題】a book on psychology",
+    "meaning": "心理学に関する本",
+    "offset": 45411,
+    "sourcePage": 22,
+    "candidateId": 230,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "in …【基準】better in strength",
+    "meaning": "強さにおいて優れた",
+    "offset": 45493,
+    "sourcePage": 22,
+    "candidateId": 231,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "to    …【感情】to my surprise",
+    "meaning": "驚いたことに",
+    "offset": 45578,
+    "sourcePage": 22,
+    "candidateId": 232,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "to one's surprise",
+      "驚いたことに"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "for …【想定】young for his age",
+    "meaning": "年の割には若い",
+    "offset": 45669,
+    "sourcePage": 22,
+    "candidateId": 233,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "by …【単位】sold by the gallon",
+    "meaning": "ガロン単位で売られた",
+    "offset": 45760,
+    "sourcePage": 22,
+    "candidateId": 234,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "against + 背景 … I took a picture of her against Mt. Fuji.",
+    "meaning": "富士山を背景にして",
+    "offset": 45840,
+    "sourcePage": 22,
+    "candidateId": 235,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "over + 飲食物         … They chatted over a cup of coffee.",
+    "meaning": "コーヒーを飲みながら",
+    "offset": 45911,
+    "sourcePage": 22,
+    "candidateId": 236,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 11,
+    "phrase": "under + 支配権 … under control",
+    "meaning": "管理下",
+    "offset": 45982,
+    "sourcePage": 22,
+    "candidateId": 237,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "under control",
+      "制御・管理されて"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "die of + 直接原因",
+    "meaning": "(病気など)で死ぬ",
+    "offset": 46140,
+    "sourcePage": 23,
+    "candidateId": 238,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "die of O",
+      "病気などのOで死ぬ"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "be familiar to",
+    "meaning": "…によく知られている",
+    "offset": 46197,
+    "sourcePage": 23,
+    "candidateId": 239,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "be anxious for",
+    "meaning": "…を熱望している",
+    "offset": 46254,
+    "sourcePage": 23,
+    "candidateId": 240,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "be concerned with",
+    "meaning": "…に関係している・関心がある",
+    "offset": 46308,
+    "sourcePage": 23,
+    "candidateId": 241,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be concerned with O",
+      "Oに関係している・Oを扱っている"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "be dependent on",
+    "meaning": "…に依存している",
+    "offset": 46373,
+    "sourcePage": 23,
+    "candidateId": 242,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in time (for …)",
+    "meaning": "(…に)間にあって",
+    "offset": 46430,
+    "sourcePage": 23,
+    "candidateId": 243,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "to the contrary",
+    "meaning": "それとは反対の",
+    "offset": 46474,
+    "sourcePage": 23,
+    "candidateId": 244,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "according to",
+    "meaning": "…によれば",
+    "offset": 46794,
+    "sourcePage": 23,
+    "candidateId": 245,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "as to + 疑問詞句・節",
+    "meaning": "…に関しては",
+    "offset": 46870,
+    "sourcePage": 23,
+    "candidateId": 246,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as to O",
+      "Oに関して"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "as for",
+    "meaning": "〈話題を転換して〉…について言えば",
+    "offset": 46896,
+    "sourcePage": 23,
+    "candidateId": 247,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "as of",
+    "meaning": "…時点で・…現在",
+    "offset": 46960,
+    "sourcePage": 23,
+    "candidateId": 248,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "on[in] behalf of",
+    "meaning": "…の代わりに",
+    "offset": 46979,
+    "sourcePage": 23,
+    "candidateId": 249,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "on behalf of O / in behalf of O",
+      "Oを代表して・Oのために"
+    ]
+  },
+  {
+    "lecture": 11,
+    "phrase": "along with",
+    "meaning": "…とともに",
+    "offset": 47041,
+    "sourcePage": 23,
+    "candidateId": 250,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "by means of",
+    "meaning": "…の手段によって",
+    "offset": 47062,
+    "sourcePage": 23,
+    "candidateId": 251,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "by way of",
+    "meaning": "…を経由して",
+    "offset": 47115,
+    "sourcePage": 23,
+    "candidateId": 252,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "apart[aside] from",
+    "meaning": "…は別にすると",
+    "offset": 47136,
+    "sourcePage": 23,
+    "candidateId": 253,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "except for",
+    "meaning": "…以外の点では",
+    "offset": 47189,
+    "sourcePage": 23,
+    "candidateId": 254,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "for fear of",
+    "meaning": "…を恐れて",
+    "offset": 47212,
+    "sourcePage": 23,
+    "candidateId": 255,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "for want[lack] of",
+    "meaning": "…がないので",
+    "offset": 47287,
+    "sourcePage": 23,
+    "candidateId": 256,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in the wake of",
+    "meaning": "…に続いて",
+    "offset": 47316,
+    "sourcePage": 23,
+    "candidateId": 257,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in addition to",
+    "meaning": "…に加えて",
+    "offset": 47369,
+    "sourcePage": 23,
+    "candidateId": 258,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "instead of",
+    "meaning": "…の代わりに",
+    "offset": 47394,
+    "sourcePage": 23,
+    "candidateId": 259,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in place of",
+    "meaning": "…の代わりに",
+    "offset": 47447,
+    "sourcePage": 23,
+    "candidateId": 260,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "with[in] regard to",
+    "meaning": "…に関しては",
+    "offset": 47470,
+    "sourcePage": 23,
+    "candidateId": 261,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "regardless of",
+    "meaning": "…とは無関係に",
+    "offset": 47523,
+    "sourcePage": 23,
+    "candidateId": 262,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in search of",
+    "meaning": "…を探して",
+    "offset": 47549,
+    "sourcePage": 23,
+    "candidateId": 263,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in honor of",
+    "meaning": "…に敬意を表して・…を祝して",
+    "offset": 47602,
+    "sourcePage": 23,
+    "candidateId": 264,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in return for",
+    "meaning": "…のお返しに",
+    "offset": 47633,
+    "sourcePage": 23,
+    "candidateId": 265,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in favor of",
+    "meaning": "…に賛成して",
+    "offset": 47686,
+    "sourcePage": 23,
+    "candidateId": 266,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in terms of",
+    "meaning": "…の点で",
+    "offset": 47709,
+    "sourcePage": 23,
+    "candidateId": 267,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "in charge of",
+    "meaning": "…の担当で・責任で",
+    "offset": 47762,
+    "sourcePage": 23,
+    "candidateId": 268,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "out of",
+    "meaning": "…から",
+    "offset": 47789,
+    "sourcePage": 23,
+    "candidateId": 269,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 11,
+    "phrase": "up to",
+    "meaning": "…まで",
+    "offset": 47842,
+    "sourcePage": 23,
+    "candidateId": 270,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 12,
+    "phrase": "what is called [S call]",
+    "meaning": "いわゆる…",
+    "offset": 49626,
+    "sourcePage": 24,
+    "candidateId": 271,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "what is called O",
+      "いわゆるO"
+    ]
+  },
+  {
+    "lecture": 12,
+    "phrase": "what is 比較級",
+    "meaning": "さらに(…なことに)",
+    "offset": 49678,
+    "sourcePage": 24,
+    "candidateId": 272,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 12,
+    "phrase": "what with A and (what with) B",
+    "meaning": "A やら B やらで",
+    "offset": 49706,
+    "sourcePage": 24,
+    "candidateId": 273,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 12,
+    "phrase": "A is to B what C is to D",
+    "meaning": "A の B に対する関係は C の D に対する関係と同じだ",
+    "offset": 49752,
+    "sourcePage": 24,
+    "candidateId": 274,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 12,
+    "phrase": "what few 可算名詞複数形 / what little 不可算名詞",
+    "meaning": "なけなしの…",
+    "offset": 49813,
+    "sourcePage": 24,
+    "candidateId": 275,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "what few ＋複数名詞 / what little ＋不可算名詞",
+      "少ないながらもあるだけの〜"
+    ]
+  },
+  {
+    "lecture": 13,
+    "phrase": "how soon",
+    "meaning": "あとどれくらいで",
+    "offset": 53424,
+    "sourcePage": 26,
+    "candidateId": 276,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "how late",
+    "meaning": "どれくらい遅くまで",
+    "offset": 53474,
+    "sourcePage": 26,
+    "candidateId": 277,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "how often",
+    "meaning": "どれくらい頻繁に",
+    "offset": 53498,
+    "sourcePage": 26,
+    "candidateId": 278,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "how far",
+    "meaning": "どれくらい遠くまで",
+    "offset": 53548,
+    "sourcePage": 26,
+    "candidateId": 279,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "what if … ?",
+    "meaning": "…ならどうだろう",
+    "offset": 53584,
+    "sourcePage": 26,
+    "candidateId": 280,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "What if S V?",
+      "もしSがVしたらどうだろう"
+    ]
+  },
+  {
+    "lecture": 13,
+    "phrase": "why not … ?",
+    "meaning": "…したらどうだろう",
+    "offset": 53634,
+    "sourcePage": 26,
+    "candidateId": 281,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Why not V?",
+      "Vしてはどうですか"
+    ]
+  },
+  {
+    "lecture": 13,
+    "phrase": "what about … ?",
+    "meaning": "…はどうか",
+    "offset": 53661,
+    "sourcePage": 26,
+    "candidateId": 282,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "how about … ?",
+    "meaning": "…はどうか",
+    "offset": 53711,
+    "sourcePage": 26,
+    "candidateId": 283,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 13,
+    "phrase": "how do you like … ?",
+    "meaning": "…はどうか",
+    "offset": 53740,
+    "sourcePage": 26,
+    "candidateId": 284,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "another + 数詞 + 複数形名詞",
+    "meaning": "さらにもう…",
+    "offset": 59478,
+    "sourcePage": 29,
+    "candidateId": 285,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "each other / one another",
+    "meaning": "お互いに",
+    "offset": 59509,
+    "sourcePage": 29,
+    "candidateId": 286,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "one after the other",
+    "meaning": "(2 つが)交互に",
+    "offset": 59544,
+    "sourcePage": 29,
+    "candidateId": 287,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "one after the other",
+      "順に・次々に"
+    ]
+  },
+  {
+    "lecture": 14,
+    "phrase": "one after another",
+    "meaning": "(3 つ以上が)次々と",
+    "offset": 59596,
+    "sourcePage": 29,
+    "candidateId": 288,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "one after another",
+      "次々に"
+    ]
+  },
+  {
+    "lecture": 14,
+    "phrase": "other than",
+    "meaning": "…以外の",
+    "offset": 59631,
+    "sourcePage": 29,
+    "candidateId": 289,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "none other than",
+    "meaning": "まさしく…",
+    "offset": 59650,
+    "sourcePage": 29,
+    "candidateId": 290,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "just another",
+    "meaning": "ごく平凡な…",
+    "offset": 59675,
+    "sourcePage": 29,
+    "candidateId": 291,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "A is one thing (and) B is another.",
+    "meaning": "A と B は別物である",
+    "offset": 59700,
+    "sourcePage": 29,
+    "candidateId": 292,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "others",
+    "meaning": "他人",
+    "offset": 59765,
+    "sourcePage": 29,
+    "candidateId": 293,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 14,
+    "phrase": "every + 数詞 + 複数形名詞",
+    "meaning": "…ごとに",
+    "offset": 60911,
+    "sourcePage": 29,
+    "candidateId": 294,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "every + other + 単数形名詞",
+    "meaning": "1…おきに",
+    "offset": 60963,
+    "sourcePage": 29,
+    "candidateId": 295,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "none of your business",
+    "meaning": "あなたには関係ない",
+    "offset": 60996,
+    "sourcePage": 29,
+    "candidateId": 296,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "second to none",
+    "meaning": "1 番である",
+    "offset": 61031,
+    "sourcePage": 29,
+    "candidateId": 297,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "make it",
+    "meaning": "間に合う",
+    "offset": 61654,
+    "sourcePage": 29,
+    "candidateId": 298,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "take it easy",
+    "meaning": "気楽にやる",
+    "offset": 61694,
+    "sourcePage": 29,
+    "candidateId": 299,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "That’s it.",
+    "meaning": "これでおしまい",
+    "offset": 61716,
+    "sourcePage": 29,
+    "candidateId": 300,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 14,
+    "phrase": "Let it be.",
+    "meaning": "なんとかなるさ",
+    "offset": 61740,
+    "sourcePage": 29,
+    "candidateId": 301,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Let it be.",
+      "そのままにしておきなさい"
+    ]
+  },
+  {
+    "lecture": 14,
+    "phrase": "Let it go.",
+    "meaning": "放っておけ",
+    "offset": 61762,
+    "sourcePage": 29,
+    "candidateId": 302,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Let it go.",
+      "そのことはもう気にしないで・忘れなさい"
+    ]
+  },
+  {
+    "lecture": 14,
+    "phrase": "It can’t be helped.",
+    "meaning": "仕方がない",
+    "offset": 61782,
+    "sourcePage": 29,
+    "candidateId": 303,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "Japanese",
+    "meaning": "日本人",
+    "offset": 61937,
+    "sourcePage": 30,
+    "candidateId": 304,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "means",
+    "meaning": "手段",
+    "offset": 61986,
+    "sourcePage": 30,
+    "candidateId": 305,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "fish",
+    "meaning": "魚",
+    "offset": 61999,
+    "sourcePage": 30,
+    "candidateId": 306,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "sushi",
+    "meaning": "寿司",
+    "offset": 62034,
+    "sourcePage": 30,
+    "candidateId": 307,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "glasses",
+    "meaning": "めがね",
+    "offset": 62097,
+    "sourcePage": 30,
+    "candidateId": 308,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "gloves",
+    "meaning": "手袋",
+    "offset": 62117,
+    "sourcePage": 30,
+    "candidateId": 309,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "socks",
+    "meaning": "靴下",
+    "offset": 62136,
+    "sourcePage": 30,
+    "candidateId": 310,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "scissors",
+    "meaning": "はさみ",
+    "offset": 62155,
+    "sourcePage": 30,
+    "candidateId": 311,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "chopsticks",
+    "meaning": "箸",
+    "offset": 62172,
+    "sourcePage": 30,
+    "candidateId": 312,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "jeans / trousers",
+    "meaning": "ズボン",
+    "offset": 62192,
+    "sourcePage": 30,
+    "candidateId": 313,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "people",
+    "meaning": "人々",
+    "offset": 62231,
+    "sourcePage": 30,
+    "candidateId": 314,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "police",
+    "meaning": "警察",
+    "offset": 62280,
+    "sourcePage": 30,
+    "candidateId": 315,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "custom",
+    "meaning": "習慣",
+    "offset": 62365,
+    "sourcePage": 30,
+    "candidateId": 316,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "good",
+    "meaning": "善",
+    "offset": 62404,
+    "sourcePage": 30,
+    "candidateId": 317,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "manner",
+    "meaning": "方法",
+    "offset": 62433,
+    "sourcePage": 30,
+    "candidateId": 318,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "arm",
+    "meaning": "腕",
+    "offset": 62472,
+    "sourcePage": 30,
+    "candidateId": 319,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "letter",
+    "meaning": "文字",
+    "offset": 62500,
+    "sourcePage": 30,
+    "candidateId": 320,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "force",
+    "meaning": "力",
+    "offset": 62539,
+    "sourcePage": 30,
+    "candidateId": 321,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "air",
+    "meaning": "空気",
+    "offset": 62569,
+    "sourcePage": 30,
+    "candidateId": 322,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "price",
+    "meaning": "値段",
+    "offset": 62608,
+    "sourcePage": 30,
+    "candidateId": 323,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "room",
+    "meaning": "□        C 部屋",
+    "offset": 62659,
+    "sourcePage": 30,
+    "candidateId": 324,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "paper",
+    "meaning": "□                                                C 論文・レポート",
+    "offset": 62722,
+    "sourcePage": 30,
+    "candidateId": 325,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "work",
+    "meaning": "□        C 作品",
+    "offset": 62857,
+    "sourcePage": 30,
+    "candidateId": 326,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "time",
+    "meaning": "□                                                C 時代・回数",
+    "offset": 62920,
+    "sourcePage": 30,
+    "candidateId": 327,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "make friends with",
+    "meaning": "…と友達になる",
+    "offset": 63090,
+    "sourcePage": 30,
+    "candidateId": 328,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "change trains at",
+    "meaning": "…で乗り換える",
+    "offset": 63129,
+    "sourcePage": 30,
+    "candidateId": 329,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "shake hands with",
+    "meaning": "…と握手する",
+    "offset": 63158,
+    "sourcePage": 30,
+    "candidateId": 330,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "take turns Ving",
+    "meaning": "交代で…する",
+    "offset": 63197,
+    "sourcePage": 30,
+    "candidateId": 331,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "mathematics",
+    "meaning": "数学",
+    "offset": 63242,
+    "sourcePage": 30,
+    "candidateId": 332,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "billiards",
+    "meaning": "ビリアード",
+    "offset": 63289,
+    "sourcePage": 30,
+    "candidateId": 333,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "diabetes",
+    "meaning": "糖尿病",
+    "offset": 63343,
+    "sourcePage": 30,
+    "candidateId": 334,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "news",
+    "meaning": "知らせ",
+    "offset": 63397,
+    "sourcePage": 30,
+    "candidateId": 335,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "surroundings",
+    "meaning": "環境",
+    "offset": 63415,
+    "sourcePage": 30,
+    "candidateId": 336,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "headquarters",
+    "meaning": "本部",
+    "offset": 63442,
+    "sourcePage": 30,
+    "candidateId": 337,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "お金 … cost",
+    "meaning": "費用",
+    "offset": 63477,
+    "sourcePage": 30,
+    "candidateId": 338,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "客     … audience",
+    "meaning": "聴衆",
+    "offset": 63666,
+    "sourcePage": 30,
+    "candidateId": 339,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "約束 … appointment",
+    "meaning": "面会の約束",
+    "offset": 63793,
+    "sourcePage": 30,
+    "candidateId": 340,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "習慣 … custom",
+    "meaning": "社会的習慣",
+    "offset": 63903,
+    "sourcePage": 30,
+    "candidateId": 341,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 15,
+    "phrase": "a number of",
+    "meaning": "たくさんの…",
+    "offset": 66092,
+    "sourcePage": 31,
+    "candidateId": 342,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 15,
+    "phrase": "the number of",
+    "meaning": "…の数",
+    "offset": 66144,
+    "sourcePage": 31,
+    "candidateId": 343,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "live",
+    "meaning": "(動植物が)生きている",
+    "offset": 67131,
+    "sourcePage": 32,
+    "candidateId": 344,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "living",
+    "meaning": "(人・動植物が)生きている",
+    "offset": 67174,
+    "sourcePage": 32,
+    "candidateId": 345,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "mere / just",
+    "meaning": "単なる",
+    "offset": 67200,
+    "sourcePage": 32,
+    "candidateId": 346,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "only",
+    "meaning": "唯一の",
+    "offset": 67235,
+    "sourcePage": 32,
+    "candidateId": 347,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "elder",
+    "meaning": "年長の",
+    "offset": 67263,
+    "sourcePage": 32,
+    "candidateId": 348,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "former",
+    "meaning": "前の",
+    "offset": 67293,
+    "sourcePage": 32,
+    "candidateId": 349,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "afraid",
+    "meaning": "恐れている",
+    "offset": 67343,
+    "sourcePage": 32,
+    "candidateId": 350,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "alike",
+    "meaning": "似ている",
+    "offset": 67383,
+    "sourcePage": 32,
+    "candidateId": 351,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "alive",
+    "meaning": "生きている",
+    "offset": 67421,
+    "sourcePage": 32,
+    "candidateId": 352,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "alone",
+    "meaning": "ひとりでいる",
+    "offset": 67438,
+    "sourcePage": 32,
+    "candidateId": 353,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "asleep",
+    "meaning": "寝ている",
+    "offset": 67478,
+    "sourcePage": 32,
+    "candidateId": 354,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "awake",
+    "meaning": "起きている",
+    "offset": 67516,
+    "sourcePage": 32,
+    "candidateId": 355,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "aware",
+    "meaning": "知っている",
+    "offset": 67533,
+    "sourcePage": 32,
+    "candidateId": 356,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "ashamed",
+    "meaning": "恥ずかしい",
+    "offset": 67573,
+    "sourcePage": 32,
+    "candidateId": 357,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "able",
+    "meaning": "有能な",
+    "offset": 67614,
+    "sourcePage": 32,
+    "candidateId": 358,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "certain",
+    "meaning": "ある・特定の",
+    "offset": 67669,
+    "sourcePage": 32,
+    "candidateId": 359,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "late",
+    "meaning": "最近の・故…",
+    "offset": 67698,
+    "sourcePage": 32,
+    "candidateId": 360,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "present",
+    "meaning": "現在の",
+    "offset": 67753,
+    "sourcePage": 32,
+    "candidateId": 361,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "A present",
+    "meaning": "出席している A",
+    "offset": 67795,
+    "sourcePage": 32,
+    "candidateId": 362,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "A involved[concerned]",
+    "meaning": "関係している A",
+    "offset": 67850,
+    "sourcePage": 32,
+    "candidateId": 363,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "A available",
+    "meaning": "利用できる A",
+    "offset": 67886,
+    "sourcePage": 32,
+    "candidateId": 364,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "A imaginable",
+    "meaning": "考えうる限りの A",
+    "offset": 67941,
+    "sourcePage": 32,
+    "candidateId": 365,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "-thing / -one / -body + 形容詞",
+    "meaning": "…な〜",
+    "offset": 67969,
+    "sourcePage": 32,
+    "candidateId": 366,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 16,
+    "phrase": "easy",
+    "meaning": "易しい",
+    "offset": 68075,
+    "sourcePage": 32,
+    "candidateId": 367,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "difficult / hard",
+    "meaning": "難しい",
+    "offset": 68111,
+    "sourcePage": 32,
+    "candidateId": 368,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "important",
+    "meaning": "重要な",
+    "offset": 68153,
+    "sourcePage": 32,
+    "candidateId": 369,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "necessary",
+    "meaning": "必要な",
+    "offset": 68172,
+    "sourcePage": 32,
+    "candidateId": 370,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "possible",
+    "meaning": "可能な",
+    "offset": 68208,
+    "sourcePage": 32,
+    "candidateId": 371,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "impossible",
+    "meaning": "不可能な",
+    "offset": 68250,
+    "sourcePage": 32,
+    "candidateId": 372,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "comfortable",
+    "meaning": "快適な",
+    "offset": 68271,
+    "sourcePage": 32,
+    "candidateId": 373,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "convenient",
+    "meaning": "便利な",
+    "offset": 68307,
+    "sourcePage": 32,
+    "candidateId": 374,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "dangerous",
+    "meaning": "危険な",
+    "offset": 68349,
+    "sourcePage": 32,
+    "candidateId": 375,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "delightful",
+    "meaning": "愉快な",
+    "offset": 68368,
+    "sourcePage": 32,
+    "candidateId": 376,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "pleasant",
+    "meaning": "楽しい",
+    "offset": 68404,
+    "sourcePage": 32,
+    "candidateId": 377,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "satisfactory",
+    "meaning": "満足のいく",
+    "offset": 68446,
+    "sourcePage": 32,
+    "candidateId": 378,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "priceless / valuable / invaluable",
+    "meaning": "価値がある",
+    "offset": 68484,
+    "sourcePage": 32,
+    "candidateId": 379,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "worthless / valueless",
+    "meaning": "価値がない",
+    "offset": 68552,
+    "sourcePage": 32,
+    "candidateId": 380,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "good",
+    "meaning": "よい",
+    "offset": 68585,
+    "sourcePage": 32,
+    "candidateId": 381,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "sound",
+    "meaning": "(身体が)健全な",
+    "offset": 68653,
+    "sourcePage": 32,
+    "candidateId": 382,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "right",
+    "meaning": "右の",
+    "offset": 68757,
+    "sourcePage": 32,
+    "candidateId": 383,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "large / small … audience",
+    "meaning": "聴衆",
+    "offset": 68865,
+    "sourcePage": 33,
+    "candidateId": 384,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "high / low … cost",
+    "meaning": "費用",
+    "offset": 68929,
+    "sourcePage": 33,
+    "candidateId": 385,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "heavy / light … rain",
+    "meaning": "降水(量)",
+    "offset": 68998,
+    "sourcePage": 33,
+    "candidateId": 386,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "considerable",
+    "meaning": "かなりの",
+    "offset": 69081,
+    "sourcePage": 33,
+    "candidateId": 387,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "economic",
+    "meaning": "経済の",
+    "offset": 69123,
+    "sourcePage": 33,
+    "candidateId": 388,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "imaginative",
+    "meaning": "想像力豊かな",
+    "offset": 69156,
+    "sourcePage": 33,
+    "candidateId": 389,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "literal",
+    "meaning": "文字通りの",
+    "offset": 69213,
+    "sourcePage": 33,
+    "candidateId": 390,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "industrial",
+    "meaning": "産業の",
+    "offset": 69262,
+    "sourcePage": 33,
+    "candidateId": 391,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "regretful",
+    "meaning": "後悔している",
+    "offset": 69296,
+    "sourcePage": 33,
+    "candidateId": 392,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "respectful",
+    "meaning": "敬意を示す",
+    "offset": 69333,
+    "sourcePage": 33,
+    "candidateId": 393,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "sensitive",
+    "meaning": "敏感な",
+    "offset": 69387,
+    "sourcePage": 33,
+    "candidateId": 394,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "social",
+    "meaning": "社会の",
+    "offset": 69449,
+    "sourcePage": 33,
+    "candidateId": 395,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "successful",
+    "meaning": "成功している",
+    "offset": 69492,
+    "sourcePage": 33,
+    "candidateId": 396,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "pretty",
+    "meaning": "かわいい",
+    "offset": 69848,
+    "sourcePage": 33,
+    "candidateId": 397,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "still",
+    "meaning": "じっとした",
+    "offset": 69898,
+    "sourcePage": 33,
+    "candidateId": 398,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "well",
+    "meaning": "健康な",
+    "offset": 69919,
+    "sourcePage": 33,
+    "candidateId": 399,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "just",
+    "meaning": "公正な",
+    "offset": 69969,
+    "sourcePage": 33,
+    "candidateId": 400,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "close",
+    "meaning": "近くに",
+    "offset": 70025,
+    "sourcePage": 33,
+    "candidateId": 401,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "hard",
+    "meaning": "懸命に",
+    "offset": 70075,
+    "sourcePage": 33,
+    "candidateId": 402,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "high",
+    "meaning": "高く",
+    "offset": 70103,
+    "sourcePage": 33,
+    "candidateId": 403,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "late",
+    "meaning": "遅くに",
+    "offset": 70153,
+    "sourcePage": 33,
+    "candidateId": 404,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "most",
+    "meaning": "最も",
+    "offset": 70176,
+    "sourcePage": 33,
+    "candidateId": 405,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "near",
+    "meaning": "近くに",
+    "offset": 70218,
+    "sourcePage": 33,
+    "candidateId": 406,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "upstairs",
+    "meaning": "上階で・へ",
+    "offset": 70261,
+    "sourcePage": 33,
+    "candidateId": 407,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "downstairs",
+    "meaning": "下階で・へ",
+    "offset": 70290,
+    "sourcePage": 33,
+    "candidateId": 408,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "abroad",
+    "meaning": "外国で・へ",
+    "offset": 70324,
+    "sourcePage": 33,
+    "candidateId": 409,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "home",
+    "meaning": "家で・へ",
+    "offset": 70341,
+    "sourcePage": 33,
+    "candidateId": 410,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "downtown",
+    "meaning": "繁華街で・へ",
+    "offset": 70370,
+    "sourcePage": 33,
+    "candidateId": 411,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "overseas",
+    "meaning": "海外で・へ",
+    "offset": 70404,
+    "sourcePage": 33,
+    "candidateId": 412,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "順接：consequently, as a result",
+    "meaning": "その結果",
+    "offset": 70432,
+    "sourcePage": 33,
+    "candidateId": 413,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as a result",
+      "その結果"
+    ]
+  },
+  {
+    "lecture": 16,
+    "phrase": "逆接：however",
+    "meaning": "しかし",
+    "offset": 70512,
+    "sourcePage": 33,
+    "candidateId": 414,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "添加：also",
+    "meaning": "また",
+    "offset": 70580,
+    "sourcePage": 33,
+    "candidateId": 415,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 16,
+    "phrase": "換言：in short, in brief, that is, namely",
+    "meaning": "つまり",
+    "offset": 70647,
+    "sourcePage": 33,
+    "candidateId": 416,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in short / in brief / that is",
+      "要するに・つまり"
+    ]
+  },
+  {
+    "lecture": 16,
+    "phrase": "選択：or else, otherwise",
+    "meaning": "さもないと",
+    "offset": 70716,
+    "sourcePage": 33,
+    "candidateId": 417,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "or else",
+      "さもないと"
+    ]
+  },
+  {
+    "lecture": 16,
+    "phrase": "例示：for example, for instance",
+    "meaning": "例えば",
+    "offset": 70748,
+    "sourcePage": 33,
+    "candidateId": 418,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "for example / for instance",
+      "例えば"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "as … as S can [possible]",
+    "meaning": "できるだけ…",
+    "offset": 74017,
+    "sourcePage": 35,
+    "candidateId": 419,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as ＋形容詞・副詞＋ as possible",
+      "できるだけ〜"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "as … as ever",
+    "meaning": "相変わらず…",
+    "offset": 74071,
+    "sourcePage": 35,
+    "candidateId": 420,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as ＋形容詞・副詞＋ as ever",
+      "相変わらず〜"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "as good as ( = no better than ) …",
+    "meaning": "…も同然",
+    "offset": 74096,
+    "sourcePage": 35,
+    "candidateId": 421,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as good as O",
+      "Oも同然で"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "as … as ever lived",
+    "meaning": "今までに類を見ないほど",
+    "offset": 74150,
+    "sourcePage": 35,
+    "candidateId": 422,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as ＋形容詞＋ a 名詞 as ever lived",
+      "今までに類を見ないほど〜な人"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "not so much as V",
+    "meaning": "…さえしない",
+    "offset": 74186,
+    "sourcePage": 35,
+    "candidateId": 423,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "without so much as Ving",
+    "meaning": "…さえせずに",
+    "offset": 74240,
+    "sourcePage": 35,
+    "candidateId": 424,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "not so much A as B",
+    "meaning": "A というよりむしろ B",
+    "offset": 74276,
+    "sourcePage": 35,
+    "candidateId": 425,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "the 比較級, the 比較級",
+    "meaning": "〜すればするほどますます…",
+    "offset": 74380,
+    "sourcePage": 35,
+    "candidateId": 426,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "比較級 and 比較級",
+    "meaning": "ますます…",
+    "offset": 74414,
+    "sourcePage": 35,
+    "candidateId": 427,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "all the 比較級 + 理由",
+    "meaning": "…なのでさらに〜",
+    "offset": 74437,
+    "sourcePage": 35,
+    "candidateId": 428,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "more or less",
+    "meaning": "多かれ少なかれ",
+    "offset": 74491,
+    "sourcePage": 35,
+    "candidateId": 429,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "know better than to V",
+    "meaning": "…するより賢い",
+    "offset": 74517,
+    "sourcePage": 35,
+    "candidateId": 430,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "know better than to V",
+      "Vするほど愚かではない"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "sooner or later",
+    "meaning": "遅かれ早かれ",
+    "offset": 74571,
+    "sourcePage": 35,
+    "candidateId": 431,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "肯定文, much[still] more 〜",
+    "meaning": "なおさら〜",
+    "offset": 74599,
+    "sourcePage": 35,
+    "candidateId": 432,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "否定文, much[still] less 〜",
+    "meaning": "なおさら〜ない",
+    "offset": 74653,
+    "sourcePage": 35,
+    "candidateId": 433,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "at one’s best",
+    "meaning": "最高の状態で",
+    "offset": 74705,
+    "sourcePage": 35,
+    "candidateId": 434,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "at most ( = not more than )",
+    "meaning": "多くとも",
+    "offset": 74759,
+    "sourcePage": 35,
+    "candidateId": 435,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "at most",
+      "多くとも"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "make the most of",
+    "meaning": "…を最大限利用する",
+    "offset": 74797,
+    "sourcePage": 35,
+    "candidateId": 436,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 17,
+    "phrase": "at least ( = not less than )",
+    "meaning": "少なくとも",
+    "offset": 74851,
+    "sourcePage": 35,
+    "candidateId": 437,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "at least",
+      "少なくとも"
+    ]
+  },
+  {
+    "lecture": 17,
+    "phrase": "make the best of",
+    "meaning": "(不利な状況でも)…を最大限利用する",
+    "offset": 74891,
+    "sourcePage": 35,
+    "candidateId": 438,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "without",
+    "meaning": "…なしに",
+    "offset": 75655,
+    "sourcePage": 36,
+    "candidateId": 439,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "never",
+    "meaning": "決して…ない",
+    "offset": 75708,
+    "sourcePage": 36,
+    "candidateId": 440,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "no + 単数・不可算",
+    "meaning": "…がない",
+    "offset": 75726,
+    "sourcePage": 36,
+    "candidateId": 441,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "no + 複数",
+    "meaning": "…が全くない",
+    "offset": 75779,
+    "sourcePage": 36,
+    "candidateId": 442,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "no one / nobody",
+    "meaning": "誰も…ない",
+    "offset": 75799,
+    "sourcePage": 36,
+    "candidateId": 443,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "nothing",
+    "meaning": "何も…ない",
+    "offset": 75852,
+    "sourcePage": 36,
+    "candidateId": 444,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "neither",
+    "meaning": "〈2 つのうち〉どちらも…ない",
+    "offset": 75871,
+    "sourcePage": 36,
+    "candidateId": 445,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "none",
+    "meaning": "〈3 つ以上で〉どれも…ない",
+    "offset": 75937,
+    "sourcePage": 36,
+    "candidateId": 446,
+    "decision": "excluded",
+    "reason": "単独語・活用表・一般説明は単語帳側で扱う"
+  },
+  {
+    "lecture": 18,
+    "phrase": "the last A to V / who",
+    "meaning": "最も…しない A",
+    "offset": 78126,
+    "sourcePage": 37,
+    "candidateId": 447,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "the last A to V",
+      "最もVしそうにないA"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "be free from",
+    "meaning": "…がない",
+    "offset": 78160,
+    "sourcePage": 37,
+    "candidateId": 448,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "have[be] yet to V",
+    "meaning": "まだ…していない",
+    "offset": 78183,
+    "sourcePage": 37,
+    "candidateId": 449,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "remain to be Vpp.",
+    "meaning": "まだ…されていない",
+    "offset": 78213,
+    "sourcePage": 37,
+    "candidateId": 450,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "remain to be V-ed",
+      "まだVされていない・今後Vされる必要がある"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "too 〜 to V",
+    "meaning": "〜すぎて…できない",
+    "offset": 78246,
+    "sourcePage": 37,
+    "candidateId": 451,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "too ＋形容詞・副詞＋ to V",
+      "〜すぎてVできない"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "S prevent A from Ving",
+    "meaning": "S のせいで A は…できない",
+    "offset": 78290,
+    "sourcePage": 37,
+    "candidateId": 452,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "prevent A from Ving",
+      "AがVするのを妨げる"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "above + 人",
+    "meaning": "…の理解を超えている",
+    "offset": 78333,
+    "sourcePage": 37,
+    "candidateId": 453,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "above A",
+      "人のAには理解できない"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "beyond + 動作名詞",
+    "meaning": "…を超えている・…できない",
+    "offset": 78377,
+    "sourcePage": 37,
+    "candidateId": 454,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "nothing but",
+    "meaning": "…だけ",
+    "offset": 78424,
+    "sourcePage": 37,
+    "candidateId": 455,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "do nothing but V",
+    "meaning": "…ばかりしている",
+    "offset": 78468,
+    "sourcePage": 37,
+    "candidateId": 456,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "not A but B",
+    "meaning": "A ではなく B",
+    "offset": 78499,
+    "sourcePage": 37,
+    "candidateId": 457,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "not only A but (also) B",
+    "meaning": "A だけでなく B も",
+    "offset": 78543,
+    "sourcePage": 37,
+    "candidateId": 458,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "it was not long before",
+    "meaning": "すぐに…した",
+    "offset": 78584,
+    "sourcePage": 37,
+    "candidateId": 459,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "It was not long before S 過去形",
+      "ほどなくSが〜した"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "it will not be long before",
+    "meaning": "まもなく…するだろう",
+    "offset": 78617,
+    "sourcePage": 37,
+    "candidateId": 460,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "It will not be long before S V",
+      "まもなくSがVするだろう"
+    ]
+  },
+  {
+    "lecture": 18,
+    "phrase": "no more",
+    "meaning": "〈量・程度が〉もはや…ない",
+    "offset": 78660,
+    "sourcePage": 37,
+    "candidateId": 461,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 18,
+    "phrase": "no longer",
+    "meaning": "〈今後は〉もはや…ない",
+    "offset": 78717,
+    "sourcePage": 37,
+    "candidateId": 462,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I think so.",
+    "meaning": "そう思う",
+    "offset": 81003,
+    "sourcePage": 38,
+    "candidateId": 463,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I don’t think so.",
+    "meaning": "そうは思わない",
+    "offset": 81054,
+    "sourcePage": 38,
+    "candidateId": 464,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I hope so.",
+    "meaning": "そうだといいね",
+    "offset": 81085,
+    "sourcePage": 38,
+    "candidateId": 465,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I hope not.",
+    "meaning": "違うといいね",
+    "offset": 81136,
+    "sourcePage": 38,
+    "candidateId": 466,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I’m afraid so.",
+    "meaning": "残念ながらそうだ",
+    "offset": 81160,
+    "sourcePage": 38,
+    "candidateId": 467,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "I’m afraid not.",
+    "meaning": "残念ながら違う",
+    "offset": 81211,
+    "sourcePage": 38,
+    "candidateId": 468,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if so",
+    "meaning": "もしそうであれば",
+    "offset": 81657,
+    "sourcePage": 39,
+    "candidateId": 469,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if not (…)",
+    "meaning": "そう(…)でないなら",
+    "offset": 81707,
+    "sourcePage": 39,
+    "candidateId": 470,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if any",
+    "meaning": "もしあるなら・あるにしても",
+    "offset": 81734,
+    "sourcePage": 39,
+    "candidateId": 471,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if ever",
+    "meaning": "もしするなら・するにしても",
+    "offset": 81784,
+    "sourcePage": 39,
+    "candidateId": 472,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if anything",
+    "meaning": "どちらかといえば",
+    "offset": 81811,
+    "sourcePage": 39,
+    "candidateId": 473,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 19,
+    "phrase": "if possible",
+    "meaning": "もし可能なら",
+    "offset": 81861,
+    "sourcePage": 39,
+    "candidateId": 474,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "break out",
+    "meaning": "起こる",
+    "offset": 83135,
+    "sourcePage": 40,
+    "candidateId": 475,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "come about",
+    "meaning": "起こる",
+    "offset": 83160,
+    "sourcePage": 40,
+    "candidateId": 476,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "drop in",
+    "meaning": "立ち寄る",
+    "offset": 83184,
+    "sourcePage": 40,
+    "candidateId": 477,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "fall through",
+    "meaning": "失敗する",
+    "offset": 83201,
+    "sourcePage": 40,
+    "candidateId": 478,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "give in",
+    "meaning": "屈服する",
+    "offset": 83222,
+    "sourcePage": 40,
+    "candidateId": 479,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "go on",
+    "meaning": "続く",
+    "offset": 83250,
+    "sourcePage": 40,
+    "candidateId": 480,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "grow up",
+    "meaning": "成長する",
+    "offset": 83397,
+    "sourcePage": 40,
+    "candidateId": 481,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "hold on",
+    "meaning": "待つ",
+    "offset": 83422,
+    "sourcePage": 40,
+    "candidateId": 482,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "hurry up",
+    "meaning": "急ぐ",
+    "offset": 83446,
+    "sourcePage": 40,
+    "candidateId": 483,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "pass away",
+    "meaning": "亡くなる",
+    "offset": 83462,
+    "sourcePage": 40,
+    "candidateId": 484,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "show up",
+    "meaning": "現れる",
+    "offset": 83487,
+    "sourcePage": 40,
+    "candidateId": 485,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "stand out",
+    "meaning": "目立つ",
+    "offset": 83511,
+    "sourcePage": 40,
+    "candidateId": 486,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "take off",
+    "meaning": "離陸する",
+    "offset": 83529,
+    "sourcePage": 40,
+    "candidateId": 487,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "turn over",
+    "meaning": "ひっくり返る",
+    "offset": 83554,
+    "sourcePage": 40,
+    "candidateId": 488,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "run away",
+    "meaning": "逃げる",
+    "offset": 83578,
+    "sourcePage": 40,
+    "candidateId": 489,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "account for",
+    "meaning": "…を説明する，占める",
+    "offset": 83619,
+    "sourcePage": 40,
+    "candidateId": 490,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "apply for",
+    "meaning": "…に申し込む",
+    "offset": 83660,
+    "sourcePage": 40,
+    "candidateId": 491,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "burst into[out]",
+    "meaning": "突然…になる",
+    "offset": 83681,
+    "sourcePage": 40,
+    "candidateId": 492,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "call for",
+    "meaning": "…を要求する，必要とする",
+    "offset": 83722,
+    "sourcePage": 40,
+    "candidateId": 493,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "care for",
+    "meaning": "…を好む",
+    "offset": 83748,
+    "sourcePage": 40,
+    "candidateId": 494,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "come across",
+    "meaning": "…に偶然出くわす",
+    "offset": 83789,
+    "sourcePage": 40,
+    "candidateId": 495,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "consist of",
+    "meaning": "…からなる",
+    "offset": 83814,
+    "sourcePage": 40,
+    "candidateId": 496,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "correspond to",
+    "meaning": "…に対応する",
+    "offset": 83855,
+    "sourcePage": 40,
+    "candidateId": 497,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "count[rely] on",
+    "meaning": "…に頼る",
+    "offset": 83880,
+    "sourcePage": 40,
+    "candidateId": 498,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "deal[cope] with",
+    "meaning": "…に対処する",
+    "offset": 83921,
+    "sourcePage": 40,
+    "candidateId": 499,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "dispense with",
+    "meaning": "…なしで済ます",
+    "offset": 83948,
+    "sourcePage": 40,
+    "candidateId": 500,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "do without",
+    "meaning": "…なしで済ます",
+    "offset": 83989,
+    "sourcePage": 40,
+    "candidateId": 501,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "fall on",
+    "meaning": "《日付が》…にあたる",
+    "offset": 84012,
+    "sourcePage": 40,
+    "candidateId": 502,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "get over",
+    "meaning": "…を乗り越える，克服する",
+    "offset": 84065,
+    "sourcePage": 40,
+    "candidateId": 503,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "occur to",
+    "meaning": "《考えが》…の心に浮かぶ",
+    "offset": 84091,
+    "sourcePage": 40,
+    "candidateId": 504,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "refer to",
+    "meaning": "…に言及する",
+    "offset": 84145,
+    "sourcePage": 40,
+    "candidateId": 505,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "resort to",
+    "meaning": "《暴力など》に訴える",
+    "offset": 84165,
+    "sourcePage": 40,
+    "candidateId": 506,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "result[stem] from",
+    "meaning": "…から生じる",
+    "offset": 84220,
+    "sourcePage": 40,
+    "candidateId": 507,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "result in",
+    "meaning": "《結果として》…になる",
+    "offset": 84249,
+    "sourcePage": 40,
+    "candidateId": 508,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "run into",
+    "meaning": "…に偶然出くわす",
+    "offset": 84304,
+    "sourcePage": 40,
+    "candidateId": 509,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "bring … about",
+    "meaning": "…を起こす",
+    "offset": 84349,
+    "sourcePage": 40,
+    "candidateId": 510,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "bring … up",
+    "meaning": "…を育てる",
+    "offset": 84390,
+    "sourcePage": 40,
+    "candidateId": 511,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "call … off",
+    "meaning": "…を中止する",
+    "offset": 84411,
+    "sourcePage": 40,
+    "candidateId": 512,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "carry … out",
+    "meaning": "…を実行する",
+    "offset": 84452,
+    "sourcePage": 40,
+    "candidateId": 513,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "figure … out",
+    "meaning": "…を理解する",
+    "offset": 84475,
+    "sourcePage": 40,
+    "candidateId": 514,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "give … away",
+    "meaning": "…を配る",
+    "offset": 84516,
+    "sourcePage": 40,
+    "candidateId": 515,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "give … up",
+    "meaning": "…を諦める",
+    "offset": 84537,
+    "sourcePage": 40,
+    "candidateId": 516,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "hand … in",
+    "meaning": "…を提出する",
+    "offset": 84578,
+    "sourcePage": 40,
+    "candidateId": 517,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "lay … off",
+    "meaning": "…を《一時》解雇する",
+    "offset": 84599,
+    "sourcePage": 40,
+    "candidateId": 518,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "leave … out",
+    "meaning": "…を除外する",
+    "offset": 84640,
+    "sourcePage": 40,
+    "candidateId": 519,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "let … down",
+    "meaning": "…を失望させる",
+    "offset": 84663,
+    "sourcePage": 40,
+    "candidateId": 520,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "pick … up",
+    "meaning": "…を選びとる",
+    "offset": 84704,
+    "sourcePage": 40,
+    "candidateId": 521,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "pick O up",
+      "Oを拾い上げる・Oを車に乗せる"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "put … off",
+    "meaning": "…を延期する",
+    "offset": 84725,
+    "sourcePage": 40,
+    "candidateId": 522,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "try … on",
+    "meaning": "…を試着する",
+    "offset": 84766,
+    "sourcePage": 40,
+    "candidateId": 523,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "add up to",
+    "meaning": "合計…になる",
+    "offset": 84813,
+    "sourcePage": 40,
+    "candidateId": 524,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "catch up with",
+    "meaning": "…に追いつく",
+    "offset": 84854,
+    "sourcePage": 40,
+    "candidateId": 525,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "cut in on",
+    "meaning": "…に割り込む",
+    "offset": 84879,
+    "sourcePage": 40,
+    "candidateId": 526,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "do away with",
+    "meaning": "…を廃止する",
+    "offset": 84920,
+    "sourcePage": 40,
+    "candidateId": 527,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "get along with",
+    "meaning": "…とうまくやる",
+    "offset": 84944,
+    "sourcePage": 40,
+    "candidateId": 528,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "get down to",
+    "meaning": "…に本腰をいれる",
+    "offset": 84985,
+    "sourcePage": 40,
+    "candidateId": 529,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "get through with",
+    "meaning": "…を経験する",
+    "offset": 85010,
+    "sourcePage": 40,
+    "candidateId": 530,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "get through with O",
+      "Oを終える・済ませる"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "keep up with",
+    "meaning": "…についていく",
+    "offset": 85051,
+    "sourcePage": 40,
+    "candidateId": 531,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "look back on",
+    "meaning": "…を振り返る",
+    "offset": 85076,
+    "sourcePage": 40,
+    "candidateId": 532,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "look down on",
+    "meaning": "…を見下す",
+    "offset": 85117,
+    "sourcePage": 40,
+    "candidateId": 533,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "look up to",
+    "meaning": "…を尊敬する",
+    "offset": 85140,
+    "sourcePage": 40,
+    "candidateId": 534,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "make up for",
+    "meaning": "…を補う",
+    "offset": 85181,
+    "sourcePage": 40,
+    "candidateId": 535,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "make up with",
+    "meaning": "…と仲直りする",
+    "offset": 85202,
+    "sourcePage": 40,
+    "candidateId": 536,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "put up with",
+    "meaning": "…を我慢する",
+    "offset": 85243,
+    "sourcePage": 40,
+    "candidateId": 537,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "run out of",
+    "meaning": "…を使い果たす",
+    "offset": 85266,
+    "sourcePage": 40,
+    "candidateId": 538,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "run short of",
+    "meaning": "…が不足する",
+    "offset": 85307,
+    "sourcePage": 40,
+    "candidateId": 539,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "speak ill of",
+    "meaning": "…の悪口を言う",
+    "offset": 85331,
+    "sourcePage": 40,
+    "candidateId": 540,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "speak well of",
+    "meaning": "…をほめる",
+    "offset": 85372,
+    "sourcePage": 40,
+    "candidateId": 541,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "above all / in particular / particularly",
+    "meaning": "特に",
+    "offset": 85474,
+    "sourcePage": 41,
+    "candidateId": 542,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "above all / in particular",
+      "特に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "at ease / at home",
+    "meaning": "気楽に",
+    "offset": 85523,
+    "sourcePage": 41,
+    "candidateId": 543,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at hand",
+    "meaning": "手元に",
+    "offset": 85549,
+    "sourcePage": 41,
+    "candidateId": 544,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "at hand",
+      "手元に・近くに／時が近づいて"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "at large",
+    "meaning": "捕まらないで",
+    "offset": 85614,
+    "sourcePage": 41,
+    "candidateId": 545,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at present",
+    "meaning": "現在のところ",
+    "offset": 85707,
+    "sourcePage": 41,
+    "candidateId": 546,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at last / at length / finally",
+    "meaning": "最終的に",
+    "offset": 85756,
+    "sourcePage": 41,
+    "candidateId": 547,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "at last / at length",
+      "とうとう・ついに"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "at random",
+    "meaning": "無造作に",
+    "offset": 85795,
+    "sourcePage": 41,
+    "candidateId": 548,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "at random",
+      "無作為に・手当たり次第に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "at will",
+    "meaning": "意のままに",
+    "offset": 85844,
+    "sourcePage": 41,
+    "candidateId": 549,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at work / on duty",
+    "meaning": "勤務中で",
+    "offset": 85862,
+    "sourcePage": 41,
+    "candidateId": 550,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "off duty",
+    "meaning": "勤務外で",
+    "offset": 85911,
+    "sourcePage": 41,
+    "candidateId": 551,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "before long / soon",
+    "meaning": "まもなく",
+    "offset": 86000,
+    "sourcePage": 41,
+    "candidateId": 552,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "before long",
+      "まもなく"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "by chance / by accident",
+    "meaning": "たまたま",
+    "offset": 86049,
+    "sourcePage": 41,
+    "candidateId": 553,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "by degree / gradually",
+    "meaning": "次第に",
+    "offset": 86082,
+    "sourcePage": 41,
+    "candidateId": 554,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "by degrees",
+      "徐々に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "by mistake",
+    "meaning": "誤って",
+    "offset": 86131,
+    "sourcePage": 41,
+    "candidateId": 555,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "by nature",
+    "meaning": "生まれつき",
+    "offset": 86150,
+    "sourcePage": 41,
+    "candidateId": 556,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "by turns / alternatively",
+    "meaning": "交互に",
+    "offset": 86219,
+    "sourcePage": 41,
+    "candidateId": 557,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "by turns",
+      "交互に・かわるがわる"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "for ages / for a long time",
+    "meaning": "長い間",
+    "offset": 86252,
+    "sourcePage": 41,
+    "candidateId": 558,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "for certain / for sure",
+    "meaning": "確かに",
+    "offset": 86301,
+    "sourcePage": 41,
+    "candidateId": 559,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "for good / forever",
+    "meaning": "永久に",
+    "offset": 86332,
+    "sourcePage": 41,
+    "candidateId": 560,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "for good",
+      "永久に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "for nothing",
+    "meaning": "無駄に",
+    "offset": 86381,
+    "sourcePage": 41,
+    "candidateId": 561,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in advance / beforehand",
+    "meaning": "前もって",
+    "offset": 86474,
+    "sourcePage": 41,
+    "candidateId": 562,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in advance",
+      "前もって"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in common",
+    "meaning": "共通した",
+    "offset": 86523,
+    "sourcePage": 41,
+    "candidateId": 563,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in detail",
+    "meaning": "詳細に",
+    "offset": 86542,
+    "sourcePage": 41,
+    "candidateId": 564,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in earnest / seriously",
+    "meaning": "真面目に",
+    "offset": 86591,
+    "sourcePage": 41,
+    "candidateId": 565,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in earnest",
+      "真剣に・本格的に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in person",
+    "meaning": "個人的に",
+    "offset": 86623,
+    "sourcePage": 41,
+    "candidateId": 566,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in person",
+      "本人が直接・じかに"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in progress",
+    "meaning": "進行中で",
+    "offset": 86691,
+    "sourcePage": 41,
+    "candidateId": 567,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in private",
+    "meaning": "個人的に",
+    "offset": 86712,
+    "sourcePage": 41,
+    "candidateId": 568,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in private",
+      "人前を避けて・内々に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in public",
+    "meaning": "公に",
+    "offset": 86781,
+    "sourcePage": 41,
+    "candidateId": 569,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in public",
+      "人前で・公然と"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in short / in brief",
+    "meaning": "要するに",
+    "offset": 86869,
+    "sourcePage": 41,
+    "candidateId": 570,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in turn",
+    "meaning": "今度は",
+    "offset": 86918,
+    "sourcePage": 41,
+    "candidateId": 571,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "on purpose / deliberately",
+    "meaning": "わざと",
+    "offset": 86934,
+    "sourcePage": 41,
+    "candidateId": 572,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "on purpose",
+      "わざと・故意に"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "under way / in progress",
+    "meaning": "進行中で",
+    "offset": 86983,
+    "sourcePage": 41,
+    "candidateId": 573,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at a loss",
+    "meaning": "途方に暮れて",
+    "offset": 87036,
+    "sourcePage": 41,
+    "candidateId": 574,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at all costs / by all means",
+    "meaning": "是非とも",
+    "offset": 87085,
+    "sourcePage": 41,
+    "candidateId": 575,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at first hand",
+    "meaning": "じかに",
+    "offset": 87122,
+    "sourcePage": 41,
+    "candidateId": 576,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "at second hand",
+    "meaning": "間接的に",
+    "offset": 87193,
+    "sourcePage": 41,
+    "candidateId": 577,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "by any chance",
+    "meaning": "ひょっとして",
+    "offset": 87217,
+    "sourcePage": 41,
+    "candidateId": 578,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "ill at ease",
+    "meaning": "不安だ",
+    "offset": 87266,
+    "sourcePage": 41,
+    "candidateId": 579,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in a sense[way]",
+    "meaning": "ある意味",
+    "offset": 87362,
+    "sourcePage": 41,
+    "candidateId": 580,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in any case / anyway",
+    "meaning": "とにかく",
+    "offset": 87411,
+    "sourcePage": 41,
+    "candidateId": 581,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in any case",
+      "いずれにしても"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "in no time",
+    "meaning": "すぐに",
+    "offset": 87441,
+    "sourcePage": 41,
+    "candidateId": 582,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "on second thought(s)",
+    "meaning": "考え直して",
+    "offset": 87490,
+    "sourcePage": 41,
+    "candidateId": 583,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "on the go",
+    "meaning": "活動中で",
+    "offset": 87521,
+    "sourcePage": 41,
+    "candidateId": 584,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "to some extent[degree]",
+    "meaning": "ある程度",
+    "offset": 87589,
+    "sourcePage": 41,
+    "candidateId": 585,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in order",
+    "meaning": "稼働中で",
+    "offset": 87621,
+    "sourcePage": 41,
+    "candidateId": 586,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "out of order",
+    "meaning": "故障中で",
+    "offset": 87688,
+    "sourcePage": 41,
+    "candidateId": 587,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in fashion / up to date",
+    "meaning": "流行して",
+    "offset": 87710,
+    "sourcePage": 41,
+    "candidateId": 588,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "in fashion",
+      "流行して"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "out of fashion / out of date",
+    "meaning": "廃れた",
+    "offset": 87759,
+    "sourcePage": 41,
+    "candidateId": 589,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "out of fashion",
+      "流行遅れで"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "within reach",
+    "meaning": "手の届く範囲で",
+    "offset": 87796,
+    "sourcePage": 41,
+    "candidateId": 590,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "out of reach",
+    "meaning": "手の届かないところに",
+    "offset": 87845,
+    "sourcePage": 41,
+    "candidateId": 591,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "to the point[mark]",
+    "meaning": "要領を得た",
+    "offset": 87873,
+    "sourcePage": 41,
+    "candidateId": 592,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "to the point",
+      "的を射た・要領を得た"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "off[behind] the point[mark]",
+    "meaning": "的外れの",
+    "offset": 87922,
+    "sourcePage": 41,
+    "candidateId": 593,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "off the point",
+      "的外れの"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "all of a sudden / out of the blue",
+    "meaning": "突然",
+    "offset": 87979,
+    "sourcePage": 41,
+    "candidateId": 594,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "as a matter of fact / in effect",
+    "meaning": "事実上",
+    "offset": 88028,
+    "sourcePage": 41,
+    "candidateId": 595,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "as a matter of fact",
+      "実際には・実のところ"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "for the time being / for now",
+    "meaning": "当面の間",
+    "offset": 88068,
+    "sourcePage": 41,
+    "candidateId": 596,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "once and for all",
+    "meaning": "きっぱりと",
+    "offset": 88117,
+    "sourcePage": 41,
+    "candidateId": 597,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "in the long run",
+    "meaning": "長い目で見れば",
+    "offset": 88144,
+    "sourcePage": 41,
+    "candidateId": 598,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "out of the question",
+    "meaning": "論外で",
+    "offset": 88193,
+    "sourcePage": 41,
+    "candidateId": 599,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "the other way around",
+    "meaning": "あべこべで",
+    "offset": 88221,
+    "sourcePage": 41,
+    "candidateId": 600,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "wide of the mark",
+    "meaning": "的外れの",
+    "offset": 88270,
+    "sourcePage": 41,
+    "candidateId": 601,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "make sense",
+    "meaning": "意味をなす",
+    "offset": 88312,
+    "sourcePage": 41,
+    "candidateId": 602,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "take place",
+    "meaning": "起こる",
+    "offset": 88332,
+    "sourcePage": 41,
+    "candidateId": 603,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "take place",
+      "起こる・行われる"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "kill time",
+    "meaning": "時間を潰す",
+    "offset": 88392,
+    "sourcePage": 41,
+    "candidateId": 604,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "lose face",
+    "meaning": "面目を失う",
+    "offset": 88412,
+    "sourcePage": 41,
+    "candidateId": 605,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "save face",
+    "meaning": "面目を守る",
+    "offset": 88442,
+    "sourcePage": 41,
+    "candidateId": 606,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "keep time",
+    "meaning": "時間を守る",
+    "offset": 88474,
+    "sourcePage": 41,
+    "candidateId": 607,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "keep time",
+      "時計が正確に時を刻む／拍子を取る"
+    ]
+  },
+  {
+    "lecture": 20,
+    "phrase": "make money",
+    "meaning": "稼ぐ",
+    "offset": 88494,
+    "sourcePage": 41,
+    "candidateId": 608,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "lose weight",
+    "meaning": "体重を減らす",
+    "offset": 88524,
+    "sourcePage": 41,
+    "candidateId": 609,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 20,
+    "phrase": "gain weight",
+    "meaning": "体重を増やす",
+    "offset": 88546,
+    "sourcePage": 41,
+    "candidateId": 610,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be popular among",
+    "meaning": "…の間で人気だ",
+    "offset": 88709,
+    "sourcePage": 42,
+    "candidateId": 611,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be responsible for",
+    "meaning": "…に責任・原因がある",
+    "offset": 88750,
+    "sourcePage": 42,
+    "candidateId": 612,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be suitable for",
+    "meaning": "…に適している",
+    "offset": 88784,
+    "sourcePage": 42,
+    "candidateId": 613,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be free from[of]",
+    "meaning": "…がない",
+    "offset": 88825,
+    "sourcePage": 42,
+    "candidateId": 614,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be bound for",
+    "meaning": "…行きである",
+    "offset": 88851,
+    "sourcePage": 42,
+    "candidateId": 615,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be rich in",
+    "meaning": "…に富んでいる",
+    "offset": 88892,
+    "sourcePage": 42,
+    "candidateId": 616,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be late for",
+    "meaning": "…に遅れている",
+    "offset": 88915,
+    "sourcePage": 42,
+    "candidateId": 617,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be ready for",
+    "meaning": "…の準備ができている",
+    "offset": 88956,
+    "sourcePage": 42,
+    "candidateId": 618,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be afraid of",
+    "meaning": "…を恐れている",
+    "offset": 88984,
+    "sourcePage": 42,
+    "candidateId": 619,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be ashamed of",
+    "meaning": "…を恥じている",
+    "offset": 89025,
+    "sourcePage": 42,
+    "candidateId": 620,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be aware[conscious] of",
+    "meaning": "…に気づいている",
+    "offset": 89051,
+    "sourcePage": 42,
+    "candidateId": 621,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be consistent with",
+    "meaning": "…と一貫している",
+    "offset": 89092,
+    "sourcePage": 42,
+    "candidateId": 622,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be envious[jealous] of",
+    "meaning": "…をねたんでいる",
+    "offset": 89124,
+    "sourcePage": 42,
+    "candidateId": 623,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be fond of",
+    "meaning": "…を好んでいる",
+    "offset": 89165,
+    "sourcePage": 42,
+    "candidateId": 624,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be ignorant of",
+    "meaning": "…に無知である",
+    "offset": 89188,
+    "sourcePage": 42,
+    "candidateId": 625,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be short of",
+    "meaning": "…が不足している",
+    "offset": 89229,
+    "sourcePage": 42,
+    "candidateId": 626,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be sick[weary] of",
+    "meaning": "…にうんざりしている",
+    "offset": 89254,
+    "sourcePage": 42,
+    "candidateId": 627,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be keen on",
+    "meaning": "…に熱中している",
+    "offset": 89295,
+    "sourcePage": 42,
+    "candidateId": 628,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be true of",
+    "meaning": "…に当てはまる",
+    "offset": 89319,
+    "sourcePage": 42,
+    "candidateId": 629,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be true to",
+    "meaning": "…に忠実である",
+    "offset": 89360,
+    "sourcePage": 42,
+    "candidateId": 630,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be equal to",
+    "meaning": "…に匹敵する",
+    "offset": 89383,
+    "sourcePage": 42,
+    "candidateId": 631,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be similar to",
+    "meaning": "…に似ている",
+    "offset": 89424,
+    "sourcePage": 42,
+    "candidateId": 632,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be opposite to",
+    "meaning": "…と正反対である",
+    "offset": 89449,
+    "sourcePage": 42,
+    "candidateId": 633,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be peculiar to",
+    "meaning": "…に特有である",
+    "offset": 89490,
+    "sourcePage": 42,
+    "candidateId": 634,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be preferable to",
+    "meaning": "…より好ましい",
+    "offset": 89517,
+    "sourcePage": 42,
+    "candidateId": 635,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be subject[susceptible] to",
+    "meaning": "…を受けやすい",
+    "offset": 89558,
+    "sourcePage": 42,
+    "candidateId": 636,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be relevant to",
+    "meaning": "…に関連している",
+    "offset": 89597,
+    "sourcePage": 42,
+    "candidateId": 637,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be sensitive to",
+    "meaning": "…に敏感である",
+    "offset": 89638,
+    "sourcePage": 42,
+    "candidateId": 638,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be busy with",
+    "meaning": "…で忙しい",
+    "offset": 89666,
+    "sourcePage": 42,
+    "candidateId": 639,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be content with",
+    "meaning": "…に満足している",
+    "offset": 89707,
+    "sourcePage": 42,
+    "candidateId": 640,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be acquainted with",
+    "meaning": "…と知り合いである",
+    "offset": 89767,
+    "sourcePage": 42,
+    "candidateId": 641,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be obsessed with",
+    "meaning": "…に夢中である",
+    "offset": 89808,
+    "sourcePage": 42,
+    "candidateId": 642,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be addicted to",
+    "meaning": "…に依存している",
+    "offset": 89837,
+    "sourcePage": 42,
+    "candidateId": 643,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be indifferent to",
+    "meaning": "…に無関心である",
+    "offset": 89878,
+    "sourcePage": 42,
+    "candidateId": 644,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be concerned with",
+    "meaning": "…に関心がある",
+    "offset": 89909,
+    "sourcePage": 42,
+    "candidateId": 645,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be concerned with O",
+      "Oに関係している・Oを扱っている"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "be absorbed[lost] in",
+    "meaning": "…に夢中である",
+    "offset": 89950,
+    "sourcePage": 42,
+    "candidateId": 646,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be fed up with",
+    "meaning": "…にうんざりしている",
+    "offset": 89983,
+    "sourcePage": 42,
+    "candidateId": 647,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be based on",
+    "meaning": "…に基づいている",
+    "offset": 90024,
+    "sourcePage": 42,
+    "candidateId": 648,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be opposed to",
+    "meaning": "…に反対している",
+    "offset": 90049,
+    "sourcePage": 42,
+    "candidateId": 649,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be devoted[dedicated] to",
+    "meaning": "…に専念している",
+    "offset": 90090,
+    "sourcePage": 42,
+    "candidateId": 650,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be accustomed[used] to",
+    "meaning": "…に慣れている",
+    "offset": 90128,
+    "sourcePage": 42,
+    "candidateId": 651,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be interested in",
+    "meaning": "…に興味がある",
+    "offset": 90169,
+    "sourcePage": 42,
+    "candidateId": 652,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be engaged in",
+    "meaning": "…に従事している",
+    "offset": 90198,
+    "sourcePage": 42,
+    "candidateId": 653,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be involved in",
+    "meaning": "…に関わっている",
+    "offset": 90239,
+    "sourcePage": 42,
+    "candidateId": 654,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be tired of",
+    "meaning": "…にうんざりしている",
+    "offset": 90267,
+    "sourcePage": 42,
+    "candidateId": 655,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be tired from",
+    "meaning": "…で疲れている",
+    "offset": 90308,
+    "sourcePage": 42,
+    "candidateId": 656,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be allowed to do",
+    "meaning": "…してもよい",
+    "offset": 90368,
+    "sourcePage": 42,
+    "candidateId": 657,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be apt[prone, liable] to do",
+    "meaning": "…しがちだ",
+    "offset": 90409,
+    "sourcePage": 42,
+    "candidateId": 658,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be bound[sure, certain] to do",
+    "meaning": "必ず…する",
+    "offset": 90447,
+    "sourcePage": 42,
+    "candidateId": 659,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be eager[anxious] to do",
+    "meaning": "…したがっている",
+    "offset": 90488,
+    "sourcePage": 42,
+    "candidateId": 660,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be free to do",
+    "meaning": "自由に…する",
+    "offset": 90525,
+    "sourcePage": 42,
+    "candidateId": 661,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be likely to do",
+    "meaning": "…しそうだ",
+    "offset": 90566,
+    "sourcePage": 42,
+    "candidateId": 662,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be willing to do",
+    "meaning": "…してもかまわない",
+    "offset": 90592,
+    "sourcePage": 42,
+    "candidateId": 663,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be unwilling to do",
+    "meaning": "…しがたらない",
+    "offset": 90633,
+    "sourcePage": 42,
+    "candidateId": 664,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be expected to do",
+    "meaning": "…することになっている",
+    "offset": 90664,
+    "sourcePage": 42,
+    "candidateId": 665,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be expected to V",
+      "Vすることを期待・予想されている"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "be reluctant to do",
+    "meaning": "…したがらない",
+    "offset": 90697,
+    "sourcePage": 42,
+    "candidateId": 666,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be supposed to do",
+    "meaning": "…することになっている",
+    "offset": 90728,
+    "sourcePage": 42,
+    "candidateId": 667,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be hesitant to do",
+    "meaning": "…するのをためらう",
+    "offset": 90761,
+    "sourcePage": 42,
+    "candidateId": 668,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "all at once / all of a sudden / suddenly",
+    "meaning": "突然",
+    "offset": 90863,
+    "sourcePage": 43,
+    "candidateId": 669,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "all at once / all of a sudden",
+      "突然に"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "all but / next to / almost",
+    "meaning": "ほとんど",
+    "offset": 90910,
+    "sourcePage": 43,
+    "candidateId": 670,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "all but",
+      "ほとんど"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "as yet / so far",
+    "meaning": "今までのところ",
+    "offset": 90946,
+    "sourcePage": 43,
+    "candidateId": 671,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "by and large / as a rule",
+    "meaning": "概して",
+    "offset": 90994,
+    "sourcePage": 43,
+    "candidateId": 672,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be well off",
+    "meaning": "暮らし向きがよい・裕福だ",
+    "offset": 91027,
+    "sourcePage": 43,
+    "candidateId": 673,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "be badly[poor] off",
+    "meaning": "暮らし向きが悪い・貧しい",
+    "offset": 91075,
+    "sourcePage": 43,
+    "candidateId": 674,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "be badly off / be poorly off",
+      "暮らし向きが悪い・貧しい"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "inside out",
+    "meaning": "表裏が逆に",
+    "offset": 91111,
+    "sourcePage": 43,
+    "candidateId": 675,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "upside down",
+    "meaning": "上下反対に",
+    "offset": 91159,
+    "sourcePage": 43,
+    "candidateId": 676,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in the first place",
+    "meaning": "まず初めに",
+    "offset": 91181,
+    "sourcePage": 43,
+    "candidateId": 677,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "first thing in the morning",
+    "meaning": "朝一番で",
+    "offset": 91229,
+    "sourcePage": 43,
+    "candidateId": 678,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in vain",
+    "meaning": "無駄に",
+    "offset": 91265,
+    "sourcePage": 43,
+    "candidateId": 679,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "let alone",
+    "meaning": "…は言うまでもなく",
+    "offset": 91329,
+    "sourcePage": 43,
+    "candidateId": 680,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "on and off",
+    "meaning": "断続的に",
+    "offset": 91353,
+    "sourcePage": 43,
+    "candidateId": 681,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in and out",
+    "meaning": "出たり入ったり",
+    "offset": 91401,
+    "sourcePage": 43,
+    "candidateId": 682,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "more often than not / most of the time / often",
+    "meaning": "たいてい",
+    "offset": 91424,
+    "sourcePage": 43,
+    "candidateId": 683,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "more often than not / most of the time",
+      "たいてい・多くの場合"
+    ]
+  },
+  {
+    "lecture": 21,
+    "phrase": "in light of",
+    "meaning": "…を考慮して",
+    "offset": 91711,
+    "sourcePage": 43,
+    "candidateId": 684,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in spite of",
+    "meaning": "…にもかかわらず",
+    "offset": 91782,
+    "sourcePage": 43,
+    "candidateId": 685,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "for want[lack] of",
+    "meaning": "…が不足して・ないので",
+    "offset": 91807,
+    "sourcePage": 43,
+    "candidateId": 686,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in search of",
+    "meaning": "…を探して",
+    "offset": 91855,
+    "sourcePage": 43,
+    "candidateId": 687,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "by means of",
+    "meaning": "…を使って・…によって",
+    "offset": 91878,
+    "sourcePage": 43,
+    "candidateId": 688,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "by way of",
+    "meaning": "…経由で",
+    "offset": 91926,
+    "sourcePage": 43,
+    "candidateId": 689,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "on top of",
+    "meaning": "…に加えて",
+    "offset": 91945,
+    "sourcePage": 43,
+    "candidateId": 690,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in favor of",
+    "meaning": "…に賛成して・を支持して",
+    "offset": 91993,
+    "sourcePage": 43,
+    "candidateId": 691,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "on account of",
+    "meaning": "…のために・…の理由で",
+    "offset": 92022,
+    "sourcePage": 43,
+    "candidateId": 692,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in charge of",
+    "meaning": "…を担当して・…の責任で",
+    "offset": 92070,
+    "sourcePage": 43,
+    "candidateId": 693,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "with[in] regard[respect] to",
+    "meaning": "…に関して",
+    "offset": 92100,
+    "sourcePage": 43,
+    "candidateId": 694,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in place of",
+    "meaning": "…の代わりに",
+    "offset": 92148,
+    "sourcePage": 43,
+    "candidateId": 695,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in accordance with",
+    "meaning": "…に従って",
+    "offset": 92171,
+    "sourcePage": 43,
+    "candidateId": 696,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in comparison with",
+    "meaning": "…と比較して",
+    "offset": 92219,
+    "sourcePage": 43,
+    "candidateId": 697,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in contrast to",
+    "meaning": "…と対照的に",
+    "offset": 92249,
+    "sourcePage": 43,
+    "candidateId": 698,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in exchange for",
+    "meaning": "…と交換に",
+    "offset": 92297,
+    "sourcePage": 43,
+    "candidateId": 699,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "for the sake of",
+    "meaning": "…のために・…の利益で",
+    "offset": 92323,
+    "sourcePage": 43,
+    "candidateId": 700,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "at the cost[price, expense] of",
+    "meaning": "…を犠牲にして",
+    "offset": 92371,
+    "sourcePage": 43,
+    "candidateId": 701,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "in the face of",
+    "meaning": "…に直面して",
+    "offset": 92414,
+    "sourcePage": 43,
+    "candidateId": 702,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "at the risk of",
+    "meaning": "…の危険を犯して",
+    "offset": 92462,
+    "sourcePage": 43,
+    "candidateId": 703,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "call it a day",
+    "meaning": "仕事を切り上げる",
+    "offset": 92501,
+    "sourcePage": 43,
+    "candidateId": 704,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "beat around the bush",
+    "meaning": "遠回しに言う",
+    "offset": 92549,
+    "sourcePage": 43,
+    "candidateId": 705,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "break the ice",
+    "meaning": "場を和ませる",
+    "offset": 92581,
+    "sourcePage": 43,
+    "candidateId": 706,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "under the weather",
+    "meaning": "体調が悪い",
+    "offset": 92629,
+    "sourcePage": 43,
+    "candidateId": 707,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "pull one’s leg",
+    "meaning": "からかう",
+    "offset": 92657,
+    "sourcePage": 43,
+    "candidateId": 708,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "cost an arm and a leg",
+    "meaning": "非常に高額である",
+    "offset": 92705,
+    "sourcePage": 43,
+    "candidateId": 709,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "burn the midnight oil",
+    "meaning": "夜遅くまで働く",
+    "offset": 92740,
+    "sourcePage": 43,
+    "candidateId": 710,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "once in a blue moon",
+    "meaning": "ごくまれに",
+    "offset": 92788,
+    "sourcePage": 43,
+    "candidateId": 711,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "feel blue",
+    "meaning": "憂鬱である",
+    "offset": 92818,
+    "sourcePage": 43,
+    "candidateId": 712,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "spill the beans",
+    "meaning": "秘密を漏らす",
+    "offset": 92866,
+    "sourcePage": 43,
+    "candidateId": 713,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "get cold feet",
+    "meaning": "怖気付く",
+    "offset": 92893,
+    "sourcePage": 43,
+    "candidateId": 714,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "on cloud nine",
+    "meaning": "この上なく幸せである",
+    "offset": 92941,
+    "sourcePage": 43,
+    "candidateId": 715,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "sit on the fence",
+    "meaning": "決めかねている",
+    "offset": 92970,
+    "sourcePage": 43,
+    "candidateId": 716,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 21,
+    "phrase": "keep one’s fingers crossed",
+    "meaning": "幸運を祈る",
+    "offset": 93018,
+    "sourcePage": 43,
+    "candidateId": 717,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Nice to meet you. / How do you do?",
+    "meaning": "はじめまして",
+    "offset": 93176,
+    "sourcePage": 44,
+    "candidateId": 718,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Nice to meet you. / How do you do?",
+      "はじめまして"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "It’s a pleasure to meet you. / I’m glad to see you.",
+    "meaning": "お会いできてうれしいです",
+    "offset": 93222,
+    "sourcePage": 44,
+    "candidateId": 719,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "How is everything (going)? / How are things (going)?",
+    "meaning": "調子はいかがですか",
+    "offset": 93291,
+    "sourcePage": 44,
+    "candidateId": 720,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "What’s up?* / How’s it going?* / What’s happening?*",
+    "meaning": "調子はどう？",
+    "offset": 93358,
+    "sourcePage": 44,
+    "candidateId": 721,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I’m fine. / I’m doing well.",
+    "meaning": "元気です",
+    "offset": 93421,
+    "sourcePage": 44,
+    "candidateId": 722,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Not too bad.",
+    "meaning": "まあまあです",
+    "offset": 93458,
+    "sourcePage": 44,
+    "candidateId": 723,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Where are you from? / Where do you come from?",
+    "meaning": "出身はどちらですか",
+    "offset": 93482,
+    "sourcePage": 44,
+    "candidateId": 724,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Who do you work for? / Where do you work?",
+    "meaning": "どちらにお勤めですか",
+    "offset": 93542,
+    "sourcePage": 44,
+    "candidateId": 725,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Who do you work for? / Where do you work?",
+      "どちらにお勤めですか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "It’s been a long time since I saw you last.",
+    "meaning": "お久しぶりですね",
+    "offset": 93599,
+    "sourcePage": 44,
+    "candidateId": 726,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "See you later[soon].* / So long. / Good bye.",
+    "meaning": "さようなら",
+    "offset": 93717,
+    "sourcePage": 44,
+    "candidateId": 727,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Say hello to A. / Remember me to A. / Give my (best) regards to A.",
+    "meaning": "A によろしく",
+    "offset": 93772,
+    "sourcePage": 44,
+    "candidateId": 728,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "May I speak[talk] to A?",
+    "meaning": "A をお願いできますか",
+    "offset": 93857,
+    "sourcePage": 44,
+    "candidateId": 729,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Who’s calling[speaking]? / Who is this[it]?",
+    "meaning": "どなた様でしょうか",
+    "offset": 93914,
+    "sourcePage": 44,
+    "candidateId": 730,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Please hold on. / Please hold the line.",
+    "meaning": "電話を切らずにお待ちください",
+    "offset": 93972,
+    "sourcePage": 44,
+    "candidateId": 731,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Please don’t hang up yet.",
+    "meaning": "まだ電話を切らないでください",
+    "offset": 94031,
+    "sourcePage": 44,
+    "candidateId": 732,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "You are wanted on the phone.",
+    "meaning": "あなたに電話です",
+    "offset": 94076,
+    "sourcePage": 44,
+    "candidateId": 733,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Shall[May] I take a message?",
+    "meaning": "ご伝言を伺いましょうか",
+    "offset": 94118,
+    "sourcePage": 44,
+    "candidateId": 734,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Can[May] I leave a message (with A)?",
+    "meaning": "(A に)伝言を残したいのですが",
+    "offset": 94163,
+    "sourcePage": 44,
+    "candidateId": 735,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "You have the wrong number.",
+    "meaning": "番号を間違えています",
+    "offset": 94221,
+    "sourcePage": 44,
+    "candidateId": 736,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "The line is busy[engaged].",
+    "meaning": "お電話中です",
+    "offset": 94263,
+    "sourcePage": 44,
+    "candidateId": 737,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Will you answer the phone?",
+    "meaning": "電話に出てくれませんか",
+    "offset": 94301,
+    "sourcePage": 44,
+    "candidateId": 738,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "A is on another line[phone].",
+    "meaning": "A は別の電話に出ています",
+    "offset": 94344,
+    "sourcePage": 44,
+    "candidateId": 739,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Hello? / Are you there?",
+    "meaning": "もしもし、聞こえますか",
+    "offset": 94391,
+    "sourcePage": 44,
+    "candidateId": 740,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "May[Can] I help you? / What can I do?",
+    "meaning": "いらっしゃいませ、何にしましょうか",
+    "offset": 94437,
+    "sourcePage": 44,
+    "candidateId": 741,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "May I help you? / Can I help you? / What can I do for you?",
+      "いらっしゃいませ・何かお手伝いしましょうか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "I’m just looking.",
+    "meaning": "見ているだけです",
+    "offset": 94497,
+    "sourcePage": 44,
+    "candidateId": 742,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Please feel free to look around.",
+    "meaning": "どうぞご自由にご覧ください",
+    "offset": 94528,
+    "sourcePage": 44,
+    "candidateId": 743,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "What’s the price of A? / How much is A?",
+    "meaning": "A はおいくらですか",
+    "offset": 94579,
+    "sourcePage": 44,
+    "candidateId": 744,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Keep the change.",
+    "meaning": "お釣りはとっておいてください",
+    "offset": 94634,
+    "sourcePage": 44,
+    "candidateId": 745,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "May[Can] I take your order? / Are you ready to order?",
+    "meaning": "ご注文を伺います",
+    "offset": 94730,
+    "sourcePage": 45,
+    "candidateId": 746,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Have you been waited on? / Have you been served?",
+    "meaning": "御用を伺っていますか",
+    "offset": 94797,
+    "sourcePage": 45,
+    "candidateId": 747,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "What is your specialty?",
+    "meaning": "この店のおすすめは何ですか",
+    "offset": 94861,
+    "sourcePage": 45,
+    "candidateId": 748,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "The same for me. / Same here.",
+    "meaning": "私にも同じものをください",
+    "offset": 94903,
+    "sourcePage": 45,
+    "candidateId": 749,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I’m full. / I’ve had enough[plenty, lots].",
+    "meaning": "お腹いっぱいです",
+    "offset": 94950,
+    "sourcePage": 45,
+    "candidateId": 750,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Let’s split the bill.",
+    "meaning": "割り勘にしましょう",
+    "offset": 95006,
+    "sourcePage": 45,
+    "candidateId": 751,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Let me pay my bill[share].",
+    "meaning": "私の勘定分を支払います",
+    "offset": 95042,
+    "sourcePage": 45,
+    "candidateId": 752,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "You’re on me. / I’ll treat you. / It’s my treat. / Be my guest.",
+    "meaning": "おごりますよ",
+    "offset": 95085,
+    "sourcePage": 45,
+    "candidateId": 753,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "It's on me. / I'll treat you. / It's my treat. / Be my guest.",
+      "私がおごります"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Do[Would] you mind if …? / Do[Would] you mind my Ving …?",
+    "meaning": "…してもいいですか",
+    "offset": 95188,
+    "sourcePage": 45,
+    "candidateId": 754,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Do you mind if S V? / Would you mind if S 過去形? / Do you mind my Ving? / Would you mind my Ving?",
+      "Vしてもよいですか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Would you be kind[good] enough to do …?",
+    "meaning": "…していただけませんか",
+    "offset": 95314,
+    "sourcePage": 45,
+    "candidateId": 755,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Would you be kind enough to V? / Would you be good enough to V?",
+      "Vしていただけませんか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Would you do me a favor? / May I ask a favor of me?",
+    "meaning": "お願いがあります",
+    "offset": 95370,
+    "sourcePage": 45,
+    "candidateId": 756,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Would you do me a favor? / May I ask a favor of you?",
+      "お願いがあります"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Go ahead. / Why not? / No problem. / By all means. / Certainly.",
+    "meaning": "どうぞ",
+    "offset": 95435,
+    "sourcePage": 45,
+    "candidateId": 757,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Go ahead. / No problem. / By all means. / Certainly.",
+      "どうぞ・かまいません"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "No way.",
+    "meaning": "いやだ",
+    "offset": 95507,
+    "sourcePage": 45,
+    "candidateId": 758,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Absolutely not.",
+    "meaning": "だめです",
+    "offset": 95589,
+    "sourcePage": 45,
+    "candidateId": 759,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "What do you say to Ving …? / How[What] about Ving …?",
+    "meaning": "…しませんか",
+    "offset": 95614,
+    "sourcePage": 45,
+    "candidateId": 760,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "What do you say to Ving? / How about Ving? / What about Ving?",
+      "Vしませんか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Why don’t you …? / Why not …?",
+    "meaning": "…してはどうですか",
+    "offset": 95678,
+    "sourcePage": 45,
+    "candidateId": 761,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Why don't you V? / Why not V?",
+      "Vしてはどうですか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Why don’t we …?",
+    "meaning": "…しませんか",
+    "offset": 95722,
+    "sourcePage": 45,
+    "candidateId": 762,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Why don't we V?",
+      "一緒にVしませんか"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "With pleasure.",
+    "meaning": "喜んで",
+    "offset": 95805,
+    "sourcePage": 45,
+    "candidateId": 763,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "After you. / I’ll follow you. / Go ahead.",
+    "meaning": "お先にどうぞ",
+    "offset": 95834,
+    "sourcePage": 45,
+    "candidateId": 764,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "After you.",
+      "お先にどうぞ"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Thanks for Ving …",
+    "meaning": "…してくれてありがとう",
+    "offset": 95908,
+    "sourcePage": 45,
+    "candidateId": 765,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Thanks for Ving",
+      "Vしてくれてありがとう"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Don’t mention it. / You’re welcome. / Don’t worry.",
+    "meaning": "どういたしまして",
+    "offset": 95942,
+    "sourcePage": 45,
+    "candidateId": 766,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "Don't mention it. / You're welcome.",
+      "どういたしまして"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "Anytime.",
+    "meaning": "いつでもどうぞ",
+    "offset": 96006,
+    "sourcePage": 45,
+    "candidateId": 767,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Never mind. / Don’t worry.",
+    "meaning": "お気になさらず",
+    "offset": 96038,
+    "sourcePage": 45,
+    "candidateId": 768,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I’m sorry to have kept you waiting.",
+    "meaning": "お待たせして申し訳ありません",
+    "offset": 96077,
+    "sourcePage": 45,
+    "candidateId": 769,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Excuse me, but …",
+    "meaning": "すみませんが…",
+    "offset": 96132,
+    "sourcePage": 45,
+    "candidateId": 770,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Thanks, anyway.",
+    "meaning": "《断られたあとに》いずれにしても、ありがとう",
+    "offset": 96161,
+    "sourcePage": 45,
+    "candidateId": 771,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I would appreciate it if you would …",
+    "meaning": "…していただけると助かるのですが",
+    "offset": 96223,
+    "sourcePage": 45,
+    "candidateId": 772,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": [
+      "I would appreciate it if you would V",
+      "Vしていただけるとありがたいのですが"
+    ]
+  },
+  {
+    "lecture": 22,
+    "phrase": "What is the matter[problem] (with you)? / What’s wrong? / What’s up?*",
+    "meaning": "どうしましたか",
+    "offset": 96281,
+    "sourcePage": 45,
+    "candidateId": 773,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I have a sore throat.",
+    "meaning": "喉が痛い",
+    "offset": 96363,
+    "sourcePage": 45,
+    "candidateId": 774,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "I have a toothache.",
+    "meaning": "歯が痛い",
+    "offset": 96400,
+    "sourcePage": 45,
+    "candidateId": 775,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  },
+  {
+    "lecture": 22,
+    "phrase": "Take care (of yourself).",
+    "meaning": "お大事にどうぞ",
+    "offset": 96429,
+    "sourcePage": 45,
+    "candidateId": 776,
+    "decision": "reviewed",
+    "reason": "原資料の表現を正規化。既存照合は次の段階で記録",
+    "correction": null
+  }
+]
