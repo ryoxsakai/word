@@ -1065,8 +1065,10 @@ function renderIdioms() {
     const chapterId = `idiom-chapter-${chapter.key}`;
     const sectionId = `idiom-section-${section.key}`;
     const heading = index === 0 ? `<div class="chapter-divider" id="${chapterId}" role="heading" aria-level="2">${hierarchyIcon("chapter")}<div class="chapter-title-row"><span class="chapter-title">${escapeHtml(chapter.name)}</span><span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span></div></div>` : "";
-    return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}" aria-labelledby="${sectionId}">${heading}
-      <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="3">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
+    const startsGroup = section.groupKey && section.groupKey !== chapter.sections[index - 1]?.groupKey;
+    const groupHeading = startsGroup ? `<div class="group-divider" id="idiom-group-${escapeHtml(section.groupKey)}" role="heading" aria-level="3">${hierarchyIcon("group")}<div class="group-title-row"><span class="group-title">${escapeHtml(section.groupName)}</span><span class="group-subtitle">${escapeHtml(section.groupSubtitle)}</span></div></div>` : "";
+    return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}${startsGroup ? " has-group-divider" : ""}" aria-labelledby="${sectionId}">${heading}${groupHeading}
+      <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="${section.groupKey ? 4 : 3}">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
       <div class="idiom-entries">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE)).join("")}</div>
     </section>`;
   }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
@@ -1080,7 +1082,11 @@ function renderIdiomNavigation() {
   const groups = visibleIdiomGroups();
   setBottomNavContent(groups.flatMap(chapter => chapter.sections).map(section =>
     `<button type="button" data-idiom-target="idiom-section-${section.key}" title="${escapeHtml(section.subtitle)}">${escapeHtml(section.name)}</button>`).join(""), "熟語のセクション");
-  el.contentsNav.innerHTML = groups.map(chapter => `<div class="contents-group"><button type="button" class="contents-chapter" data-idiom-target="idiom-chapter-${chapter.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span><span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span></span></button>${chapter.sections.map(section => `<button type="button" class="contents-section is-nested" data-idiom-target="idiom-section-${section.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span><span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span></span></button>`).join("")}</div>`).join("");
+  el.contentsNav.innerHTML = groups.map(chapter => `<div class="contents-group"><button type="button" class="contents-chapter" data-idiom-target="idiom-chapter-${chapter.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span><span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span></span></button>${chapter.sections.map((section,index) => {
+    const groupLink = section.groupKey && section.groupKey !== chapter.sections[index - 1]?.groupKey
+      ? `<button type="button" class="contents-subgroup" data-idiom-target="idiom-group-${escapeHtml(section.groupKey)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.groupName)}</span><span class="contents-item-subtitle">${escapeHtml(section.groupSubtitle)}</span></span></button>` : "";
+    return `${groupLink}<button type="button" class="contents-section is-nested${section.groupKey ? " is-grouped" : ""}" data-idiom-target="idiom-section-${section.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span><span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span></span></button>`;
+  }).join("")}</div>`).join("");
 }
 
 el.idiomList.addEventListener("click", async event => {
