@@ -23,6 +23,7 @@ import {
   webMCPSupported,
 } from "./webmcp.js";
 import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
+import { buildIdiomEntries, groupIdiomEntries } from "../shared/idioms.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -89,6 +90,9 @@ const state = {
   searchMatches: null,
   eikenLevel: "all",
   indexRendered: false,
+  idiomEntries: null,
+  idiomGroups: [],
+  idiomPromise: null,
   activeView: "list", // "list" | "index" | front matter page
 };
 
@@ -125,6 +129,8 @@ const el = {
   jumpInput: document.getElementById("jumpInput"),
   wordList: document.getElementById("wordList"),
   indexList: document.getElementById("indexList"),
+  idiomList: document.getElementById("idiomList"),
+  viewTabIdioms: document.getElementById("viewTabIdioms"),
   viewTabList: document.getElementById("viewTabList"),
   viewTabIndex: document.getElementById("viewTabIndex"),
   emptyMsg: document.getElementById("emptyMsg"),
@@ -442,6 +448,10 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.sectionPromises = new Map();
     state.searchMatches = null;
     state.indexRendered = false;
+    state.idiomEntries = null;
+    state.idiomGroups = [];
+    state.idiomPromise = null;
+    el.idiomList.innerHTML = "";
     el.indexList.innerHTML = "";
     assignSequentialNumbers();
     buildIndex();
@@ -457,6 +467,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     const firstSection = state.sections[0];
     if (firstSection) await loadSection(firstSection.key);
     if (generation !== listLoadGeneration) return;
+    if (state.activeView === "idioms") await ensureIdioms();
     await applyHashScroll();
     if (el.searchInput.value.trim()) void runSearch();
   } catch (err) {
@@ -989,6 +1000,94 @@ function renderAlphabeticalIndex() {
   state.indexRendered = true;
 }
 
+async function ensureIdioms() {
+  if (state.idiomEntries) return;
+  if (state.idiomPromise) return state.idiomPromise;
+  if (!state.currentListId) return;
+  const listId = state.currentListId;
+  const generation = listLoadGeneration;
+  el.idiomList.innerHTML = '<p class="index-empty">熟語を読み込み中...</p>';
+  el.idiomList.setAttribute("aria-busy", "true");
+  const promise = (async () => {
+    try {
+      const data = await api(`/lists/${encodeURIComponent(listId)}/words/full`);
+      if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+      state.idiomEntries = buildIdiomEntries(data.words || [], state.indexWords);
+      state.idiomGroups = groupIdiomEntries(state.idiomEntries);
+      renderIdioms();
+    } catch (error) {
+      if (generation === listLoadGeneration) {
+        el.idiomList.innerHTML = `<p class="index-empty">熟語の読み込みに失敗しました。<button type="button" data-action="retry-idioms">再試行</button></p>`;
+      }
+      throw error;
+    } finally {
+      if (generation === listLoadGeneration) el.idiomList.removeAttribute("aria-busy");
+    }
+  })();
+  state.idiomPromise = promise;
+  try { await promise; }
+  finally { if (state.idiomPromise === promise) state.idiomPromise = null; }
+}
+
+function visibleIdiomGroups() {
+  const query = state.search.trim().toLowerCase();
+  return state.idiomGroups.map(chapter => ({ ...chapter,
+    sections: chapter.sections.map(section => ({ ...section,
+      items: section.items.map(item => ({ ...item,
+        meanings: item.meanings.map(sense => ({ ...sense,
+          refs: sense.refs.filter(ref => matchesEikenLevel(ref)),
+        })).filter(sense => sense.refs.length && (!query ||
+          `${item.phrase} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
+      })).filter(item => item.meanings.length),
+    })).filter(section => section.items.length),
+  })).filter(chapter => chapter.sections.length);
+}
+
+function renderIdioms() {
+  if (!state.idiomEntries) return;
+  const groups = visibleIdiomGroups();
+  el.idiomList.innerHTML = groups.length ? groups.map(chapter => chapter.sections.map((section, index) => {
+    const chapterId = `idiom-chapter-${chapter.key}`;
+    const sectionId = `idiom-section-${section.key}`;
+    const heading = index === 0 ? `<div class="chapter-divider" id="${chapterId}" role="heading" aria-level="2">${hierarchyIcon("chapter")}<div class="chapter-title-row"><span class="chapter-title">${escapeHtml(chapter.name)}</span><span class="chapter-subtitle">${escapeHtml(chapter.subtitle)}</span></div></div>` : "";
+    return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}" aria-labelledby="${sectionId}">${heading}
+      <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="3">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
+      <dl class="idiom-entries">${section.items.map(item => `<div class="idiom-entry"><dt class="idiom-phrase">${escapeHtml(item.phrase)}</dt><dd class="idiom-meanings">${item.meanings.map(sense => `<div class="idiom-sense"><span class="idiom-meaning">${escapeHtml(sense.meaning)}</span><span class="idiom-refs">${sense.refs.map(ref => `<a class="idiom-ref" href="#word-${escapeHtml(encodeURIComponent(ref.wordId))}" data-word-id="${escapeHtml(ref.wordId)}" aria-label="${escapeHtml(ref.spelling)}、単語番号${escapeHtml(ref.no)}">${escapeHtml(ref.no)}</a>`).join(" ")}</span></div>`).join("")}</dd></div>`).join("")}</dl>
+    </section>`;
+  }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
+  if (state.activeView === "idioms") {
+    renderIdiomNavigation();
+    setupSectionObserver();
+  }
+}
+
+function renderIdiomNavigation() {
+  const groups = visibleIdiomGroups();
+  setBottomNavContent(groups.flatMap(chapter => chapter.sections).map(section =>
+    `<button type="button" data-idiom-target="idiom-section-${section.key}">${escapeHtml(section.subtitle)}</button>`).join(""), "熟語のセクション");
+  el.contentsNav.innerHTML = groups.map(chapter => `<div class="contents-group"><button type="button" class="contents-chapter" data-idiom-target="idiom-chapter-${chapter.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(chapter.name)}</span><span class="contents-item-subtitle">${escapeHtml(chapter.subtitle)}</span></span></button>${chapter.sections.map(section => `<button type="button" class="contents-section is-nested" data-idiom-target="idiom-section-${section.key}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(section.name)}</span><span class="contents-item-subtitle">${escapeHtml(section.subtitle)}</span></span></button>`).join("")}</div>`).join("");
+}
+
+el.idiomList.addEventListener("click", async event => {
+  const ref = event.target.closest("a[data-word-id]");
+  const retry = event.target.closest('[data-action="retry-idioms"]');
+  if (!ref && !retry) return;
+  event.preventDefault();
+  try {
+    if (retry) await ensureIdioms();
+    else await navigateToWord(ref.dataset.wordId);
+  } catch (error) { showToast(`読み込みに失敗しました: ${error.message}`); }
+});
+
+function navigateToIdiom(event) {
+  const button = event.target.closest("button[data-idiom-target]");
+  if (!button) return false;
+  const target = document.getElementById(button.dataset.idiomTarget);
+  target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  closeContentsMenu();
+  return true;
+}
+
 function setActiveView(view) {
   if (view === "index" && !state.indexRendered) renderAlphabeticalIndex();
   state.activeView = view;
@@ -998,7 +1097,16 @@ function setActiveView(view) {
     panel.setAttribute("aria-hidden", String(!active));
   }
   el.viewTabList.setAttribute("aria-selected", String(view === "list"));
+  el.viewTabIdioms.setAttribute("aria-selected", String(view === "idioms"));
   el.viewTabIndex.setAttribute("aria-selected", String(view === "index"));
+  for (const tab of [el.viewTabList, el.viewTabIdioms, el.viewTabIndex]) tab.tabIndex = tab.dataset.view === view ? 0 : -1;
+  if (view === "idioms") {
+    renderIdioms();
+    void ensureIdioms().catch(() => {});
+  } else {
+    renderContentsNav();
+    if (state.search !== el.searchInput.value.trim() || state.search) void runSearch();
+  }
   el.bookNav.querySelectorAll("[data-book-view]").forEach((button) => {
     if (button.dataset.bookView === view) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
@@ -1009,7 +1117,17 @@ function setActiveView(view) {
 }
 
 el.viewTabList.addEventListener("click", () => setActiveView("list"));
+el.viewTabIdioms.addEventListener("click", () => setActiveView("idioms"));
 el.viewTabIndex.addEventListener("click", () => setActiveView("index"));
+document.querySelector(".view-tabs").addEventListener("keydown", event => {
+  const tabs = [el.viewTabList, el.viewTabIdioms, el.viewTabIndex];
+  const index = tabs.indexOf(document.activeElement);
+  if (index < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[next].focus();
+  setActiveView(tabs[next].dataset.view);
+});
 
 el.indexList.addEventListener("click", async (e) => {
   const item = e.target.closest('[data-action="index-jump"]');
@@ -1065,6 +1183,7 @@ function renderIndexNav() {
 }
 
 function renderActiveBottomNav() {
+  if (state.activeView === "idioms") { renderIdiomNavigation(); return; }
   if (state.activeView === "index") renderIndexNav();
   else if (state.activeView === "list") renderSectionNav();
   else setBottomNavContent("", "");
@@ -1088,6 +1207,7 @@ function renderPrintPartOptions() {
     '<option value="front">前付け</option>' +
     '<option value="toc">目次（単語番号）</option>' +
     chapterOptions +
+    '<option value="idioms">熟語</option>' +
     '<option value="index">索引</option>' +
     '<option value="all">全体（軽量・目次は単語番号）</option>' +
     '<option value="all-paged">全体（版組・目次ページ番号あり）</option>';
@@ -1180,6 +1300,17 @@ function renderContentsNav() {
 
 function setupSectionObserver() {
   if (sectionObserver) sectionObserver.disconnect();
+  if (state.activeView === "idioms") {
+    if (!("IntersectionObserver" in window)) return;
+    sectionObserver = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        el.sectionNav.querySelectorAll("button").forEach(button => button.classList.toggle("active", button.dataset.idiomTarget === entry.target.id));
+      }
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    el.idiomList.querySelectorAll(".section-divider").forEach(node => sectionObserver.observe(node));
+    return;
+  }
   if (state.activeView !== "list") return;
   const dividers = el.wordList.querySelectorAll(".section-divider");
   if (!dividers.length) return;
@@ -1217,6 +1348,7 @@ function setupIndexObserver() {
 }
 
 el.sectionNav.addEventListener("click", async (e) => {
+  if (navigateToIdiom(e)) return;
   const indexBtn = e.target.closest("button[data-index-target]");
   if (indexBtn) {
     const target = document.getElementById(indexBtn.dataset.indexTarget);
@@ -1238,6 +1370,7 @@ el.sectionNav.addEventListener("click", async (e) => {
 // ---- 検索・進捗フィルタ ----
 
 function applyFilters() {
+  if (state.activeView === "idioms") renderIdioms();
   const q = state.search.trim().toLowerCase();
   const selectedLevelIndex = CEFR_LEVELS.indexOf(state.eikenLevel);
   const entries = el.wordList.querySelectorAll(".entry");
@@ -1569,6 +1702,12 @@ async function runSearch() {
   const query = el.searchInput.value.trim();
   const generation = ++searchGeneration;
   state.search = query;
+  if (state.activeView === "idioms") {
+    state.searchMatches = null;
+    el.searchInput.removeAttribute("aria-busy");
+    renderIdioms();
+    return;
+  }
   if (!query) {
     state.searchMatches = null;
     el.searchInput.removeAttribute("aria-busy");
@@ -1634,6 +1773,7 @@ el.menuToggle.addEventListener("click", (e) => {
   toggleContentsMenu();
 });
 async function handleContentsNavigation(e) {
+  if (navigateToIdiom(e)) return;
   const btn = e.target.closest("button[data-nav-target]");
   if (!btn) return;
   btn.setAttribute("aria-busy", "true");
@@ -1894,6 +2034,7 @@ function printSectionKeys() {
 }
 
 function printPartLabel() {
+  if (PRINT_PART === "idioms") return "熟語";
   if (PRINT_PART === "all") return "全体";
   if (PRINT_PART === "all-paged") return "全体（版組）";
   if (PRINT_PART === "front") return "前付け";
@@ -1929,8 +2070,9 @@ function prepareLightweightPrintDom() {
     toc: new Set(["bookToc"]),
     chapter: new Set(["wordList"]),
     index: new Set(["indexList"]),
-    all: new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "indexList"]),
-    "all-paged": new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "indexList"]),
+    idioms: new Set(["idiomList"]),
+    all: new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "idiomList", "indexList"]),
+    "all-paged": new Set(["bookIntroduction", "bookStructure", "bookBadges", "bookAppGuide", "bookToc", "wordList", "idiomList", "indexList"]),
   }[PRINT_PART] || new Set(["wordList"]);
 
   for (const panel of [...document.querySelectorAll("body > .view-panel")]) {
@@ -2008,6 +2150,10 @@ async function printWholeBook() {
     state.search = "";
     state.searchMatches = null;
     el.searchInput.value = "";
+    if (["idioms", "all", "all-paged"].includes(PRINT_PART)) {
+      await ensureIdioms();
+      renderIdioms();
+    }
     applyFilters();
     printPrepared = true;
     setPrintProgress(40, "印刷用データの読み込み完了");

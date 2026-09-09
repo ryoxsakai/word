@@ -145,8 +145,9 @@
 
 <div class="subbar">
   <div class="view-tabs" role="tablist" aria-label="表示切り替え">
-    <button type="button" class="view-tab" id="viewTabList" role="tab" aria-selected="true" data-view="list">一覧</button>
-    <button type="button" class="view-tab" id="viewTabIndex" role="tab" aria-selected="false" data-view="index">索引</button>
+    <button type="button" class="view-tab" id="viewTabList" role="tab" aria-selected="true" aria-controls="wordList" data-view="list">単語</button>
+    <button type="button" class="view-tab" id="viewTabIdioms" role="tab" aria-selected="false" aria-controls="idiomList" tabindex="-1" data-view="idioms">熟語</button>
+    <button type="button" class="view-tab" id="viewTabIndex" role="tab" aria-selected="false" aria-controls="indexList" tabindex="-1" data-view="index">索引</button>
   </div>
 </div>
 
@@ -256,8 +257,9 @@
   <nav id="bookTocNav" class="book-toc-nav contents-nav" aria-label="印刷用目次"></nav>
 </section>
 
-<main id="wordList" class="word-list view-panel is-active" data-view-panel="list" aria-live="polite" aria-hidden="false"></main>
-<div id="indexList" class="index-list view-panel" data-view-panel="index" aria-live="polite" aria-hidden="true"></div>
+<main id="wordList" class="word-list view-panel is-active" data-view-panel="list" role="tabpanel" aria-labelledby="viewTabList" aria-live="polite" aria-hidden="false"></main>
+<section id="idiomList" class="word-list idiom-list view-panel" data-view-panel="idioms" role="tabpanel" aria-labelledby="viewTabIdioms" aria-live="polite" aria-hidden="true"></section>
+<div id="indexList" class="index-list view-panel" data-view-panel="index" role="tabpanel" aria-labelledby="viewTabIndex" aria-live="polite" aria-hidden="true"></div>
 
 <p id="emptyMsg" class="empty-msg" hidden>単語がまだ登録されていません。<a href="./setting/index.html">設定ページ</a>から追加できます。</p>
 <div id="loadingMsg" class="loading-msg" aria-live="polite" hidden>

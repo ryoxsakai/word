@@ -120,7 +120,7 @@ function splitWordListSource(raw) {
       if (char === ")" && halfWidthParenDepth > 0) halfWidthParenDepth -= 1;
       if (char === "（") fullWidthParenDepth += 1;
       if (char === "）" && fullWidthParenDepth > 0) fullWidthParenDepth -= 1;
-      const isSeparator = /[,;；、]/.test(char);
+      const isSeparator = /[,;；、\n\r]/.test(char);
       if (isSeparator && halfWidthParenDepth === 0 && fullWidthParenDepth === 0) {
         pushBuffer();
         continue;

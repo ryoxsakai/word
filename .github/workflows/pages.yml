@@ -35,6 +35,8 @@ jobs:
         run: node .github/tests/markup.integration.mjs
       - name: Test alphabetical word index
         run: node .github/tests/word-index.integration.mjs
+      - name: Test idiom catalog and references
+        run: node .github/tests/idioms.integration.mjs && node .github/tests/idiom-viewer.integration.mjs
       - name: Prepare cache-safe Pages artifact
         env:
           ASSET_VERSION: ${{ github.sha }}
