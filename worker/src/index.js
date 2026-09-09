@@ -1,4 +1,5 @@
 import { renderMarkup } from "../../public/shared/markup.js";
+import { readIdioms, saveIdiom } from "./idioms.js";
 import { handleMcpRoute } from "./mcp.js";
 import {
   MCP_READ_SCOPE,
@@ -553,6 +554,9 @@ async function listWordsInListFull(db, listId, options = {}) {
       `SELECT w.id AS id, w.spelling AS spelling, w.pronunciation AS pronunciation, w.audio_url AS audioUrl,
               w.etymology AS etymology, w.notes AS notes, w.synonyms AS synonyms, w.antonyms AS antonyms,
               w.related_words AS relatedWords,
+              (SELECT COUNT(DISTINCT i.id) FROM idiom_word_refs r
+               JOIN idiom_senses iss ON iss.id = r.sense_id JOIN idioms i ON i.id = iss.idiom_id
+               WHERE r.word_id = w.id AND i.list_id = li.list_id) AS relatedIdiomCount,
               w.irregular_forms AS irregularForms,
               w.pronunciation_caution AS pronunciationCaution, w.accent_caution AS accentCaution,
               w.polysemous_caution AS polysemousCaution, w.spelling_caution AS spellingCaution,
@@ -666,6 +670,7 @@ async function listWordsInListFull(db, listId, options = {}) {
     synonyms: r.synonyms,
     antonyms: r.antonyms,
     relatedWords: r.relatedWords,
+    relatedIdiomCount: r.relatedIdiomCount || 0,
     irregularForms: r.irregularForms,
     pronunciationCaution: !!r.pronunciationCaution,
     accentCaution: !!r.accentCaution,
@@ -2551,6 +2556,16 @@ async function handleApi(request, env, parts, method) {
   if (parts.length === 3 && parts[1] === "lists") {
     if (method === "PUT") return await updateList(db, parts[2], await request.json());
     if (method === "DELETE") return await deleteList(db, parts[2]);
+  }
+
+  // /api/lists/:listId/words
+  if (parts.length === 4 && parts[1] === "lists" && parts[3] === "idioms") {
+    if (!await db.prepare("SELECT id FROM lists WHERE id = ?").bind(parts[2]).first()) return notFound("list not found");
+    if (method === "GET") return json(await readIdioms(db, parts[2]));
+    if (method === "PUT") {
+      try { return json(await saveIdiom(db, parts[2], await request.json())); }
+      catch (error) { return json({ error: error.message }, { status: 400 }); }
+    }
   }
 
   // /api/lists/:listId/words

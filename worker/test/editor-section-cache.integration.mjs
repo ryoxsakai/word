@@ -136,7 +136,19 @@ try {
   assert.equal("primaryMeaning" in masterIndex.words.find((word) => word.id === "cache-alpha"), false);
   assert.deepEqual(masterIndex.words.find((word) => word.id === "cache-alpha").derivatives, [{ word: "alphabetic" }]);
 
-  console.log("editor section cache integration test passed");
+  const idiomsBefore = await (await fetchApi("/lists/editor-cache-test/idioms")).json();
+  assert.equal(idiomsBefore.managed, false);
+  await db.prepare("INSERT INTO idiom_sections VALUES ('editor-cache-test', 'test', 'Test', 'test', 'Test', 1, 1)").run();
+  await db.prepare("INSERT INTO idioms (id,list_id,phrase,section_key) VALUES ('cache-idiom','editor-cache-test','alpha phrase','test')").run();
+  await db.prepare("INSERT INTO idiom_senses (id,idiom_id,meaning) VALUES ('cache-sense','cache-idiom','意味')").run();
+  await db.prepare("INSERT INTO idiom_word_refs (sense_id,word_id) VALUES ('cache-sense','cache-alpha')").run();
+  const idioms = await (await fetchApi("/lists/editor-cache-test/idioms")).json();
+  assert.equal(idioms.entries[0].meanings[0].refs[0].wordId, "cache-alpha");
+  const full = await (await fetchApi("/lists/editor-cache-test/words/full")).json();
+  assert.equal(full.words.find(w=>w.id === "cache-alpha").relatedIdiomCount, 1);
+  assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 405);
+  assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-editor/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 401);
+  console.log("editor section cache and idiom route integration test passed");
 } finally {
   await miniflare.dispose();
   rmSync(stateDir, { recursive: true, force: true });

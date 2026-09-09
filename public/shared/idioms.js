@@ -124,9 +124,19 @@ export function buildIdiomEntries(words, metadata = words) {
   return [...entries.values()].sort((a, b) => a.phrase.localeCompare(b.phrase, "en", { sensitivity: "base" }));
 }
 
-export function groupIdiomEntries(entries) {
+export function resolveIdiomReferences(entries, metadata) {
+  const words = new Map(metadata.map(word => [String(word.id), word]));
+  return entries.map(entry => ({ ...entry, meanings: entry.meanings.map(sense => ({ ...sense,
+    refs: sense.refs.flatMap(ref => {
+      const word = words.get(String(ref.wordId));
+      return word ? [{ ...ref, spelling: word.spelling, no: String(word.seqNo || word.displayNo || ""), tags: word.tags || {} }] : [];
+    }),
+  })) }));
+}
+
+export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
   let sectionNumber = 0;
-  return IDIOM_CHAPTERS.map((chapter, chapterIndex) => ({
+  return chapters.map((chapter, chapterIndex) => ({
     ...chapter, name: `Chapter ${chapterIndex + 1}`, tone: (chapterIndex % 6) + 1,
     sections: chapter.sections.map(section => ({
       ...section, items: entries.filter(entry => entry.sectionKey === section.key),

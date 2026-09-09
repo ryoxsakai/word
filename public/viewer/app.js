@@ -23,7 +23,7 @@ import {
   webMCPSupported,
 } from "./webmcp.js";
 import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
-import { buildIdiomEntries, groupIdiomEntries } from "../shared/idioms.js";
+import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences } from "../shared/idioms.js";
 
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
@@ -362,7 +362,9 @@ async function api(path, { forceRefresh = false } = {}) {
     const res = await fetch(`${API}${path}`, { cache: forceRefresh ? "reload" : "default" });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `HTTP ${res.status}`);
+      const error = new Error(body.error || `HTTP ${res.status}`);
+      error.status = res.status;
+      throw error;
     }
     return await res.json();
   } finally {
@@ -730,6 +732,7 @@ function renderEntry(w) {
         ${synonymsHtml}
         ${antonymsHtml}
         ${relatedWordsHtml}
+        ${w.relatedIdiomCount ? `<div class="notes-block"><button type="button" class="related-idioms-link" data-action="show-idioms" data-spelling="${escapeHtml(w.spelling)}">関連する熟語（${Number(w.relatedIdiomCount)}件）</button></div>` : ""}
         ${etymologyHtml}
         ${notesHtml}
         </div>
@@ -1017,10 +1020,14 @@ async function ensureIdioms() {
   el.idiomList.setAttribute("aria-busy", "true");
   const promise = (async () => {
     try {
-      const data = await api(`/lists/${encodeURIComponent(listId)}/words/full`);
+      const base = `/lists/${encodeURIComponent(listId)}`;
+      let data;
+      try { data = await api(`${base}/idioms`); }
+      catch (error) { if (error.status !== 404) throw error; }
+      if (!data?.managed) data = await api(`${base}/words/full`);
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
-      state.idiomEntries = buildIdiomEntries(data.words || [], state.indexWords);
-      state.idiomGroups = groupIdiomEntries(state.idiomEntries);
+      state.idiomEntries = data.managed ? resolveIdiomReferences(data.entries, state.indexWords) : buildIdiomEntries(data.words || [], state.indexWords);
+      state.idiomGroups = groupIdiomEntries(state.idiomEntries, data.managed ? data.chapters : undefined);
       renderIdioms();
     } catch (error) {
       if (generation === listLoadGeneration) {
@@ -1043,7 +1050,7 @@ function visibleIdiomGroups() {
       items: section.items.map(item => ({ ...item,
         meanings: item.meanings.map(sense => ({ ...sense,
           refs: sense.refs.filter(ref => matchesEikenLevel(ref)),
-        })).filter(sense => sense.refs.length && (!query ||
+        })).filter(sense => (sense.refs.length || state.eikenLevel === "all") && (!query ||
           `${item.phrase} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
       })).filter(item => item.meanings.length),
     })).filter(section => section.items.length),
@@ -1696,6 +1703,13 @@ el.wordList.addEventListener("click", (e) => {
   if (action === "speak") speak(actionEl.dataset.text, actionEl.dataset.audioUrl, actionEl);
   else if (action === "copy-link") copyLink(actionEl.dataset.wordId);
   else if (action === "toggle-blank") toggleBlank(actionEl);
+  else if (action === "show-idioms") {
+    el.searchInput.value = actionEl.dataset.spelling;
+    state.search = actionEl.dataset.spelling;
+    setActiveView("idioms");
+    if (state.idiomEntries) renderIdioms();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   else if (action === "retry-section") loadSection(actionEl.dataset.sectionKey, { forceRefresh: true }).catch(() => {});
 });
 

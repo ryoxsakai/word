@@ -37,7 +37,7 @@ jobs:
         run: npm run test:elevenlabs && npm run test:audio && npm run test:speech
 
       - name: Test data migrations
-        run: npm run test:migrations
+        run: npm run test:migrations && npm run test:idioms
 
       - name: Test illustration generation and automatic publication
         run: npm run test:illustrations
