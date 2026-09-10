@@ -14,7 +14,10 @@ function sections() {
   let no=0;
   return data.chapters.flatMap((c,ci)=>c.sections.map(s=>{
     const visible=data.entries.some(e=>e.sectionKey===s.key&&!e.hidden);
-    return {...s,label:`Chapter ${ci+1} / ${visible?`Section ${++no}`:'非表示'} ${s.subtitle}`};
+    if (visible && s.number == null) no += 1;
+    const number = s.number ?? no;
+    if (visible) no = Math.max(no, Number(number) || 0);
+    return {...s,label:`Chapter ${ci+1} / ${visible?`Section ${number}`:'非表示'} ${s.subtitle}`};
   }));
 }
 function refreshReferences() {
