@@ -1,3 +1,5 @@
+import { createIdiomReferenceResolver } from "../shared/idiom-references.js";
+import { groupIdiomEntries } from "../shared/idioms.js";
 import {
   addDerivativeCrossReferenceAliases,
   collectDerivativeCrossReferences,
@@ -306,7 +308,7 @@ async function api(path, opts = {}) {
 
 function resolveRef(headword) {
   const hit = state.listWordIndex.get(headword.toLowerCase());
-  if (!hit) return { found: false };
+  if (!hit) return state.idiomResolver ? state.idiomResolver(headword) : { found: false };
   return { found: true, id: hit.id, no: hit.no };
 }
 
@@ -331,7 +333,7 @@ function rebuildAutoCrossRefRenderer() {
       ]));
   const derivativeReferences = collectDerivativeCrossReferences(state.referenceWords);
   state.listWordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
-  state.renderNotesMarkup = createAutoCrossRefRenderer(headwordIndex.keys(), {
+  state.renderNotesMarkup = createAutoCrossRefRenderer([...headwordIndex.keys(), ...(state.idiomResolver?.phrases || [])], {
     resolve: resolveRef,
     derivativeReferences,
     phraseReferences: collectPhraseCrossReferences(state.referenceWords),
@@ -655,6 +657,9 @@ async function loadLists() {
 async function selectList(listId) {
   const generation = ++listLoadGeneration;
   state.currentListId = listId;
+  state.idiomResolver = null;
+  const idiomEditorLink = document.getElementById("idiomEditorLink");
+  if (idiomEditorLink) idiomEditorLink.href = `./idioms.html?list=${encodeURIComponent(listId)}`;
   localStorage.setItem(LAST_LIST_KEY, listId);
   state.selectedWordIds.clear();
   state.collapsedSectionIds.clear();
@@ -675,6 +680,17 @@ async function selectList(listId) {
   renderWordTableHead();
   renderWordTable();
   await loadExpandedNotebookSections();
+  if (isNotebookView()) {
+    try {
+      const data = await api(`/lists/${encodeURIComponent(listId)}/idioms`);
+      if (generation !== listLoadGeneration) return;
+      state.idiomResolver = createIdiomReferenceResolver(groupIdiomEntries(data.entries, data.chapters), name => {
+        const hit = state.listWordIndex.get(name.toLowerCase());
+        return hit ? {found:true, id:hit.id, no:hit.no} : {found:false};
+      });
+      rebuildAutoCrossRefRenderer();
+    } catch { /* Word editing stays available if idioms cannot be loaded. */ }
+  }
 }
 
 function editorSectionKey(sectionId) {

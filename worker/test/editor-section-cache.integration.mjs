@@ -1,3 +1,4 @@
+import { saveIdiom } from "../src/idioms.js";
 import assert from "node:assert/strict";
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -153,7 +154,13 @@ try {
   assert.equal(full.words.find(w=>w.id === "cache-alpha").relatedIdiomCount, 1);
   assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 405);
   assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-editor/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 401);
-  console.log("editor section cache and idiom route integration test passed");
+  await saveIdiom(db, "editor-cache-test", {id:"cache-idiom",phrase:"alpha phrase",sectionKey:"test",synonyms:"##word:alpha##",antonyms:"opposite",notes:"**メモ**",hidden:true,meanings:[{id:"cache-sense",meaning:"意味",wordIds:["cache-alpha"]}]});
+  const edited = await (await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms")).json();
+  assert.equal(edited.entries[0].synonyms,"##word:alpha##");
+  assert.equal(edited.entries[0].notes,"**メモ**");
+  assert.equal(edited.entries[0].hidden,true);
+  assert.equal(edited.entries[0].meanings[0].id,"cache-sense");
+  console.log("editor section cache, rich idiom fields and idiom route integration test passed");
 } finally {
   await miniflare.dispose();
   rmSync(stateDir, { recursive: true, force: true });

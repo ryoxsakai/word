@@ -1,3 +1,4 @@
+import {createIdiomReferenceResolver} from "../../public/shared/idiom-references.js";
 import assert from "node:assert/strict";
 import vm from "node:vm";
 import { readFile } from "node:fs/promises";
@@ -10,12 +11,12 @@ const source = await readFile(new URL("../../public/viewer/app.js", import.meta.
 const code = source.slice(source.indexOf("async function ensureIdioms()"), source.indexOf("function setActiveView(view)"));
 const attrs = new Map();
 const panel = { innerHTML: "", setAttribute: (k,v) => attrs.set(k,v), removeAttribute: k => attrs.delete(k), addEventListener() {} };
-const state = { currentListId: "crossover-v3", indexWords: [{id: "submit", spelling: "submit", seqNo: "1315"}], idiomEntries: null, idiomGroups: [], idiomPromise: null, activeView: "list", search: "" };
+const state = { wordIndex:new Map(), currentListId: "crossover-v3", indexWords: [{id: "submit", spelling: "submit", seqNo: "1315"}], idiomEntries: null, idiomGroups: [], idiomPromise: null, activeView: "list", search: "" };
 let resolveFetch;
 let fetches = 0;
 const context = vm.createContext({ state, el: {idiomList: panel}, listLoadGeneration: 1,
   api: () => { fetches++; return new Promise(resolve => { resolveFetch = resolve; }); },
-  buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, renderIdiomEntry, VIEWER_API_BASE: "https://vocab.lrnr.jp/mcp-viewer", escapeHtml, matchesEikenLevel: () => true, hierarchyIcon: () => "",
+  createIdiomReferenceResolver, buildIndex() {}, resolveRef: () => ({found:false}), buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, renderIdiomEntry, VIEWER_API_BASE: "https://vocab.lrnr.jp/mcp-viewer", escapeHtml, matchesEikenLevel: () => true, hierarchyIcon: () => "",
 });
 vm.runInContext(code, context);
 const first = context.ensureIdioms();
