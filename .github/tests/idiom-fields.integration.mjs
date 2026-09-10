@@ -36,4 +36,11 @@ assert(!attack.includes('<img'));assert(!attack.includes('<script>'));assert.mat
 // Explicit kind disambiguates identical word/idiom names; ambiguous idiom aliases do not auto-link.
 const conflict=createIdiomReferenceResolver([{sections:[{items:[{key:'i1',phrase:'respect',no:'1'},{key:'i2',phrase:'other',no:'2',aliases:[{phrase:'respect'}]}]}]}],wordRef);
 assert.equal(conflict('respect').type,undefined);assert(!conflict('idiom:respect').found);
+const fixedNumbers=groupIdiomEntries([
+  {key:'fixed',phrase:'fixed',sectionKey:'later',meanings:[{meaning:'固定'}]},
+], [{key:'chapter',subtitle:'chapter',sections:[
+  {key:'empty-earlier',subtitle:'非表示',number:3},
+  {key:'later',subtitle:'残す',number:8},
+]}]);
+assert.equal(fixedNumbers[0].sections[0].name,'Section 8');
 console.log('Idiom rich fields: shared markup, word/idiom targets, aliases, hidden sections, stable sense numbers and HTML safety passed');

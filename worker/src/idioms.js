@@ -32,6 +32,7 @@ export async function readIdioms(db, listId) {
       chapters.push(chapter);
     }
     chapter.sections.push({ key: section.key, subtitle: section.subtitle,
+      ...(section.display_number != null ? { number: section.display_number } : {}),
       ...(section.group_key ? { groupKey: section.group_key, groupSubtitle: section.group_subtitle, groupOrder: section.group_order } : {}),
     });
   }
