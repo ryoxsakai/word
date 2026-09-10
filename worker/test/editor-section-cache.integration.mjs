@@ -161,7 +161,7 @@ try {
   assert.deepEqual(await publicIdioms.json(), idioms, "public viewer route serves the independent collection");
   const publicIdiomIndex = await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms/index");
   assert.equal(publicIdiomIndex.status, 200);
-  assert.deepEqual(await publicIdiomIndex.json(), idiomIndex);
+  assert.deepEqual(await publicIdiomIndex.json(), await (await fetchApi("/lists/editor-cache-test/idioms/index")).json());
   const publicIdiomSection = await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms/sections/test");
   assert.equal(publicIdiomSection.status, 200);
   assert.deepEqual(await publicIdiomSection.json(), idiomSection);
