@@ -1,0 +1,2662 @@
+[
+  {
+    "chapter": 2,
+    "page": 6,
+    "topic": "時の経過",
+    "phrase": "It is 期間 since S 過去形",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 6,
+    "topic": "時の経過",
+    "phrase": "期間 have passed since S 過去形",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "be able to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "have to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "have got to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "do not have to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "ought to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "ought not to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "Would you V?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "Could you V?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "May I V?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 7,
+    "topic": "助動詞に相当する表現",
+    "phrase": "Can I V?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "May S V!",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "had better not V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "How dare you V!",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "need not V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "need not have V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "should have V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "助動詞の定型構文",
+    "phrase": "should not have V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "demand that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "insist that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "require that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "request that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "suggest that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "propose that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "recommend that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "order that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "要求・提案等のthat節",
+    "phrase": "command that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is necessary that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is essential that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is important that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is crucial that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is desirable that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 8,
+    "topic": "形容詞＋that節",
+    "phrase": "It is advisable that S (should) V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "If S should V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "If S were to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "Were S C",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "Had S V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "Should S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 9,
+    "topic": "仮定・倒置",
+    "phrase": "Were S to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "would rather S had V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "if only S had V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "as if S had V-ed",
+    "matches": [
+      {
+        "phrase": "as if S V / as though S V",
+        "sectionKey": "grammar-5-2",
+        "meaning": "まるでSがVするかのように"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "as though S had V-ed",
+    "matches": [
+      {
+        "phrase": "as if S V / as though S V",
+        "sectionKey": "grammar-5-2",
+        "meaning": "まるでSがVするかのように"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "It is time S 過去形",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "It is about time S 過去形",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "otherwise S would V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 10,
+    "topic": "願望・仮定表現",
+    "phrase": "otherwise S would have V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "be laughed at",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "It is said that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "S is said to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "S is said to have V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "be seen to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 11,
+    "topic": "受動態の決まった型",
+    "phrase": "be made to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be made in O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be known for O",
+    "matches": [
+      {
+        "phrase": "be known for A",
+        "sectionKey": "grammar-21-2",
+        "meaning": "Aで知られている"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be known to O",
+    "matches": [
+      {
+        "phrase": "be known to A",
+        "sectionKey": "grammar-21-2",
+        "meaning": "Aに知られている"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be known as O",
+    "matches": [
+      {
+        "phrase": "be known as B",
+        "sectionKey": "grammar-21-2",
+        "meaning": "Bとして知られている"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be known by O",
+    "matches": [
+      {
+        "phrase": "be known by O",
+        "sectionKey": "grammar-21-2",
+        "meaning": "特徴・行動などのOによって識別・判断される"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be made of O",
+    "matches": [
+      {
+        "phrase": "be made of O",
+        "sectionKey": "grammar-20-2",
+        "meaning": "Oでできている"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be made from O",
+    "matches": [
+      {
+        "phrase": "be made from O",
+        "sectionKey": "grammar-20-2",
+        "meaning": "原料のOから作られる"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 2,
+    "page": 12,
+    "topic": "受動態の語法",
+    "phrase": "be made into O",
+    "matches": [
+      {
+        "phrase": "be made into O",
+        "sectionKey": "grammar-20-2",
+        "meaning": "Oに加工される、作り変えられる"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "make it possible to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "make it a rule to V",
+    "matches": [
+      {
+        "phrase": "make it a rule to V",
+        "sectionKey": "grammar-20-9",
+        "meaning": "Vすることにしている"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "in order to V",
+    "matches": [
+      {
+        "phrase": "in order / so as to V",
+        "sectionKey": "grammar-20-8",
+        "meaning": "Vするために"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "so as to V",
+    "matches": [
+      {
+        "phrase": "in order / so as to V",
+        "sectionKey": "grammar-20-8",
+        "meaning": "Vするために"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "in order not to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "so as not to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "It is 形容詞 for O to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "It is 形容詞 of O to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "wake up to find O C",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "grow up to be C",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 13,
+    "topic": "不定詞の定型構文",
+    "phrase": "live to be 年齢",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "what to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "which 名詞 to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "how to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "when to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "where to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "whether to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 14,
+    "topic": "不定詞の型",
+    "phrase": "be to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "cannot wait to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "be opposed to Ving",
+    "matches": [
+      {
+        "phrase": "be opposed to O / Ving",
+        "sectionKey": "grammar-21-2",
+        "meaning": "Oに反対している／O／Vすることに反対している"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "be accustomed to Ving",
+    "matches": [
+      {
+        "phrase": "be accustomed to O",
+        "sectionKey": "grammar-21-2",
+        "meaning": "〜に慣れている"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "for the purpose of Ving",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "物 need to be V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "物 want to be V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "it is impossible to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "there is no point in Ving",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 16,
+    "topic": "動名詞の言い換え",
+    "phrase": "there is no sense in Ving",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 17,
+    "topic": "分詞の型",
+    "phrase": "get O V-ed",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 17,
+    "topic": "分詞の型",
+    "phrase": "make oneself understood",
+    "matches": [
+      {
+        "phrase": "make oneself V-ed",
+        "sectionKey": "g12-causative",
+        "meaning": "自分のことをVしてもらう"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 17,
+    "topic": "分詞の型",
+    "phrase": "make oneself heard",
+    "matches": [
+      {
+        "phrase": "make oneself V-ed",
+        "sectionKey": "g12-causative",
+        "meaning": "自分のことをVしてもらう"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 17,
+    "topic": "分詞の型",
+    "phrase": "There is O Ving",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 17,
+    "topic": "分詞の型",
+    "phrase": "keep O V-ed",
+    "matches": [
+      {
+        "phrase": "keep O C",
+        "sectionKey": "g12-svoc-basic",
+        "meaning": "OをCの状態に保つ"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 18,
+    "topic": "付帯状況・分詞構文",
+    "phrase": "with O 形容詞",
+    "matches": [
+      {
+        "phrase": "with O Ving",
+        "sectionKey": "grammar-9-2",
+        "meaning": "OがVしている状態で"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 18,
+    "topic": "付帯状況・分詞構文",
+    "phrase": "with O 副詞",
+    "matches": [
+      {
+        "phrase": "with O Ving",
+        "sectionKey": "grammar-9-2",
+        "meaning": "OがVしている状態で"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 18,
+    "topic": "付帯状況・分詞構文",
+    "phrase": "with O 前置詞句",
+    "matches": [
+      {
+        "phrase": "with O Ving",
+        "sectionKey": "grammar-9-2",
+        "meaning": "OがVしている状態で"
+      }
+    ],
+    "status": "要語義・型確認"
+  },
+  {
+    "chapter": 3,
+    "page": 18,
+    "topic": "付帯状況・分詞構文",
+    "phrase": "Ving as S do",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 3,
+    "page": 18,
+    "topic": "付帯状況・分詞構文",
+    "phrase": "V-ed as S be",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 23,
+    "topic": "whatの慣用表現",
+    "phrase": "what S call O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "no matter who S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "no matter which S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "no matter when S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "no matter where S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "Come what may",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "Come who may",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "the same 名詞 as O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "the same 名詞 that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "such 名詞 as O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "as you can see",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "as is usual with O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "more than is necessary",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 24,
+    "topic": "複合関係詞・慣用構文",
+    "phrase": "what S was",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 25,
+    "topic": "感嘆・付加疑問",
+    "phrase": "What a 形容詞 名詞 S V!",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 25,
+    "topic": "感嘆・付加疑問",
+    "phrase": "How 形容詞 S V!",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 25,
+    "topic": "感嘆・付加疑問",
+    "phrase": "命令文, will you?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 25,
+    "topic": "感嘆・付加疑問",
+    "phrase": "命令文, won’t you?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 25,
+    "topic": "感嘆・付加疑問",
+    "phrase": "Let’s V, shall we?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 26,
+    "topic": "一致・話法",
+    "phrase": "one of the 複数名詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 26,
+    "topic": "一致・話法",
+    "phrase": "tell A that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 26,
+    "topic": "一致・話法",
+    "phrase": "ask A if S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 26,
+    "topic": "一致・話法",
+    "phrase": "ask A whether S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 4,
+    "page": 26,
+    "topic": "一致・話法",
+    "phrase": "ask A 疑問詞節",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "a friend of mine",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "help oneself to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "make oneself at home",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "behave oneself",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "devote oneself to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "enjoy oneself",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "talk to oneself",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "beside oneself",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "by oneself",
+    "matches": [
+      {
+        "phrase": "by oneself",
+        "sectionKey": "grammar-20-6",
+        "meaning": "一人で／独力で"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "for oneself",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "再帰代名詞の熟語",
+    "phrase": "in itself",
+    "matches": [
+      {
+        "phrase": "in itself",
+        "sectionKey": "grammar-20-6",
+        "meaning": "それ自体では、それそのものは"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "列挙の型",
+    "phrase": "one … the other …",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "列挙の型",
+    "phrase": "one … another … the others …",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 27,
+    "topic": "列挙の型",
+    "phrase": "some … others …",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 28,
+    "topic": "代名詞の型",
+    "phrase": "those who V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 28,
+    "topic": "代名詞の型",
+    "phrase": "each of the 複数名詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 28,
+    "topic": "代名詞の型",
+    "phrase": "none of the 複数名詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "a bottle of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "a cup of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "a sheet of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "of importance",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "of help",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "of use",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "of value",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "of worth",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "with ease",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "with care",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "with certainty",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "数量化・抽象名詞",
+    "phrase": "once upon a time",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "take O by the arm",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "catch O by the arm",
+    "matches": [
+      {
+        "phrase": "catch a person by the arm",
+        "sectionKey": "grammar-20-9",
+        "meaning": "人の腕をつかむ"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "hold O by the arm",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "stare O in the face",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "hit O on the head",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "身体部位の構文",
+    "phrase": "pat O on the shoulder",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "冠詞・単位の表現",
+    "phrase": "by the 単位",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "冠詞・単位の表現",
+    "phrase": "go to church",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "冠詞・単位の表現",
+    "phrase": "go to school",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 6,
+    "page": 30,
+    "topic": "冠詞・単位の表現",
+    "phrase": "by bicycle",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "whether S V or not",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "whether or not S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "whether A or B",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "suppose that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "assuming that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "granting that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 19,
+    "topic": "whetherと条件表現",
+    "phrase": "granted that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "形容詞 as S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "形容詞 though S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "be it A or B",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "be it ever so 形容詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "so 形容詞 that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "such a 形容詞 名詞 that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "S be such that S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "so that S can V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 20,
+    "topic": "譲歩・程度・目的の型",
+    "phrase": "in order that S can V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "at work",
+    "matches": [
+      {
+        "phrase": "at work",
+        "sectionKey": "grammar-20-6",
+        "meaning": "仕事中で／作用・作動中で"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "on fire",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "in white",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "freeze to death",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "for one’s age",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "by the gallon",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "over a cup of coffee",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 21,
+    "topic": "前置詞の慣用表現",
+    "phrase": "under the influence of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "die from O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "be familiar with O",
+    "matches": [
+      {
+        "phrase": "be familiar with O",
+        "sectionKey": "grammar-21-1",
+        "meaning": "Oに精通している"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "be anxious about O",
+    "matches": [
+      {
+        "phrase": "be anxious about O / Ving",
+        "sectionKey": "grammar-21-1",
+        "meaning": "O／Vすることを心配している"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "be concerned about O",
+    "matches": [
+      {
+        "phrase": "be concerned about O",
+        "sectionKey": "grammar-21-2",
+        "meaning": "Oを心配している／気にかける"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "be independent of O",
+    "matches": [
+      {
+        "phrase": "be independent of O",
+        "sectionKey": "grammar-21-1",
+        "meaning": "Oから独立している"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "on time",
+    "matches": [
+      {
+        "phrase": "on time",
+        "sectionKey": "grammar-20-6",
+        "meaning": "時間通りに"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "on the contrary",
+    "matches": [
+      {
+        "phrase": "on the contrary",
+        "sectionKey": "grammar-20-7",
+        "meaning": "それどころか・反対に"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "contrary to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "from among O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "because of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "due to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "owing to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "on account of O",
+    "matches": [
+      {
+        "phrase": "on account of O",
+        "sectionKey": "grammar-21-5",
+        "meaning": "Oのために"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "thanks to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "by virtue of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "with all O",
+    "matches": [
+      {
+        "phrase": "with all O",
+        "sectionKey": "grammar-20-7",
+        "meaning": "Oにもかかわらず"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 5,
+    "page": 22,
+    "topic": "前置詞・言い換え",
+    "phrase": "for all O",
+    "matches": [
+      {
+        "phrase": "for all O",
+        "sectionKey": "grammar-20-7",
+        "meaning": "Oにもかかわらず"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a large population",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a small population",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a large audience",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a small audience",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a large number of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a small number of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a large amount of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a small amount of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "high costs",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "low costs",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a high income",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a low income",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a high salary",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a low salary",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "high prices",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "low prices",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "high taxes",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "low taxes",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "high rent",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "low rent",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "heavy rain",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "light rain",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "heavy snow",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "light snow",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "heavy traffic",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "light traffic",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a heavy meal",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "名詞との結び付き",
+    "phrase": "a light meal",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "接続副詞句",
+    "phrase": "in addition",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 32,
+    "topic": "接続副詞句",
+    "phrase": "in other words",
+    "matches": [
+      {
+        "phrase": "in other words",
+        "sectionKey": "grammar-20-7",
+        "meaning": "言い換えれば；namelyの「具体的には」と異なり、別の表現で言い直す"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "by far the 最上級",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "much the 最上級",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "the very 最上級",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "the 序数 最上級",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "比較級 than any other 単数名詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "比較級 than anything else",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "No other 名詞 is 比較級 than O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 33,
+    "topic": "比較の型",
+    "phrase": "Nothing is 比較級 than O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "倍数 the 名詞 of O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "the 比較級 of the two",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "比較級 than O by 差",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "as 形容詞 a 名詞 as O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "more A than B",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "be senior to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "be junior to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "be superior to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "be inferior to O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "as 形容詞 as S can",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "no better than O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "rather B than A",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "less A than B",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "not more than 数量",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 7,
+    "page": 34,
+    "topic": "比較の定型表現",
+    "phrase": "not less than 数量",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "hardly ever V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "scarcely ever V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "hardly any O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "scarcely any O",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "not all",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "not every",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "not both",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "not … because S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "never … without Ving",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "never … but S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 35,
+    "topic": "準否定・部分否定",
+    "phrase": "never fail to V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "under no circumstances",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "Little did S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "Only then did S V",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "nor 助動詞 S",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "by no means",
+    "matches": [
+      {
+        "phrase": "by no means",
+        "sectionKey": "grammar-20-7",
+        "meaning": "決して〜ない"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … by any means",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … at all",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "in no way",
+    "matches": [
+      {
+        "phrase": "in no way",
+        "sectionKey": "grammar-20-7",
+        "meaning": "決して…ない"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … in any way",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … in the least",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … in the slightest",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "on no account",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … on any account",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 36,
+    "topic": "否定・倒置",
+    "phrase": "not … whatsoever",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "疑問詞 is it that S V?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "the very 名詞",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "on earth",
+    "matches": [
+      {
+        "phrase": "on earth",
+        "sectionKey": "grammar-20-6",
+        "meaning": "一体全体（疑問詞の後に置いて強調する）"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "in the world",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "the heck",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 8,
+    "page": 37,
+    "topic": "強調表現",
+    "phrase": "the hell",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "up to date",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "out of date",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "in effect",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "out of the blue",
+    "matches": [
+      {
+        "phrase": "out of the blue",
+        "sectionKey": "grammar-20-8",
+        "meaning": "突然に、思いがけなく"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "for now",
+    "matches": [
+      {
+        "phrase": "for now",
+        "sectionKey": "grammar-20-8",
+        "meaning": "当面の間"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "at large",
+    "matches": [
+      {
+        "phrase": "at large",
+        "sectionKey": "grammar-20-6",
+        "meaning": "一般の・全体としての／逃走中で・逮捕されないで"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 9,
+    "page": 40,
+    "topic": "複数表現の展開",
+    "phrase": "for nothing",
+    "matches": [
+      {
+        "phrase": "for nothing",
+        "sectionKey": "grammar-20-6",
+        "meaning": "無料で・無駄に"
+      }
+    ],
+    "status": "収録あり"
+  },
+  {
+    "chapter": 9,
+    "page": 43,
+    "topic": "会話の言い換え",
+    "phrase": "I haven’t seen you for a long time.",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "No, I don’t.",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "Not at all.",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "Of course not.",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "Why not?",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "I’ll follow you.",
+    "matches": [],
+    "status": "追加候補"
+  },
+  {
+    "chapter": 9,
+    "page": 44,
+    "topic": "会話の応答",
+    "phrase": "Don’t worry.",
+    "matches": [
+      {
+        "phrase": "Don't worry.",
+        "sectionKey": "grammar-22-6",
+        "meaning": "お気になさらず"
+      }
+    ],
+    "status": "収録あり"
+  }
+]
