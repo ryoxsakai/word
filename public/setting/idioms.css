@@ -1,27 +1,47 @@
-.idiom-editor-pane { padding-bottom: 1rem; }
+.idiom-editor-pane { padding-bottom: 0; }
 .idiom-editor-pane, #editDialog { transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
 .topbar-row--primary #themeToggleBtn { margin-left:auto; }
-.idiom-editor-filters { display:flex; gap:1rem; flex-wrap:wrap; padding:1rem; align-items:center; }
+.idiom-editor-filters { display:flex; gap:1rem; flex-wrap:wrap; padding:0.65rem 1rem; align-items:center; border-bottom:1px solid var(--border); background:var(--bg-soft); }
 .idiom-editor-filters label { min-width:0; }
 .idiom-editor-filters select { max-width:min(34rem,80vw); }
-#status { padding:0 1rem; }
-#entries button { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border,#ddd); border-radius:0; padding:0.85rem 1rem; background:transparent; color:inherit; }
-#entries button span { display:block; margin-top:0.3rem; font-weight:400; }
-#entries button.is-hidden { opacity:0.65; }
+.idiom-search { flex:1 1 15rem; display:flex; align-items:center; gap:0.45rem; }
+.idiom-search input { width:100%; min-width:8rem; }
+#status { margin-left:auto; font-size:0.78rem; color:var(--text-muted); white-space:nowrap; }
+.idiom-table .col-visibility { width:4.5rem; text-align:center; }
+.idiom-table .idiom-row.is-hidden { opacity:0.62; }
+.idiom-table .visibility-badge { display:inline-block; padding:0.08rem 0.35rem; border:1px solid var(--border); border-radius:999px; font-size:0.67rem; color:var(--text-muted); }
+.idiom-table tbody tr.idiom-group-header-row { background:color-mix(in srgb,var(--bg-soft) 72%,transparent); }
+.idiom-table tbody tr.idiom-group-header-row td { padding:0.38rem 0.85rem 0.38rem 1.5rem; border-bottom:1px solid var(--border); font-size:0.75rem; color:var(--text-secondary); }
+.idiom-table tbody tr.idiom-group-header-row .fa-layer-group { color:var(--accent); font-size:0.7rem; }
+.idiom-table .idiom-row .col-spelling { font-size:0.86rem; }
+.idiom-table tbody tr.idiom-row { cursor:pointer; }
+.idiom-table tbody tr.idiom-row:hover { background:var(--bg-soft); }
+.idiom-table tbody tr[draggable="true"] { cursor:grab; }
+.idiom-table tbody tr.dragging { opacity:0.4; }
+.idiom-table tbody tr.drag-over { outline:2px dashed var(--accent); outline-offset:-2px; }
 #editDialog { width:min(850px,94vw); max-height:90dvh; padding:0; border:1px solid var(--border,#ccc); border-radius:12px; background:var(--surface,#fff); color:inherit; }
 #editDialog::backdrop { background:#0007; }
 #idiomForm { padding:1.2rem; display:flex; flex-direction:column; gap:0.8rem; }
 #idiomForm label { display:block; }
 #idiomForm input:not([type=checkbox]), #idiomForm textarea, #idiomForm select { width:100%; box-sizing:border-box; }
-.idiom-sense-editor { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.7rem; }
+.idiom-sense-editor { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.7rem; align-items:center; }
 .idiom-sense-editor textarea { flex:1; min-width:60%; }
 .idiom-sense-editor .sense-links { flex-basis:100%; font-size:0.8rem; }
+.idiom-sense-editor .row-drag-handle { align-self:stretch; width:1.8rem; padding:0; border:0; background:transparent; color:var(--text-muted); cursor:grab; }
+.idiom-sense-editor.dragging { opacity:0.45; }
+.idiom-sense-editor.drag-over { outline:2px dashed var(--accent); outline-offset:2px; }
 .preview { overflow-wrap:anywhere; white-space:pre-wrap; }
 .preview a { color:inherit; }
-#save { align-self:flex-end; }
 
 @media (max-width: 640px) {
   .topbar-row--primary { gap:0.45rem; }
   .topbar-row--primary .viewer-link { font-size:0.78rem; }
   .topbar-row--primary #themeToggleBtn { padding-inline:0.55rem; }
+  .idiom-editor-filters { gap:0.5rem; padding:0.55rem; }
+  .idiom-editor-filters > label:first-child { flex:1 1 100%; }
+  .idiom-editor-filters select { width:100%; max-width:none; }
+  #status { width:100%; margin-left:0; }
+  .idiom-table .col-visibility { display:none; }
+  .idiom-table .col-meaning { max-width:9rem; }
+  .idiom-table th,.idiom-table td { padding-inline:0.4rem; }
 }

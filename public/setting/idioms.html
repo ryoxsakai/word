@@ -10,19 +10,23 @@ try {
 } catch { /* OSの配色設定を使用する */ }
 </script>
 <title>熟語の編集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=M+PLUS+2:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./idioms.css">
 </head>
 <body>
 <div class="layout">
-<header class="topbar"><div class="topbar-row topbar-row--primary"><h1 class="app-title">熟語</h1><span class="app-subtitle">編集</span><a class="viewer-link" href="./index.html">単語の編集</a><a class="viewer-link" href="../index.html">閲覧</a><button type="button" class="btn-compact" id="themeToggleBtn" title="ダーク/ライト切り替え" aria-pressed="false">ダーク</button></div></header>
+<header class="topbar"><div class="topbar-row topbar-row--primary"><h1 class="app-title">熟語</h1><span class="app-subtitle">編集</span><a class="viewer-link" href="./index.html">単語</a><a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧 <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a><button type="button" class="btn-compact" id="themeToggleBtn" title="ダーク/ライト切り替え" aria-pressed="false">ダーク</button></div></header>
 <main class="main"><section class="word-table-pane idiom-editor-pane">
-<div class="pane-header"><label>単語帳 <select id="notebook"></select></label><button id="newIdiom" type="button">熟語を追加</button></div>
-<div class="idiom-editor-filters"><label>Section <select id="section"></select></label><label>検索 <input id="query" type="search" placeholder="熟語・意味・メモ"></label><label><input id="showHidden" type="checkbox">非表示の項目も表示</label></div>
-<p id="status" role="status" aria-live="polite"></p><div id="entries"></div>
+<div class="pane-header"><div class="list-switcher"><select id="notebook" aria-label="表示する単語帳"></select></div><div class="pane-header-actions"><button id="newIdiom" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>熟語</span></button></div></div>
+<div class="idiom-editor-filters"><label>Section <select id="section"></select></label><label class="idiom-search">検索 <input id="query" type="search" placeholder="熟語・意味・メモ"></label><label class="filter-checkbox"><input id="showHidden" type="checkbox">非表示も表示</label><span id="status" role="status" aria-live="polite"></span></div>
+<div class="table-scroll" id="tableScroll"><table class="word-table idiom-table"><thead><tr><th class="col-no">no.</th><th>熟語</th><th class="col-meaning">意味</th><th class="col-visibility">状態</th><th class="col-move">並び替え</th></tr></thead><tbody id="entries"></tbody></table><p id="empty" class="empty-msg" hidden>該当する熟語はありません。</p></div>
 </section></main></div>
 <dialog id="editDialog" aria-labelledby="dialogTitle">
 <form id="idiomForm" class="word-form">
-<div class="pane-header"><h2 id="dialogTitle">熟語を編集</h2><button id="closeDialog" type="button">閉じる</button></div>
+<div class="pane-header pane-header--edit"><h2 id="dialogTitle">熟語を編集</h2><div class="edit-actions"><button id="save" class="primary btn-icon-only" type="submit" title="保存" aria-label="保存"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></button><button id="closeDialog" class="btn-ghost btn-icon-only" type="button" title="閉じる" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></div>
 <label>熟語 <input name="phrase" required maxlength="500" autocapitalize="none"></label>
 <label>Section <select name="sectionKey" required></select></label>
 <label><input name="hidden" type="checkbox">閲覧リストから非表示</label>
@@ -31,7 +35,7 @@ try {
 <label>対義語 <textarea name="antonyms" rows="2" maxlength="20000"></textarea></label><div id="antonymsPreview" class="preview"></div>
 <label>メモ <textarea name="notes" rows="5" maxlength="20000"></textarea></label><div id="notesPreview" class="preview"></div>
 <p class="hint">単語と同じ記法：##参照先##、##参照先|表示名##、**太字**、==強調==。同義語・対義語はカンマ区切りで自動リンク。参照先を区別するときは ##word:respect## / ##idiom:look up to O##。</p>
-<p id="saveStatus" role="status" aria-live="polite"></p><button id="save" class="primary" type="submit">保存</button>
+<p id="saveStatus" role="status" aria-live="polite"></p>
 </form></dialog>
 <script type="module" src="./idioms.js"></script>
 </body></html>

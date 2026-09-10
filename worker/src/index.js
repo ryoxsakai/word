@@ -1,5 +1,5 @@
 import { renderMarkup } from "../../public/shared/markup.js";
-import { readIdioms, saveIdiom } from "./idioms.js";
+import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, saveIdiom } from "./idioms.js";
 import { handleMcpRoute } from "./mcp.js";
 import {
   MCP_READ_SCOPE,
@@ -2568,6 +2568,26 @@ async function handleApi(request, env, parts, method) {
     }
   }
 
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "index" && method === "GET") {
+    if (!await db.prepare("SELECT id FROM lists WHERE id = ?").bind(parts[2]).first()) return notFound("list not found");
+    return cacheableJson(await readIdiomIndex(db, parts[2]), request);
+  }
+
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && method === "GET") {
+    const data = await readIdiomSection(db, parts[2], parts[5]);
+    return data ? cacheableJson(data, request) : notFound("idiom section not found");
+  }
+
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "reorder" && method === "POST") {
+    try { return json(await reorderIdioms(db, parts[2], await request.json())); }
+    catch (error) { return json({ error: error.message }, { status: 400 }); }
+  }
+
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && parts[5] === "reorder" && method === "POST") {
+    try { return json(await reorderIdiomSections(db, parts[2], await request.json())); }
+    catch (error) { return json({ error: error.message }, { status: 400 }); }
+  }
+
   // /api/lists/:listId/words
   if (parts.length === 4 && parts[1] === "lists" && parts[3] === "words" && method === "GET") {
     return await listWordsInList(db, parts[2]);
@@ -2812,6 +2832,16 @@ export default {
         const idiomListMatch = pathname.match(/^\/mcp-viewer\/api\/lists\/([^/]+)\/idioms\/?$/);
         if (idiomListMatch) {
           return await handleApi(request, env, ["api", "lists", decodeURIComponent(idiomListMatch[1]), "idioms"], "GET");
+        }
+
+        const idiomIndexMatch = pathname.match(/^\/mcp-viewer\/api\/lists\/([^/]+)\/idioms\/index\/?$/);
+        if (idiomIndexMatch) {
+          return await handleApi(request, env, ["api", "lists", decodeURIComponent(idiomIndexMatch[1]), "idioms", "index"], "GET");
+        }
+
+        const idiomSectionMatch = pathname.match(/^\/mcp-viewer\/api\/lists\/([^/]+)\/idioms\/sections\/([^/]+)\/?$/);
+        if (idiomSectionMatch) {
+          return await handleApi(request, env, ["api", "lists", decodeURIComponent(idiomSectionMatch[1]), "idioms", "sections", decodeURIComponent(idiomSectionMatch[2])], "GET");
         }
 
         const fullListMatch = pathname.match(
