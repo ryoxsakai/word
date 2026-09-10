@@ -109,7 +109,7 @@ export async function callIdiomRead(name, args, db) {
   const offset = args.offset ?? 0, limit = args.limit ?? 50, entries = found.slice(offset, offset + limit);
   return { listId: args.list_id, revision: data.revision, entries, pagination: { totalCount: found.length, offset, limit, returnedCount: entries.length, hasMore: offset + limit < found.length, nextOffset: offset + limit < found.length ? offset + limit : null } };
 }
-const norm = s => s.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+const norm = s => String(s ?? '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
 
 export async function callIdiomWrite(name, args, db, auth) {
   const def = IDIOM_WRITE_TOOLS.find(t => t.name === name); validate(args, def.inputSchema);
