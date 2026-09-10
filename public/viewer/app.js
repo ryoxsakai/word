@@ -1,3 +1,4 @@
+import { createIdiomReferenceResolver } from "../shared/idiom-references.js";
 import {
   addDerivativeCrossReferenceAliases,
   collectDerivativeCrossReferences,
@@ -375,7 +376,7 @@ async function api(path, { forceRefresh = false } = {}) {
 
 function resolveRef(headword) {
   const hit = state.wordIndex.get(headword.toLowerCase());
-  if (!hit) return { found: false };
+  if (!hit) return state.idiomResolver ? state.idiomResolver(headword) : { found: false };
   return { found: true, id: hit.id, no: hit.no };
 }
 
@@ -451,6 +452,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.sectionPromises = new Map();
     state.searchMatches = null;
     state.indexRendered = false;
+    state.idiomResolver = null;
     state.idiomEntries = null;
     state.idiomGroups = [];
     state.idiomPromise = null;
@@ -471,6 +473,12 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     if (firstSection) await loadSection(firstSection.key);
     if (generation !== listLoadGeneration) return;
     if (state.activeView === "idioms") await ensureIdioms();
+    else void ensureIdioms().then(() => {
+      if (generation === listLoadGeneration) for (const key of [...state.loadedSectionKeys]) {
+        const cached = sectionResponseCache.get(sectionCacheKey(listId, key));
+        if (cached) renderLoadedSection(key, cached);
+      }
+    }).catch(() => {});
     await applyHashScroll();
     if (el.searchInput.value.trim()) void runSearch();
   } catch (err) {
@@ -523,7 +531,7 @@ function buildIndex() {
   state.headwordIndex = headwordIndex;
   const derivativeReferences = collectDerivativeCrossReferences(state.indexWords);
   state.wordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
-  state.renderNotesMarkup = createAutoCrossRefRenderer(headwordIndex.keys(), {
+  state.renderNotesMarkup = createAutoCrossRefRenderer([...headwordIndex.keys(), ...(state.idiomResolver?.phrases || [])], {
     resolve: resolveRef,
     derivativeReferences,
     phraseReferences: collectPhraseCrossReferences(state.indexWords),
@@ -1029,6 +1037,11 @@ async function ensureIdioms() {
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
       state.idiomEntries = data.managed ? resolveIdiomReferences(data.entries, state.indexWords) : buildIdiomEntries(data.words || [], state.indexWords);
       state.idiomGroups = groupIdiomEntries(state.idiomEntries, data.managed ? data.chapters : undefined);
+      state.idiomResolver = createIdiomReferenceResolver(state.idiomGroups, headword => {
+        const hit = state.wordIndex.get(headword.toLowerCase());
+        return hit ? {found:true, id:hit.id, no:hit.no} : {found:false};
+      });
+      buildIndex();
       renderIdioms();
     } catch (error) {
       if (generation === listLoadGeneration) {
@@ -1052,7 +1065,7 @@ function visibleIdiomGroups() {
         meanings: item.meanings.map(sense => ({ ...sense,
           refs: sense.refs.filter(ref => matchesEikenLevel(ref)),
         })).filter(sense => (sense.refs.length || state.eikenLevel === "all") && (!query ||
-          `${item.phrase} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
+          `${item.phrase} ${item.synonyms || ""} ${item.antonyms || ""} ${item.notes || ""} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
       })).filter(item => item.meanings.length),
     })).filter(section => section.items.length),
   })).filter(chapter => chapter.sections.length);
@@ -1069,7 +1082,7 @@ function renderIdioms() {
     const groupHeading = startsGroup ? `<div class="group-divider" id="idiom-group-${escapeHtml(section.groupKey)}" role="heading" aria-level="3">${hierarchyIcon("group")}<div class="group-title-row"><span class="group-title">${escapeHtml(section.groupName)}</span><span class="group-subtitle">${escapeHtml(section.groupSubtitle)}</span></div></div>` : "";
     return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}${startsGroup ? " has-group-divider" : ""}" aria-labelledby="${sectionId}">${heading}${groupHeading}
       <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="${section.groupKey ? 4 : 3}">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
-      <div class="idiom-entries">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE)).join("")}</div>
+      <div class="idiom-entries">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE, {resolve:resolveRef, renderNotes:state.renderNotesMarkup})).join("")}</div>
     </section>`;
   }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
   if (state.activeView === "idioms") {
@@ -1090,15 +1103,31 @@ function renderIdiomNavigation() {
 }
 
 el.idiomList.addEventListener("click", async event => {
-  const ref = event.target.closest("a[data-word-id]");
+  const ref = event.target.closest("a[data-word-id], a[data-idiom-id]");
   const retry = event.target.closest('[data-action="retry-idioms"]');
   if (!ref && !retry) return;
   event.preventDefault();
   try {
     if (retry) await ensureIdioms();
+    else if (ref.dataset.idiomId) await openIdiomReference(ref.dataset.idiomId);
     else await navigateToWord(ref.dataset.wordId);
   } catch (error) { showToast(`読み込みに失敗しました: ${error.message}`); }
 });
+
+async function openIdiomReference(id, {historyMode = "push"} = {}) {
+  await ensureIdioms();
+  const hit = state.idiomResolver?.id(id);
+  if (!hit) { showToast("この熟語は非表示、または見つかりません。"); return; }
+  state.search = "";
+  el.searchInput.value = "";
+  state.eikenLevel = "all";
+  if (el.eikenFilter) el.eikenFilter.value = "all";
+  setActiveView("idioms");
+  renderIdioms();
+  const hash = `#idiom-${encodeURIComponent(hit.id)}`;
+  if (historyMode === "push") history.pushState(null, "", hash);
+  document.getElementById(`idiom-${encodeURIComponent(hit.id)}`)?.scrollIntoView({behavior:"smooth",block:"center"});
+}
 
 function navigateToIdiom(event) {
   const button = event.target.closest("button[data-idiom-target]");
@@ -1647,6 +1676,11 @@ async function openWordFromWebMCP(listId, wordId) {
 }
 
 async function applyHashScroll({ cancelOnMissing = false } = {}) {
+  if (location.hash.startsWith("#idiom-")) {
+    try { await openIdiomReference(decodeURIComponent(location.hash.slice(7)), {historyMode:"none"}); }
+    catch (err) { showToast(`リンク先の読み込みに失敗しました: ${err.message}`); }
+    return;
+  }
   const id = wordIdFromHash(location.hash);
   if (!id || !state.wordMetaById.has(id)) {
     if (cancelOnMissing) {
@@ -1699,7 +1733,7 @@ el.wordList.addEventListener("click", (e) => {
   const refLink = e.target.closest("a.ref");
   if (refLink) {
     e.preventDefault();
-    navigateToWord(refLink.dataset.wordId).catch((err) => {
+    (refLink.dataset.idiomId ? openIdiomReference(refLink.dataset.idiomId) : navigateToWord(refLink.dataset.wordId)).catch((err) => {
       showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
     });
     return;

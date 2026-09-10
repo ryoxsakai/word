@@ -52,7 +52,7 @@ export function renderMarkup(raw, opts = {}) {
   const renderedRefs = [];
   const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
-    const label = (displayRaw ? displayRaw.trim() : headword);
+    const label = (displayRaw ? displayRaw.trim() : headword.replace(/^(?:word|idiom):/i, ""));
     const result = resolve ? resolve(headword) : null;
 
     const labelHtml = escapeHtml(label);
@@ -66,7 +66,8 @@ export function renderMarkup(raw, opts = {}) {
       const noSuffix = result.no != null
         ? `<span class="ref-no"> (no.${escapeHtml(result.no)})</span>`
         : "";
-      refHtml = `<a href="#word-${escapeHtml(result.id)}" class="ref" data-headword="${escapeHtml(headword)}" data-word-id="${escapeHtml(result.id)}">${emphasizedLabel}${noSuffix}</a>`;
+      const type = result.type === "idiom" ? "idiom" : "word";
+      refHtml = `<a href="#${type}-${escapeHtml(encodeURIComponent(result.id))}" class="ref" data-headword="${escapeHtml(headword)}" data-${type}-id="${escapeHtml(result.id)}">${emphasizedLabel}${noSuffix}</a>`;
     }
     const token = `\uE100${renderedRefs.length}\uE101`;
     renderedRefs.push(refHtml);
@@ -449,7 +450,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     const protectedText = pronunciationProtectedText.replace(CROSSREF_RE, (match, headwordRaw, displayRaw) => {
       const headword = headwordRaw.trim();
       if (currentHeadwordLower && headword.toLowerCase() === currentHeadwordLower) {
-        return markSelfReference(displayRaw ? displayRaw.trim() : headword);
+        return markSelfReference(displayRaw ? displayRaw.trim() : headword.replace(/^(?:word|idiom):/i, ""));
       }
       const token = `\uE000${explicitRefs.length}\uE001`;
       explicitRefs.push(match);

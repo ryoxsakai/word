@@ -1,0 +1,19 @@
+.idiom-editor-pane { padding-bottom: 1rem; }
+.idiom-editor-filters { display:flex; gap:1rem; flex-wrap:wrap; padding:1rem; align-items:center; }
+.idiom-editor-filters label { min-width:0; }
+.idiom-editor-filters select { max-width:min(34rem,80vw); }
+#status { padding:0 1rem; }
+#entries button { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--border,#ddd); border-radius:0; padding:0.85rem 1rem; background:transparent; color:inherit; }
+#entries button span { display:block; margin-top:0.3rem; font-weight:400; }
+#entries button.is-hidden { opacity:0.65; }
+#editDialog { width:min(850px,94vw); max-height:90dvh; padding:0; border:1px solid var(--border,#ccc); border-radius:12px; background:var(--surface,#fff); color:inherit; }
+#editDialog::backdrop { background:#0007; }
+#idiomForm { padding:1.2rem; display:flex; flex-direction:column; gap:0.8rem; }
+#idiomForm label { display:block; }
+#idiomForm input:not([type=checkbox]), #idiomForm textarea, #idiomForm select { width:100%; box-sizing:border-box; }
+.idiom-sense-editor { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.7rem; }
+.idiom-sense-editor textarea { flex:1; min-width:60%; }
+.idiom-sense-editor .sense-links { flex-basis:100%; font-size:0.8rem; }
+.preview { overflow-wrap:anywhere; white-space:pre-wrap; }
+.preview a { color:inherit; }
+#save { align-self:flex-end; }

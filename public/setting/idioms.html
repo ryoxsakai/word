@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>熟語の編集</title>
+<link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./idioms.css">
+</head>
+<body>
+<div class="layout">
+<header class="topbar"><div class="topbar-row"><h1 class="app-title">熟語</h1><span>編集</span><a href="./index.html">単語の編集</a><a href="../index.html">閲覧</a></div></header>
+<main class="main"><section class="word-table-pane idiom-editor-pane">
+<div class="pane-header"><label>単語帳 <select id="notebook"></select></label><button id="newIdiom" type="button">熟語を追加</button></div>
+<div class="idiom-editor-filters"><label>Section <select id="section"></select></label><label>検索 <input id="query" type="search" placeholder="熟語・意味・メモ"></label><label><input id="showHidden" type="checkbox">非表示の項目も表示</label></div>
+<p id="status" role="status" aria-live="polite"></p><div id="entries"></div>
+</section></main></div>
+<dialog id="editDialog" aria-labelledby="dialogTitle">
+<form id="idiomForm" class="word-form">
+<div class="pane-header"><h2 id="dialogTitle">熟語を編集</h2><button id="closeDialog" type="button">閉じる</button></div>
+<label>熟語 <input name="phrase" required maxlength="500" autocapitalize="none"></label>
+<label>Section <select name="sectionKey" required></select></label>
+<label><input name="hidden" type="checkbox">閲覧リストから非表示</label>
+<fieldset><legend>意味（先頭の①を強調）</legend><div id="senses"></div><button id="addSense" type="button">意味を追加</button></fieldset>
+<label>同義語 <textarea name="synonyms" rows="2" maxlength="20000" placeholder="例：respect, admire"></textarea></label><div id="synonymsPreview" class="preview"></div>
+<label>対義語 <textarea name="antonyms" rows="2" maxlength="20000"></textarea></label><div id="antonymsPreview" class="preview"></div>
+<label>メモ <textarea name="notes" rows="5" maxlength="20000"></textarea></label><div id="notesPreview" class="preview"></div>
+<p class="hint">単語と同じ記法：##参照先##、##参照先|表示名##、**太字**、==強調==。同義語・対義語はカンマ区切りで自動リンク。参照先を区別するときは ##word:respect## / ##idiom:look up to O##。</p>
+<p id="saveStatus" role="status" aria-live="polite"></p><button id="save" class="primary" type="submit">保存</button>
+</form></dialog>
+<script type="module" src="./idioms.js"></script>
+</body></html>

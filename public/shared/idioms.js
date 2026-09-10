@@ -141,7 +141,7 @@ export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
   return chapters.map((chapter, chapterIndex) => ({
     ...chapter, name: `Chapter ${chapterIndex + 1}`, tone: (chapterIndex % 6) + 1,
     sections: chapter.sections.map(section => ({
-      ...section, items: entries.filter(entry => entry.sectionKey === section.key).map(entry => ({ ...entry, no: String(++entryNumber) })),
+      ...section, items: entries.filter(entry => !entry.hidden && entry.sectionKey === section.key).map(entry => ({ ...entry, no: String(++entryNumber), senseCount: entry.meanings.length, meanings: entry.meanings.map((sense, index) => ({ ...sense, no: index + 1 })) })),
     })).filter(section => section.items.length).map(section => {
       if (section.groupKey && !groupNumbers.has(section.groupKey)) groupNumbers.set(section.groupKey, groupNumbers.size + 1);
       return { ...section, name: `Section ${++sectionNumber}`,
