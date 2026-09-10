@@ -245,7 +245,7 @@ try {
 
   const combinedTools = await rpc(anonymousEnv, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
-  assert.equal(combinedTools.body.result.tools.length, 54);
+  assert.equal(combinedTools.body.result.tools.length, 74);
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "list_notebooks").securitySchemes[0].type,
     "noauth"
@@ -311,7 +311,7 @@ try {
     false
   );
   assert.equal(anonymousWriteTools.status, 200);
-  assert.equal(anonymousWriteTools.body.result.tools.length, 54);
+  assert.equal(anonymousWriteTools.body.result.tools.length, 74);
   assert.ok(anonymousWriteTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "noauth"));
 
   const anonymousWriteEndpoint = await rpc(
@@ -329,7 +329,7 @@ try {
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
-  assert.equal(editableTools.body.result.tools.length, 54);
+  assert.equal(editableTools.body.result.tools.length, 74);
   assert.ok(editableTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(editableTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -905,6 +905,24 @@ try {
   assert.ok(auditLog.changes.length >= 15);
   assert.ok(auditLog.changes.some((change) => change.actor === "anonymous:mcp"));
   assert.ok(auditLog.changes.some((change) => change.actor === "oauth:" + clientId));
+
+  // Exercise the new transaction/revision protocol against actual D1, with OAuth.
+  const idiomCall = async (name, args = {}) => rpc(env, accessToken, "/mcp-write", 1001, "tools/call", {
+    name, arguments: { list_id: listId, ...args },
+  });
+  const idiomRevision = async () => toolResult(await idiomCall("get_idiom_structure")).revision;
+  toolResult(await idiomCall("update_idiom_structure", { expected_revision: await idiomRevision(), sections: [
+    { section_key: "mcp-test", subtitle: "MCP test", chapter_key: "mcp-chapter", chapter_subtitle: "MCP chapter", chapter_order: 0, sort_order: 0 },
+  ] }));
+  const idiomCreated = toolResult(await idiomCall("create_idioms", { expected_revision: await idiomRevision(), idioms: [
+    { phrase: "test expression", section_key: "mcp-test", meanings: [{ meaning: "テスト", word_ids: [] }] },
+  ] }));
+  const idiomId = idiomCreated.created[0].id;
+  const oldIdiomRevision = await idiomRevision();
+  toolResult(await idiomCall("update_idiom", { expected_revision: oldIdiomRevision, idiom_id: idiomId, notes: "Saved via OAuth" }));
+  assert.equal((await idiomCall("update_idiom", { expected_revision: oldIdiomRevision, idiom_id: idiomId, notes: "Stale" })).body.result.isError, true);
+  assert.equal(toolResult(await idiomCall("get_idiom", { idiom_id: idiomId })).idiom.notes, "Saved via OAuth");
+  assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM idiom_mcp_guard").first()).n, 0);
 
   console.log("MCP write integration test passed");
 } finally {

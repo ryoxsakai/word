@@ -8,7 +8,7 @@
     "test:idioms": "node test/idioms.integration.mjs && node test/idiom-reorganization.integration.mjs && node test/idiom-reference-audit.integration.mjs && node test/idiom-semantic-links.integration.mjs && node test/idiom-deduplication.integration.mjs && node test/grammar-curriculum.integration.mjs && node test/grammar-groups-1-2.integration.mjs && node test/grammar-full-audit.integration.mjs && node test/idiom-fields.integration.mjs && node test/idiom-slimming.integration.mjs && node test/editor-section-cache.integration.mjs",
     "test:elevenlabs": "node test/elevenlabs.test.mjs",
     "test:audio": "node test/word-audio.integration.mjs && node test/automatic-word-audio.integration.mjs",
-    "test:mcp-write": "node test/mcp-write.integration.mjs",
+    "test:mcp-write": "node test/mcp-write.integration.mjs && npm run test:idiom-mcp",
     "test:editor-cache": "node test/editor-section-cache.integration.mjs && node test/editor-lazy-ui.integration.mjs",
     "test:derivatives": "node test/derivative-grouping.test.mjs",
     "test:sense-normalization": "node test/sense-normalization.test.mjs && node test/migration-0034.smoke.mjs",
@@ -17,7 +17,8 @@
     "db:migrate:local": "wrangler d1 migrations apply vocab-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply vocab-db --remote",
     "deploy": "wrangler deploy",
-    "test:illustrations": "node test/word-illustrations.integration.mjs && node test/illustration-viewer.test.mjs && node test/illustration-upload-ui.test.mjs"
+    "test:illustrations": "node test/word-illustrations.integration.mjs && node test/illustration-viewer.test.mjs && node test/illustration-upload-ui.test.mjs",
+    "test:idiom-mcp": "node test/idiom-mcp.integration.mjs"
   },
   "devDependencies": {
     "miniflare": "^4.20260701.0",
