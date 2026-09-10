@@ -1,13 +1,20 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="themeColor" content="#f8f9fc">
+<script>
+try {
+  const theme = localStorage.getItem("vocab-setting-theme");
+  if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
+} catch { /* OSの配色設定を使用する */ }
+</script>
 <title>熟語の編集</title>
 <link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./idioms.css">
 </head>
 <body>
 <div class="layout">
-<header class="topbar"><div class="topbar-row"><h1 class="app-title">熟語</h1><span>編集</span><a href="./index.html">単語の編集</a><a href="../index.html">閲覧</a></div></header>
+<header class="topbar"><div class="topbar-row topbar-row--primary"><h1 class="app-title">熟語</h1><span class="app-subtitle">編集</span><a class="viewer-link" href="./index.html">単語の編集</a><a class="viewer-link" href="../index.html">閲覧</a><button type="button" class="btn-compact" id="themeToggleBtn" title="ダーク/ライト切り替え" aria-pressed="false">ダーク</button></div></header>
 <main class="main"><section class="word-table-pane idiom-editor-pane">
 <div class="pane-header"><label>単語帳 <select id="notebook"></select></label><button id="newIdiom" type="button">熟語を追加</button></div>
 <div class="idiom-editor-filters"><label>Section <select id="section"></select></label><label>検索 <input id="query" type="search" placeholder="熟語・意味・メモ"></label><label><input id="showHidden" type="checkbox">非表示の項目も表示</label></div>

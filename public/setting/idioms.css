@@ -1,4 +1,6 @@
 .idiom-editor-pane { padding-bottom: 1rem; }
+.idiom-editor-pane, #editDialog { transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+.topbar-row--primary #themeToggleBtn { margin-left:auto; }
 .idiom-editor-filters { display:flex; gap:1rem; flex-wrap:wrap; padding:1rem; align-items:center; }
 .idiom-editor-filters label { min-width:0; }
 .idiom-editor-filters select { max-width:min(34rem,80vw); }
@@ -17,3 +19,9 @@
 .preview { overflow-wrap:anywhere; white-space:pre-wrap; }
 .preview a { color:inherit; }
 #save { align-self:flex-end; }
+
+@media (max-width: 640px) {
+  .topbar-row--primary { gap:0.45rem; }
+  .topbar-row--primary .viewer-link { font-size:0.78rem; }
+  .topbar-row--primary #themeToggleBtn { padding-inline:0.55rem; }
+}

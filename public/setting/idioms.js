@@ -3,9 +3,23 @@ import {editorFetch} from './auth.js';
 import {escapeHtml, renderWordListMarkup, createAutoCrossRefRenderer} from '../shared/markup.js';
 import {groupIdiomEntries} from '../shared/idioms.js';
 import {createIdiomReferenceResolver} from '../shared/idiom-references.js';
-const el = Object.fromEntries(['notebook','section','query','showHidden','status','entries','newIdiom','editDialog','idiomForm','dialogTitle','closeDialog','senses','addSense','saveStatus','save'].map(id=>[id,document.getElementById(id)]));
+const THEME_KEY = 'vocab-setting-theme';
+const el = Object.fromEntries(['notebook','section','query','showHidden','status','entries','newIdiom','editDialog','idiomForm','dialogTitle','closeDialog','senses','addSense','saveStatus','save','themeToggleBtn','themeColor'].map(id=>[id,document.getElementById(id)]));
 let data={chapters:[],entries:[]}, words=[], current=null, listId='', generation=0, resolve=()=>({found:false}), renderNotes=()=>'';
 const field=name=>el.idiomForm.elements.namedItem(name);
+function storedTheme(){try{return localStorage.getItem(THEME_KEY);}catch{return null;}}
+function currentEffectiveTheme(){const explicit=document.documentElement.dataset.theme;if(explicit)return explicit;return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+function applyTheme(theme){
+  if(theme==='dark'||theme==='light')document.documentElement.dataset.theme=theme;else delete document.documentElement.dataset.theme;
+  const effective=currentEffectiveTheme();
+  el.themeToggleBtn.textContent=effective==='dark'?'ライト':'ダーク';
+  el.themeToggleBtn.setAttribute('aria-pressed',String(effective==='dark'));
+  el.themeColor.content=effective==='dark'?'#12141a':'#f8f9fc';
+}
+el.themeToggleBtn.addEventListener('click',()=>{const next=currentEffectiveTheme()==='dark'?'light':'dark';try{localStorage.setItem(THEME_KEY,next);}catch{}applyTheme(next);});
+const colorScheme=matchMedia('(prefers-color-scheme: dark)');
+colorScheme.addEventListener?.('change',()=>{if(!storedTheme())applyTheme(null);});
+applyTheme(storedTheme());
 async function api(path, options={}) {
   const r=await editorFetch(`${EDITOR_API_BASE}/api${path}`,{...options,headers:{'content-type':'application/json'},cache:'no-store'});
   const body=await r.json(); if(!r.ok)throw new Error(body.error||`HTTP ${r.status}`);return body;
