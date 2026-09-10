@@ -95,6 +95,9 @@ const state = {
   idiomEntries: null,
   idiomGroups: [],
   idiomPromise: null,
+  idiomSectionEntries: new Map(),
+  idiomLoadedSectionKeys: new Set(),
+  idiomSectionPromises: new Map(),
   activeView: "list", // "list" | "index" | front matter page
 };
 
@@ -456,6 +459,10 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.idiomEntries = null;
     state.idiomGroups = [];
     state.idiomPromise = null;
+    state.idiomSectionEntries = new Map();
+    state.idiomLoadedSectionKeys = new Set();
+    state.idiomSectionPromises = new Map();
+    idiomLazyObserver?.disconnect();
     el.idiomList.innerHTML = "";
     el.indexList.innerHTML = "";
     assignSequentialNumbers();
@@ -1031,18 +1038,24 @@ async function ensureIdioms() {
     try {
       const base = `/lists/${encodeURIComponent(listId)}`;
       let data;
-      try { data = await api(`${base}/idioms`); }
+      try { data = await api(`${base}/idioms/index`); }
       catch (error) { if (error.status !== 404) throw error; }
       if (!data?.managed) data = await api(`${base}/words/full`);
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
       state.idiomEntries = data.managed ? resolveIdiomReferences(data.entries, state.indexWords) : buildIdiomEntries(data.words || [], state.indexWords);
       state.idiomGroups = groupIdiomEntries(state.idiomEntries, data.managed ? data.chapters : undefined);
+      if (!data.managed) for (const chapter of state.idiomGroups) for (const section of chapter.sections) {
+        state.idiomSectionEntries.set(String(section.key), section.items);
+        state.idiomLoadedSectionKeys.add(String(section.key));
+      }
       state.idiomResolver = createIdiomReferenceResolver(state.idiomGroups, headword => {
         const hit = state.wordIndex.get(headword.toLowerCase());
         return hit ? {found:true, id:hit.id, no:hit.no} : {found:false};
       });
       buildIndex();
       renderIdioms();
+      const firstSection = state.idiomGroups[0]?.sections[0];
+      if (data.managed && firstSection) await loadIdiomSection(firstSection.key);
     } catch (error) {
       if (generation === listLoadGeneration) {
         el.idiomList.innerHTML = `<p class="index-empty">熟語の読み込みに失敗しました。<button type="button" data-action="retry-idioms">再試行</button></p>`;
@@ -1057,18 +1070,30 @@ async function ensureIdioms() {
   finally { if (state.idiomPromise === promise) state.idiomPromise = null; }
 }
 
+function hydratedIdiomItems(section) {
+  const loaded = state.idiomSectionEntries.get(String(section.key));
+  if (!loaded) return null;
+  const metadata = new Map(section.items.map(item => [item.key, item]));
+  return loaded.map(item => ({...item, no:metadata.get(item.key)?.no || item.no, senseCount:item.meanings.length,
+    meanings:item.meanings.map((sense,index)=>({...sense,no:index+1}))})).filter(item => metadata.has(item.key));
+}
+
 function visibleIdiomGroups() {
   const query = state.search.trim().toLowerCase();
   return state.idiomGroups.map(chapter => ({ ...chapter,
     sections: chapter.sections.map(section => ({ ...section,
-      items: section.items.map(item => ({ ...item,
+      items: (hydratedIdiomItems(section) || section.items).map(item => ({ ...item,
         meanings: item.meanings.map(sense => ({ ...sense,
           refs: sense.refs.filter(ref => matchesEikenLevel(ref)),
         })).filter(sense => (sense.refs.length || state.eikenLevel === "all") && (!query ||
           `${item.phrase} ${item.synonyms || ""} ${item.antonyms || ""} ${item.notes || ""} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
-      })).filter(item => item.meanings.length),
-    })).filter(section => section.items.length),
+      })).filter(item => !state.idiomLoadedSectionKeys.has(String(section.key)) || item.meanings.length),
+    })).filter(section => !state.idiomLoadedSectionKeys.has(String(section.key)) || section.items.length),
   })).filter(chapter => chapter.sections.length);
+}
+
+function idiomSectionSkeleton(section) {
+  return `<div class="idiom-entries idiom-section-loading" data-idiom-section-entries="${escapeHtml(String(section.key))}" aria-busy="true"><div class="idiom-loading-row"><span class="skeleton-headword skeleton-line"></span><span class="skeleton-meaning skeleton-line"></span></div><div class="idiom-loading-row"><span class="skeleton-headword skeleton-line"></span><span class="skeleton-meaning skeleton-line"></span></div></div>`;
 }
 
 function renderIdioms() {
@@ -1082,14 +1107,35 @@ function renderIdioms() {
     const groupHeading = startsGroup ? `<div class="group-divider" id="idiom-group-${escapeHtml(section.groupKey)}" role="heading" aria-level="3">${hierarchyIcon("group")}<div class="group-title-row"><span class="group-title">${escapeHtml(section.groupName)}</span><span class="group-subtitle">${escapeHtml(section.groupSubtitle)}</span></div></div>` : "";
     return `<section class="section-group chapter-tone-${chapter.tone}${index === 0 ? " has-chapter-divider" : ""}${startsGroup ? " has-group-divider" : ""}" aria-labelledby="${sectionId}">${heading}${groupHeading}
       <div class="section-divider" id="${sectionId}" data-idiom-section="${section.key}" role="heading" aria-level="${section.groupKey ? 4 : 3}">${hierarchyIcon("section")}<div class="section-title-row"><span class="section-title">${escapeHtml(section.name)}</span><span class="section-subtitle">${escapeHtml(section.subtitle)}</span></div></div>
-      <div class="idiom-entries">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE, {resolve:resolveRef, renderNotes:state.renderNotesMarkup})).join("")}</div>
+      ${state.idiomLoadedSectionKeys.has(String(section.key)) ? `<div class="idiom-entries" data-idiom-section-entries="${escapeHtml(String(section.key))}">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE, {resolve:resolveRef, renderNotes:state.renderNotesMarkup})).join("")}</div>` : idiomSectionSkeleton(section)}
     </section>`;
   }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
   if (state.activeView === "idioms") {
     renderIdiomNavigation();
     setupSectionObserver();
+    setupIdiomLazyObserver();
   }
 }
+
+async function loadIdiomSection(sectionKey, {forceRefresh=false, rerender=true}={}) {
+  const key=String(sectionKey);
+  if(!forceRefresh&&state.idiomLoadedSectionKeys.has(key))return;
+  if(!forceRefresh&&state.idiomSectionPromises.has(key))return state.idiomSectionPromises.get(key);
+  const listId=state.currentListId,generation=listLoadGeneration;
+  const promise=(async()=>{try{
+    const data=await api(`/lists/${encodeURIComponent(listId)}/idioms/sections/${encodeURIComponent(key)}`,{forceRefresh});
+    if(generation!==listLoadGeneration||listId!==state.currentListId)return;
+    state.idiomSectionEntries.set(key,resolveIdiomReferences(data.entries||[],state.indexWords));
+    state.idiomLoadedSectionKeys.add(key);
+    if(rerender)renderIdioms();
+  }catch(error){if(generation===listLoadGeneration&&listId===state.currentListId){const target=el.idiomList.querySelector(`[data-idiom-section-entries="${CSS.escape(key)}"]`);if(target)target.innerHTML=`<div class="section-load-error">読み込みに失敗しました: ${escapeHtml(error.message)} <button type="button" data-action="retry-idiom-section" data-section-key="${escapeHtml(key)}">再試行</button></div>`;}throw error;}})();
+  state.idiomSectionPromises.set(key,promise);try{await promise;}finally{if(state.idiomSectionPromises.get(key)===promise)state.idiomSectionPromises.delete(key);}
+}
+
+async function loadAllIdiomSections(){const keys=state.idiomGroups.flatMap(chapter=>chapter.sections.map(section=>section.key));let cursor=0;const workers=Array.from({length:Math.min(3,keys.length)},async()=>{while(cursor<keys.length){const key=keys[cursor++];await loadIdiomSection(key,{rerender:false});}});await Promise.all(workers);renderIdioms();}
+
+let idiomLazyObserver;
+function setupIdiomLazyObserver(){idiomLazyObserver?.disconnect();const targets=el.idiomList.querySelectorAll('[data-idiom-section-entries][aria-busy="true"]');if(!targets.length)return;if(!('IntersectionObserver'in window)){loadAllIdiomSections().catch(()=>{});return;}idiomLazyObserver=new IntersectionObserver(items=>{for(const item of items)if(item.isIntersecting){idiomLazyObserver.unobserve(item.target);loadIdiomSection(item.target.dataset.idiomSectionEntries).catch(()=>{});}},{rootMargin:'1000px 0px'});targets.forEach(target=>idiomLazyObserver.observe(target));}
 
 function renderIdiomNavigation() {
   const groups = visibleIdiomGroups();
@@ -1105,10 +1151,12 @@ function renderIdiomNavigation() {
 el.idiomList.addEventListener("click", async event => {
   const ref = event.target.closest("a[data-word-id], a[data-idiom-id]");
   const retry = event.target.closest('[data-action="retry-idioms"]');
-  if (!ref && !retry) return;
+  const retrySection = event.target.closest('[data-action="retry-idiom-section"]');
+  if (!ref && !retry && !retrySection) return;
   event.preventDefault();
   try {
     if (retry) await ensureIdioms();
+    else if (retrySection) await loadIdiomSection(retrySection.dataset.sectionKey,{forceRefresh:true});
     else if (ref.dataset.idiomId) await openIdiomReference(ref.dataset.idiomId);
     else await navigateToWord(ref.dataset.wordId);
   } catch (error) { showToast(`読み込みに失敗しました: ${error.message}`); }
@@ -1118,6 +1166,8 @@ async function openIdiomReference(id, {historyMode = "push"} = {}) {
   await ensureIdioms();
   const hit = state.idiomResolver?.id(id);
   if (!hit) { showToast("この熟語は非表示、または見つかりません。"); return; }
+  const entry=state.idiomEntries.find(item=>item.key===id);
+  if(entry)await loadIdiomSection(entry.sectionKey);
   state.search = "";
   el.searchInput.value = "";
   state.eikenLevel = "all";
@@ -1133,6 +1183,8 @@ function navigateToIdiom(event) {
   const button = event.target.closest("button[data-idiom-target]");
   if (!button) return false;
   const target = document.getElementById(button.dataset.idiomTarget);
+  const sectionKey=button.dataset.idiomTarget?.startsWith('idiom-section-')?button.dataset.idiomTarget.slice(14):null;
+  if(sectionKey)loadIdiomSection(sectionKey).catch(()=>{});
   target?.scrollIntoView({ behavior: "smooth", block: "start" });
   closeContentsMenu();
   return true;
@@ -1766,8 +1818,11 @@ async function runSearch() {
   state.search = query;
   if (state.activeView === "idioms") {
     state.searchMatches = null;
-    el.searchInput.removeAttribute("aria-busy");
-    renderIdioms();
+    if (query || state.eikenLevel !== "all") {
+      el.searchInput.setAttribute("aria-busy", "true");
+      try { await loadAllIdiomSections(); }
+      finally { if (generation === searchGeneration) el.searchInput.removeAttribute("aria-busy"); }
+    } else renderIdioms();
     return;
   }
   if (!query) {
@@ -1801,6 +1856,7 @@ el.listSelect.addEventListener("change", (e) => selectList(e.target.value));
 
 el.eikenFilter.addEventListener("change", () => {
   state.eikenLevel = el.eikenFilter.value;
+  if(state.activeView==="idioms"&&state.eikenLevel!=="all")void loadAllIdiomSections().catch(error=>showToast(`熟語の読み込みに失敗しました: ${error.message}`));
   applyFilters();
   state.indexRendered = false;
   if (state.activeView === "index") renderAlphabeticalIndex();
@@ -2214,6 +2270,7 @@ async function printWholeBook() {
     el.searchInput.value = "";
     if (["idioms", "all", "all-paged"].includes(PRINT_PART)) {
       await ensureIdioms();
+      await loadAllIdiomSections();
       renderIdioms();
     }
     applyFilters();

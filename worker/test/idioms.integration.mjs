@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import { readIdioms, saveIdiom } from "../src/idioms.js";
+import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, saveIdiom } from "../src/idioms.js";
 
 const db = new DatabaseSync(":memory:");
 db.exec(`PRAGMA foreign_keys = ON;
@@ -16,6 +16,7 @@ INSERT INTO chapters VALUES (12);
 INSERT INTO sections VALUES (1, 12);`);
 const schema = readFileSync(new URL("../migrations/0037_independent_idioms.sql", import.meta.url), "utf8");
 const seed = readFileSync(new URL("../migrations/0038_seed_and_organize_idioms.sql", import.meta.url), "utf8");
+const editorFields = readFileSync(new URL("../migrations/0048_idiom_editor_fields.sql", import.meta.url), "utf8");
 const wordIds = new Set([...seed.matchAll(/AND EXISTS \(SELECT 1 FROM words WHERE id = '([^']+)'\)/g)].map(m => m[1]));
 for (const id of wordIds) {
   db.prepare("INSERT INTO words VALUES (?, ?, 'concurrent edit', NULL)").run(id, id);
@@ -27,6 +28,7 @@ db.exec(`INSERT INTO examples VALUES
   (3, 'get', 'get over O', '後から修正した意味', NULL, 'phrase', 2),
   (4, 'get', 'get over O', 'Oを乗り越える', NULL, 'example', 3);`);
 db.exec(schema);
+db.exec(editorFields);
 db.exec(seed);
 assert.equal(db.prepare("SELECT count(*) AS n FROM idioms").get().n, 638);
 assert.equal(db.prepare("SELECT count(*) AS n FROM idiom_senses").get().n, 664);
@@ -51,6 +53,22 @@ assert.equal(collection.entries.length, 638);
 assert.equal((await readIdioms(d1, "other")).managed, false);
 const moved = collection.entries.find(e=>e.phrase === "get over O");
 assert(moved.meanings.some(s=>s.meaning === "Oを乗り越える" && s.refs.some(r=>r.wordId === "get")));
+const idiomIndex = await readIdiomIndex(d1, "crossover-v3");
+assert.equal(idiomIndex.entries.length, collection.entries.length);
+assert.equal(idiomIndex.entries[0].meanings.length, 0, "lightweight index does not include senses");
+const getSection = await readIdiomSection(d1, "crossover-v3", "get");
+assert(getSection.entries.some(entry => entry.phrase === "get over O"));
+assert.equal(await readIdiomSection(d1, "crossover-v3", "missing"), null);
+const reorderedEntries = [...idiomIndex.entries].reverse().map(entry => ({id:entry.key,sectionKey:entry.sectionKey}));
+await reorderIdioms(d1, "crossover-v3", {entries:reorderedEntries});
+assert.equal((await readIdiomIndex(d1, "crossover-v3")).entries[0].key, reorderedEntries[0].id);
+const sectionKeys = idiomIndex.chapters.flatMap(chapter => chapter.sections.map(section => section.key));
+const getChapter = idiomIndex.chapters.find(chapter => chapter.sections.some(section => section.key === "get"));
+const reversedGetKeys = getChapter.sections.map(section => section.key).reverse();
+const reorderedSections = [...sectionKeys].reverse();
+await reorderIdiomSections(d1, "crossover-v3", {sectionKeys:reorderedSections});
+assert.equal((await readIdiomIndex(d1, "crossover-v3")).chapters.find(chapter => chapter.key === getChapter.key).sections[0].key, reversedGetKeys[0]);
+await assert.rejects(reorderIdioms(d1,"crossover-v3",{entries:reorderedEntries.slice(1)}),/every idiom/);
 const payload = {phrase:"test phrase", sectionKey:"get", meanings:[{meaning:"テスト", wordIds:["get", "take"]}]};
 const {id} = await saveIdiom(d1, "crossover-v3", payload);
 await saveIdiom(d1, "crossover-v3", {...payload, id, meanings:[{meaning:"変更",wordIds:["give"]}]});

@@ -1,15 +1,35 @@
 // Idioms are independent of word fields. Reference numbers/tags are resolved by
 // the viewer against its current notebook index, never stored in this table.
-export async function readIdioms(db, listId) {
+async function readIdiomSections(db, listId) {
   const { results: sections } = await db.prepare(`SELECT *, section_key AS key, subtitle,
     chapter_key AS chapterKey, chapter_subtitle AS chapterSubtitle,
     chapter_order AS chapterOrder, sort_order AS sortOrder
     FROM idiom_sections WHERE list_id = ? ORDER BY chapter_order, sort_order`).bind(listId).all();
-  const { results: rows } = await db.prepare(`SELECT i.*, i.section_key AS sectionKey,
+  const chapters = [];
+  for (const section of sections) {
+    let chapter = chapters.find(c => c.key === section.chapterKey);
+    if (!chapter) {
+      chapter = { key: section.chapterKey, subtitle: section.chapterSubtitle, sections: [] };
+      chapters.push(chapter);
+    }
+    chapter.sections.push({ key: section.key, subtitle: section.subtitle,
+      ...(section.display_number != null ? { number: section.display_number } : {}),
+      ...(section.group_key ? { groupKey: section.group_key, groupSubtitle: section.group_subtitle, groupOrder: section.group_order } : {}),
+    });
+  }
+  return { sections, chapters };
+}
+
+async function readIdiomEntries(db, listId, sectionKey = null) {
+  const sectionFilter = sectionKey == null ? "" : " AND i.section_key = ?";
+  const statement = db.prepare(`SELECT i.*, i.section_key AS sectionKey,
     s.id AS senseId, s.meaning, r.word_id AS wordId, r.source
     FROM idioms i JOIN idiom_senses s ON s.idiom_id = i.id
     LEFT JOIN idiom_word_refs r ON r.sense_id = s.id
-    WHERE i.list_id = ? ORDER BY i.sort_order, i.id, s.sort_order, s.id, r.word_id`).bind(listId).all();
+    WHERE i.list_id = ?${sectionFilter} ORDER BY i.sort_order, i.id, s.sort_order, s.id, r.word_id`);
+  const { results: rows } = sectionKey == null
+    ? await statement.bind(listId).all()
+    : await statement.bind(listId, sectionKey).all();
   const entries = new Map();
   for (const row of rows) {
     if (!entries.has(row.id)) {
@@ -24,19 +44,81 @@ export async function readIdioms(db, listId) {
     if (!sense) { sense = { id: row.senseId, meaning: row.meaning, refs: [] }; entry.meanings.push(sense); }
     if (row.wordId) sense.refs.push({ wordId: row.wordId, source: row.source });
   }
-  const chapters = [];
-  for (const section of sections) {
-    let chapter = chapters.find(c => c.key === section.chapterKey);
-    if (!chapter) {
-      chapter = { key: section.chapterKey, subtitle: section.chapterSubtitle, sections: [] };
-      chapters.push(chapter);
-    }
-    chapter.sections.push({ key: section.key, subtitle: section.subtitle,
-      ...(section.display_number != null ? { number: section.display_number } : {}),
-      ...(section.group_key ? { groupKey: section.group_key, groupSubtitle: section.group_subtitle, groupOrder: section.group_order } : {}),
-    });
+  return [...entries.values()];
+}
+
+async function runIdiomBatches(db, statements, size = 400) {
+  for (let index = 0; index < statements.length; index += size) {
+    await db.batch(statements.slice(index, index + size));
   }
-  return { managed: sections.length > 0, chapters, entries: [...entries.values()] };
+}
+
+export async function readIdioms(db, listId) {
+  const { sections, chapters } = await readIdiomSections(db, listId);
+  return { managed: sections.length > 0, chapters, entries: await readIdiomEntries(db, listId) };
+}
+
+// Lightweight hierarchy and entry metadata. Meanings and references are fetched
+// only when a section is opened or approaches the viewport.
+export async function readIdiomIndex(db, listId) {
+  const { sections, chapters } = await readIdiomSections(db, listId);
+  const { results } = await db.prepare(`SELECT id AS key, phrase, section_key AS sectionKey,
+    sort_order AS sortOrder, hidden, aliases
+    FROM idioms WHERE list_id = ? ORDER BY sort_order, id`).bind(listId).all();
+  const entries = results.map(row => ({
+    key: row.key,
+    phrase: row.phrase,
+    sectionKey: row.sectionKey,
+    sortOrder: row.sortOrder,
+    meanings: [],
+    ...(row.hidden ? { hidden: true } : {}),
+    ...(row.aliases && row.aliases !== "[]" ? { aliases: JSON.parse(row.aliases) } : {}),
+  }));
+  return { managed: sections.length > 0, chapters, entries };
+}
+
+export async function readIdiomSection(db, listId, sectionKey) {
+  const section = await db.prepare("SELECT 1 FROM idiom_sections WHERE list_id = ? AND section_key = ?")
+    .bind(listId, sectionKey).first();
+  if (!section) return null;
+  return { sectionKey, entries: await readIdiomEntries(db, listId, sectionKey) };
+}
+
+export async function reorderIdioms(db, listId, body) {
+  const items = body?.entries;
+  if (!Array.isArray(items)) throw new Error("entries is required");
+  const [{ results: current }, { results: sections }] = await Promise.all([
+    db.prepare("SELECT id FROM idioms WHERE list_id = ?").bind(listId).all(),
+    db.prepare("SELECT section_key AS sectionKey FROM idiom_sections WHERE list_id = ?").bind(listId).all(),
+  ]);
+  const currentIds = new Set(current.map(row => row.id));
+  const sectionKeys = new Set(sections.map(row => row.sectionKey));
+  if (items.length !== currentIds.size || new Set(items.map(item => item?.id)).size !== currentIds.size) {
+    throw new Error("entries must contain every idiom exactly once");
+  }
+  for (const item of items) {
+    if (!currentIds.has(item?.id)) throw new Error("Unknown idiom");
+    if (!sectionKeys.has(item?.sectionKey)) throw new Error("Unknown idiom section");
+  }
+  await runIdiomBatches(db, items.map((item, index) => db.prepare(
+    "UPDATE idioms SET sort_order = ?, section_key = ?, updated_at = datetime('now') WHERE id = ? AND list_id = ?"
+  ).bind(index + 1, item.sectionKey, item.id, listId)));
+  return { updated: items.length };
+}
+
+export async function reorderIdiomSections(db, listId, body) {
+  const sectionKeys = body?.sectionKeys;
+  if (!Array.isArray(sectionKeys)) throw new Error("sectionKeys is required");
+  const { results } = await db.prepare("SELECT section_key AS sectionKey FROM idiom_sections WHERE list_id = ?")
+    .bind(listId).all();
+  const current = new Set(results.map(row => row.sectionKey));
+  if (sectionKeys.length !== current.size || new Set(sectionKeys).size !== current.size || sectionKeys.some(key => !current.has(key))) {
+    throw new Error("sectionKeys must contain every section exactly once");
+  }
+  await runIdiomBatches(db, sectionKeys.map((key, index) => db.prepare(
+    "UPDATE idiom_sections SET sort_order = ? WHERE list_id = ? AND section_key = ?"
+  ).bind(index + 1, listId, key)));
+  return { updated: sectionKeys.length };
 }
 
 // Called only through the existing authenticated editor API for writes.
