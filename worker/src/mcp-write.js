@@ -1,3 +1,4 @@
+import { IDIOM_WRITE_TOOLS, callIdiomWrite } from './idiom-mcp.js';
 import { MCP_READ_SCOPE, MCP_WRITE_SCOPE } from "./mcp-oauth.js";
 import { normalizeSenseMeaning } from "./sense-normalization.js";
 
@@ -96,6 +97,7 @@ export const PROTECTED_READ_TOOLS = [
 ];
 
 export const WRITE_TOOLS = [
+  ...IDIOM_WRITE_TOOLS,
   writeTool({
     name: "create_notebook",
     title: "単語帳を作成",
@@ -1544,6 +1546,7 @@ async function listRecentChanges(db, args) {
 }
 
 export async function callProtectedTool(name, args, env, auth) {
+  if (IDIOM_WRITE_TOOLS.some(t => t.name === name)) return callIdiomWrite(name, args, env.DB, auth);
   if (name === "list_recent_changes") return listRecentChanges(env.DB, args);
   if (name === "create_notebook") return createNotebook(env.DB, args, auth);
   if (name === "update_notebook") return updateNotebook(env.DB, args, auth);
