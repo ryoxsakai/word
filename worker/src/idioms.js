@@ -1,3 +1,4 @@
+import { idiomIllustrationUrl } from './idiom-illustrations.js';
 // Idioms are independent of word fields. Reference numbers/tags are resolved by
 // the viewer against its current notebook index, never stored in this table.
 async function readIdiomSections(db, listId) {
@@ -20,12 +21,13 @@ async function readIdiomSections(db, listId) {
   return { sections, chapters };
 }
 
-async function readIdiomEntries(db, listId, sectionKey = null) {
+async function readIdiomEntries(db, listId, sectionKey = null, illustrations = false) {
   const sectionFilter = sectionKey == null ? "" : " AND i.section_key = ?";
   const statement = db.prepare(`SELECT i.*, i.section_key AS sectionKey,
-    s.id AS senseId, s.meaning, r.word_id AS wordId, r.source
+    s.id AS senseId, s.meaning, r.word_id AS wordId, r.source${illustrations ? ", j.id AS illustrationId, j.meaning AS illustrationMeaning" : ""}
     FROM idioms i JOIN idiom_senses s ON s.idiom_id = i.id
     LEFT JOIN idiom_word_refs r ON r.sense_id = s.id
+    ${illustrations ? "LEFT JOIN idiom_illustrations a ON a.idiom_id=i.id LEFT JOIN idiom_illustration_jobs j ON j.id=a.job_id AND j.status='ready'" : ""}
     WHERE i.list_id = ?${sectionFilter} ORDER BY i.sort_order, i.id, s.sort_order, s.id, r.word_id`);
   const { results: rows } = sectionKey == null
     ? await statement.bind(listId).all()
@@ -37,6 +39,7 @@ async function readIdiomEntries(db, listId, sectionKey = null) {
       for (const field of ["synonyms", "antonyms", "notes"]) if (row[field]) entry[field] = row[field];
       if (row.hidden) entry.hidden = true;
       if (row.aliases && row.aliases !== "[]") entry.aliases = JSON.parse(row.aliases);
+      if (row.illustrationId) entry.illustration={url:idiomIllustrationUrl(row.id,row.illustrationId),jobId:row.illustrationId,meaning:row.illustrationMeaning};
       entries.set(row.id, entry);
     }
     const entry = entries.get(row.id);
@@ -53,9 +56,9 @@ async function runIdiomBatches(db, statements, size = 400) {
   }
 }
 
-export async function readIdioms(db, listId) {
+export async function readIdioms(db, listId, { illustrations = false } = {}) {
   const { sections, chapters } = await readIdiomSections(db, listId);
-  return { managed: sections.length > 0, chapters, entries: await readIdiomEntries(db, listId) };
+  return { managed: sections.length > 0, chapters, entries: await readIdiomEntries(db, listId, null, illustrations) };
 }
 
 // Lightweight hierarchy and entry metadata. Meanings and references are fetched
@@ -77,11 +80,11 @@ export async function readIdiomIndex(db, listId) {
   return { managed: sections.length > 0, chapters, entries };
 }
 
-export async function readIdiomSection(db, listId, sectionKey) {
+export async function readIdiomSection(db, listId, sectionKey, { illustrations = false } = {}) {
   const section = await db.prepare("SELECT 1 FROM idiom_sections WHERE list_id = ? AND section_key = ?")
     .bind(listId, sectionKey).first();
   if (!section) return null;
-  return { sectionKey, entries: await readIdiomEntries(db, listId, sectionKey) };
+  return { sectionKey, entries: await readIdiomEntries(db, listId, sectionKey, illustrations) };
 }
 
 export async function reorderIdioms(db, listId, body) {

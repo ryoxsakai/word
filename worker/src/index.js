@@ -1,3 +1,4 @@
+import { handleIdiomIllustrationRoute } from './idiom-illustrations.js';
 import { renderMarkup } from "../../public/shared/markup.js";
 import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, saveIdiom } from "./idioms.js";
 import { handleMcpRoute } from "./mcp.js";
@@ -2561,7 +2562,7 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/words
   if (parts.length === 4 && parts[1] === "lists" && parts[3] === "idioms") {
     if (!await db.prepare("SELECT id FROM lists WHERE id = ?").bind(parts[2]).first()) return notFound("list not found");
-    if (method === "GET") return json(await readIdioms(db, parts[2]));
+    if (method === "GET") return json(await readIdioms(db, parts[2], { illustrations: true }));
     if (method === "PUT") {
       try { return json(await saveIdiom(db, parts[2], await request.json())); }
       catch (error) { return json({ error: error.message }, { status: 400 }); }
@@ -2574,7 +2575,7 @@ async function handleApi(request, env, parts, method) {
   }
 
   if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && method === "GET") {
-    const data = await readIdiomSection(db, parts[2], parts[5]);
+    const data = await readIdiomSection(db, parts[2], parts[5], { illustrations: true });
     return data ? cacheableJson(data, request) : notFound("idiom section not found");
   }
 
@@ -2785,6 +2786,8 @@ export default {
     const url = new URL(request.url);
     const { pathname } = url;
 
+    const idiomIllustrationResponse = await handleIdiomIllustrationRoute(request, env);
+    if (idiomIllustrationResponse) return idiomIllustrationResponse;
     const illustrationResponse = await handleIllustrationRoute(request, env);
     if (illustrationResponse) return illustrationResponse;
 

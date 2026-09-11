@@ -1,3 +1,4 @@
+import { idiomHistory, importIdiomIllustration, restoreIdiomIllustration, failIdiomIllustrationRequest } from './idiom-illustrations.js';
 import { verifyMcpAccess, oauthErrorResponse, MCP_READ_SCOPE, MCP_WRITE_SCOPE } from './mcp-oauth.js';
 import { wordHistory, illustrationConfiguration, saveIllustrationBrief, enqueueIllustration, restoreIllustration, importIllustration, failIllustrationRequest } from './word-illustrations.js';
 import { MAX_IMAGE_BASE64 } from './illustration-upload.js';
@@ -5,6 +6,12 @@ import { MAX_IMAGE_BASE64 } from './illustration-upload.js';
 const schema = (properties, required) => ({ type:'object', properties, required, additionalProperties:false });
 const text = { type:'string' };
 const definitions = [
+  {name:'get_idiom_illustration',title:'熟語のイラストと登録履歴',description:'crossoverの熟語DB IDから最新語義・表示中画像ID・登録履歴を取得します。単語IDやSection番号は使用しません。',
+    inputSchema:schema({idiom_id:text},['idiom_id']),readOnly:true},
+  {name:'import_idiom_illustration',title:'承認済みPNGを熟語に登録',description:'ユーザーに提示し、その画像と対象熟語について明示的なOKをもらったPNGだけを登録します。画像生成APIは呼びません。先にget_idiom_illustrationで最新語義とcurrentIdを取得。meaningは登録語義の完全一致、expected_current_idはそのcurrentId（初回null）。PNGは8MB以下のBase64。同じ送信の再試行は同じUUIDと内容を使用。成功後は表示中IDとURLを検証します。',
+    inputSchema:schema({idiom_id:text,request_id:{type:'string',format:'uuid'},approved:{type:'boolean',enum:[true]},expected_current_id:{type:['string','null']},meaning:text,scene:text,avoid:text,prompt:{type:'string',maxLength:30000},image_base64:{type:'string',maxLength:MAX_IMAGE_BASE64}},['idiom_id','request_id','approved','expected_current_id','meaning','scene','avoid','prompt','image_base64'])},
+  {name:'restore_idiom_illustration',title:'熟語の過去画像に戻す',description:'get_idiom_illustrationで確認した同じ熟語の過去画像へ戻します。生成APIは呼びません。',inputSchema:schema({idiom_id:text,job_id:text},['idiom_id','job_id'])},
+  {name:'fail_idiom_illustration_request',title:'中断した熟語画像登録を失敗扱いにする',description:'履歴確認後、開始から16分以上processingの承認済み熟語画像登録だけをfailedにします。表示中画像は変更しません。',inputSchema:schema({idiom_id:text,request_id:{type:'string',format:'uuid'},confirm:{type:'boolean',enum:[true]}},['idiom_id','request_id','confirm']),destructive:true},
   { name:'get_word_illustration', title:'単語のイラストと生成履歴',
     description:'crossoverの単語IDを指定し、描く語義・場面・表示中画像・生成履歴・設定状態を確認します。',
     inputSchema:schema({word_id:text},['word_id']), readOnly:true },
@@ -56,6 +63,13 @@ export async function handleIllustrationMcp(request, env, delegate) {
   let result;
   try {
     let data;
+    if(name==='get_idiom_illustration') data=await idiomHistory(env,args.idiom_id);
+    if(name==='import_idiom_illustration') data=await importIdiomIllustration(env,args.idiom_id,{...args,requestId:args.request_id,expectedCurrentId:args.expected_current_id,imageBase64:args.image_base64});
+    if(name==='restore_idiom_illustration') data=await restoreIdiomIllustration(env,args.idiom_id,args.job_id);
+    if(name==='fail_idiom_illustration_request') {
+      if(args.confirm!==true) throw Object.assign(new Error('失敗扱いへの変更を確認してください'),{status:400});
+      data=await failIdiomIllustrationRequest(env,args.idiom_id,args.request_id);
+    }
     if(name==='get_word_illustration') data={...await wordHistory(env,args.word_id),config:illustrationConfiguration(env)};
     if(name==='import_word_illustration') data=await importIllustration(env,args.word_id,{
       ...args, requestId:args.request_id, expectedCurrentId:args.expected_current_id, imageBase64:args.image_base64,
