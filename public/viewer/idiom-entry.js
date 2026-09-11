@@ -15,7 +15,7 @@ export function renderIdiomEntry(item, origin, {resolve, renderNotes} = {}) {
   const illustration = renderWordIllustration({ spelling: item.phrase, illustration: item.illustration }, origin);
   return `<article class="entry idiom-entry" id="idiom-${escapeHtml(encodeURIComponent(item.key))}" data-idiom-no="${escapeHtml(item.no)}">
     <div class="entry-no idiom-no" aria-label="熟語番号${escapeHtml(item.no)}">${escapeHtml(item.no)}</div>
-    <div class="entry-body idiom-body">
+    <div class="entry-body">
       ${illustration}
       <div class="entry-head"><h3 class="headword idiom-phrase">${escapeHtml(item.phrase)}</h3></div>
       <div class="entry-content${illustration ? " has-illustration" : ""}"><div class="entry-card">
