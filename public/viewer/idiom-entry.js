@@ -1,7 +1,7 @@
 import { escapeHtml, renderMarkup, renderWordListMarkup } from "../shared/markup.js";
 import { renderWordIllustration } from "../shared/illustrations.js";
 
-// Share the word card's structure, typography and future illustration placement.
+// Share the word card's structure, typography and registered illustration placement.
 // No placeholder is shown until an illustration is supplied.
 export function renderIdiomEntry(item, origin, {resolve, renderNotes} = {}) {
   const details = [
@@ -23,7 +23,7 @@ export function renderIdiomEntry(item, origin, {resolve, renderNotes} = {}) {
           <div class="sense-line${(sense.no || index + 1) === 1 ? " sense-primary" : ""}"><span class="sense-item${(sense.no || index + 1) === 1 ? " sense-item-primary" : ""}">${(item.senseCount || item.meanings.length) > 1 || sense.no > 1 ? `<span class="sense-number">${(sense.no || index + 1) <= 20 ? String.fromCodePoint(0x245f + (sense.no || index + 1)) : `(${sense.no || index + 1})`}</span>` : ""}<span class="sense-meaning">${renderMarkup(sense.meaning, {resolve})}</span></span></div>
           ${sense.refs.length ? `<div class="idiom-refs" aria-label="参照単語"><svg class="idiom-ref-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Zm0 0v15"/></svg> ${[...sense.refs].sort((a, b) => Number(a.source === "synonym") - Number(b.source === "synonym")).map(ref => `<a class="idiom-ref" href="#word-${escapeHtml(encodeURIComponent(ref.wordId))}" data-word-id="${escapeHtml(ref.wordId)}" aria-label="${escapeHtml(ref.spelling)}、単語番号${escapeHtml(ref.no)}">${escapeHtml(ref.spelling)} (no.  ${escapeHtml(ref.no)})</a>`).join(' <span aria-hidden="true">·</span> ')}</div>` : ""}
         </div>`).join("")}
-        ${details}
+        <div class="entry-notes">${details}</div>
       </div></div>
     </div>
   </article>`;
