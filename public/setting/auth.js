@@ -38,13 +38,28 @@ function readStoredJson(storage, key) {
   }
 }
 
+function clearAccessToken() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
 function storedAccessToken() {
-  const record = readStoredJson(sessionStorage, ACCESS_TOKEN_KEY);
-  if (!record?.accessToken || Number(record.expiresAt) <= Date.now() + 30_000) {
+  // Migrate a still-valid login from the former tab-only storage.
+  for (const storage of [localStorage, sessionStorage]) {
+    const record = readStoredJson(storage, ACCESS_TOKEN_KEY);
+    const expiresAt = Number(record?.expiresAt);
+    if (typeof record?.accessToken !== "string" || !record.accessToken ||
+        !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+      storage.removeItem(ACCESS_TOKEN_KEY);
+      continue;
+    }
+    if (storage === sessionStorage) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, JSON.stringify(record));
+    }
     sessionStorage.removeItem(ACCESS_TOKEN_KEY);
-    return null;
+    return record.accessToken;
   }
-  return record.accessToken;
+  return null;
 }
 
 async function registerClient() {
@@ -114,7 +129,7 @@ async function exchangeCallback(code, state) {
   }
 
   sessionStorage.removeItem(PKCE_KEY);
-  sessionStorage.setItem(
+  localStorage.setItem(
     ACCESS_TOKEN_KEY,
     JSON.stringify({
       accessToken: token.access_token,
@@ -142,17 +157,26 @@ async function accessToken() {
   return beginAuthorization();
 }
 
+let pendingAccessToken = null;
+function sharedAccessToken() {
+  if (!pendingAccessToken) {
+    pendingAccessToken = accessToken().finally(() => { pendingAccessToken = null; });
+  }
+  return pendingAccessToken;
+}
+
 export async function editorFetch(input, init = {}) {
   if (!EDITOR_API_BASE) return fetch(input, init);
 
-  const token = await accessToken();
+  const token = await sharedAccessToken();
   const headers = new Headers(init.headers || {});
   headers.set("Authorization", "Bearer " + token);
   const response = await fetch(input, { ...init, headers });
 
   if (response.status === 401) {
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
-    return beginAuthorization();
+    // A late response for an older token must not erase a newer login.
+    if (storedAccessToken() === token) clearAccessToken();
+    return editorFetch(input, init);
   }
   return response;
 }
