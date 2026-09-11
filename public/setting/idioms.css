@@ -46,3 +46,13 @@
   .idiom-table .col-meaning { max-width:9rem; }
   .idiom-table th,.idiom-table td { padding-inline:0.4rem; }
 }
+
+/* Prevent tap zoom while retaining deliberate pinch zoom. */
+.idiom-editor-pane, .idiom-edit-pane { touch-action: manipulation; }
+@media (pointer: coarse) {
+  #idiomForm input:not([type=checkbox]), #idiomForm textarea, #idiomForm select,
+  .idiom-editor-filters input:not([type=checkbox]), .idiom-editor-filters select,
+  #notebook { font-size: 16px; }
+}
+/* Reserve space so unloaded sections do not all enter the viewport at once. */
+.idiom-table .section-status-row td { height: 12rem; vertical-align: middle; }
