@@ -61,7 +61,8 @@ const lookInto=entries.find(e=>e.phrase==='look into O');
 const resolved=resolveIdiomReferences([lookInto],[{id:'look',spelling:'look',seqNo:'10'},{id:'investigate',spelling:'investigate',seqNo:'20'}])[0];
 const html=renderIdiomEntry({...resolved,no:'1'},'https://vocab.lrnr.jp');
 assert.match(html,/href="#word-look"/);
-assert.match(html,/href="#word-investigate"[^>]*>investigate \(no\.  20\)<\/a>/);
+assert(resolved.meanings[0].refs.some(ref=>ref.wordId==='investigate'&&ref.source==='synonym'), 'synonym reference remains available in the data');
+assert.doesNotMatch(html,/href="#word-investigate"/, 'synonym references are hidden from the book-icon row');
 assert.equal(resolved.meanings[1].refs.length,1);
 db.close();
 

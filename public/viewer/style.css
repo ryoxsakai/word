@@ -2330,7 +2330,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 }
 
 /* Let idiom text wrap from the heading around its registered illustration. */
-.idiom-entry .idiom-body { display: flow-root; }
+.idiom-entry .entry-body { display: flow-root; }
 .idiom-entry .entry-head { display: block; margin-bottom: 0.35rem; }
 .idiom-entry .entry-card::after { content: none; }
 .idiom-entry .entry-notes { clear: none; display: block; }
