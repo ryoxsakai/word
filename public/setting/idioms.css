@@ -1,5 +1,5 @@
 .idiom-editor-pane { padding-bottom: 0; }
-.idiom-editor-pane, #editDialog { transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+.idiom-editor-pane, .idiom-edit-pane { transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
 .topbar-row--primary #themeToggleBtn { margin-left:auto; }
 .idiom-editor-filters { display:flex; gap:1rem; flex-wrap:wrap; padding:0.65rem 1rem; align-items:center; border-bottom:1px solid var(--border); background:var(--bg-soft); }
 .idiom-editor-filters label { min-width:0; }
@@ -19,10 +19,11 @@
 .idiom-table tbody tr[draggable="true"] { cursor:grab; }
 .idiom-table tbody tr.dragging { opacity:0.4; }
 .idiom-table tbody tr.drag-over { outline:2px dashed var(--accent); outline-offset:-2px; }
-#editDialog { width:min(850px,94vw); max-height:90dvh; padding:0; border:1px solid var(--border,#ccc); border-radius:12px; background:var(--surface,#fff); color:inherit; }
-#editDialog::backdrop { background:#0007; }
-#idiomForm { padding:1.2rem; display:flex; flex-direction:column; gap:0.8rem; }
+.idiom-edit-pane { max-width:780px; }
+#idiomForm { display:flex; flex-direction:column; gap:0.8rem; }
 #idiomForm label { display:block; }
+#idiomForm .field-row label { display:flex; }
+#idiomForm .filter-checkbox { display:flex; width:max-content; }
 #idiomForm input:not([type=checkbox]), #idiomForm textarea, #idiomForm select { width:100%; box-sizing:border-box; }
 .idiom-sense-editor { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.7rem; align-items:center; }
 .idiom-sense-editor textarea { flex:1; min-width:60%; }
