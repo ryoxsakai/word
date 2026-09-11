@@ -121,5 +121,4 @@ const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meaning
 ]}]},'https://vocab.lrnr.jp');
 assert.match(linked,/class="idiom-ref-icon" aria-hidden="true"/);
 assert.match(linked,/href="#word-let"[^>]*>let \(no\.  923\)<\/a>/);
-assert.match(linked,/href="#word-disappoint"[^>]*>disappoint \(no\.  1034\)<\/a>/);
-assert(linked.indexOf('href="#word-let"')<linked.indexOf('href="#word-disappoint"'));
+assert.doesNotMatch(linked,/href="#word-disappoint"/);
