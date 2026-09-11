@@ -13,6 +13,9 @@ assert.match(editorJs,/IntersectionObserver/,'editor lazily observes section row
 assert.match(editorJs,/draggable="true"/,'editor exposes drag and drop rows');
 assert.match(editorJs,/entry-up/,'editor keeps button-based reordering available');
 assert.match(editorJs,/touchstart/,'touch devices use long-press reordering');
+assert.match(editorJs,/section\.visibleCount>0/,'normal mode excludes sections containing only hidden idioms');
+assert.match(editorJs,/section\.totalCount>0/,'hidden-item mode can inspect archived sections without showing truly empty sections');
+assert.match(editorJs,/number==null\?'非表示'/,'archived sections never reuse a visible Section number');
 assert.match(viewerJs,/idioms\/index/,'viewer loads the lightweight idiom index');
 assert.match(viewerJs,/loadIdiomSection/);
 assert.match(viewerJs,/setupIdiomLazyObserver/);
