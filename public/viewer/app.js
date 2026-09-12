@@ -1203,6 +1203,15 @@ function navigateToIdiom(event) {
   return true;
 }
 
+function navigateToIndex(event) {
+  const button = event.target.closest("button[data-index-target]");
+  if (!button) return false;
+  const target = document.getElementById(button.dataset.indexTarget);
+  target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  closeContentsMenu();
+  return true;
+}
+
 function setActiveView(view) {
   if (view === "index" && !state.indexRendered) renderAlphabeticalIndex();
   state.activeView = view;
@@ -1296,6 +1305,12 @@ function renderIndexNav() {
     })
     .join("");
   setBottomNavContent(html, "索引の頭文字");
+  if (state.activeView === "index") {
+    el.contentsNav.innerHTML = groups.map(group => {
+      const letter = group.querySelector(".index-letter")?.textContent || "";
+      return `<button type="button" class="contents-section" data-index-target="${escapeHtml(group.id)}"><span class="contents-item-text"><span class="contents-item-name">${escapeHtml(letter)}</span></span></button>`;
+    }).join("") || '<p class="contents-empty">索引はありません。</p>';
+  }
 }
 
 function renderActiveBottomNav() {
@@ -1333,11 +1348,15 @@ function renderPrintPartOptions() {
 }
 
 function renderContentsNav() {
+  // Background word loads must not replace the active tab’s menu.
+  const wordContents = !["idioms", "index"].includes(state.activeView);
+  if (state.activeView === "idioms") renderIdiomNavigation();
+  if (state.activeView === "index") renderIndexNav();
   const withChapters = hasAnyChapter();
   const withSections = hasAnySection();
   if (!withChapters && !withSections) {
     const emptyHtml = '<p class="contents-empty">チャプター・セクションはありません。</p>';
-    el.contentsNav.innerHTML = emptyHtml;
+    if (wordContents) el.contentsNav.innerHTML = emptyHtml;
     el.bookTocNav.innerHTML = emptyHtml;
     return;
   }
@@ -1410,7 +1429,7 @@ function renderContentsNav() {
       return `<div class="contents-group${printTocClass}">${chapterButton}${sections}</div>`;
     })
     .join("");
-  el.contentsNav.innerHTML = renderItems(false);
+  if (wordContents) el.contentsNav.innerHTML = renderItems(false);
   el.bookTocNav.innerHTML = renderItems(true);
 }
 
@@ -1465,12 +1484,7 @@ function setupIndexObserver() {
 
 el.sectionNav.addEventListener("click", async (e) => {
   if (navigateToIdiom(e)) return;
-  const indexBtn = e.target.closest("button[data-index-target]");
-  if (indexBtn) {
-    const target = document.getElementById(indexBtn.dataset.indexTarget);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
+  if (navigateToIndex(e)) return;
   const btn = e.target.closest("button[data-section-key]");
   if (!btn) return;
   btn.setAttribute("aria-busy", "true");
@@ -1906,6 +1920,7 @@ el.menuToggle.addEventListener("click", (e) => {
 });
 async function handleContentsNavigation(e) {
   if (navigateToIdiom(e)) return;
+  if (navigateToIndex(e)) return;
   const btn = e.target.closest("button[data-nav-target]");
   if (!btn) return;
   btn.setAttribute("aria-busy", "true");
