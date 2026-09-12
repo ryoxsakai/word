@@ -1,6 +1,15 @@
 const TOKEN_AUDIENCE = "vocab-mcp";
 const AUTH_CODE_TTL_SECONDS = 5 * 60;
 const ACCESS_TOKEN_TTL_SECONDS = 12 * 60 * 60;
+const EDITOR_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
+
+function isEditorRedirect(uri) {
+  try {
+    const url = new URL(uri);
+    return url.origin === "https://vocab.lrnr.jp" &&
+      ["/setting/", "/setting/index.html", "/setting/idioms.html", "/setting/illustrations.html"].includes(url.pathname);
+  } catch { return false; }
+}
 
 export const MCP_READ_SCOPE = "vocab:read";
 export const MCP_WRITE_SCOPE = "vocab:write";
@@ -179,9 +188,7 @@ async function validateAuthorizationRequest(env, params) {
 }
 
 function authorizationForm(authorization, error = "") {
-  const redirect = new URL(authorization.redirectUri);
-  const isEditorLogin =
-    redirect.hostname === "vocab.lrnr.jp" && redirect.pathname.startsWith("/setting");
+  const isEditorLogin = isEditorRedirect(authorization.redirectUri);
   const title = isEditorLogin ? "単語帳の編集ページにログイン" : "単語帳をChatGPTに接続";
   const actionLabel = isEditorLogin ? "編集ページにログイン" : "接続を許可";
   const hidden = Object.entries({
@@ -202,7 +209,7 @@ function authorizationForm(authorization, error = "") {
       : "単語帳の閲覧を許可します。";
   const errorMessage = error ? `<p class="error" role="alert">${escapeHtml(error)}</p>` : "";
   const note = isEditorLogin
-    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は有効期間12時間のトークンが使用されます。"
+    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は同じブラウザーで7日間ログインを保持します。"
     : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間12時間のトークンが使用されます。";
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -330,6 +337,7 @@ async function issueAccessToken(request, env, origin) {
     return json({ error: "invalid_grant", error_description: "The authorization code was already used" }, 400);
   }
 
+  const tokenTtl = isEditorRedirect(record.redirectUri) ? EDITOR_TOKEN_TTL_SECONDS : ACCESS_TOKEN_TTL_SECONDS;
   const header = encodeJson({ alg: "HS256", typ: "at+jwt" });
   const payload = encodeJson({
     iss: origin,
@@ -338,14 +346,14 @@ async function issueAccessToken(request, env, origin) {
     client_id: clientId,
     scope: record.scope,
     iat: now,
-    exp: now + ACCESS_TOKEN_TTL_SECONDS,
+    exp: now + tokenTtl,
     jti: randomToken(16),
   });
   const signature = bytesToBase64Url(await hmac(secret, header + "." + payload));
   return json({
     access_token: header + "." + payload + "." + signature,
     token_type: "Bearer",
-    expires_in: ACCESS_TOKEN_TTL_SECONDS,
+    expires_in: tokenTtl,
     scope: record.scope,
   });
 }
