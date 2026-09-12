@@ -12,6 +12,7 @@ import {
 import { renderWordIllustration, prepareIllustrationsForPrint } from "../shared/illustrations.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../shared/word-index.js";
+import { renderStressedSpelling } from "../shared/spelling-stress.js";
 import { formatPronunciationWithAccents } from "../shared/pronunciation.js";
 import { CEFR_LEVELS, cefrLevelClass, effectiveCefrLevel } from "../shared/learning-tags.js";
 import { groupDerivativeSenses } from "../shared/derivatives.js";
@@ -730,7 +731,7 @@ function renderEntry(w) {
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
-        <span class="headword">${escapeHtml(w.spelling)}</span>
+        <span class="headword">${renderStressedSpelling(w.spelling, w.pronunciation, escapeHtml)}</span>
         ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(generatedAudioUrl)}" title="${generatedAudioUrl ? "登録済み音声で発音を聞く" : "端末の英語音声で発音を聞く"}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
         ${cefrBadge}
         ${awlBadge}

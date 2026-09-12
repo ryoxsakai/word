@@ -1343,7 +1343,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .headword {
   font-size: 1.42rem;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--text);
   text-decoration: none;
   overflow-wrap: break-word;
   min-width: 0;
@@ -2335,3 +2335,5 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .idiom-entry .entry-card::after { content: none; }
 .idiom-entry .entry-notes { clear: none; display: block; }
 .idiom-entry .entry-notes > * + * { margin-top: 0.55rem; }
+
+.headword .spelling-stress { color: #c43b4d; }
