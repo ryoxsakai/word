@@ -52,7 +52,7 @@
 @media (pointer: coarse) {
   #idiomForm input:not([type=checkbox]), #idiomForm textarea, #idiomForm select,
   .idiom-editor-filters input:not([type=checkbox]), .idiom-editor-filters select,
-  #notebook { font-size: 16px; }
+  #notebook, #sectionNameInput { font-size: 16px; }
 }
 /* Reserve space so unloaded sections do not all enter the viewport at once. */
 .idiom-table .section-status-row td { height: 12rem; vertical-align: middle; }
