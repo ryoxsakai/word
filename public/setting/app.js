@@ -1736,7 +1736,7 @@ function buildSectionBandRow(sectionId, sectionSubtitle, wordCount, collapsed) {
     sectionTr.draggable = true;
     sectionTr.dataset.sectionId = String(sectionId);
     sectionTr.classList.add("section-band-clickable");
-    sectionTr.title = "クリックしてサブタイトル・説明を編集";
+    sectionTr.title = "クリックしてセクション名・説明を編集";
     sectionTr.addEventListener("click", () => openSectionEditor(sectionId));
     sectionTr.querySelector('[data-action="section-up"]').addEventListener("click", (e) => {
       e.stopPropagation();
