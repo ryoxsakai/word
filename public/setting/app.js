@@ -1137,16 +1137,70 @@ function getHeadWordOrder() {
   return state.words.filter((w) => !w.branch).map((w) => ({ wordId: w.id, sectionId: w.sectionId ?? null, labelId: w.labelId ?? null }));
 }
 
-async function submitReorder(order) {
-  try {
-    await api(`/lists/${encodeURIComponent(state.currentListId)}/reorder`, {
-      method: "POST",
-      body: JSON.stringify({ items: order.map((it) => ({ wordId: it.wordId, sectionId: it.sectionId, labelId: it.labelId ?? null })) }),
-    });
-    await loadWordsForList(state.currentListId);
-  } catch (err) {
-    alert(`並び替えに失敗しました: ${err.message}`);
+let editorOrderSaving = false;
+
+// Keep hydrated rows while synchronizing the server's authoritative order and numbers.
+async function refreshEditorOrder(listId, token, { hierarchy = false } = {}) {
+  const [index, structure] = await Promise.all([
+    api(`/lists/${encodeURIComponent(listId)}/editor/index`, { forceRefresh: true }),
+    hierarchy ? Promise.all(["sections", "chapters", "labels"].map(part =>
+      api(`/lists/${encodeURIComponent(listId)}/${part}`, { forceRefresh: true }))) : null,
+  ]);
+  if (listId !== state.currentListId || token !== listLoadGeneration) return;
+  const hydrated = new Map([...state.sectionWords.values()].flat().map(word => [word.id, word]));
+  const loadedKeys = new Set(state.sectionWords.keys());
+  const nextSections = new Map();
+  const indexedSections = new Map();
+  for (const word of index.words || []) {
+    const key = editorSectionKey(word.sectionId);
+    if (!indexedSections.has(key)) indexedSections.set(key, []);
+    indexedSections.get(key).push(word);
   }
+  for (const [key, rows] of indexedSections) {
+    if (rows.every(word => hydrated.has(word.id))) {
+      nextSections.set(key, rows.map(word => ({ ...hydrated.get(word.id), ...word })));
+    }
+  }
+  for (const key of loadedKeys) if (!indexedSections.has(key)) nextSections.set(key, []);
+  state.sectionDataGeneration += 1;
+  state.sectionPromises = new Map();
+  state.sectionWords = nextSections;
+  state.words = index.words || [];
+  editorIndexCache.set(listId, index);
+  for (const [key, rows] of nextSections) editorSectionCache.set(editorSectionCacheKey(listId, key), rows);
+  if (structure) [state.sections, state.chapters, state.labels] = structure;
+  rebuildAutoCrossRefRenderer();
+  renderSectionOptions();
+  renderLabelOptions();
+  const { scrollTop, scrollLeft } = el.tableScroll;
+  renderWordTableHead();
+  renderWordTable();
+  el.tableScroll.scrollTop = scrollTop;
+  el.tableScroll.scrollLeft = scrollLeft;
+  await loadExpandedNotebookSections();
+}
+
+async function saveEditorOrder(path, body, { hierarchy = false } = {}) {
+  if (editorOrderSaving) return;
+  editorOrderSaving = true;
+  const listId = state.currentListId, token = listLoadGeneration;
+  try {
+    await Promise.allSettled([...state.sectionPromises.values()]);
+    if (listId !== state.currentListId || token !== listLoadGeneration) return;
+    await api(`/lists/${encodeURIComponent(listId)}/${path}`, { method: "POST", body: JSON.stringify(body) });
+    await refreshEditorOrder(listId, token, { hierarchy });
+    return listId === state.currentListId && token === listLoadGeneration;
+  } catch (error) {
+    alert(`並び順の保存・同期に失敗しました: ${error.message}`);
+  } finally {
+    editorOrderSaving = false;
+  }
+}
+
+async function submitReorder(order) {
+  await saveEditorOrder("reorder", { items: order.map(it => ({
+    wordId: it.wordId, sectionId: it.sectionId, labelId: it.labelId ?? null,
+  })) });
 }
 
 // direction: -1(上へ) / +1(下へ)。同じセクション内なら隣と単純に入れ替え、
@@ -1326,16 +1380,9 @@ async function moveSectionToChapterStart(sectionId, chapterId) {
 }
 
 async function submitSectionOrder(orderedSections) {
-  try {
-    await api(`/lists/${encodeURIComponent(state.currentListId)}/sections/reorder`, {
-      method: "POST",
-      body: JSON.stringify({ sections: orderedSections.map((s) => ({ id: s.id, chapterId: s.chapterId ?? null })) }),
-    });
-    await loadSectionsForList(state.currentListId);
-    await loadWordsForList(state.currentListId);
-  } catch (err) {
-    alert(`セクションの並び替えに失敗しました: ${err.message}`);
-  }
+  await saveEditorOrder("sections/reorder", {
+    sections: orderedSections.map(section => ({ id: section.id, chapterId: section.chapterId ?? null })),
+  }, { hierarchy: true });
 }
 
 async function moveChapterBy(chapterId, direction) {
@@ -1361,16 +1408,9 @@ async function moveChapterBeforeTarget(chapterId, targetChapterId) {
 }
 
 async function submitChapterOrder(orderedChapters) {
-  try {
-    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/reorder`, {
-      method: "POST",
-      body: JSON.stringify({ chapterIds: orderedChapters.map((c) => c.id) }),
-    });
-    await loadSectionsForList(state.currentListId);
-    await loadWordsForList(state.currentListId);
-  } catch (err) {
-    alert(`チャプターの並び替えに失敗しました: ${err.message}`);
-  }
+  return saveEditorOrder("chapters/reorder", {
+    chapterIds: orderedChapters.map(chapter => chapter.id),
+  }, { hierarchy: true });
 }
 
 // タッチ端末はHTML5 drag&dropが使えないため、長押し(LONG_PRESS_MS)でドラッグを開始する。
@@ -2584,6 +2624,7 @@ function closeChapterEditor() {
 // (対象セクションがどのチャプターにも属さない場合、チャプターより前には帯を置けないため、
 // chapterIdを一番先頭のチャプターに移動する)。
 async function moveChapterAboveSection(chapterId, targetSectionId) {
+  if (editorOrderSaving) return;
   const targetSection = state.sections.find((s) => s.id === targetSectionId);
   if (!targetSection) return;
   const targetChapterId = targetSection.chapterId ?? null;
@@ -2593,15 +2634,7 @@ async function moveChapterAboveSection(chapterId, targetSectionId) {
     const insertAt = targetChapterId == null ? 0 : remaining.findIndex((c) => c.id === targetChapterId) + 1;
     const newOrder = [...remaining];
     newOrder.splice(insertAt, 0, moving);
-    await api(`/lists/${encodeURIComponent(state.currentListId)}/chapters/reorder`, {
-      method: "POST",
-      body: JSON.stringify({ chapterIds: newOrder.map((c) => c.id) }),
-    });
-    // buildOrderWithSectionsMovedToChapter()はstate.chaptersの並び順でsections.sort_orderを
-    // 組み立てるため、ここでstate.chaptersを更新しないと、直前に保存したchapters.sort_orderと
-    // 食い違ったsections.sort_orderが保存されてしまう(state.sectionsの並び順や
-    // sectionDisplayName()の番号が実際の表示順とずれる)。
-    state.chapters = newOrder;
+    if (!await submitChapterOrder(newOrder)) return;
   }
   await moveSectionToChapterStart(targetSectionId, chapterId);
 }
