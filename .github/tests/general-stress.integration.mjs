@@ -3,6 +3,20 @@ import assert from 'node:assert/strict';
 const {inferStressedSpellingRange: infer} = await import('data:text/javascript;base64,' + fs.readFileSync(new URL('../../public/shared/spelling-stress.js', import.meta.url)).toString('base64'));
 // These calls bypass the verified-word map, including words absent from Groups 1–3.
 for (const [word, ipa, expected] of [
+  ['temporary', '/ˈtɛmpəɹi/', [1,2]],
+  ['ordinary', '/ˈɔːdənɹi/', [0,1]],
+  ['literacy', '/ˈlɪt.ɹə.si/', [1,2]],
+  ['laboratory', '/ləˈbɒr.ə.tri/', [3,4]],
+  ['fierce', '/fɪəs/', [1,3]],
+  ['pierce', '/pɪəs/', [1,3]],
+  ['near', '/nɪə/', [1,3]],
+  ['dear', '/dɪə/', [1,3]],
+  ['cruel', '/kɹuː(ə)l/', [2,3]],
+  ['cruel', '/kɹuːəl/', null],
+  ['idea', '/aɪˈdiː.ə/', [2,3]],
+  ['negative', '/ˈneɡ.ə.tɪv/', [1,2]],
+  ['temporary', '/tempəri/', null],
+  ['ordinary', '/ˈɔːdɪˈnəri/', null],
   ['pure', '/pjɔː/', [1,2]],
   ['pure', '/pjʊə/', [1,2]],
   ['pure', '/ˈpjɔː/', [1,2]],
@@ -46,7 +60,7 @@ for (const [word, ipa, expected] of [
   ['singer', '/ˈsɪŋə(r)/', [1,2]],
   ['record', '/ˈrekɔːd, rɪˈkɔːd/', null],
   ['record', '/rekɔːd/', null],
-  ['cruel', '/kruː(ə)l/', null],
+  ['cruel', '/kruː(ə)l/', [2,3]],
   ['prime', '', null], ['<img>', '/ɪm/', null],
   ['word', '/wɜːd/ junk', null], ['a'.repeat(65), '/a/', null],
 ]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
@@ -59,5 +73,5 @@ for (const group of ['one', 'two', 'three']) {
     if (actual) { assert.deepEqual(actual, row.expected, row.word); correct++; }
   }
 }
-assert.ok(correct >= 369, `General coverage regressed: ${correct}/380`);
+assert.ok(correct >= 377, `General coverage regressed: ${correct}/380`);
 console.log(`General alignment: ${correct}/380 correct, remaining words abstained`);
