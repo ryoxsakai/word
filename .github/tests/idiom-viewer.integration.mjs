@@ -32,8 +32,8 @@ await Promise.all([first, second]);
 assert.match(panel.innerHTML, /Chapter 1/);
 assert.match(panel.innerHTML, /Section 1/);
 assert.match(panel.innerHTML, /hand O in/);
-assert.match(panel.innerHTML, /href="#word-submit"/);
-assert.match(panel.innerHTML, />submit \(no\.  1315\)<\/a>/);
+assert.doesNotMatch(panel.innerHTML, /href="#word-submit"/);
+assert.doesNotMatch(panel.innerHTML, /idiom-ref-icon|class="idiom-refs"/);
 assert.match(panel.innerHTML, /class="entry idiom-entry"/);
 assert.match(panel.innerHTML, /data-idiom-no="1"/);
 assert.match(panel.innerHTML, /class="entry-body"/);
@@ -119,6 +119,6 @@ const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meaning
   {wordId:'disappoint',spelling:'disappoint',no:'1034',source:'synonym'},
   {wordId:'let',spelling:'let',no:'923',source:'phrase'},
 ]}]},'https://vocab.lrnr.jp');
-assert.match(linked,/class="idiom-ref-icon" aria-hidden="true"/);
-assert.match(linked,/href="#word-let"[^>]*>let \(no\.  923\)<\/a>/);
+assert.doesNotMatch(linked,/idiom-ref-icon|class="idiom-refs"/);
+assert.doesNotMatch(linked,/href="#word-let"/);
 assert.doesNotMatch(linked,/href="#word-disappoint"/);
