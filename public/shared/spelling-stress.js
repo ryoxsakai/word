@@ -2,157 +2,138 @@
 // future pronunciation change cannot silently inherit an incorrect highlight.
 // These cover non one-to-one vowel alignment, optional sounds and rhotic vowels.
 const VERIFIED_STRESS = new Map([
-  ["rationale|/ˌræʃəˈnæl/", [6,7]],
-  ["relationship|/rɪˈleɪ.ʃən.ʃɪp/", [3,4]],
+
   ["mechanism|/ˈmek.ə.nɪ.zəm/", [1,2]],
-  ["situation|/sɪtjuːˈeɪʃən/", [4,5]],
-  ["correlation|/ˌkɒr.əˈleɪ.ʃən/", [6,7]],
-  ["consequence|/ˈkɒnsɪkwɛns/", [1,2]],
-  ["review|/rɪˈvjuː/", [3,6]],
-  ["figure|/ˈfɪɡjɚ/", [1,2]],
-  ["image|/ˈɪmɪd͡ʒ/", [0,1]],
-  ["model|/ˈmɒdl̩/", [1,2]],
-  ["stereotype|/ˈstɛ.ɹi.əˌtaɪp/", [2,3]],
-  ["bias|/ˈbaɪ.əs/", [1,2]],
-  ["memory|/ˈmɛm(ə)ɹi/", [1,2]],
-  ["perspective|/pɚˈspɛktɪv/", [5,6]],
-  ["notion|/ˈnəʊʃən/", [1,2]],
-  ["theory|/ˈθiːəɹi/", [2,3]],
+
   ["idea|/ɑeˈdiə̯/", [2,3]],
-  ["understanding|/ʌndəˈstandɪŋ/", [7,8]],
-  ["talent|/ˈtalənt/", [1,2]],
-  ["brilliant|/ˈbrɪliənt/", [2,3]],
-  ["ambition|/æmˈbɪ.ʃən/", [3,4]],
+
   ["literacy|/ˈlɪt.ɹə.si/", [1,2]],
-  ["vocational|/voʊˈkeɪʃənəl/", [3,4]],
-  ["glossary|/ˈɡlɑːsəri/", [2,3]],
-  ["bilingual|/baɪˈlɪŋɡwəl/", [3,4]],
-  ["source|/sɔːs/", [1,3]],
-  ["sequence|/ˈsiːkwəns/", [1,2]],
-  ["technique|/tɛkˈniːk/", [5,6]],
+
   ["laboratory|/ləˈbɒr.ə.tri/", [3,4]],
-  ["monitor|/ˈmɒnɨtə/", [1,2]],
-  ["evaluate|/ɨˈvaljʊeɪt/", [2,3]],
-  ["virtual|/ˈvɜːrtʃuəl/", [1,2]],
-  ["visual|/ˈvɪʒuəl/", [1,2]],
-  ["row|/ˈɹəʊ/", [1,3]],
-  ["proportion|/pɹəˈpɔːʃən/", [4,5]],
-  ["instruction|/ɪnˈstɹʌkʃən/", [5,6]],
-  ["section|/ˈsɛkʃən/", [1,2]],
-  ["advertise|/ˈadvə(ɹ)taɪz/", [0,1]],
-  ["medium|/ˈmiːdɪəm/", [1,2]],
-  ["dialogue|/ˈdaɪəlɑɡ/", [1,2]],
-  ["dialect|/ˈdaɪ.ə.lekt/", [1,2]],
-  ["linguistic|/lɪŋˈɡwɪs.tɪk/", [5,6]],
-  ["vocabulary|/vəʊˈkabjʊləɹɪ/", [3,4]],
+
   ["statement|/ˈsteɪtm(ə)nt/", [2,3]],
-  ["superstition|/ˌs(j)u.pə(ɹ)ˈstɪ.ʃn̩/", [7,8]],
-  ["awful|/ˈɔːfəl/", [0,2]],
+
   ["sculpture|/ˈskʌlptj(ʊ)ə/", [2,3]],
   ["contemporary|/kənˈtem.pə.rer.i/", [4,5]],
-  ["version|/ˈvɜːʃən/", [1,2]],
-  ["current|/ˈkɝː.ənt/", [1,2]],
-  ["session|/ˈsɛʃən/", [1,2]],
-  ["occasion|/əˈkeɪʒən/", [3,4]],
-  ["frequent|/ˈfriː.kwənt/", [2,3]],
-  ["initial|/ɪˈnɪʃəl/", [2,3]],
-  ["immediate|/ɪˈmiːdɪət/", [3,4]],
+
   ["eventually|/ɪ.ˈvɛn.tjʊ.li/", [2,3]],
-  ["annual|/ˈæn.ju.əl/", [0,1]],
+
   ["ancient|/ˈeɪn.ʃənt/", [0,1]],
-  ["previous|/ˈpɹiːvɪəs/", [2,3]],
+
   ["tear|/ter/", [1,3]],
   ["share|/ʃɛə/", [2,3]],
-  ["deliver|/dɪˈlɪvə(ɹ)/", [3,4]],
-  ["route|/ɹʉːt/", [1,3]],
-  ["destination|/dɛstɪˈneɪʃən/", [6,7]],
+
   ["temporary|/ˈtɛmpəɹi/", [1,2]],
-  ["stable|/ˈsteɪ.bəɫ/", [2,3]],
-  ["alter|/ˈɑl.tɚ/", [0,1]],
+
   ["vary|/ˈvɛəɹi/", [1,2]],
   ["disguise|/dɪsˈɡaɪz/", [5,6]],
-  ["ruin|/ˈɹuː.ɪn/", [1,2]],
-  ["bite|/bʌɪt/", [1,2]],
-  ["draw|/dɹɔː/", [2,4]],
+
   ["guarantee|/ˌɡer.ənˈtiː/", [7,9]],
   ["repair|/rɪˈper/", [3,5]],
-  ["acquire|/əˈkwaɪə/", [4,5]],
-  ["innovation|/ˌɪnəˈveɪʃən/", [5,6]],
-  ["accomplish|/əˈkɐm.plɪʃ/", [3,4]],
-  ["create|/kriˈeɪt/", [3,4]],
-  ["advance|/ədˈvaːns/", [3,4]],
-  ["accurate|/ˈæk.jə.ɹɪt/", [0,1]],
+
   ["various|/ˈvɛə.ɹi.əs/", [1,2]],
-  ["universal|/ˌjuːnɪˈvɜːsl̩/", [4,5]],
+
   ["widespread|/ˈwaɪd.spred/", [1,2]],
-  ["quantity|/ˈkwɑndədi/", [2,3]],
-  ["numerous|/ˈnjuːməɹəs/", [1,2]],
-  ["gradual|/ˈɡrædʒuəl/", [2,3]],
+
   ["actual|/ˈak(t)ʃj(ʊ)əl/", [0,1]],
-  ["unknown|/ʌnˈnəʊn/", [4,6]],
-  ["visible|/ˈvɪzəb(ə)l/", [1,2]],
-  ["potential|/pəˈtɛnʃəl/", [3,4]],
+
   ["concrete|/kɵnˈkɹiːt/", [5,6]],
-  ["rational|/ˈɹæʃ(ə)nəl/", [1,2]],
-  ["conventional|/kənˈven.ʃən.əl/", [4,5]],
+
   ["ordinary|/ˈɔːdənɹi/", [0,1]],
   ["efficient|/əˈfɪʃənt/", [3,4]],
   ["negative|/ˈnɛ(e)ɡəˌɾɪv/", [1,2]],
-  ["quality|/ˈkwɒlɪti/", [2,3]],
+
   ["worthwhile|/ˌwɜːrθˈwaɪl/", [7,8]],
-  ["trivial|/ˈtrɪviəl/", [2,3]],
-  ["vague|/veɪɡ/", [1,2]],
+
   ["forecast|/ˈfɔːrkæst/", [1,2]],
-  ["option|/ˈɒpʃən/", [0,1]],
-  ["novel|/ˈnɒvl̩/", [1,2]],
-  ["modest|/ˈmɑdəst/", [1,2]],
-  ["sincere|/sɪnˈsɪə(ɹ)/", [4,5]],
+
   ["cruel|/kɹuː(ə)l/", [2,3]],
   ["fierce|/fɪəs/", [1,3]],
-  ["loyal|/ˈlɔɪəl/", [1,3]],
-  ["spontaneous|/spɒnˈteɪniəs/", [5,6]],
+
   ["awkward|/ˈɑkwɚd/", [0,2]],
   ['pure|/ˈpjɔː/', [1, 2]],
-  ['subtle|/ˈsʌt(ə)l/', [1, 2]],
+
   ['rare|/rer/', [1, 2]],
-  ['minor|/ˈmaɪnɚ/', [1, 2]],
-  ['obvious|/ˈɒ.vɪəs/', [0, 1]],
+
   ['extraordinary|/ɪksˈtɹɔː(ɹ)dɪnəɹi/', [5, 6]],
-  ['enormous|/ɪˈnɔː(ɹ)məs/', [2, 3]],
+
 ]);
 
 // Conservative display-only alignment. Ambiguous spellings keep their normal color.
 const SOUNDS = {
-  a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ'], e: ['e', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
-  i: ['ɪ', 'aɪ', 'i', 'ə', 'ɜ'], o: ['ɒ', 'ɔ', 'oʊ', 'əʊ', 'ʌ', 'u', 'ə'],
+  a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ', 'a', 'ɪ'], e: ['e', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
+  i: ['ʌɪ', 'ɪ', 'aɪ', 'i', 'ə', 'ɜ'], o: ['ɑ', 'ɐ', 'ɒ', 'ɔ', 'oʊ', 'əʊ', 'ʌ', 'u', 'ə'],
   u: ['ʌ', 'ʊ', 'u', 'ə', 'ɜ'], y: ['ɪ', 'i', 'aɪ', 'ə'],
-  ai: ['eɪ', 'ɛ'], ay: ['eɪ'], au: ['ɔ', 'ɑ'], aw: ['ɔ'],
+  ai: ['eɪ', 'ɛ'], ay: ['eɪ'], au: ['ɔ', 'ɑ'], aw: ['ɔ', 'ɑ'],
   ea: ['i', 'ɛ', 'eɪ'], ee: ['i'], ei: ['eɪ', 'i', 'aɪ'], ey: ['eɪ', 'i'],
   ie: ['i', 'aɪ'], oa: ['oʊ', 'əʊ'], oe: ['oʊ', 'əʊ'],
-  oi: ['ɔɪ'], oy: ['ɔɪ'], oo: ['u', 'ʊ'], ou: ['aʊ', 'ʌ', 'u', 'oʊ', 'əʊ'],
-  ow: ['aʊ', 'oʊ', 'əʊ'], ue: ['u'], ui: ['u', 'ɪ'],
+  oi: ['ɔɪ'], oy: ['ɔɪ'], oo: ['u', 'ʊ'], ou: ['ə', 'ɔ', 'aʊ', 'ʌ', 'u', 'oʊ', 'əʊ'],
+  ow: ['aʊ', 'oʊ', 'əʊ'], iew: ['u'], eau: ['u'], ue: ['u'], ui: ['u', 'ɪ'],
 };
+
+// General alignment, exported separately so tests cannot be satisfied by overrides.
+// Explore vowel spellings; only return a span when every successful alignment agrees.
+export function inferStressedSpellingRange(spelling, pronunciation) {
+  if (!/^[a-z]{1,64}$/i.test(spelling || '') || typeof pronunciation !== 'string' || pronunciation.length > 200) return null;
+  const word = spelling.toLowerCase();
+  let ipa = pronunciation.trim().normalize('NFD');
+  // Keep syllabic consonants as a nucleus before removing combining marks.
+  ipa = ipa.replace(/([lnm])\u0329/g, 'ə$1')
+    .replace(/[\u0300-\u036fːˑ]/g, '')
+    .replace(/^[/\[]|[/\]]$/g, '')
+    .replace(/ɚ/g, 'ə').replace(/ɝ/g, 'ɜ').replace(/ɨ/g, 'ɪ').replace(/ʉ/g, 'u').replace(/ɫ/g, 'l');
+  // Parentheses containing optional consonants do not change vowel alignment.
+  // Optional schwa is expanded both ways; competing stress spans remain ambiguous.
+  if (!/^[a-zɑɒɔæəɛɜɪʊʌɐɹɾɡŋʃʒθðʔˈˌ.()]+$/u.test(ipa)) return null;
+  const optional = [...ipa.matchAll(/\(([əɹrjtnl])\)/g)];
+  if (optional.length > 3 || ipa.replace(/\(([əɹrjtnl])\)/g, '').match(/[()]/)) return null;
+  let variants = [ipa];
+  for (const match of optional) variants = variants.flatMap(v => [v.replace(match[0], match[1]), v.replace(match[0], '')]);
+  const spans = new Set();
+  for (const variant of new Set(variants)) {
+    const nuclei = [...variant.matchAll(/aɪ|ʌɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɛɜɪʊʌɐ]/gu)];
+    const primary = [...variant.matchAll(/ˈ/g)];
+    if (!nuclei.length || primary.length > 1) return null;
+    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : nuclei.length === 1 ? 0 : -1;
+    if (stressed < 0) return null;
+    const visited = new Set();
+    function align(pos, sound, span) {
+      const key = `${pos}:${sound}:${span}`;
+      if (visited.has(key)) return;
+      visited.add(key);
+      if (pos === word.length) {
+        if (sound === nuclei.length && span) spans.add(span);
+        return;
+      }
+      if (!/[aeiouy]/.test(word[pos])) {
+        // A written w without /w/ belongs to aw/ow, not a silent consonant.
+        if (word[pos] === 'w' && /[ao]/.test(word[pos - 1] || '') && !variant.includes('w')) return;
+        align(pos + 1, sound, span); return;
+      }
+      // Silent terminal e, including -gue/-que, is an alternative, never assumed.
+      if (word[pos] === 'e' && pos === word.length - 1 && !/[aeiouy]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
+      if (word[pos] === 'u' && (word[pos - 1] === 'q' || (word[pos - 1] === 'g' && /[gɡ]w/.test(variant))) && /[aeio]/.test(word[pos + 1] || '')) align(pos + 1, sound, span);
+      if (word.slice(pos) === 'ue' && /[gq]/.test(word[pos - 1] || '')) align(word.length, sound, span);
+      if (sound >= nuclei.length) return;
+      for (let length = 1; length <= 3 && pos + length <= word.length; length++) {
+        const letters = word.slice(pos, pos + length);
+        if (letters.startsWith('u') && word[pos - 1] === 'g' && /[gɡ]w/.test(variant)) continue;
+        let sounds = SOUNDS[letters];
+        // -tion/-sion/-cian: i is part of the consonant spelling.
+        if ((letters === 'io' || letters === 'ia') && /[tsc]/.test(word[pos - 1] || '')) sounds = ['ə'];
+        if (!sounds?.includes(nuclei[sound][0])) continue;
+        align(pos + length, sound + 1, sound === stressed ? `${pos},${pos + length}` : span);
+      }
+    }
+    align(0, 0, null);
+  }
+  return spans.size === 1 ? [...spans][0].split(',').map(Number) : null;
+}
 
 export function stressedSpellingRange(spelling, pronunciation) {
   if (!/^[a-z]+$/i.test(spelling || '') || !pronunciation) return null;
   const verified = VERIFIED_STRESS.get(`${spelling.toLowerCase()}|${pronunciation.trim()}`);
-  if (verified) return [...verified];
-  const ipa = pronunciation.normalize('NFD').replace(/[\u0300-\u036fːˑ/\[\]]/g, '');
-  // Multiple variants and unfamiliar notation are intentionally not guessed.
-  if (!/^[a-zɑɒɔæəɚɛɜɪʊʌɐɹɾɡŋʃʒθðʔˈˌ.]+$/u.test(ipa)) return null;
-  const nuclei = [...ipa.matchAll(/aɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɚɛɜɪʊʌɐ]/gu)];
-  const primary = [...ipa.matchAll(/ˈ/g)];
-  if (!nuclei.length || primary.length > 1) return null;
-  const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : nuclei.length === 1 ? 0 : -1;
-  if (stressed < 0) return null;
-  const word = spelling.toLowerCase();
-  const groups = [...word.matchAll(/[aeiouy]+/g)];
-  // A final isolated e is silent only when removing it reconciles the vowel counts.
-  if (groups.length === nuclei.length + 1 && groups.at(-1)[0] === 'e' && groups.at(-1).index === word.length - 1) groups.pop();
-  if (groups.length !== nuclei.length) return null;
-  if (!groups.every((g, i) => SOUNDS[g[0]]?.includes(nuclei[i][0]))) return null;
-  const group = groups[stressed];
-  return [group.index, group.index + group[0].length];
+  return verified ? [...verified] : inferStressedSpellingRange(spelling, pronunciation);
 }
 
 export function renderStressedSpelling(spelling, pronunciation, escapeHtml) {

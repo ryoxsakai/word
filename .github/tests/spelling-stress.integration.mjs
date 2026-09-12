@@ -8,9 +8,9 @@ for (const [word, ipa, expected] of [
   ['fundamental', '/ˌfʌndəˈmɛntəl/', [6, 7]],
   ['prime', '/pɹaɪ̯m/', [2, 3]], ['important', '/ɪmˈpɔːtənt/', [3, 4]],
   ['teacher', '/ˈtiːtʃə/', [1, 3]], ['about', '/əˈbaʊt/', [2, 4]],
-  ['make', '/meɪk/', [1, 2]], ['beautiful', '/ˈbjuːtɪfəl/', null],
+  ['make', '/meɪk/', [1, 2]], ['beautiful', '/ˈbjuːtɪfəl/', [1, 4]],
   ['record', '/ˈrekɔːd, rɪˈkɔːd/', null], ['prime', '', null],
-  ['record', '/rekɔːd/', null], ['information', '/ˌɪnfəˈmeɪʃən/', null],
+  ['record', '/rekɔːd/', null], ['information', '/ˌɪnfəˈmeɪʃən/', [6, 7]],
 ]) assert.deepEqual(range(word, ipa), expected, word);
 const escape = text => text.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 assert.equal(render('prime', '/pɹaɪ̯m/', escape), 'pr<span class="spelling-stress">i</span>me');
