@@ -1,3 +1,16 @@
+// Verified against the stored Voca readings. Key by both spelling and IPA so a
+// future pronunciation change cannot silently inherit an incorrect highlight.
+// These cover non one-to-one vowel alignment, optional sounds and rhotic vowels.
+const VERIFIED_STRESS = new Map([
+  ['pure|/ˈpjɔː/', [1, 2]],
+  ['subtle|/ˈsʌt(ə)l/', [1, 2]],
+  ['rare|/rer/', [1, 2]],
+  ['minor|/ˈmaɪnɚ/', [1, 2]],
+  ['obvious|/ˈɒ.vɪəs/', [0, 1]],
+  ['extraordinary|/ɪksˈtɹɔː(ɹ)dɪnəɹi/', [5, 6]],
+  ['enormous|/ɪˈnɔː(ɹ)məs/', [2, 3]],
+]);
+
 // Conservative display-only alignment. Ambiguous spellings keep their normal color.
 const SOUNDS = {
   a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ'], e: ['e', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
@@ -12,6 +25,8 @@ const SOUNDS = {
 
 export function stressedSpellingRange(spelling, pronunciation) {
   if (!/^[a-z]+$/i.test(spelling || '') || !pronunciation) return null;
+  const verified = VERIFIED_STRESS.get(`${spelling.toLowerCase()}|${pronunciation.trim()}`);
+  if (verified) return [...verified];
   const ipa = pronunciation.normalize('NFD').replace(/[\u0300-\u036fːˑ/\[\]]/g, '');
   // Multiple variants and unfamiliar notation are intentionally not guessed.
   if (!/^[a-zɑɒɔæəɚɛɜɪʊʌɐɹɾɡŋʃʒθðʔˈˌ.]+$/u.test(ipa)) return null;
