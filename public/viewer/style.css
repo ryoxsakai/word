@@ -1028,7 +1028,12 @@ body.is-printing-book > .loading-msg { display: none !important; }
   break-inside: avoid;
   cursor: pointer;
 }
-.index-entry:hover { color: var(--accent); }
+.index-entry:hover .index-word { text-decoration: underline; }
+.index-kind-word .index-word { color: #991b1b; font-weight: 700; }
+.index-kind-idiom .index-word { color: #1e40af; font-weight: 700; }
+.index-kind-derivative .index-word { color: #166534; font-weight: 400; }
+.index-kind-related .index-word { color: #59616d; font-weight: 400; }
+.index-word { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 /* 索引語を優先して1行に収め、長い参照先だけを末尾の省略記号で短縮する */
 .index-word { flex: 0 0 auto; max-width: 100%; text-align: left; white-space: nowrap; }
 .index-loc {
