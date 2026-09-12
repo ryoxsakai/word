@@ -368,3 +368,82 @@ assert.doesNotMatch(appGuideSource, /印刷|PDFに保存/);
 assert.match(indexSource, /rel="manifest"/);
 
 console.log("Viewer navigation integration tests passed");
+
+ // Re-rendering word metadata must preserve the active tab's hamburger contents.
+const { default: vm } = await import("node:vm");
+const functionSource = (name, next) => appSource.slice(appSource.indexOf(name), appSource.indexOf(next, appSource.indexOf(name)));
+let scrolledTo = "";
+let closedMenus = 0;
+let movedSection = "";
+const menuState = {
+  activeView: "idioms", indexWords: [], groups: [],
+  chapters: [{ key: "word", name: "単語編", count: 1 }],
+  sections: [{ key: "word-section", chapterKey: "word", name: "単語Section", count: 1 }],
+};
+let indexGroups = ["A", "B"].map(letter => ({
+  id: "index-" + letter, dataset: { indexKey: letter },
+  querySelector: () => ({ textContent: letter }),
+}));
+const menuEl = {
+  contentsNav: { innerHTML: "" }, bookTocNav: { innerHTML: "" },
+  indexList: { querySelectorAll: () => indexGroups },
+};
+const menuContext = vm.createContext({
+  state: menuState, el: menuEl,
+  escapeHtml: value => String(value), hierarchyIcon: () => "",
+  hasAnyChapter: () => menuState.chapters.length > 0,
+  hasAnySection: () => menuState.sections.length > 0,
+  sectionNumberRanges: () => new Map(), setBottomNavContent() {},
+  visibleIdiomGroups: () => [{ key: "idioms", name: "熟語編", subtitle: "", sections: [
+    { key: "idiom-one", name: "Section 1", subtitle: "熟語セクション" },
+  ] }],
+  document: { getElementById: id => ({ scrollIntoView() { scrolledTo = id; } }) },
+  closeContentsMenu() { closedMenus++; }, loadIdiomSection: async () => {},
+  navigateToSection: async key => { movedSection = key; return true; },
+  showToast(message) { throw new Error(message); },
+});
+vm.runInContext([
+  functionSource("function renderIdiomNavigation()", 'el.idiomList.addEventListener'),
+  functionSource("function navigateToIdiom(event)", "function setActiveView(view)"),
+  functionSource("function renderIndexNav()", "function renderActiveBottomNav()"),
+  contentsNavSource,
+  functionSource("async function handleContentsNavigation(e)", 'el.contentsNav.addEventListener'),
+].join("\n"), menuContext);
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /熟語編/);
+assert.doesNotMatch(menuEl.contentsNav.innerHTML, /単語編/);
+assert.match(menuEl.bookTocNav.innerHTML, /単語編/, "print TOC remains word-based");
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /熟語編/, "late word updates keep the idiom menu");
+menuState.activeView = "index";
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /data-index-target="index-A"/);
+assert.match(menuEl.contentsNav.innerHTML, /data-index-target="index-B"/);
+assert.doesNotMatch(menuEl.contentsNav.innerHTML, /単語編|熟語編/);
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /data-index-target="index-B"/);
+const click = (selector, dataset) => ({ target: { closest: query => query === selector
+  ? { dataset, setAttribute() {}, removeAttribute() {} } : null } });
+await menuContext.handleContentsNavigation(click("button[data-index-target]", { indexTarget: "index-B" }));
+assert.equal(scrolledTo, "index-B");
+assert.equal(closedMenus, 1);
+await menuContext.handleContentsNavigation(click("button[data-idiom-target]", { idiomTarget: "idiom-section-idiom-one" }));
+assert.equal(scrolledTo, "idiom-section-idiom-one");
+assert.equal(closedMenus, 2);
+menuState.activeView = "list";
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /単語編/);
+assert.doesNotMatch(menuEl.contentsNav.innerHTML, /data-index-target|data-idiom-target/);
+await menuContext.handleContentsNavigation(click("button[data-nav-target]", { navSectionKey: "word-section", navTarget: "section-word-section" }));
+assert.equal(movedSection, "word-section");
+assert.equal(closedMenus, 3);
+menuState.chapters = [];
+menuState.sections = [];
+menuState.activeView = "idioms";
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /熟語編/, "an empty word book must not erase idiom navigation");
+menuState.activeView = "index";
+indexGroups = [];
+menuContext.renderContentsNav();
+assert.match(menuEl.contentsNav.innerHTML, /索引はありません/);
+console.log("Tab-aware contents and word/idiom/index menu jumps passed");
