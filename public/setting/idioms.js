@@ -5,7 +5,7 @@ import {groupIdiomEntries, resolveIdiomReferences} from '../shared/idioms.js';
 import {createIdiomReferenceResolver} from '../shared/idiom-references.js';
 
 const THEME_KEY = 'vocab-setting-theme';
-const el=Object.fromEntries(['notebook','section','query','showHidden','status','entries','empty','tableScroll','newIdiom','editModalOverlay','editPane','idiomForm','dialogTitle','closeDialog','senses','addSense','saveStatus','save','themeToggleBtn','themeColor','loadingProgress'].map(id=>[id,document.getElementById(id)]));
+const el=Object.fromEntries(['notebook','section','query','showHidden','status','entries','empty','tableScroll','newIdiom','editModalOverlay','editPane','idiomForm','dialogTitle','closeDialog','senses','addSense','saveStatus','save','themeToggleBtn','themeColor','loadingProgress','sectionNameOverlay','sectionNameForm','sectionNameInput','sectionNameSave','sectionNameClose','sectionNameStatus'].map(id=>[id,document.getElementById(id)]));
 let data={chapters:[],entries:[]},words=[],sectionEntries=new Map(),sectionPromises=new Map(),sectionErrors=new Map(),current=null,listId='',generation=0,dragState=null,lazyObserver=null,searchTimer=null,resolve=()=>({found:false}),renderNotes=()=>'';
 const collapsedSections=new Set(),collapsedChapters=new Set();
 const field=name=>el.idiomForm.elements.namedItem(name);
@@ -64,7 +64,43 @@ function attachTouchDrag(source,onDrop){let timer=null,active=false,target=null,
 function attachSenseDrag(row){const handle=row.querySelector('.row-drag-handle');handle.addEventListener('dragstart',event=>{dragState={type:'sense',row};event.dataTransfer.effectAllowed='move';row.classList.add('dragging');});handle.addEventListener('dragend',clearDrag);row.addEventListener('dragover',event=>{if(dragState?.type==='sense'){event.preventDefault();row.classList.add('drag-over');}});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',event=>{if(dragState?.type!=='sense')return;event.preventDefault();const source=dragState.row;dragState=null;if(source!==row)el.senses.insertBefore(source,row);clearDrag();numberSenses();});}
 
 el.notebook.addEventListener('change',load);el.section.addEventListener('change',()=>{renderTable();if(el.section.value)loadSection(el.section.value).catch(()=>{});});el.showHidden.addEventListener('change',()=>{refreshSectionOptions();renderTable();});el.query.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(async()=>{if(el.query.value.trim())await loadAllSections();else renderTable();},250);});el.newIdiom.addEventListener('click',()=>open(null));
-el.entries.addEventListener('click',event=>{const action=event.target.closest('[data-action]');if(action){event.stopPropagation();const id=action.dataset.id;if(action.dataset.action==='entry-up')moveEntry(id,-1);if(action.dataset.action==='entry-down')moveEntry(id,1);if(action.dataset.action==='section-up')moveSection(id,-1);if(action.dataset.action==='section-down')moveSection(id,1);if(action.dataset.action==='section-collapse'){collapsedSections.has(id)?collapsedSections.delete(id):collapsedSections.add(id);renderTable();}if(action.dataset.action==='chapter-collapse'){collapsedChapters.has(id)?collapsedChapters.delete(id):collapsedChapters.add(id);renderTable();}if(action.dataset.action==='retry')loadSection(action.dataset.sectionKey,{force:true}).catch(()=>{});return;}const row=event.target.closest('tr[data-id]');if(row)open(data.entries.find(entry=>entry.key===row.dataset.id));});
+el.entries.addEventListener('click',event=>{const action=event.target.closest('[data-action]');if(action){event.stopPropagation();const id=action.dataset.id;if(action.dataset.action==='entry-up')moveEntry(id,-1);if(action.dataset.action==='entry-down')moveEntry(id,1);if(action.dataset.action==='section-up')moveSection(id,-1);if(action.dataset.action==='section-down')moveSection(id,1);if(action.dataset.action==='section-collapse'){collapsedSections.has(id)?collapsedSections.delete(id):collapsedSections.add(id);renderTable();}if(action.dataset.action==='chapter-collapse'){collapsedChapters.has(id)?collapsedChapters.delete(id):collapsedChapters.add(id);renderTable();}if(action.dataset.action==='retry')loadSection(action.dataset.sectionKey,{force:true}).catch(()=>{});return;}const sectionRow=event.target.closest('tr[data-section-key]');if(sectionRow){openSectionName(sectionRow.dataset.sectionKey);return;}const row=event.target.closest('tr[data-id]');if(row)open(data.entries.find(entry=>entry.key===row.dataset.id));});
 el.closeDialog.addEventListener('click',()=>setEditorOpen(false));el.editModalOverlay.addEventListener('click',event=>{if(event.target===el.editModalOverlay)setEditorOpen(false);});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!el.editModalOverlay.hidden)setEditorOpen(false);});el.addSense.addEventListener('click',()=>{if(el.senses.children.length<30)senseRow();});el.senses.addEventListener('click',event=>{const action=event.target.closest('[data-action]')?.dataset.action,row=event.target.closest('.idiom-sense-editor');if(!row)return;if(action==='remove'&&el.senses.children.length>1)row.remove();if(action==='up'&&row.previousElementSibling)el.senses.insertBefore(row,row.previousElementSibling);if(action==='down'&&row.nextElementSibling)el.senses.insertBefore(row.nextElementSibling,row);numberSenses();});el.idiomForm.addEventListener('input',preview);
 el.idiomForm.addEventListener('submit',async event=>{event.preventDefault();el.save.disabled=true;el.closeDialog.disabled=true;el.saveStatus.textContent='保存中…';const payload={...(current?{id:current.key}:{}),phrase:field('phrase').value,sectionKey:field('sectionKey').value,hidden:field('hidden').checked,synonyms:field('synonyms').value,antonyms:field('antonyms').value,notes:field('notes').value,meanings:[...el.senses.children].map(row=>({...(row._sense.id?{id:row._sense.id}:{}),meaning:row.querySelector('textarea').value,wordIds:(row._sense.refs||[]).map(ref=>ref.wordId)}))};beginIdiomEditorLoading();try{await api(`/lists/${encodeURIComponent(listId)}/idioms`,{method:'PUT',body:JSON.stringify(payload)});setEditorOpen(false);await load();}catch(error){el.saveStatus.textContent=`保存に失敗しました：${error.message}`;}finally{endIdiomEditorLoading();el.save.disabled=false;el.closeDialog.disabled=false;}});
 (async()=>{beginIdiomEditorLoading();try{const lists=await api('/lists');el.notebook.innerHTML=lists.map(list=>`<option value="${escapeHtml(list.id)}">${escapeHtml(list.name)}</option>`).join('');const preferred=new URLSearchParams(location.search).get('list')||'crossover-v3';if(lists.some(list=>list.id===preferred))el.notebook.value=preferred;await load();}catch(error){el.status.textContent=`読み込みに失敗しました：${error.message}`;}finally{endIdiomEditorLoading();}})();
+
+let editingSection = null;
+function openSectionName(key) {
+  const section = flatSections().find(item => item.key === key);
+  if (!section) return;
+  editingSection = { key, listId };
+  el.sectionNameInput.value = section.subtitle || '';
+  el.sectionNameStatus.textContent = '';
+  el.sectionNameOverlay.hidden = false;
+  el.sectionNameInput.focus({preventScroll:true});
+}
+function closeSectionName() {
+  if (el.sectionNameSave.disabled) return;
+  el.sectionNameOverlay.hidden = true;
+  editingSection = null;
+}
+el.sectionNameClose.addEventListener('click', closeSectionName);
+el.sectionNameOverlay.addEventListener('click', event => { if (event.target === el.sectionNameOverlay) closeSectionName(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') closeSectionName(); });
+el.sectionNameForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!editingSection || el.sectionNameSave.disabled) return;
+  const target = editingSection;
+  el.sectionNameSave.disabled = el.sectionNameClose.disabled = true;
+  el.sectionNameStatus.textContent = '保存中…';
+  beginIdiomEditorLoading();
+  try {
+    await api(`/lists/${encodeURIComponent(target.listId)}/idioms/sections/${encodeURIComponent(target.key)}`, {
+      method:'PUT', body:JSON.stringify({subtitle:el.sectionNameInput.value.trim()})
+    });
+    el.sectionNameOverlay.hidden = true;
+    editingSection = null;
+    if (listId === target.listId) await load();
+  } catch (error) { el.sectionNameStatus.textContent = `保存に失敗しました：${error.message}`; }
+  finally { el.sectionNameSave.disabled = el.sectionNameClose.disabled = false; endIdiomEditorLoading(); }
+});

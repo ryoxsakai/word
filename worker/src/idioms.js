@@ -177,3 +177,12 @@ export async function saveIdiom(db, listId, body) {
   await db.batch(statements);
   return { id };
 }
+
+export async function renameIdiomSection(db, listId, sectionKey, body) {
+  if (typeof body?.subtitle !== 'string' || !body.subtitle.trim() || body.subtitle.length > 500) {
+    throw new Error('セクション名は1〜500文字で入力してください');
+  }
+  const result = await db.prepare('UPDATE idiom_sections SET subtitle = ? WHERE list_id = ? AND section_key = ?')
+    .bind(body.subtitle.trim(), listId, sectionKey).run();
+  return result.meta.changes ? { key: sectionKey, subtitle: body.subtitle.trim() } : null;
+}

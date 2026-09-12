@@ -38,5 +38,12 @@ try {
 <p class="hint">単語と同じ記法：##参照先##、##参照先|表示名##、**太字**、==強調==。同義語・対義語はカンマ区切りで自動リンク。参照先を区別するときは ##word:respect## / ##idiom:look up to O##。</p>
 <p id="saveStatus" role="status" aria-live="polite"></p>
 </form></section></div>
+<div class="modal-overlay" id="sectionNameOverlay" hidden>
+<section class="edit-pane" role="dialog" aria-modal="true" aria-labelledby="sectionNameTitle">
+<div class="pane-header pane-header--edit"><h2 id="sectionNameTitle">セクション名を変更</h2><div class="edit-actions">
+<button id="sectionNameSave" type="submit" form="sectionNameForm" class="primary">保存</button>
+<button id="sectionNameClose" type="button" class="btn-ghost">閉じる</button></div></div>
+<form id="sectionNameForm" class="word-form"><label>セクション名<input id="sectionNameInput" required maxlength="500"></label>
+<p id="sectionNameStatus" role="status"></p></form></section></div>
 <script type="module" src="./idioms.js"></script>
 </body></html>
