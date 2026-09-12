@@ -1,0 +1,1262 @@
+[
+  {
+    "ipa": "/kənˈtem.pə.rer.i/",
+    "section": 6,
+    "word": "contemporary",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɪn.sɪ.dənt/",
+    "section": 6,
+    "word": "incident",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈvɜːʃən/",
+    "section": 6,
+    "word": "version",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/briːf/",
+    "section": 6,
+    "word": "brief",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "ipa": "/fɔːrθ/",
+    "section": 6,
+    "word": "forth",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/tɜːm/",
+    "section": 6,
+    "word": "term",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/trend/",
+    "section": 6,
+    "word": "trend",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈkɝː.ənt/",
+    "section": 6,
+    "word": "current",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/rɪˈpiːt/",
+    "section": 6,
+    "word": "repeat",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈsɛʃən/",
+    "section": 6,
+    "word": "session",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/əˈkeɪʒən/",
+    "section": 6,
+    "word": "occasion",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈfriː.kwənt/",
+    "section": 6,
+    "word": "frequent",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪˈnɪʃəl/",
+    "section": 6,
+    "word": "initial",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪˈmiːdɪət/",
+    "section": 6,
+    "word": "immediate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɪ.ˈvɛn.tjʊ.li/",
+    "section": 6,
+    "word": "eventually",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈdek.eɪd/",
+    "section": 6,
+    "word": "decade",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈæn.ju.əl/",
+    "section": 6,
+    "word": "annual",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈeɪn.ʃənt/",
+    "section": 6,
+    "word": "ancient",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈpɹiːvɪəs/",
+    "section": 6,
+    "word": "previous",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈɹiːsənt/",
+    "section": 6,
+    "word": "recent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ə.ˈkʌm.pə.ni/",
+    "section": 7,
+    "word": "accompany",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɹɪˈvɜːs/",
+    "section": 7,
+    "word": "reverse",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/stɹɛtʃ/",
+    "section": 7,
+    "word": "stretch",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ter/",
+    "section": 7,
+    "word": "tear",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ʃɛə/",
+    "section": 7,
+    "word": "share",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/stɔː/",
+    "section": 7,
+    "word": "store",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/æˈdɹɛs/",
+    "section": 7,
+    "word": "address",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/rɪˈmuːv/",
+    "section": 7,
+    "word": "remove",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/əˈɹeɪndʒ/",
+    "section": 7,
+    "word": "arrange",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/freɪm/",
+    "section": 7,
+    "word": "frame",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/həʊst/",
+    "section": 7,
+    "word": "host",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/spɹɛd/",
+    "section": 7,
+    "word": "spread",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈtɑːɡɪt/",
+    "section": 7,
+    "word": "target",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɹʌʃ/",
+    "section": 7,
+    "word": "rush",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/dɪˈlɪvə(ɹ)/",
+    "section": 7,
+    "word": "deliver",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/trænˈspɔːrt/",
+    "section": 7,
+    "word": "transport",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/ˈtʃænəl/",
+    "section": 7,
+    "word": "channel",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɹʉːt/",
+    "section": 7,
+    "word": "route",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ləʊˈkeɪt/",
+    "section": 7,
+    "word": "locate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/dɛstɪˈneɪʃən/",
+    "section": 7,
+    "word": "destination",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/rɪˈfɔːm/",
+    "section": 8,
+    "word": "reform",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/kəˈlæps/",
+    "section": 8,
+    "word": "collapse",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/rɪˈliːs/",
+    "section": 8,
+    "word": "release",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈstæt.əs/",
+    "section": 8,
+    "word": "status",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈkɒnstənt/",
+    "section": 8,
+    "word": "constant",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈtɛmpəɹi/",
+    "section": 8,
+    "word": "temporary",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈpɜːmənənt/",
+    "section": 8,
+    "word": "permanent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈsteɪ.bəɫ/",
+    "section": 8,
+    "word": "stable",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/səˈsteɪn/",
+    "section": 8,
+    "word": "sustain",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/pɹəˈzɜːv/",
+    "section": 8,
+    "word": "preserve",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/meɪnˈteɪn/",
+    "section": 8,
+    "word": "maintain",
+    "expected": [
+      5,
+      7
+    ]
+  },
+  {
+    "ipa": "/ɛkˈstɛnd/",
+    "section": 8,
+    "word": "extend",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɛkˈspænd/",
+    "section": 8,
+    "word": "expand",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈɑl.tɚ/",
+    "section": 8,
+    "word": "alter",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ʃɪft/",
+    "section": 8,
+    "word": "shift",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈvɛəɹi/",
+    "section": 8,
+    "word": "vary",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/dɪˈkriːs/",
+    "section": 8,
+    "word": "decrease",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ɹɪˈdjuːs/",
+    "section": 8,
+    "word": "reduce",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɪmˈpɹuːv/",
+    "section": 8,
+    "word": "improve",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪnˈkriːs/",
+    "section": 8,
+    "word": "increase",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/teɪm/",
+    "section": 9,
+    "word": "tame",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/dɪsˈɡaɪz/",
+    "section": 9,
+    "word": "disguise",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/skɹætʃ/",
+    "section": 9,
+    "word": "scratch",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/dəʊˈneɪt/",
+    "section": 9,
+    "word": "donate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/əʊvəˈlʊk/",
+    "section": 9,
+    "word": "overlook",
+    "expected": [
+      5,
+      7
+    ]
+  },
+  {
+    "ipa": "/rɪˈtriːt/",
+    "section": 9,
+    "word": "retreat",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈwɒndə/",
+    "section": 9,
+    "word": "wander",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɹuː.ɪn/",
+    "section": 9,
+    "word": "ruin",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˌɪntəˈɹʌpt/",
+    "section": 9,
+    "word": "interrupt",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/ˈɒkjʊpaɪ/",
+    "section": 9,
+    "word": "occupy",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/siːz/",
+    "section": 9,
+    "word": "seize",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈʃɹɪŋk/",
+    "section": 9,
+    "word": "shrink",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/dɹeɪn/",
+    "section": 9,
+    "word": "drain",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈskætər/",
+    "section": 9,
+    "word": "scatter",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/twɪst/",
+    "section": 9,
+    "word": "twist",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/dɹæɡ/",
+    "section": 9,
+    "word": "drag",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɡrɑːsp/",
+    "section": 9,
+    "word": "grasp",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/bʌɪt/",
+    "section": 9,
+    "word": "bite",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/dɹɔː/",
+    "section": 9,
+    "word": "draw",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "ipa": "/mɑɹk/",
+    "section": 9,
+    "word": "mark",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪˈnækt/",
+    "section": 10,
+    "word": "enact",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɒpt/",
+    "section": 10,
+    "word": "opt",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈdɒməˌneɪt/",
+    "section": 10,
+    "word": "dominate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/pəˈzɛs/",
+    "section": 10,
+    "word": "possess",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˌɡer.ənˈtiː/",
+    "section": 10,
+    "word": "guarantee",
+    "expected": [
+      7,
+      9
+    ]
+  },
+  {
+    "ipa": "/ɪnˈkaʊntə/",
+    "section": 10,
+    "word": "encounter",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪkˈsplɔː/",
+    "section": 10,
+    "word": "explore",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/kənˈsuːm/",
+    "section": 10,
+    "word": "consume",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/rɪˈper/",
+    "section": 10,
+    "word": "repair",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/dɪˈstɹɔɪ/",
+    "section": 10,
+    "word": "destroy",
+    "expected": [
+      5,
+      7
+    ]
+  },
+  {
+    "ipa": "/rɪˈkɔːl/",
+    "section": 10,
+    "word": "recall",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɪˈlɪməneɪt/",
+    "section": 10,
+    "word": "eliminate",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/nɪˈɡlɛkt/",
+    "section": 10,
+    "word": "neglect",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/əˈsɪst/",
+    "section": 10,
+    "word": "assist",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/pəˈʃu/",
+    "section": 10,
+    "word": "pursue",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/əbˈteɪn/",
+    "section": 10,
+    "word": "obtain",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/sɪˈlɛkt/",
+    "section": 10,
+    "word": "select",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/əˈkwaɪə/",
+    "section": 10,
+    "word": "acquire",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈhæn.dl/",
+    "section": 10,
+    "word": "handle",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sɒlv/",
+    "section": 10,
+    "word": "solve",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪnˈhɑːns/",
+    "section": 11,
+    "word": "enhance",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈstɪmjʊleɪt/",
+    "section": 11,
+    "word": "stimulate",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˌɪnəˈveɪʃən/",
+    "section": 11,
+    "word": "innovation",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈpʌblɪʃ/",
+    "section": 11,
+    "word": "publish",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/kənˈdʌkt/",
+    "section": 11,
+    "word": "conduct",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɒpəɹeɪt/",
+    "section": 11,
+    "word": "operate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/pəˈfɔːm/",
+    "section": 11,
+    "word": "perform",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/əˈtʃiːv/",
+    "section": 11,
+    "word": "achieve",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/əˈkɐm.plɪʃ/",
+    "section": 11,
+    "word": "accomplish",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/kəmˈpliːt/",
+    "section": 11,
+    "word": "complete",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/dɪˈzaɪn/",
+    "section": 11,
+    "word": "design",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/lɔːntʃ/",
+    "section": 11,
+    "word": "launch",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/əˈkɜː/",
+    "section": 11,
+    "word": "occur",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/faʊnd/",
+    "section": 11,
+    "word": "found",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪˈstæb.lɪʃ/",
+    "section": 11,
+    "word": "establish",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/kənˈstrʌkt/",
+    "section": 11,
+    "word": "construct",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/ˌmænjʊˈfæktʃə/",
+    "section": 11,
+    "word": "manufacture",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈdʒen.ə.reɪt/",
+    "section": 11,
+    "word": "generate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/pɹəˈdjuːs/",
+    "section": 11,
+    "word": "produce",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/kriˈeɪt/",
+    "section": 11,
+    "word": "create",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/prəˈkjʊr/",
+    "section": 12,
+    "word": "procure",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/rɪˈvaɪv/",
+    "section": 12,
+    "word": "revive",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɛmˈbɹeɪs/",
+    "section": 12,
+    "word": "embrace",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/rɪˈtriːv/",
+    "section": 12,
+    "word": "retrieve",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ɹɪˈvaɪ̯z/",
+    "section": 12,
+    "word": "revise",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈmɒdɪfaɪ/",
+    "section": 12,
+    "word": "modify",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/rɪˈstɔːr/",
+    "section": 12,
+    "word": "restore",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈfɒstər/",
+    "section": 12,
+    "word": "foster",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/buːst/",
+    "section": 12,
+    "word": "boost",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪkˈsiːd/",
+    "section": 12,
+    "word": "exceed",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/əˈteɪn/",
+    "section": 12,
+    "word": "attain",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/fʊlˈfɪl/",
+    "section": 12,
+    "word": "fulfill",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɪmpləmənt/",
+    "section": 12,
+    "word": "implement",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/eɪd/",
+    "section": 12,
+    "word": "aid",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "ipa": "/mæt͡ʃ/",
+    "section": 12,
+    "word": "match",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/əˈtɹækt/",
+    "section": 12,
+    "word": "attract",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/juˈnaɪt/",
+    "section": 12,
+    "word": "unite",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/pɹəˈməʊt/",
+    "section": 12,
+    "word": "promote",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ədˈvaːns/",
+    "section": 12,
+    "word": "advance",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɡeɪn/",
+    "section": 12,
+    "word": "gain",
+    "expected": [
+      1,
+      3
+    ]
+  }
+]
