@@ -63,3 +63,17 @@ for (const {word, ipa, expected} of groupTwo) {
 }
 assert.deepEqual(range('conduct', '/ˈkɒndʌkt/'), [1, 2]); // Noun remains distinct.
 console.log('Group 2: all 140 primary-stress spans and HTML outputs passed');
+
+// Group 3: all headwords checked against their registered primary readings.
+const groupThree = JSON.parse(fs.readFileSync(new URL('./group-three-stress-fixture.json', import.meta.url)));
+assert.equal(groupThree.length, 140);
+assert.equal(new Set(groupThree.map(w => w.word)).size, 140);
+for (let section = 13; section <= 19; section++) {
+  assert.equal(groupThree.filter(w => w.section === section).length, 20);
+}
+for (const {word, ipa, expected} of groupThree) {
+  assert.deepEqual(range(word, ipa), expected, word);
+  const [start, end] = expected;
+  assert.equal(render(word, ipa, escape), word.slice(0, start) + '<span class="spelling-stress">' + word.slice(start, end) + '</span>' + word.slice(end), word);
+}
+console.log('Group 3: all 140 primary-stress spans and HTML outputs passed');
