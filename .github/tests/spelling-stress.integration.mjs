@@ -17,3 +17,20 @@ assert.equal(render('prime', '/pɹaɪ̯m/', escape), 'pr<span class="spelling-st
 assert.equal(render('fundamental', '/ˌfʌn.dəˈmen.təl/', escape), 'fundam<span class="spelling-stress">e</span>ntal');
 assert.equal(render('<img>', '/ɪm/', escape), '&lt;img&gt;');
 console.log('Spelling stress integration tests passed');
+
+// Regression cases retrieved from Section 1; assert the complete rendered word.
+for (const [word, ipa, before, vowel, after] of [
+  ['pure', '/ˈpjɔː/', 'p', 'u', 're'],
+  ['subtle', '/ˈsʌt(ə)l/', 's', 'u', 'btle'],
+  ['rare', '/rer/', 'r', 'a', 're'],
+  ['minor', '/ˈmaɪnɚ/', 'm', 'i', 'nor'],
+  ['obvious', '/ˈɒ.vɪəs/', '', 'o', 'bvious'],
+  ['extraordinary', '/ɪksˈtɹɔː(ɹ)dɪnəɹi/', 'extra', 'o', 'rdinary'],
+  ['enormous', '/ɪˈnɔː(ɹ)məs/', 'en', 'o', 'rmous'],
+]) {
+  assert.equal(render(word, ipa, escape), `${before}<span class="spelling-stress">${vowel}</span>${after}`, word);
+}
+assert.deepEqual(range('PURE', '/ˈpjɔː/'), [1, 2]);
+assert.equal(range('extraordinary', '/unknown/'), null);
+assert.equal(range('subtle', ''), null);
+console.log('Section 1 stress regressions passed');
