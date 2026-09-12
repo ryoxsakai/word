@@ -1,0 +1,1322 @@
+[
+  {
+    "group": 4,
+    "ipa": "/ˌæpəˈrætəs/",
+    "pos": "名",
+    "section": 20,
+    "word": "apparatus",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfiːtʃə/",
+    "pos": "名",
+    "section": 20,
+    "word": "feature",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfʌŋk.ʃən/",
+    "pos": "名",
+    "section": 20,
+    "word": "function",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈstɹʌktʃə(ɹ)/",
+    "pos": "名",
+    "section": 20,
+    "word": "structure",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɛlɪmənt/",
+    "pos": "名",
+    "section": 20,
+    "word": "element",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/kʌmˈpoʊnənt/",
+    "pos": "名",
+    "section": 20,
+    "word": "component",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈvaɪɹəs/",
+    "pos": "名",
+    "section": 20,
+    "word": "virus",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/dʒiːn/",
+    "pos": "名",
+    "section": 20,
+    "word": "gene",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈpɹəʊti.ɪn/",
+    "pos": "名",
+    "section": 20,
+    "word": "protein",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtɪsjuː/",
+    "pos": "名",
+    "section": 20,
+    "word": "tissue",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɔː.ɡən/",
+    "pos": "名",
+    "section": 20,
+    "word": "organ",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/sɛl/",
+    "pos": "名",
+    "section": 20,
+    "word": "cell",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈsʌbstəns/",
+    "pos": "名",
+    "section": 20,
+    "word": "substance",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/məˈtɪəɹɪəl/",
+    "pos": "名",
+    "section": 20,
+    "word": "material",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈn(j)ukliɚ/",
+    "pos": "形",
+    "section": 20,
+    "word": "nuclear",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˌbaɪ.əˈlɒdʒ.ɪ.kəl/",
+    "pos": "形",
+    "section": 20,
+    "word": "biological",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈkɛmɪkəl/",
+    "pos": "形",
+    "section": 20,
+    "word": "chemical",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɑː(ɹ)təˈfɪʃəl/",
+    "pos": "形",
+    "section": 20,
+    "word": "artificial",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈdɪd͡ʒɪtəɫ/",
+    "pos": "形",
+    "section": 20,
+    "word": "digital",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/tɛkˈnɒlədʒi/",
+    "pos": "名",
+    "section": 20,
+    "word": "technology",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈʃaləʊ/",
+    "pos": "形",
+    "section": 21,
+    "word": "shallow",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/stiːp/",
+    "pos": "形",
+    "section": 21,
+    "word": "steep",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfrædʒaɪl/",
+    "pos": "形",
+    "section": 21,
+    "word": "fragile",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈstæt.ɪk/",
+    "pos": "形",
+    "section": 21,
+    "word": "static",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/trænsˈpærənt/",
+    "pos": "形",
+    "section": 21,
+    "word": "transparent",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/daɪˈmɛnʃən/",
+    "pos": "名",
+    "section": 21,
+    "word": "dimension",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈpoəɹʃən/",
+    "pos": "名",
+    "section": 21,
+    "word": "portion",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/kɜːrv/",
+    "pos": "名",
+    "section": 21,
+    "word": "curve",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfræɡmənt/",
+    "pos": "名",
+    "section": 21,
+    "word": "fragment",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/tɪp/",
+    "pos": "名",
+    "section": 21,
+    "word": "tip",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈlɪkwɪd/",
+    "pos": "名",
+    "section": 21,
+    "word": "liquid",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfluːɪd/",
+    "pos": "名",
+    "section": 21,
+    "word": "fluid",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈsɒlɪd/",
+    "pos": "形",
+    "section": 21,
+    "word": "solid",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈplæstɪk/",
+    "pos": "形",
+    "section": 21,
+    "word": "plastic",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfæb.ɹɪk/",
+    "pos": "名",
+    "section": 21,
+    "word": "fabric",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfaɪ.bə/",
+    "pos": "名",
+    "section": 21,
+    "word": "fiber",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmɪ.nəɹ.əl/",
+    "pos": "名",
+    "section": 21,
+    "word": "mineral",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmɒlɪkjuːl/",
+    "pos": "名",
+    "section": 21,
+    "word": "molecule",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈpɑːrtɪkəl/",
+    "pos": "名",
+    "section": 21,
+    "word": "particle",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɪnˈɡɹiːdi.ənt/",
+    "pos": "名",
+    "section": 21,
+    "word": "ingredient",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/briːd/",
+    "pos": "他",
+    "section": 22,
+    "word": "breed",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/daɪˈvɜː(ɹ)sɪti/",
+    "pos": "名",
+    "section": 22,
+    "word": "diversity",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈneɪtɪv/",
+    "pos": "形",
+    "section": 22,
+    "word": "native",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/məˈɹiːn/",
+    "pos": "形",
+    "section": 22,
+    "word": "marine",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtrɒp.ɪ.kəl/",
+    "pos": "形",
+    "section": 22,
+    "word": "tropical",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/træp/",
+    "pos": "名",
+    "section": 22,
+    "word": "trap",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfɒs.əl/",
+    "pos": "名",
+    "section": 22,
+    "word": "fossil",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɡreɪn/",
+    "pos": "名",
+    "section": 22,
+    "word": "grain",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈhaːvəst/",
+    "pos": "名",
+    "section": 22,
+    "word": "harvest",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/krɒp/",
+    "pos": "名",
+    "section": 22,
+    "word": "crop",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈæɡɹɪˌkʌltʃə/",
+    "pos": "名",
+    "section": 22,
+    "word": "agriculture",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˌkɑnsə(ɹ)ˈveɪʃən/",
+    "pos": "名",
+    "section": 22,
+    "word": "conservation",
+    "expected": [
+      7,
+      8
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɪkˈstɪŋkt/",
+    "pos": "形",
+    "section": 22,
+    "word": "extinct",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈæn.sɛs.tə/",
+    "pos": "名",
+    "section": 22,
+    "word": "ancestor",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈkɒl.əni/",
+    "pos": "名",
+    "section": 22,
+    "word": "colony",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈhæbɪtæt/",
+    "pos": "名",
+    "section": 22,
+    "word": "habitat",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈpɹɛd.ə.təɹ/",
+    "pos": "名",
+    "section": 22,
+    "word": "predator",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈpraɪ.meɪt/",
+    "pos": "名",
+    "section": 22,
+    "word": "primate",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmæm.əl/",
+    "pos": "名",
+    "section": 22,
+    "word": "mammal",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈspiː.ʃiːz/",
+    "pos": "名",
+    "section": 22,
+    "word": "species",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/təˈreɪn/",
+    "pos": "名",
+    "section": 23,
+    "word": "terrain",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈfjuː.əl/",
+    "pos": "名",
+    "section": 23,
+    "word": "fuel",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/wɪnd/",
+    "pos": "名",
+    "section": 23,
+    "word": "wind",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/floʊ/",
+    "pos": "名",
+    "section": 23,
+    "word": "flow",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈleɪ.ər/",
+    "pos": "名",
+    "section": 23,
+    "word": "layer",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈsɜːfɪs/",
+    "pos": "名",
+    "section": 23,
+    "word": "surface",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɡleɪ.ʃər/",
+    "pos": "名",
+    "section": 23,
+    "word": "glacier",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɡloʊb/",
+    "pos": "名",
+    "section": 23,
+    "word": "globe",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˌəʊvəˈsiːz/",
+    "pos": "副",
+    "section": 23,
+    "word": "overseas",
+    "expected": [
+      5,
+      7
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɹɔːɹəl/",
+    "pos": "形",
+    "section": 23,
+    "word": "rural",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɜːbən/",
+    "pos": "形",
+    "section": 23,
+    "word": "urban",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɹiːd͡ʒn̩/",
+    "pos": "名",
+    "section": 23,
+    "word": "region",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtræf.ɪk/",
+    "pos": "名",
+    "section": 23,
+    "word": "traffic",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈbaʊn.dər.i/",
+    "pos": "名",
+    "section": 23,
+    "word": "boundary",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtɛɹɪt(ə)ɹi/",
+    "pos": "名",
+    "section": 23,
+    "word": "territory",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈlænd.skeɪp/",
+    "pos": "名",
+    "section": 23,
+    "word": "landscape",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/sɔɪl/",
+    "pos": "名",
+    "section": 23,
+    "word": "soil",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈæt.məsˌfɪə(ɹ)/",
+    "pos": "名",
+    "section": 23,
+    "word": "atmosphere",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/pəˈl(j)uːʃn̩/",
+    "pos": "名",
+    "section": 23,
+    "word": "pollution",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɪnˈvaɪ.rə.mənt/",
+    "pos": "名",
+    "section": 23,
+    "word": "environment",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈlaɪtnɪŋ/",
+    "pos": "名",
+    "section": 24,
+    "word": "lightning",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/maɪn/",
+    "pos": "名",
+    "section": 24,
+    "word": "mine",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/hjuːdʒ/",
+    "pos": "形",
+    "section": 24,
+    "word": "huge",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈdaɪnəsɔː/",
+    "pos": "名",
+    "section": 24,
+    "word": "dinosaur",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/eɪp/",
+    "pos": "名",
+    "section": 24,
+    "word": "ape",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/siːd/",
+    "pos": "名",
+    "section": 24,
+    "word": "seed",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈwɪðə/",
+    "pos": "自",
+    "section": 24,
+    "word": "wither",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/raɪp/",
+    "pos": "形",
+    "section": 24,
+    "word": "ripe",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈhjuːmɪd/",
+    "pos": "形",
+    "section": 24,
+    "word": "humid",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmɔɪstʃə/",
+    "pos": "名",
+    "section": 24,
+    "word": "moisture",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtrembəl/",
+    "pos": "自",
+    "section": 24,
+    "word": "tremble",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/peɪl/",
+    "pos": "形",
+    "section": 24,
+    "word": "pale",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/tɛns/",
+    "pos": "形",
+    "section": 24,
+    "word": "tense",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɪmˈpeə/",
+    "pos": "他",
+    "section": 24,
+    "word": "impair",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈɪndʒə/",
+    "pos": "他",
+    "section": 24,
+    "word": "injure",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/sɔː/",
+    "pos": "形",
+    "section": 24,
+    "word": "sore",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈskɛlətən/",
+    "pos": "名",
+    "section": 24,
+    "word": "skeleton",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/def/",
+    "pos": "形",
+    "section": 24,
+    "word": "deaf",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/weɪt/",
+    "pos": "名",
+    "section": 24,
+    "word": "weight",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈtɛmp(ə)ɹətʃə(ɹ)/",
+    "pos": "名",
+    "section": 24,
+    "word": "temperature",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/səˈvʌɪv/",
+    "pos": "自",
+    "section": 25,
+    "word": "survive",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˌəʊvəˈkʌm/",
+    "pos": "他",
+    "section": 25,
+    "word": "overcome",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/kəˈpæsɪti/",
+    "pos": "名",
+    "section": 25,
+    "word": "capacity",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/treɪt/",
+    "pos": "名",
+    "section": 25,
+    "word": "trait",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˌpɜː.sənˈæl.ə.ti/",
+    "pos": "名",
+    "section": 25,
+    "word": "personality",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/muːd/",
+    "pos": "名",
+    "section": 25,
+    "word": "mood",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ɪnˈtɛlɪd͡ʒənt/",
+    "pos": "形",
+    "section": 25,
+    "word": "intelligent",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/briːð/",
+    "pos": "自",
+    "section": 25,
+    "word": "breathe",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/bɪˈheɪv/",
+    "pos": "自",
+    "section": 25,
+    "word": "behave",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmɛntəl/",
+    "pos": "形",
+    "section": 25,
+    "word": "mental",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/saɪˈkɒlədʒɪ/",
+    "pos": "名",
+    "section": 25,
+    "word": "psychology",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/iˈmoʊʃən/",
+    "pos": "名",
+    "section": 25,
+    "word": "emotion",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/stɹɛs/",
+    "pos": "名",
+    "section": 25,
+    "word": "stress",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/peɪn/",
+    "pos": "名",
+    "section": 25,
+    "word": "pain",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/dɪsˈɔːdə(ɹ)/",
+    "pos": "名",
+    "section": 25,
+    "word": "disorder",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈsɪm(p)təm/",
+    "pos": "名",
+    "section": 25,
+    "word": "symptom",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈθɛɹ.ə.pi/",
+    "pos": "名",
+    "section": 25,
+    "word": "therapy",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈsɜːdʒəɹi/",
+    "pos": "名",
+    "section": 25,
+    "word": "surgery",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/fɪˈzɪʃən/",
+    "pos": "名",
+    "section": 25,
+    "word": "physician",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 4,
+    "ipa": "/ˈmed(ɪ).sn̩/",
+    "pos": "名",
+    "section": 25,
+    "word": "medicine",
+    "expected": [
+      1,
+      2
+    ]
+  }
+]

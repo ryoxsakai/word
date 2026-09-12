@@ -1,0 +1,1982 @@
+[
+  {
+    "group": 5,
+    "ipa": "/ˈbæk.ɡɹaʊnd/",
+    "pos": "名",
+    "section": 26,
+    "word": "background",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɑːkɪtektʃə/",
+    "pos": "名",
+    "section": 26,
+    "word": "architecture",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/sɪˈmɛstə/",
+    "pos": "名",
+    "section": 26,
+    "word": "semester",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈleʒə/",
+    "pos": "名",
+    "section": 26,
+    "word": "leisure",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌsuːvəˈnɪə/",
+    "pos": "名",
+    "section": 26,
+    "word": "souvenir",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/pɑːθ/",
+    "pos": "名",
+    "section": 26,
+    "word": "path",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/wiːl/",
+    "pos": "名",
+    "section": 26,
+    "word": "wheel",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kjuː/",
+    "pos": "名",
+    "section": 26,
+    "word": "queue",
+    "expected": [
+      1,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/aɪl/",
+    "pos": "名",
+    "section": 26,
+    "word": "aisle",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/fetʃ/",
+    "pos": "他",
+    "section": 26,
+    "word": "fetch",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɡɑːmənt/",
+    "pos": "名",
+    "section": 26,
+    "word": "garment",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/səʊ/",
+    "pos": "他",
+    "section": 26,
+    "word": "sew",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/niːt/",
+    "pos": "形",
+    "section": 26,
+    "word": "neat",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/mɛs/",
+    "pos": "名",
+    "section": 26,
+    "word": "mess",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtaɪdi/",
+    "pos": "形",
+    "section": 26,
+    "word": "tidy",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dʒʌŋk/",
+    "pos": "名",
+    "section": 26,
+    "word": "junk",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/træʃ/",
+    "pos": "名",
+    "section": 26,
+    "word": "trash",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɡɑːbɪdʒ/",
+    "pos": "名",
+    "section": 26,
+    "word": "garbage",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈsɪəriəl/",
+    "pos": "名",
+    "section": 26,
+    "word": "cereal",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈdaɪət/",
+    "pos": "名",
+    "section": 26,
+    "word": "diet",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɹɪˈsɛp.ʃn̩/",
+    "pos": "名",
+    "section": 27,
+    "word": "reception",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪɡˈnɔː/",
+    "pos": "他",
+    "section": 27,
+    "word": "ignore",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɡriːt/",
+    "pos": "他",
+    "section": 27,
+    "word": "greet",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌriːˈjuːniən/",
+    "pos": "名",
+    "section": 27,
+    "word": "reunion",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtʃæɹɪti/",
+    "pos": "名",
+    "section": 27,
+    "word": "charity",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɪzən/",
+    "pos": "名",
+    "section": 27,
+    "word": "prison",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈpɑːtm(ə)nt/",
+    "pos": "名",
+    "section": 27,
+    "word": "department",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈsɛk.ɹə.tɹi/",
+    "pos": "名",
+    "section": 27,
+    "word": "secretary",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmeɪ.ə/",
+    "pos": "名",
+    "section": 27,
+    "word": "mayor",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/sɪˈlɛbɹɪti/",
+    "pos": "名",
+    "section": 27,
+    "word": "celebrity",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈæθ.lit/",
+    "pos": "名",
+    "section": 27,
+    "word": "athlete",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/sleɪv/",
+    "pos": "名",
+    "section": 27,
+    "word": "slave",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹiːst/",
+    "pos": "名",
+    "section": 27,
+    "word": "priest",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmʊzlɪm/",
+    "pos": "名",
+    "section": 27,
+    "word": "Muslim",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈkweɪntəns/",
+    "pos": "名",
+    "section": 27,
+    "word": "acquaintance",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɔːfən/",
+    "pos": "名",
+    "section": 27,
+    "word": "orphan",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/mænˈkaɪnd/",
+    "pos": "名",
+    "section": 27,
+    "word": "mankind",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/fəʊk/",
+    "pos": "名",
+    "section": 27,
+    "word": "folk",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/meɪl/",
+    "pos": "形",
+    "section": 27,
+    "word": "male",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌnæʃəˈnæləti/",
+    "pos": "名",
+    "section": 27,
+    "word": "nationality",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkɒliːɡ/",
+    "pos": "名",
+    "section": 28,
+    "word": "colleague",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈfɛləʊ/",
+    "pos": "名",
+    "section": 28,
+    "word": "fellow",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈsɪv.əl/",
+    "pos": "形",
+    "section": 28,
+    "word": "civil",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈneɪbə.hʊd/",
+    "pos": "名",
+    "section": 28,
+    "word": "neighborhood",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪmɪˈɡɹeɪʃn/",
+    "pos": "名",
+    "section": 28,
+    "word": "immigration",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈwel.fer/",
+    "pos": "名",
+    "section": 28,
+    "word": "welfare",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɛd͡ʒədɪs/",
+    "pos": "名",
+    "section": 28,
+    "word": "prejudice",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌɪnɪˈkwɒlɪti/",
+    "pos": "名",
+    "section": 28,
+    "word": "inequality",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɛθ.nɪk/",
+    "pos": "形",
+    "section": 28,
+    "word": "ethnic",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɹeɪs/",
+    "pos": "名",
+    "section": 28,
+    "word": "race",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈdʒen.dər/",
+    "pos": "名",
+    "section": 28,
+    "word": "gender",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/rɪˈlɪdʒ.ən/",
+    "pos": "名",
+    "section": 28,
+    "word": "religion",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈhɛɹɪtɪd͡ʒ/",
+    "pos": "名",
+    "section": 28,
+    "word": "heritage",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/nɔːm/",
+    "pos": "名",
+    "section": 28,
+    "word": "norm",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/hjuˈmænɪti/",
+    "pos": "名",
+    "section": 28,
+    "word": "humanity",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌɪnstɪˈtjuːʃən/",
+    "pos": "名",
+    "section": 28,
+    "word": "institution",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌɪn.dɪˈvɪdʒ.u.əl/",
+    "pos": "名",
+    "section": 28,
+    "word": "individual",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkʌl.tʃər/",
+    "pos": "名",
+    "section": 28,
+    "word": "culture",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpʌblɪk/",
+    "pos": "形",
+    "section": 28,
+    "word": "public",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/k(ə)ˈmjunəti/",
+    "pos": "名",
+    "section": 28,
+    "word": "community",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈentərpraɪz/",
+    "pos": "名",
+    "section": 29,
+    "word": "enterprise",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/rɪˈpʌblɪk/",
+    "pos": "名",
+    "section": 29,
+    "word": "republic",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪsˈteɪt/",
+    "pos": "名",
+    "section": 29,
+    "word": "estate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɛnʃ(ə)n/",
+    "pos": "名",
+    "section": 29,
+    "word": "pension",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈwɜːrkfɔːrs/",
+    "pos": "名",
+    "section": 29,
+    "word": "workforce",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈseɪkɹɪd/",
+    "pos": "形",
+    "section": 29,
+    "word": "sacred",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmjuːt͡ʃuəl/",
+    "pos": "形",
+    "section": 29,
+    "word": "mutual",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/skiːm/",
+    "pos": "名",
+    "section": 29,
+    "word": "scheme",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈfjuːnərəl/",
+    "pos": "名",
+    "section": 29,
+    "word": "funeral",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɹɪ.tʃu.əl/",
+    "pos": "名",
+    "section": 29,
+    "word": "ritual",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkaʊntəpɑːrt/",
+    "pos": "名",
+    "section": 29,
+    "word": "counterpart",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌædəˈlɛsənt/",
+    "pos": "名",
+    "section": 29,
+    "word": "adolescent",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈdɪstɹɪkt/",
+    "pos": "名",
+    "section": 29,
+    "word": "district",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɒvɪns/",
+    "pos": "名",
+    "section": 29,
+    "word": "province",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtriːti/",
+    "pos": "名",
+    "section": 29,
+    "word": "treaty",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɪv(ɪ)lɪdʒ/",
+    "pos": "名",
+    "section": 29,
+    "word": "privilege",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkaʊnsəl/",
+    "pos": "名",
+    "section": 29,
+    "word": "council",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/traɪb/",
+    "pos": "名",
+    "section": 29,
+    "word": "tribe",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dəˈmɛstɪk/",
+    "pos": "形",
+    "section": 29,
+    "word": "domestic",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌrevəˈluːʃən/",
+    "pos": "名",
+    "section": 29,
+    "word": "revolution",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈbeɪt/",
+    "pos": "名",
+    "section": 30,
+    "word": "debate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/eɪˈliːt/",
+    "pos": "名",
+    "section": 30,
+    "word": "elite",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈdjuːti/",
+    "pos": "名",
+    "section": 30,
+    "word": "duty",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɡrænt/",
+    "pos": "他",
+    "section": 30,
+    "word": "grant",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɡaɪd.laɪn/",
+    "pos": "名",
+    "section": 30,
+    "word": "guideline",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkɑːn.trækt/",
+    "pos": "名",
+    "section": 30,
+    "word": "contract",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpeɪtənt/",
+    "pos": "名",
+    "section": 30,
+    "word": "patent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈlaɪsəns/",
+    "pos": "名",
+    "section": 30,
+    "word": "license",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtraɪ.əl/",
+    "pos": "名",
+    "section": 30,
+    "word": "trial",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kɹaɪm/",
+    "pos": "名",
+    "section": 30,
+    "word": "crime",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmɪl.ɪ.tɹi/",
+    "pos": "形",
+    "section": 30,
+    "word": "military",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈfɛdəɹəl/",
+    "pos": "形",
+    "section": 30,
+    "word": "federal",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmɪnɪstə/",
+    "pos": "名",
+    "section": 30,
+    "word": "minister",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈmɒkɹəsi/",
+    "pos": "名",
+    "section": 30,
+    "word": "democracy",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈliː.ɡəl/",
+    "pos": "形",
+    "section": 30,
+    "word": "legal",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈlɔɪ.ər/",
+    "pos": "名",
+    "section": 30,
+    "word": "lawyer",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kɔːrt/",
+    "pos": "名",
+    "section": 30,
+    "word": "court",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈfɪʃəl/",
+    "pos": "形",
+    "section": 30,
+    "word": "official",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/pəˈlɪtɪkəl/",
+    "pos": "形",
+    "section": 30,
+    "word": "political",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɒləsi/",
+    "pos": "名",
+    "section": 30,
+    "word": "policy",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈfiːt/",
+    "pos": "他",
+    "section": 31,
+    "word": "defeat",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/stɹeɪ̯n/",
+    "pos": "他",
+    "section": 31,
+    "word": "strain",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/wuːnd/",
+    "pos": "名",
+    "section": 31,
+    "word": "wound",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈɹɛst/",
+    "pos": "他",
+    "section": 31,
+    "word": "arrest",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈvaɪəˌleɪt/",
+    "pos": "他",
+    "section": 31,
+    "word": "violate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈreɡjəleɪt/",
+    "pos": "他",
+    "section": 31,
+    "word": "regulate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈbæɹi.ə(ɹ)/",
+    "pos": "名",
+    "section": 31,
+    "word": "barrier",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɒbstəkl̩/",
+    "pos": "名",
+    "section": 31,
+    "word": "obstacle",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈlɜːt/",
+    "pos": "形",
+    "section": 31,
+    "word": "alert",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈspjuːt/",
+    "pos": "他",
+    "section": 31,
+    "word": "dispute",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/suː/",
+    "pos": "他",
+    "section": 31,
+    "word": "sue",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtækəl/",
+    "pos": "他",
+    "section": 31,
+    "word": "tackle",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kɒnˈfɹɒnt/",
+    "pos": "他",
+    "section": 31,
+    "word": "confront",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈfɛnd/",
+    "pos": "他",
+    "section": 31,
+    "word": "defend",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌriːɪnˈfɔːrs/",
+    "pos": "他",
+    "section": 31,
+    "word": "reinforce",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈælaɪ/",
+    "pos": "名",
+    "section": 31,
+    "word": "ally",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈæd.və.keɪt/",
+    "pos": "他",
+    "section": 31,
+    "word": "advocate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/nəˈɡəʊ.ʃi.eɪt/",
+    "pos": "自",
+    "section": 31,
+    "word": "negotiate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kənˈsʌlt/",
+    "pos": "他",
+    "section": 31,
+    "word": "consult",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kəʊˌɒpəˈreɪʃən/",
+    "pos": "名",
+    "section": 31,
+    "word": "cooperation",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/fɒlt/",
+    "pos": "名",
+    "section": 32,
+    "word": "fault",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈsækɹɪfaɪs/",
+    "pos": "名",
+    "section": 32,
+    "word": "sacrifice",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkæp.t͡ʃə/",
+    "pos": "他",
+    "section": 32,
+    "word": "capture",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈbæn.dən/",
+    "pos": "他",
+    "section": 32,
+    "word": "abandon",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/rɪˈdʒekt/",
+    "pos": "他",
+    "section": 32,
+    "word": "reject",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/rɪˈzɝːv/",
+    "pos": "他",
+    "section": 32,
+    "word": "reserve",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈʃɛltə/",
+    "pos": "名",
+    "section": 32,
+    "word": "shelter",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/səˈkjɔː(ɹ)/",
+    "pos": "他",
+    "section": 32,
+    "word": "secure",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kræʃ/",
+    "pos": "自",
+    "section": 32,
+    "word": "crash",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/stɹaɪk/",
+    "pos": "他",
+    "section": 32,
+    "word": "strike",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/biːt/",
+    "pos": "他",
+    "section": 32,
+    "word": "beat",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkɑːn.test/",
+    "pos": "名",
+    "section": 32,
+    "word": "contest",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈpəʊnənt/",
+    "pos": "名",
+    "section": 32,
+    "word": "opponent",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈvɪktəm/",
+    "pos": "名",
+    "section": 32,
+    "word": "victim",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈwɛ.pən/",
+    "pos": "名",
+    "section": 32,
+    "word": "weapon",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈvaɪ(ə)lənt/",
+    "pos": "形",
+    "section": 32,
+    "word": "violent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪˈmɝ.dʒən.si/",
+    "pos": "名",
+    "section": 32,
+    "word": "emergency",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈzæs.tə/",
+    "pos": "名",
+    "section": 32,
+    "word": "disaster",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkɹaɪsɪs/",
+    "pos": "名",
+    "section": 32,
+    "word": "crisis",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈkɒnflɪkt/",
+    "pos": "名",
+    "section": 32,
+    "word": "conflict",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/miːnz/",
+    "pos": "名",
+    "section": 33,
+    "word": "means",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/fəˈsɪlɪti/",
+    "pos": "名",
+    "section": 33,
+    "word": "facility",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈriː.sɔːrs/",
+    "pos": "名",
+    "section": 33,
+    "word": "resource",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈplætfɔːm/",
+    "pos": "名",
+    "section": 33,
+    "word": "platform",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈsɛk.təɹ/",
+    "pos": "名",
+    "section": 33,
+    "word": "sector",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/bɪl/",
+    "pos": "名",
+    "section": 33,
+    "word": "bill",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈdɪskaʊnt/",
+    "pos": "名",
+    "section": 33,
+    "word": "discount",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪn.ˈʃɔː.ɹəns/",
+    "pos": "名",
+    "section": 33,
+    "word": "insurance",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈeɪ.dʒənt/",
+    "pos": "名",
+    "section": 33,
+    "word": "agent",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/pɹəˈfɛʃən/",
+    "pos": "名",
+    "section": 33,
+    "word": "profession",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɛmˈplɔɪ/",
+    "pos": "他",
+    "section": 33,
+    "word": "employ",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɜːn/",
+    "pos": "他",
+    "section": 33,
+    "word": "earn",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɛkˈspɔːt/",
+    "pos": "他",
+    "section": 33,
+    "word": "export",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɪmˈpɔːt/",
+    "pos": "他",
+    "section": 33,
+    "word": "import",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɜːtʃəs/",
+    "pos": "他",
+    "section": 33,
+    "word": "purchase",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/stɒk/",
+    "pos": "名",
+    "section": 33,
+    "word": "stock",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˌkɔːr.pəˈreɪ.ʃən/",
+    "pos": "名",
+    "section": 33,
+    "word": "corporation",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/faɪˈnænʃəl/",
+    "pos": "形",
+    "section": 33,
+    "word": "financial",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈɪndəstɹi/",
+    "pos": "名",
+    "section": 33,
+    "word": "industry",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/iːˈkɒn.ə.mi/",
+    "pos": "名",
+    "section": 33,
+    "word": "economy",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈekwəti/",
+    "pos": "名",
+    "section": 34,
+    "word": "equity",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmɑːkɪt/",
+    "pos": "名",
+    "section": 34,
+    "word": "market",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɒd.əkt/",
+    "pos": "名",
+    "section": 34,
+    "word": "product",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɡʊdz/",
+    "pos": "名",
+    "section": 34,
+    "word": "goods",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/pəˈzɛʃən/",
+    "pos": "名",
+    "section": 34,
+    "word": "possession",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpɹɒp.ət.i/",
+    "pos": "名",
+    "section": 34,
+    "word": "property",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/trænˈzækʃən/",
+    "pos": "名",
+    "section": 34,
+    "word": "transaction",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ɹɪˈsɛʃn̩/",
+    "pos": "名",
+    "section": 34,
+    "word": "recession",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈriːteɪl/",
+    "pos": "名",
+    "section": 34,
+    "word": "retail",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈbevərɪdʒ/",
+    "pos": "名",
+    "section": 34,
+    "word": "beverage",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/kəˈmɒdəti/",
+    "pos": "名",
+    "section": 34,
+    "word": "commodity",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/bɒnd/",
+    "pos": "名",
+    "section": 34,
+    "word": "bond",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/dɪˈpɒzɪt/",
+    "pos": "他",
+    "section": 34,
+    "word": "deposit",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈlʌk.ʃə.ɹi/",
+    "pos": "名",
+    "section": 34,
+    "word": "luxury",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈtreʒər/",
+    "pos": "名",
+    "section": 34,
+    "word": "treasure",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/stʌf/",
+    "pos": "名",
+    "section": 34,
+    "word": "stuff",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈəʊn/",
+    "pos": "他",
+    "section": 34,
+    "word": "own",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈpriːmiəm/",
+    "pos": "名",
+    "section": 34,
+    "word": "premium",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/ˈmɑːnəteri/",
+    "pos": "形",
+    "section": 34,
+    "word": "monetary",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "group": 5,
+    "ipa": "/əˈkaʊntɪŋ/",
+    "pos": "名",
+    "section": 34,
+    "word": "accounting",
+    "expected": [
+      3,
+      5
+    ]
+  }
+]

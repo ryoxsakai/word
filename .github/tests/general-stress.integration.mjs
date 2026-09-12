@@ -1,8 +1,13 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const {inferStressedSpellingRange: infer} = await import('data:text/javascript;base64,' + fs.readFileSync(new URL('../../public/shared/spelling-stress.js', import.meta.url)).toString('base64'));
-// These calls bypass the verified-word map, including words absent from Groups 1–3.
+// Exercise the common algorithm directly, including words absent from the audited groups.
 for (const [word, ipa, expected] of [
+  ['awkwardly', '/ˈɔːkwədli/', [0,2]],
+  ['mutually', '/ˈmjuːtʃʊli/', [1,2]],
+  ['renew', '/rɪˈnjuː/', [3,5]],
+  ['deceive', '/dɪˈsiːv/', [3,5]],
+  ['create', '/kɹiˈeɪt/', [3,4]],
   ['temporary', '/ˈtɛmpəɹi/', [1,2]],
   ['ordinary', '/ˈɔːdənɹi/', [0,1]],
   ['literacy', '/ˈlɪt.ɹə.si/', [1,2]],
@@ -64,14 +69,14 @@ for (const [word, ipa, expected] of [
   ['prime', '', null], ['<img>', '/ɪm/', null],
   ['word', '/wɜːd/ junk', null], ['a'.repeat(65), '/a/', null],
 ]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
-// Validate every non-abstaining general prediction independently of overrides.
+// Require complete coverage and correct spans across all five audited groups.
 let correct = 0;
-for (const group of ['one', 'two', 'three']) {
+for (const group of ['one', 'two', 'three', 'four', 'five']) {
   const rows = JSON.parse(fs.readFileSync(new URL(`./group-${group}-stress-fixture.json`, import.meta.url)));
   for (const row of rows) {
     const actual = infer(row.word, row.ipa);
     if (actual) { assert.deepEqual(actual, row.expected, row.word); correct++; }
   }
 }
-assert.ok(correct >= 377, `General coverage regressed: ${correct}/380`);
-console.log(`General alignment: ${correct}/380 correct, remaining words abstained`);
+assert.ok(correct === 680, `General coverage regressed: ${correct}/680`);
+console.log(`General alignment: ${correct}/680 correct, remaining words abstained`);
