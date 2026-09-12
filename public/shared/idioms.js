@@ -144,9 +144,8 @@ export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
       ...section, items: entries.filter(entry => !entry.hidden && entry.sectionKey === section.key).map(entry => ({ ...entry, no: String(++entryNumber), senseCount: entry.meanings.length, meanings: entry.meanings.map((sense, index) => ({ ...sense, no: index + 1 })) })),
     })).filter(section => section.items.length).map(section => {
       if (section.groupKey && !groupNumbers.has(section.groupKey)) groupNumbers.set(section.groupKey, groupNumbers.size + 1);
-      const number = section.number ?? ++sectionNumber;
-      sectionNumber = Math.max(sectionNumber, Number(number) || 0);
-      return { ...section, name: `Section ${number}`,
+      const number = ++sectionNumber;
+      return { ...section, number, name: `Section ${number}`,
         ...(section.groupKey ? { groupName: `Group ${groupNumbers.get(section.groupKey)}` } : {}),
       };
     }),
