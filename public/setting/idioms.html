@@ -29,7 +29,7 @@ try {
 <section class="edit-pane idiom-edit-pane" id="editPane" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
 <div class="pane-header pane-header--edit"><h2 id="dialogTitle">熟語を編集</h2><div class="edit-actions"><button id="save" class="primary btn-icon-only" type="submit" form="idiomForm" title="保存" aria-label="保存"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></button><button id="closeDialog" class="btn-ghost btn-icon-only" type="button" title="閉じる" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></div>
 <form id="idiomForm" class="word-form">
-<div class="field-row"><label>熟語 <input name="phrase" required maxlength="500" autocapitalize="none"></label><label>Section <select name="sectionKey" required></select></label></div>
+<div class="field-row"><label>熟語 <input type="text" name="phrase" required maxlength="500" autocapitalize="none"></label><label>Section <select name="sectionKey" required></select></label></div>
 <label class="filter-checkbox"><input name="hidden" type="checkbox">閲覧リストから非表示</label>
 <fieldset><legend>意味（先頭の①を強調）</legend><div id="senses"></div><button id="addSense" type="button">意味を追加</button></fieldset>
 <label>同義語 <textarea name="synonyms" rows="2" maxlength="20000" placeholder="例：respect, admire"></textarea></label><div id="synonymsPreview" class="preview"></div>
