@@ -119,6 +119,6 @@ const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meaning
   {wordId:'disappoint',spelling:'disappoint',no:'1034',source:'synonym'},
   {wordId:'let',spelling:'let',no:'923',source:'phrase'},
 ]}]},'https://vocab.lrnr.jp');
-assert.match(linked,/class="idiom-ref-icon" aria-hidden="true"/);
-assert.match(linked,/href="#word-let"[^>]*>let \(no\.  923\)<\/a>/);
+assert.doesNotMatch(linked,/idiom-ref-icon|class="idiom-refs"/);
+assert.doesNotMatch(linked,/href="#word-let"/);
 assert.doesNotMatch(linked,/href="#word-disappoint"/);
