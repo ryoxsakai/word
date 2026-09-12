@@ -41,7 +41,7 @@ function sectionRow(section,index,siblings,count){const collapsed=collapsedSecti
 function entryRow(entry,index,ordered,numbers){const meaning=entry.meanings?.map((sense,i)=>`${entry.meanings.length>1?String.fromCodePoint(0x2460+i):''}${sense.meaning}`).join('　')||'';return `<tr class="idiom-row${entry.hidden?' is-hidden':''}" draggable="true" data-id="${escapeHtml(entry.key)}"><td class="col-no">${escapeHtml(entry.hidden?'—':numbers.get(entry.key)||'')}</td><td class="col-spelling"><strong>${escapeHtml(entry.phrase)}</strong></td><td class="col-meaning">${escapeHtml(meaning)}</td><td class="col-visibility">${entry.hidden?'<span class="visibility-badge">非表示</span>':''}</td><td class="col-move">${moveButtons('entry',entry.key,index===0,index===ordered.length-1)}</td></tr>`;}
 function filteredEntriesForSection(sectionKey){const loaded=sectionEntries.get(String(sectionKey));if(!loaded)return null;const query=el.query.value.trim().toLowerCase();return loaded.filter(entry=>(el.showHidden.checked||!entry.hidden)&&(!query||[entry.phrase,entry.notes,entry.synonyms,entry.antonyms,...entry.meanings.map(s=>s.meaning)].join(' ').toLowerCase().includes(query)));}
 function renderTable(){const selected=el.section.value,numbers=entryNumbers(),labels=sectionLabels(),labelByKey=new Map(labels.map(section=>[section.key,section]));let html='',visibleCount=0,groupNo=0;for(const[chapterIndex,chapter]of data.chapters.entries()){const chapterSections=chapter.sections.map(section=>labelByKey.get(section.key)).filter(section=>(el.showHidden.checked?section.totalCount>0:section.visibleCount>0)&&(!selected||section.key===selected));if(!chapterSections.length)continue;const chapterCount=chapterSections.reduce((sum,section)=>sum+data.entries.filter(entry=>entry.sectionKey===section.key&&(el.showHidden.checked||!entry.hidden)).length,0);html+=chapterRow(chapter,chapterIndex,chapterCount);if(collapsedChapters.has(chapter.key))continue;let previousGroup=null;for(const section of chapterSections){const sameGroup=chapterSections.filter(item=>(item.groupKey||'')===(section.groupKey||''));if(section.groupKey&&section.groupKey!==previousGroup){groupNo+=1;const groupCount=sameGroup.reduce((sum,item)=>sum+data.entries.filter(entry=>entry.sectionKey===item.key&&(el.showHidden.checked||!entry.hidden)).length,0);html+=groupRow(section,groupNo,groupCount);}previousGroup=section.groupKey||null;const entries=filteredEntriesForSection(section.key),count=data.entries.filter(entry=>entry.sectionKey===section.key&&(el.showHidden.checked||!entry.hidden)).length;html+=sectionRow(section,sameGroup.findIndex(item=>item.key===section.key),sameGroup,count);if(collapsedSections.has(section.key))continue;if(entries===null){html+=statusRow(section.key);continue;}visibleCount+=entries.length;html+=entries.map((entry,index)=>entryRow(entry,index,entries,numbers)).join('');}}el.entries.innerHTML=html;el.empty.hidden=visibleCount>0||labels.some(section=>(el.showHidden.checked?section.totalCount>0:section.visibleCount>0)&&!sectionEntries.has(String(section.key))&&!collapsedSections.has(section.key));el.status.textContent=`${visibleCount}項目表示 / 全${data.entries.filter(entry=>el.showHidden.checked||!entry.hidden).length}項目`;attachDragHandlers();setupLazyLoading();}
-function setupLazyLoading(){lazyObserver?.disconnect();const targets=[...el.entries.querySelectorAll('[data-load-section]')];if(!targets.length)return;if(!('IntersectionObserver'in window)){targets.forEach(row=>loadSection(row.dataset.loadSection).catch(()=>{}));return;}lazyObserver=new IntersectionObserver(items=>{if(sectionPromises.size)return;const item=items.find(item=>item.isIntersecting&&!sectionErrors.has(item.target.dataset.loadSection));if(item){lazyObserver.disconnect();loadSection(item.target.dataset.loadSection).catch(()=>{}).finally(setupLazyLoading);}},{root:el.tableScroll,rootMargin:'120px 0px'});targets.forEach(row=>lazyObserver.observe(row));}
+function setupLazyLoading(){lazyObserver?.disconnect();if(idiomOrderSaving)return;const targets=[...el.entries.querySelectorAll('[data-load-section]')];if(!targets.length)return;if(!('IntersectionObserver'in window)){targets.forEach(row=>loadSection(row.dataset.loadSection).catch(()=>{}));return;}lazyObserver=new IntersectionObserver(items=>{if(sectionPromises.size)return;const item=items.find(item=>item.isIntersecting&&!sectionErrors.has(item.target.dataset.loadSection));if(item){lazyObserver.disconnect();loadSection(item.target.dataset.loadSection).catch(()=>{}).finally(setupLazyLoading);}},{root:el.tableScroll,rootMargin:'120px 0px'});targets.forEach(row=>lazyObserver.observe(row));}
 async function load(){const token=++generation;listId=el.notebook.value;sectionEntries=new Map();sectionPromises=new Map();sectionErrors=new Map();el.entries.innerHTML='';el.status.textContent='読み込み中…';el.newIdiom.disabled=true;beginIdiomEditorLoading();try{const[index,wordIndex]=await Promise.all([api(`/lists/${encodeURIComponent(listId)}/idioms/index`),api(`/lists/${encodeURIComponent(listId)}/viewer/index`)]);if(token!==generation)return;data=index;words=wordIndex.words||[];refreshReferences();refreshSectionOptions();el.newIdiom.disabled=!data.chapters.length;renderTable();const first=sectionLabels().find(section=>(!el.section.value||section.key===el.section.value)&&(el.showHidden.checked?section.totalCount>0:section.visibleCount>0));if(first)await loadSection(first.key);setupLazyLoading();}catch(error){if(token===generation)el.status.textContent=`読み込みに失敗しました：${error.message}`;}finally{endIdiomEditorLoading();}}
 
 function senseRow(s={meaning:'',refs:[]}){const row=document.createElement('div');row.className='idiom-sense-editor repeat-row';row._sense=s;row.innerHTML='<button type="button" class="row-drag-handle" draggable="true" aria-label="ドラッグして並べ替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button><span class="sense-order"></span><textarea required rows="2" maxlength="2000" aria-label="意味"></textarea><button type="button" class="move-btn" data-action="up" aria-label="意味を上へ"><i class="fa-solid fa-chevron-up"></i></button><button type="button" class="move-btn" data-action="down" aria-label="意味を下へ"><i class="fa-solid fa-chevron-down"></i></button><button type="button" class="btn-ghost btn-icon-only" data-action="remove" aria-label="削除"><i class="fa-solid fa-trash-can"></i></button><span class="sense-links"></span>';row.querySelector('textarea').value=s.meaning;row.querySelector('.sense-links').textContent=(s.refs||[]).length?'単語参照：'+s.refs.map(r=>words.find(w=>w.id===r.wordId)?.spelling||r.wordId).join('、'):'';el.senses.append(row);numberSenses();attachSenseDrag(row);}
@@ -50,13 +50,99 @@ function preview(){for(const name of['synonyms','antonyms','notes'])document.get
 async function open(entry){if(entry&&!entry.meanings?.length){await loadSection(entry.sectionKey);entry=sectionEntries.get(String(entry.sectionKey))?.find(item=>item.key===entry.key)||entry;}current=entry?structuredClone(entry):null;el.idiomForm.reset();el.saveStatus.textContent='';const available=sectionLabels().filter(section=>el.showHidden.checked?section.totalCount>0:section.visibleCount>0);field('sectionKey').innerHTML=available.map(section=>`<option value="${escapeHtml(section.key)}">${escapeHtml(section.label)}</option>`).join('');field('sectionKey').value=entry?.sectionKey||el.section.value||available[0]?.key||'';for(const name of['phrase','synonyms','antonyms','notes'])field(name).value=entry?.[name]||'';field('hidden').checked=!!entry?.hidden;el.senses.innerHTML='';(entry?.meanings||[{meaning:'',refs:[]}]).forEach(senseRow);el.dialogTitle.textContent=entry?'熟語を編集':'熟語を追加';preview();setEditorOpen(true);if(matchMedia('(pointer: coarse)').matches)el.closeDialog.focus({preventScroll:true});else field('phrase').focus({preventScroll:true});}
 
 function moveInArray(items,from,to){const[moved]=items.splice(from,1);items.splice(to,0,moved);}
-async function persistEntryOrder(){el.status.textContent='並び順を保存中…';beginIdiomEditorLoading();try{await api(`/lists/${encodeURIComponent(listId)}/idioms/reorder`,{method:'POST',body:JSON.stringify({entries:data.entries.map(entry=>({id:entry.key,sectionKey:entry.sectionKey}))})});await load();}finally{endIdiomEditorLoading();}}
-async function moveEntry(id,direction){const entry=data.entries.find(item=>item.key===id);if(!entry)return;const visible=filteredEntriesForSection(entry.sectionKey)||[],visibleIndex=visible.findIndex(item=>item.key===id),targetEntry=visible[visibleIndex+direction];if(!targetEntry)return;const from=data.entries.findIndex(item=>item.key===id);const[moved]=data.entries.splice(from,1);const target=data.entries.findIndex(item=>item.key===targetEntry.key);data.entries.splice(direction<0?target:target+1,0,moved);try{await persistEntryOrder();}catch(error){alert(`並び替えに失敗しました：${error.message}`);await load();}}
-async function moveEntryBefore(id,targetId){const from=data.entries.findIndex(entry=>entry.key===id),target=data.entries.findIndex(entry=>entry.key===targetId);if(from<0||target<0||from===target)return;data.entries[from].sectionKey=data.entries[target].sectionKey;const[moved]=data.entries.splice(from,1);data.entries.splice(from<target?target-1:target,0,moved);try{await persistEntryOrder();}catch(error){alert(`並び替えに失敗しました：${error.message}`);await load();}}
-async function moveEntryToSection(id,sectionKey){const from=data.entries.findIndex(entry=>entry.key===id);if(from<0)return;const[moved]=data.entries.splice(from,1);moved.sectionKey=sectionKey;const target=data.entries.findIndex(entry=>entry.sectionKey===sectionKey);data.entries.splice(target<0?data.entries.length:target,0,moved);try{await persistEntryOrder();}catch(error){alert(`移動に失敗しました：${error.message}`);await load();}}
-async function moveSection(key,direction){const chapter=data.chapters.find(item=>item.sections.some(section=>section.key===key));if(!chapter)return;const index=chapter.sections.findIndex(section=>section.key===key),peers=chapter.sections.filter(section=>(section.groupKey||'')===(chapter.sections[index].groupKey||'')&&(!el.section.value||section.key===el.section.value)&&data.entries.some(entry=>entry.sectionKey===section.key&&(el.showHidden.checked||!entry.hidden))),peerIndex=peers.findIndex(section=>section.key===key),targetPeer=peers[peerIndex+direction];if(!targetPeer)return;const target=chapter.sections.findIndex(section=>section.key===targetPeer.key);moveInArray(chapter.sections,index,target);await persistSectionOrder();}
-async function moveSectionBefore(key,targetKey){const source=flatSections().find(section=>section.key===key),target=flatSections().find(section=>section.key===targetKey);if(!source||!target||source.chapterKey!==target.chapterKey||(source.groupKey||'')!==(target.groupKey||''))return;const chapter=data.chapters.find(item=>item.key===source.chapterKey),from=chapter.sections.findIndex(section=>section.key===key),to=chapter.sections.findIndex(section=>section.key===targetKey);const[moved]=chapter.sections.splice(from,1);chapter.sections.splice(from<to?to-1:to,0,moved);await persistSectionOrder();}
-async function persistSectionOrder(){beginIdiomEditorLoading();try{await api(`/lists/${encodeURIComponent(listId)}/idioms/sections/reorder`,{method:'POST',body:JSON.stringify({sectionKeys:flatSections().map(section=>section.key)})});await load();}catch(error){alert(`Sectionの並び替えに失敗しました：${error.message}`);await load();}finally{endIdiomEditorLoading();}}
+let idiomOrderSaving = false;
+
+function syncIdiomOrderRows() {
+  const hydrated = new Map([...sectionEntries.values()].flat().map(entry => [entry.key, entry]));
+  const loadedKeys = new Set(sectionEntries.keys());
+  const next = new Map();
+  data.entries = data.entries.map((entry, index) => ({
+    ...hydrated.get(entry.key), ...entry, sortOrder: index + 1,
+  }));
+  for (const section of flatSections()) {
+    const key = String(section.key);
+    const rows = data.entries.filter(entry => String(entry.sectionKey) === key);
+    if ((rows.length && rows.every(entry => hydrated.has(entry.key))) || (!rows.length && loadedKeys.has(key))) {
+      next.set(key, rows);
+    }
+  }
+  sectionEntries = next;
+  refreshReferences();
+  refreshSectionOptions();
+  const { scrollTop, scrollLeft } = el.tableScroll;
+  renderTable();
+  el.tableScroll.scrollTop = scrollTop;
+  el.tableScroll.scrollLeft = scrollLeft;
+}
+
+async function saveIdiomOrder(kind, change) {
+  if (idiomOrderSaving) return;
+  idiomOrderSaving = true;
+  const activeList = listId, token = generation;
+  let previous = null, saved = false;
+  try {
+    await Promise.allSettled([...sectionPromises.values()]);
+    if (activeList !== listId || token !== generation) return;
+    previous = structuredClone(data);
+    if (!change()) return;
+    // Invalidate responses started before the order changed, retaining loaded rows.
+    generation += 1;
+    const orderToken = generation;
+    sectionPromises = new Map();
+    lazyObserver?.disconnect();
+    el.status.textContent = '並び順を保存中…';
+    const sectionOrder = kind === 'section';
+    const path = sectionOrder ? 'idioms/sections/reorder' : 'idioms/reorder';
+    const payload = sectionOrder
+      ? { sectionKeys: flatSections().map(section => section.key) }
+      : { entries: data.entries.map(entry => ({ id: entry.key, sectionKey: entry.sectionKey })) };
+    await api(`/lists/${encodeURIComponent(activeList)}/${path}`, { method: 'POST', body: JSON.stringify(payload) });
+    saved = true;
+    if (activeList !== listId || orderToken !== generation) return;
+    syncIdiomOrderRows();
+  } catch (error) {
+    if (activeList === listId && generation === token + 1 && previous) {
+      if (!saved) data = previous;
+      syncIdiomOrderRows();
+      el.status.textContent = `並び順の保存・同期に失敗しました：${error.message}`;
+    }
+    alert(`並び替えに失敗しました：${error.message}`);
+  } finally {
+    idiomOrderSaving = false;
+    setupLazyLoading();
+  }
+}
+
+async function moveEntry(id,direction){
+  return saveIdiomOrder('entry', () => {
+    const entry=data.entries.find(item=>item.key===id);if(!entry)return;const visible=filteredEntriesForSection(entry.sectionKey)||[],visibleIndex=visible.findIndex(item=>item.key===id),targetEntry=visible[visibleIndex+direction];if(!targetEntry)return;const from=data.entries.findIndex(item=>item.key===id);const[moved]=data.entries.splice(from,1);const target=data.entries.findIndex(item=>item.key===targetEntry.key);data.entries.splice(direction<0?target:target+1,0,moved);
+    return true;
+  });
+}
+async function moveEntryBefore(id,targetId){
+  return saveIdiomOrder('entry', () => {
+    const from=data.entries.findIndex(entry=>entry.key===id),target=data.entries.findIndex(entry=>entry.key===targetId);if(from<0||target<0||from===target)return;data.entries[from].sectionKey=data.entries[target].sectionKey;const[moved]=data.entries.splice(from,1);data.entries.splice(from<target?target-1:target,0,moved);
+    return true;
+  });
+}
+async function moveEntryToSection(id,sectionKey){
+  return saveIdiomOrder('entry', () => {
+    const from=data.entries.findIndex(entry=>entry.key===id);if(from<0)return;const[moved]=data.entries.splice(from,1);moved.sectionKey=sectionKey;const target=data.entries.findIndex(entry=>entry.sectionKey===sectionKey);data.entries.splice(target<0?data.entries.length:target,0,moved);
+    return true;
+  });
+}
+async function moveSection(key,direction){
+  return saveIdiomOrder('section', () => {
+    const chapter=data.chapters.find(item=>item.sections.some(section=>section.key===key));if(!chapter)return;const index=chapter.sections.findIndex(section=>section.key===key),peers=chapter.sections.filter(section=>(section.groupKey||'')===(chapter.sections[index].groupKey||'')&&(!el.section.value||section.key===el.section.value)&&data.entries.some(entry=>entry.sectionKey===section.key&&(el.showHidden.checked||!entry.hidden))),peerIndex=peers.findIndex(section=>section.key===key),targetPeer=peers[peerIndex+direction];if(!targetPeer)return;const target=chapter.sections.findIndex(section=>section.key===targetPeer.key);moveInArray(chapter.sections,index,target);
+    return true;
+  });
+}
+async function moveSectionBefore(key,targetKey){
+  return saveIdiomOrder('section', () => {
+    const source=flatSections().find(section=>section.key===key),target=flatSections().find(section=>section.key===targetKey);if(!source||!target||source.chapterKey!==target.chapterKey||(source.groupKey||'')!==(target.groupKey||''))return;const chapter=data.chapters.find(item=>item.key===source.chapterKey),from=chapter.sections.findIndex(section=>section.key===key),to=chapter.sections.findIndex(section=>section.key===targetKey);const[moved]=chapter.sections.splice(from,1);chapter.sections.splice(from<to?to-1:to,0,moved);
+    return true;
+  });
+}
 
 function attachDragHandlers(){for(const row of el.entries.querySelectorAll('tr.idiom-row')){row.addEventListener('dragstart',event=>{dragState={type:'entry',id:row.dataset.id};event.dataTransfer.effectAllowed='move';row.classList.add('dragging');});row.addEventListener('dragend',clearDrag);row.addEventListener('dragover',event=>{event.preventDefault();row.classList.add('drag-over');});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',event=>{event.preventDefault();row.classList.remove('drag-over');if(dragState?.type==='entry'&&dragState.id!==row.dataset.id)moveEntryBefore(dragState.id,row.dataset.id);dragState=null;});attachTouchDrag(row,target=>target.dataset.id?moveEntryBefore(row.dataset.id,target.dataset.id):moveEntryToSection(row.dataset.id,target.dataset.sectionKey));}for(const row of el.entries.querySelectorAll('tr.section-header-row')){row.addEventListener('dragstart',event=>{dragState={type:'section',id:row.dataset.sectionKey};event.dataTransfer.effectAllowed='move';row.classList.add('dragging');});row.addEventListener('dragend',clearDrag);row.addEventListener('dragover',event=>{event.preventDefault();row.classList.add('drag-over');});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',event=>{event.preventDefault();row.classList.remove('drag-over');if(dragState?.type==='entry')moveEntryToSection(dragState.id,row.dataset.sectionKey);else if(dragState?.type==='section'&&dragState.id!==row.dataset.sectionKey)moveSectionBefore(dragState.id,row.dataset.sectionKey);dragState=null;});}}
 function clearDrag(){document.querySelectorAll('.dragging,.drag-over').forEach(node=>node.classList.remove('dragging','drag-over'));}
@@ -64,7 +150,7 @@ function attachTouchDrag(source,onDrop){let timer=null,active=false,target=null,
 function attachSenseDrag(row){const handle=row.querySelector('.row-drag-handle');handle.addEventListener('dragstart',event=>{dragState={type:'sense',row};event.dataTransfer.effectAllowed='move';row.classList.add('dragging');});handle.addEventListener('dragend',clearDrag);row.addEventListener('dragover',event=>{if(dragState?.type==='sense'){event.preventDefault();row.classList.add('drag-over');}});row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));row.addEventListener('drop',event=>{if(dragState?.type!=='sense')return;event.preventDefault();const source=dragState.row;dragState=null;if(source!==row)el.senses.insertBefore(source,row);clearDrag();numberSenses();});}
 
 el.notebook.addEventListener('change',load);el.section.addEventListener('change',()=>{renderTable();if(el.section.value)loadSection(el.section.value).catch(()=>{});});el.showHidden.addEventListener('change',()=>{refreshSectionOptions();renderTable();});el.query.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(async()=>{if(el.query.value.trim())await loadAllSections();else renderTable();},250);});el.newIdiom.addEventListener('click',()=>open(null));
-el.entries.addEventListener('click',event=>{const action=event.target.closest('[data-action]');if(action){event.stopPropagation();const id=action.dataset.id;if(action.dataset.action==='entry-up')moveEntry(id,-1);if(action.dataset.action==='entry-down')moveEntry(id,1);if(action.dataset.action==='section-up')moveSection(id,-1);if(action.dataset.action==='section-down')moveSection(id,1);if(action.dataset.action==='section-collapse'){collapsedSections.has(id)?collapsedSections.delete(id):collapsedSections.add(id);renderTable();}if(action.dataset.action==='chapter-collapse'){collapsedChapters.has(id)?collapsedChapters.delete(id):collapsedChapters.add(id);renderTable();}if(action.dataset.action==='retry')loadSection(action.dataset.sectionKey,{force:true}).catch(()=>{});return;}const sectionRow=event.target.closest('tr[data-section-key]');if(sectionRow){openSectionName(sectionRow.dataset.sectionKey);return;}const row=event.target.closest('tr[data-id]');if(row)open(data.entries.find(entry=>entry.key===row.dataset.id));});
+el.entries.addEventListener('click',event=>{if(idiomOrderSaving)return;const action=event.target.closest('[data-action]');if(action){event.stopPropagation();const id=action.dataset.id;if(action.dataset.action==='entry-up')moveEntry(id,-1);if(action.dataset.action==='entry-down')moveEntry(id,1);if(action.dataset.action==='section-up')moveSection(id,-1);if(action.dataset.action==='section-down')moveSection(id,1);if(action.dataset.action==='section-collapse'){collapsedSections.has(id)?collapsedSections.delete(id):collapsedSections.add(id);renderTable();}if(action.dataset.action==='chapter-collapse'){collapsedChapters.has(id)?collapsedChapters.delete(id):collapsedChapters.add(id);renderTable();}if(action.dataset.action==='retry')loadSection(action.dataset.sectionKey,{force:true}).catch(()=>{});return;}const sectionRow=event.target.closest('tr[data-section-key]');if(sectionRow){openSectionName(sectionRow.dataset.sectionKey);return;}const row=event.target.closest('tr[data-id]');if(row)open(data.entries.find(entry=>entry.key===row.dataset.id));});
 el.closeDialog.addEventListener('click',()=>setEditorOpen(false));el.editModalOverlay.addEventListener('click',event=>{if(event.target===el.editModalOverlay)setEditorOpen(false);});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!el.editModalOverlay.hidden)setEditorOpen(false);});el.addSense.addEventListener('click',()=>{if(el.senses.children.length<30)senseRow();});el.senses.addEventListener('click',event=>{const action=event.target.closest('[data-action]')?.dataset.action,row=event.target.closest('.idiom-sense-editor');if(!row)return;if(action==='remove'&&el.senses.children.length>1)row.remove();if(action==='up'&&row.previousElementSibling)el.senses.insertBefore(row,row.previousElementSibling);if(action==='down'&&row.nextElementSibling)el.senses.insertBefore(row.nextElementSibling,row);numberSenses();});el.idiomForm.addEventListener('input',preview);
 el.idiomForm.addEventListener('submit',async event=>{event.preventDefault();el.save.disabled=true;el.closeDialog.disabled=true;el.saveStatus.textContent='保存中…';const payload={...(current?{id:current.key}:{}),phrase:field('phrase').value,sectionKey:field('sectionKey').value,hidden:field('hidden').checked,synonyms:field('synonyms').value,antonyms:field('antonyms').value,notes:field('notes').value,meanings:[...el.senses.children].map(row=>({...(row._sense.id?{id:row._sense.id}:{}),meaning:row.querySelector('textarea').value,wordIds:(row._sense.refs||[]).map(ref=>ref.wordId)}))};beginIdiomEditorLoading();try{await api(`/lists/${encodeURIComponent(listId)}/idioms`,{method:'PUT',body:JSON.stringify(payload)});setEditorOpen(false);await load();}catch(error){el.saveStatus.textContent=`保存に失敗しました：${error.message}`;}finally{endIdiomEditorLoading();el.save.disabled=false;el.closeDialog.disabled=false;}});
 (async()=>{beginIdiomEditorLoading();try{const lists=await api('/lists');el.notebook.innerHTML=lists.map(list=>`<option value="${escapeHtml(list.id)}">${escapeHtml(list.name)}</option>`).join('');const preferred=new URLSearchParams(location.search).get('list')||'crossover-v3';if(lists.some(list=>list.id===preferred))el.notebook.value=preferred;await load();}catch(error){el.status.textContent=`読み込みに失敗しました：${error.message}`;}finally{endIdiomEditorLoading();}})();
