@@ -50,16 +50,16 @@ const alphabeticalEntries = buildAlphabeticalIndexEntries([
 ]);
 
 assert.deepEqual(alphabeticalEntries, [
-  { spelling: "begin", loc: "1", targetId: "begin", isRef: false },
-  { spelling: "beginning", loc: "→ begin 1", targetId: "begin", isRef: true },
-  { spelling: "commence", loc: "→ begin 1", targetId: "begin", isRef: true },
-  { spelling: "conclude", loc: "→ finish 2", targetId: "finish", isRef: true },
-  { spelling: "end", loc: "→ finish 2", targetId: "finish", isRef: true },
-  { spelling: "finish", loc: "2", targetId: "finish", isRef: false },
-  { spelling: "launch", loc: "→ begin 1", targetId: "begin", isRef: true },
-  { spelling: "origin", loc: "→ begin 1", targetId: "begin", isRef: true },
-  { spelling: "start", loc: "3", targetId: "start", isRef: false },
-  { spelling: "stop", loc: "→ begin 1", targetId: "begin", isRef: true },
+  { spelling: "begin", loc: "1", targetId: "begin", isRef: false, kind: "word" },
+  { spelling: "beginning", loc: "→ begin 1", targetId: "begin", isRef: true, kind: "derivative" },
+  { spelling: "commence", loc: "→ begin 1", targetId: "begin", isRef: true, kind: "related" },
+  { spelling: "conclude", loc: "→ finish 2", targetId: "finish", isRef: true, kind: "related" },
+  { spelling: "end", loc: "→ finish 2", targetId: "finish", isRef: true, kind: "related" },
+  { spelling: "finish", loc: "2", targetId: "finish", isRef: false, kind: "word" },
+  { spelling: "launch", loc: "→ begin 1", targetId: "begin", isRef: true, kind: "related" },
+  { spelling: "origin", loc: "→ begin 1", targetId: "begin", isRef: true, kind: "related" },
+  { spelling: "start", loc: "3", targetId: "start", isRef: false, kind: "word" },
+  { spelling: "stop", loc: "→ begin 1", targetId: "begin", isRef: true, kind: "related" },
 ]);
 
 
@@ -97,30 +97,35 @@ assert.deepEqual(referenceEntries.get("evident"), {
   loc: "→ evidence 1786",
   targetId: "evidence",
   isRef: true,
+  kind: "derivative",
 });
 assert.deepEqual(referenceEntries.get("unmistakable"), {
   spelling: "unmistakable",
   loc: "→ apparent 9",
   targetId: "apparent",
   isRef: true,
+  kind: "related",
 });
 assert.deepEqual(referenceEntries.get("hidden"), {
   spelling: "hidden",
   loc: "→ obvious 10",
   targetId: "obvious",
   isRef: true,
+  kind: "related",
 });
 assert.deepEqual(referenceEntries.get("visible"), {
   spelling: "visible",
   loc: "→ obvious 10",
   targetId: "obvious",
   isRef: true,
+  kind: "related",
 });
 assert.deepEqual(referenceEntries.get("contextual"), {
   spelling: "contextual",
   loc: "→ apparent 9",
   targetId: "apparent",
   isRef: true,
+  kind: "related",
 });
 
 assert.equal(getAlphabeticalIndexKey("(at) first hand"), "first hand");
@@ -138,3 +143,16 @@ assert.deepEqual(
 );
 
 console.log("Word index integration tests passed");
+
+const mixedEntries = buildAlphabeticalIndexEntries([
+  { id: "act", spelling: "act", seqNo: "1", branch: 0 },
+  { id: "active", spelling: "active", seqNo: "1-1", branch: 1 },
+], [
+  { key: "act-on", phrase: "act on", no: "2" },
+  { key: "hidden", phrase: "hidden idiom", no: "3", hidden: true },
+]);
+assert.deepEqual(mixedEntries, [
+  { spelling: "act", loc: "1", targetId: "act", isRef: false, kind: "word" },
+  { spelling: "act on", loc: "熟 2", targetId: "act-on", isRef: false, kind: "idiom" },
+  { spelling: "active", loc: "1-1", targetId: "active", isRef: false, kind: "derivative" },
+]);
