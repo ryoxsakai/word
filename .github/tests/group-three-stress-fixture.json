@@ -1,0 +1,1402 @@
+[
+  {
+    "ipa": "/dɪˈlɪbərət/",
+    "pos": "形",
+    "section": 13,
+    "word": "deliberate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/kɔːˈzæləti/",
+    "pos": "名",
+    "section": 13,
+    "word": "causality",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˌræʃəˈnæl/",
+    "pos": "名",
+    "section": 13,
+    "word": "rationale",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/rɪˈleɪ.ʃən.ʃɪp/",
+    "pos": "名",
+    "section": 13,
+    "word": "relationship",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈmek.ə.nɪ.zəm/",
+    "pos": "名",
+    "section": 13,
+    "word": "mechanism",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈfæk.tə/",
+    "pos": "名",
+    "section": 13,
+    "word": "factor",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sɪtjuːˈeɪʃən/",
+    "pos": "名",
+    "section": 13,
+    "word": "situation",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈstɹætədʒi/",
+    "pos": "名",
+    "section": 13,
+    "word": "strategy",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɹəʊl/",
+    "pos": "名",
+    "section": 13,
+    "word": "role",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈæspɛkt/",
+    "pos": "名",
+    "section": 13,
+    "word": "aspect",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ɪntəɹˈækt/",
+    "pos": "自",
+    "section": 13,
+    "word": "interact",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/kənˈteɪn/",
+    "pos": "他",
+    "section": 13,
+    "word": "contain",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ɪnˈkluːd/",
+    "pos": "他",
+    "section": 13,
+    "word": "include",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪnˈvɒlv/",
+    "pos": "他",
+    "section": 13,
+    "word": "involve",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈkɒn.trɑːst/",
+    "pos": "名",
+    "section": 13,
+    "word": "contrast",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈsɜːkəmstæns/",
+    "pos": "名",
+    "section": 13,
+    "word": "circumstance",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkɒn.tekst/",
+    "pos": "名",
+    "section": 13,
+    "word": "context",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈbeɪsɪs/",
+    "pos": "名",
+    "section": 13,
+    "word": "basis",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˌkɒr.əˈleɪ.ʃən/",
+    "pos": "名",
+    "section": 13,
+    "word": "correlation",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/ˈkɒnsɪkwɛns/",
+    "pos": "名",
+    "section": 13,
+    "word": "consequence",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/rɪˈvjuː/",
+    "pos": "名",
+    "section": 14,
+    "word": "review",
+    "expected": [
+      3,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈkæɹəktə/",
+    "pos": "名",
+    "section": 14,
+    "word": "character",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈfɪɡjɚ/",
+    "pos": "名",
+    "section": 14,
+    "word": "figure",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɪmɪd͡ʒ/",
+    "pos": "名",
+    "section": 14,
+    "word": "image",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈsɪmbəl/",
+    "pos": "名",
+    "section": 14,
+    "word": "symbol",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈmɒdl̩/",
+    "pos": "名",
+    "section": 14,
+    "word": "model",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɪnsaɪt/",
+    "pos": "名",
+    "section": 14,
+    "word": "insight",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈstɛ.ɹi.əˌtaɪp/",
+    "pos": "名",
+    "section": 14,
+    "word": "stereotype",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈbaɪ.əs/",
+    "pos": "名",
+    "section": 14,
+    "word": "bias",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈætɪˌtjuːd/",
+    "pos": "名",
+    "section": 14,
+    "word": "attitude",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈmɛm(ə)ɹi/",
+    "pos": "名",
+    "section": 14,
+    "word": "memory",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkɒɡnɪtɪv/",
+    "pos": "形",
+    "section": 14,
+    "word": "cognitive",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/haɪˈpɒθəsɪs/",
+    "pos": "名",
+    "section": 14,
+    "word": "hypothesis",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈlɒdʒɪk/",
+    "pos": "名",
+    "section": 14,
+    "word": "logic",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/fɪˈlɒsəfi/",
+    "pos": "名",
+    "section": 14,
+    "word": "philosophy",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/pɚˈspɛktɪv/",
+    "pos": "名",
+    "section": 14,
+    "word": "perspective",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈnəʊʃən/",
+    "pos": "名",
+    "section": 14,
+    "word": "notion",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkɒn.sɛpt/",
+    "pos": "名",
+    "section": 14,
+    "word": "concept",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈθiːəɹi/",
+    "pos": "名",
+    "section": 14,
+    "word": "theory",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɑeˈdiə̯/",
+    "pos": "名",
+    "section": 14,
+    "word": "idea",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ʌndəˈstandɪŋ/",
+    "pos": "名",
+    "section": 15,
+    "word": "understanding",
+    "expected": [
+      7,
+      8
+    ]
+  },
+  {
+    "ipa": "/ˈtalənt/",
+    "pos": "名",
+    "section": 15,
+    "word": "talent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/drɪl/",
+    "pos": "名",
+    "section": 15,
+    "word": "drill",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈkɒmpətənt/",
+    "pos": "形",
+    "section": 15,
+    "word": "competent",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈbrɪliənt/",
+    "pos": "形",
+    "section": 15,
+    "word": "brilliant",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/æmˈbɪ.ʃən/",
+    "pos": "名",
+    "section": 15,
+    "word": "ambition",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˌkɒmprɪˈhend/",
+    "pos": "他",
+    "section": 15,
+    "word": "comprehend",
+    "expected": [
+      7,
+      8
+    ]
+  },
+  {
+    "ipa": "/ˈwɪzdəm/",
+    "pos": "名",
+    "section": 15,
+    "word": "wisdom",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈfæ.kəl.ti/",
+    "pos": "名",
+    "section": 15,
+    "word": "faculty",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈlɪt.ɹə.si/",
+    "pos": "名",
+    "section": 15,
+    "word": "literacy",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈedʒukeɪt/",
+    "pos": "他",
+    "section": 15,
+    "word": "educate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˌækəˈdɛmɪk/",
+    "pos": "形",
+    "section": 15,
+    "word": "academic",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/tɑːsk/",
+    "pos": "名",
+    "section": 15,
+    "word": "task",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/skɪl/",
+    "pos": "名",
+    "section": 15,
+    "word": "skill",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈɪntɜːrnʃɪp/",
+    "pos": "名",
+    "section": 15,
+    "word": "internship",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/voʊˈkeɪʃənəl/",
+    "pos": "形",
+    "section": 15,
+    "word": "vocational",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈɡlɑːsəri/",
+    "pos": "名",
+    "section": 15,
+    "word": "glossary",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/baɪˈlɪŋɡwəl/",
+    "pos": "形",
+    "section": 15,
+    "word": "bilingual",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈmæstər/",
+    "pos": "他",
+    "section": 15,
+    "word": "master",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈtuːtər/",
+    "pos": "名",
+    "section": 15,
+    "word": "tutor",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sɔːs/",
+    "pos": "名",
+    "section": 16,
+    "word": "source",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈprɒdʒ.ekt/",
+    "pos": "名",
+    "section": 16,
+    "word": "project",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈaʊtkʌm/",
+    "pos": "名",
+    "section": 16,
+    "word": "outcome",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɪnstəns/",
+    "pos": "名",
+    "section": 16,
+    "word": "instance",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈdiːteɪl/",
+    "pos": "名",
+    "section": 16,
+    "word": "detail",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/kəʊd/",
+    "pos": "名",
+    "section": 16,
+    "word": "code",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkætəˌɡɔɹi/",
+    "pos": "名",
+    "section": 16,
+    "word": "category",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈsiːkwəns/",
+    "pos": "名",
+    "section": 16,
+    "word": "sequence",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/tɛkˈniːk/",
+    "pos": "名",
+    "section": 16,
+    "word": "technique",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈɪnstɹəmənt/",
+    "pos": "名",
+    "section": 16,
+    "word": "instrument",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ləˈbɒr.ə.tri/",
+    "pos": "名",
+    "section": 16,
+    "word": "laboratory",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/tɹeɪs/",
+    "pos": "他",
+    "section": 16,
+    "word": "trace",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈmɒnɨtə/",
+    "pos": "他",
+    "section": 16,
+    "word": "monitor",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪɡˈzæmɪn/",
+    "pos": "他",
+    "section": 16,
+    "word": "examine",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɨˈvaljʊeɪt/",
+    "pos": "他",
+    "section": 16,
+    "word": "evaluate",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈkælkjəleɪt/",
+    "pos": "他",
+    "section": 16,
+    "word": "calculate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/stəˈtɪstɪks/",
+    "pos": "名",
+    "section": 16,
+    "word": "statistics",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈsɜː.veɪ/",
+    "pos": "名",
+    "section": 16,
+    "word": "survey",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈmɛθəd/",
+    "pos": "名",
+    "section": 16,
+    "word": "method",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/əˈnælɪsɪs/",
+    "pos": "名",
+    "section": 16,
+    "word": "analysis",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/faɪl/",
+    "pos": "名",
+    "section": 17,
+    "word": "file",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈvɜːrtʃuəl/",
+    "pos": "形",
+    "section": 17,
+    "word": "virtual",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈməʊbaɪl/",
+    "pos": "形",
+    "section": 17,
+    "word": "mobile",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈvɪʒuəl/",
+    "pos": "形",
+    "section": 17,
+    "word": "visual",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/wɛb/",
+    "pos": "名",
+    "section": 17,
+    "word": "web",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈfɔːrmæt/",
+    "pos": "名",
+    "section": 17,
+    "word": "format",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈaʊtlaɪn/",
+    "pos": "他",
+    "section": 17,
+    "word": "outline",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɹəʊ/",
+    "pos": "名",
+    "section": 17,
+    "word": "row",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈkɒləm/",
+    "pos": "名",
+    "section": 17,
+    "word": "column",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈhɛd.laɪn/",
+    "pos": "名",
+    "section": 17,
+    "word": "headline",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/tʃɑːt/",
+    "pos": "名",
+    "section": 17,
+    "word": "chart",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/rɪˈmɑːrk/",
+    "pos": "他",
+    "section": 17,
+    "word": "remark",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/pɹəˈpɔːʃən/",
+    "pos": "名",
+    "section": 17,
+    "word": "proportion",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈpɹɛzəns/",
+    "pos": "名",
+    "section": 17,
+    "word": "presence",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪnˈstɹʌkʃən/",
+    "pos": "名",
+    "section": 17,
+    "word": "instruction",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈɒɹ.ə.dʒən/",
+    "pos": "名",
+    "section": 17,
+    "word": "origin",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈtɒpɪk/",
+    "pos": "名",
+    "section": 17,
+    "word": "topic",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈsɛkʃən/",
+    "pos": "名",
+    "section": 17,
+    "word": "section",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈaɪtəm/",
+    "pos": "名",
+    "section": 17,
+    "word": "item",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/blæŋk/",
+    "pos": "形",
+    "section": 17,
+    "word": "blank",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈlek.tʃər/",
+    "pos": "名",
+    "section": 18,
+    "word": "lecture",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/dɪsˈpleɪ/",
+    "pos": "他",
+    "section": 18,
+    "word": "display",
+    "expected": [
+      5,
+      7
+    ]
+  },
+  {
+    "ipa": "/ɪ.ˈlʌs.tɹeɪt/",
+    "pos": "他",
+    "section": 18,
+    "word": "illustrate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/əˈnaʊns/",
+    "pos": "他",
+    "section": 18,
+    "word": "announce",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈadvə(ɹ)taɪz/",
+    "pos": "他",
+    "section": 18,
+    "word": "advertise",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈmiːdɪəm/",
+    "pos": "名",
+    "section": 18,
+    "word": "medium",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/təʊn/",
+    "pos": "名",
+    "section": 18,
+    "word": "tone",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkɒn.tent/",
+    "pos": "名",
+    "section": 18,
+    "word": "content",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈdɒkjʊmənt/",
+    "pos": "名",
+    "section": 18,
+    "word": "document",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/kənˈveɪ/",
+    "pos": "他",
+    "section": 18,
+    "word": "convey",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ɪmˈplaɪ/",
+    "pos": "他",
+    "section": 18,
+    "word": "imply",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈdaɪəlɑɡ/",
+    "pos": "名",
+    "section": 18,
+    "word": "dialogue",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈdaɪ.ə.lekt/",
+    "pos": "名",
+    "section": 18,
+    "word": "dialect",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈvɜː.bəl/",
+    "pos": "形",
+    "section": 18,
+    "word": "verbal",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/lɪŋˈɡwɪs.tɪk/",
+    "pos": "形",
+    "section": 18,
+    "word": "linguistic",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/vəʊˈkabjʊləɹɪ/",
+    "pos": "名",
+    "section": 18,
+    "word": "vocabulary",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/fɹeɪz/",
+    "pos": "名",
+    "section": 18,
+    "word": "phrase",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈɑː.tɪ.kəl/",
+    "pos": "名",
+    "section": 18,
+    "word": "article",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈsteɪtm(ə)nt/",
+    "pos": "名",
+    "section": 18,
+    "word": "statement",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɛk.ˈspɹɛs/",
+    "pos": "他",
+    "section": 18,
+    "word": "express",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/pɹeɪ/",
+    "pos": "自",
+    "section": 19,
+    "word": "pray",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˌs(j)u.pə(ɹ)ˈstɪ.ʃn̩/",
+    "pos": "名",
+    "section": 19,
+    "word": "superstition",
+    "expected": [
+      7,
+      8
+    ]
+  },
+  {
+    "ipa": "/kɜːs/",
+    "pos": "名",
+    "section": 19,
+    "word": "curse",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈstʌbən/",
+    "pos": "形",
+    "section": 19,
+    "word": "stubborn",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈstjuːpɪd/",
+    "pos": "形",
+    "section": 19,
+    "word": "stupid",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈɔːfəl/",
+    "pos": "形",
+    "section": 19,
+    "word": "awful",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪˈluːmɪneɪt/",
+    "pos": "他",
+    "section": 19,
+    "word": "illuminate",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈvɪvɪd/",
+    "pos": "形",
+    "section": 19,
+    "word": "vivid",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈskʌlptj(ʊ)ə/",
+    "pos": "名",
+    "section": 19,
+    "word": "sculpture",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/fiːst/",
+    "pos": "名",
+    "section": 19,
+    "word": "feast",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈsɛl.ə.bɹeɪt/",
+    "pos": "他",
+    "section": 19,
+    "word": "celebrate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˌɛntəˈteɪn/",
+    "pos": "他",
+    "section": 19,
+    "word": "entertain",
+    "expected": [
+      6,
+      8
+    ]
+  },
+  {
+    "ipa": "/ˈɪmɪteɪt/",
+    "pos": "他",
+    "section": 19,
+    "word": "imitate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈprɒvɜːb/",
+    "pos": "名",
+    "section": 19,
+    "word": "proverb",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈrɪdəl/",
+    "pos": "名",
+    "section": 19,
+    "word": "riddle",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/θiːm/",
+    "pos": "名",
+    "section": 19,
+    "word": "theme",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/plɒt/",
+    "pos": "名",
+    "section": 19,
+    "word": "plot",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈnæɹətɪv/",
+    "pos": "名",
+    "section": 19,
+    "word": "narrative",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/kɑːˈtuːn/",
+    "pos": "名",
+    "section": 19,
+    "word": "cartoon",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈɔː.θə/",
+    "pos": "名",
+    "section": 19,
+    "word": "author",
+    "expected": [
+      0,
+      2
+    ]
+  }
+]
