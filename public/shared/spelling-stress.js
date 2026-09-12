@@ -2,15 +2,9 @@
 // future pronunciation change cannot silently inherit an incorrect highlight.
 // These cover non one-to-one vowel alignment, optional sounds and rhotic vowels.
 const VERIFIED_STRESS = new Map([
-  ["idea|/ɑeˈdiə̯/", [2,3]],
-  ["literacy|/ˈlɪt.ɹə.si/", [1,2]],
-  ["laboratory|/ləˈbɒr.ə.tri/", [3,4]],
+
   ["eventually|/ɪ.ˈvɛn.tjʊ.li/", [2,3]],
-  ["temporary|/ˈtɛmpəɹi/", [1,2]],
-  ["ordinary|/ˈɔːdənɹi/", [0,1]],
-  ["negative|/ˈnɛ(e)ɡəˌɾɪv/", [1,2]],
-  ["cruel|/kɹuː(ə)l/", [2,3]],
-  ["fierce|/fɪəs/", [1,3]],
+
   ["awkward|/ˈɑkwɚd/", [0,2]],
   ['extraordinary|/ɪksˈtɹɔː(ɹ)dɪnəɹi/', [5, 6]],
 ]);
@@ -33,6 +27,7 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
   if (!/^[a-z]{1,64}$/i.test(spelling || '') || typeof pronunciation !== 'string' || pronunciation.length > 200) return null;
   const word = spelling.toLowerCase();
   let ipa = pronunciation.trim().normalize('NFD');
+  const optionalSchwaOnly = ipa.includes('(ə)') && !ipa.includes('ˈ') && !ipa.includes('ˌ');
   // Keep syllabic consonants as a nucleus before removing combining marks.
   ipa = ipa.replace(/([lnm])\u0329/g, 'ə$1')
     .replace(/[\u0300-\u036fːˑ]/g, '')
@@ -50,7 +45,8 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
     const nuclei = [...variant.matchAll(/aɪ|ʌɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɛɜɪʊʌɐ]/gu)];
     const primary = [...variant.matchAll(/ˈ/g)];
     if (!nuclei.length || primary.length > 1) return null;
-    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : (nuclei.length === 1 || (nuclei.length === 2 && /^(ɪə|ɛə|eə|ʊə)$/.test(nuclei.map(n => n[0]).join('')) && !/[.ˌ]/.test(variant))) ? 0 : -1;
+    const mandatoryNuclei = [...ipa.replace(/\(ə\)/g, '').replace(/[()]/g, '').matchAll(/aɪ|ʌɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɛɜɪʊʌɐ]/gu)];
+    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : ((optionalSchwaOnly && mandatoryNuclei.length === 1) || nuclei.length === 1 || (nuclei.length === 2 && /^(ɪə|ɛə|eə|ʊə)$/.test(nuclei.map(n => n[0]).join('')) && !/[.ˌ]/.test(variant))) ? 0 : -1;
     if (stressed < 0) return null;
     const visited = new Set();
     function align(pos, sound, span) {
@@ -71,6 +67,10 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
         align(pos + 1, sound, span); return;
       }
       // Silent terminal e, including -gue/-que, is an alternative, never assumed.
+      // Weak vowels in -ary/-ory/-ery/-eracy may be absent in the registered reading.
+      // Only after the stressed vowel has already been aligned.
+      if (span && /^[aeo]r(?:y|ies|ily|acy)$/.test(word.slice(pos))) align(pos + 1, sound, span);
+      if (optionalSchwaOnly && word[pos] === 'e' && word[pos - 1] === 'u' && word.slice(pos + 1) === 'l') align(pos + 1, sound, span);
       if (word[pos] === 'e' && pos === word.length - 1 && !/[aeiouy]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
       if (word[pos] === 'u' && word[pos - 1] === 'g' && /[aei]/.test(word[pos + 1] || '') && /[gɡ]/.test(variant)) align(pos + 1, sound, span);
       if (word[pos] === 'u' && (word[pos - 1] === 'q' || (word[pos - 1] === 'g' && /[gɡ]w/.test(variant))) && /[aeio]/.test(word[pos + 1] || '')) align(pos + 1, sound, span);
@@ -80,8 +80,10 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
       if (sound >= nuclei.length) return;
       for (let length = 1; length <= 3 && pos + length <= word.length; length++) {
         const letters = word.slice(pos, pos + length);
+        if (length === 1 && /^(ie|ea)r/.test(word.slice(pos)) && ['ɪə','ɛə','eə'].includes(nuclei[sound][0] + (nuclei[sound + 1]?.[0] || ''))) continue;
         if (letters.startsWith('u') && word[pos - 1] === 'g' && /[gɡ]w/.test(variant)) continue;
         let sounds = SOUNDS[letters];
+        if (letters === 'ue' && optionalSchwaOnly && word[pos + length] === 'l') continue;
         const beforeR = word[pos + length] === 'r';
         if (beforeR && ['a', 'ea', 'ai'].includes(letters)) sounds = [...(sounds || []), 'e'];
         if (beforeR && letters === 'o') sounds = [...sounds, 'ɜ'];
