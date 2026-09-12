@@ -77,3 +77,15 @@ for (const {word, ipa, expected} of groupThree) {
   assert.equal(render(word, ipa, escape), word.slice(0, start) + '<span class="spelling-stress">' + word.slice(start, end) + '</span>' + word.slice(end), word);
 }
 console.log('Group 3: all 140 primary-stress spans and HTML outputs passed');
+
+for (const [group, count, first, last] of [['four', 120, 20, 25], ['five', 180, 26, 34]]) {
+  const rows = JSON.parse(fs.readFileSync(new URL(`./group-${group}-stress-fixture.json`, import.meta.url)));
+  assert.equal(rows.length, count);
+  assert.equal(new Set(rows.map(row => row.word)).size, count);
+  for (let section = first; section <= last; section++) assert.equal(rows.filter(row => row.section === section).length, 20);
+  for (const {word, ipa, expected: [start, end]} of rows) {
+    assert.deepEqual(range(word, ipa), [start, end], word);
+    assert.equal(render(word, ipa, escape), word.slice(0, start) + '<span class="spelling-stress">' + word.slice(start, end) + '</span>' + word.slice(end), word);
+  }
+  console.log(`Group ${group}: all ${count} primary-stress spans and HTML outputs passed`);
+}
