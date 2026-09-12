@@ -34,3 +34,17 @@ assert.deepEqual(range('PURE', '/ˈpjɔː/'), [1, 2]);
 assert.equal(range('extraordinary', '/unknown/'), null);
 assert.equal(range('subtle', ''), null);
 console.log('Section 1 stress regressions passed');
+
+// Independently reviewed primary-stress spans for all 100 Group 1 headwords.
+const groupOne = JSON.parse(fs.readFileSync(new URL('./group-one-stress-fixture.json', import.meta.url)));
+assert.equal(groupOne.length, 100);
+assert.equal(new Set(groupOne.map(w => w.word)).size, 100);
+for (let section = 1; section <= 5; section++) {
+  assert.equal(groupOne.filter(w => w.section === section).length, 20);
+}
+for (const {word, ipa, expected} of groupOne) {
+  assert.deepEqual(range(word, ipa), expected, word);
+  const [start, end] = expected;
+  assert.equal(render(word, ipa, escape), word.slice(0, start) + '<span class="spelling-stress">' + word.slice(start, end) + '</span>' + word.slice(end), word);
+}
+console.log('Group 1: all 100 primary-stress spans and HTML outputs passed');

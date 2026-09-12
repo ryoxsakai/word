@@ -1,0 +1,902 @@
+[
+  {
+    "ipa": "/kiː/",
+    "section": 1,
+    "word": "key",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/sɪɡˈnɪ.fɪ.kənt/",
+    "section": 1,
+    "word": "significant",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/pɹaɪ̯m/",
+    "section": 1,
+    "word": "prime",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˌfʌn.dəˈmen.təl/",
+    "section": 1,
+    "word": "fundamental",
+    "expected": [
+      6,
+      7
+    ]
+  },
+  {
+    "ipa": "/ˈpjɔː/",
+    "section": 1,
+    "word": "pure",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈæb.səˌljuːt/",
+    "section": 1,
+    "word": "absolute",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/stɹɪkt/",
+    "section": 1,
+    "word": "strict",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈsʌt(ə)l/",
+    "section": 1,
+    "word": "subtle",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/rer/",
+    "section": 1,
+    "word": "rare",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈmaɪnɚ/",
+    "section": 1,
+    "word": "minor",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sɪˈvɪə/",
+    "section": 1,
+    "word": "severe",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/əˈpæ.ɹənt/",
+    "section": 1,
+    "word": "apparent",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈɒ.vɪəs/",
+    "section": 1,
+    "word": "obvious",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ɪksˈtɹɔː(ɹ)dɪnəɹi/",
+    "section": 1,
+    "word": "extraordinary",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/dɹəˈmætɪk/",
+    "section": 1,
+    "word": "dramatic",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪnˈtɛns/",
+    "section": 1,
+    "word": "intense",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ɛkˈstɹiːm/",
+    "section": 1,
+    "word": "extreme",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/slaɪt/",
+    "section": 1,
+    "word": "slight",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/vɑːst/",
+    "section": 1,
+    "word": "vast",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪˈnɔː(ɹ)məs/",
+    "section": 1,
+    "word": "enormous",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈæk.jə.ɹɪt/",
+    "section": 2,
+    "word": "accurate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/pɹɪˈsaɪs/",
+    "section": 2,
+    "word": "precise",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪɡˈzækt/",
+    "section": 2,
+    "word": "exact",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/pəˈtɪkjələ/",
+    "section": 2,
+    "word": "particular",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/spəˈsɪf.ɪk/",
+    "section": 2,
+    "word": "specific",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈvɛə.ɹi.əs/",
+    "section": 2,
+    "word": "various",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkɒmən/",
+    "section": 2,
+    "word": "common",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˌjuːnɪˈvɜːsl̩/",
+    "section": 2,
+    "word": "universal",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈwaɪd.spred/",
+    "section": 2,
+    "word": "widespread",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈnæɹəʊ/",
+    "section": 2,
+    "word": "narrow",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˌoʊ.vərˈɔːl/",
+    "section": 2,
+    "word": "overall",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ənˈtaɪə/",
+    "section": 2,
+    "word": "entire",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈɛkstɹə/",
+    "section": 2,
+    "word": "extra",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈmɪn.ɪ.məm/",
+    "section": 2,
+    "word": "minimum",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sʌm/",
+    "section": 2,
+    "word": "sum",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkwɑndədi/",
+    "section": 2,
+    "word": "quantity",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/mæs/",
+    "section": 2,
+    "word": "mass",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈnjuːməɹəs/",
+    "section": 2,
+    "word": "numerous",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈmʌltɪpl̩/",
+    "section": 2,
+    "word": "multiple",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɡrædʒuəl/",
+    "section": 2,
+    "word": "gradual",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈak(t)ʃj(ʊ)əl/",
+    "section": 3,
+    "word": "actual",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ʌnˈnəʊn/",
+    "section": 3,
+    "word": "unknown",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˈvɪzəb(ə)l/",
+    "section": 3,
+    "word": "visible",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈæk.tɪv/",
+    "section": 3,
+    "word": "active",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/pəˈtɛnʃəl/",
+    "section": 3,
+    "word": "potential",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈmɒɹəl/",
+    "section": 3,
+    "word": "moral",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈæbˌstɹækt/",
+    "section": 3,
+    "word": "abstract",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/kɵnˈkɹiːt/",
+    "section": 3,
+    "word": "concrete",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/səˈfɪs.tə.keɪ.tɪd/",
+    "section": 3,
+    "word": "sophisticated",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɹæʃ(ə)nəl/",
+    "section": 3,
+    "word": "rational",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈflek.sə.bəl/",
+    "section": 3,
+    "word": "flexible",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/kəmˈpleks/",
+    "section": 3,
+    "word": "complex",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/kənˈven.ʃən.əl/",
+    "section": 3,
+    "word": "conventional",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɔːdənɹi/",
+    "section": 3,
+    "word": "ordinary",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/əˈfɪʃənt/",
+    "section": 3,
+    "word": "efficient",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/fɒls/",
+    "section": 3,
+    "word": "false",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/kəˈrekt/",
+    "section": 3,
+    "word": "correct",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈnɛ(e)ɡəˌɾɪv/",
+    "section": 3,
+    "word": "negative",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈvæljuː/",
+    "section": 3,
+    "word": "value",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈkwɒlɪti/",
+    "section": 3,
+    "word": "quality",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/əˈpreɪz/",
+    "section": 4,
+    "word": "appraise",
+    "expected": [
+      4,
+      6
+    ]
+  },
+  {
+    "ipa": "/aʊtˈstændɪŋ/",
+    "section": 4,
+    "word": "outstanding",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/ˌwɜːrθˈwaɪl/",
+    "section": 4,
+    "word": "worthwhile",
+    "expected": [
+      7,
+      8
+    ]
+  },
+  {
+    "ipa": "/hɑːʃ/",
+    "section": 4,
+    "word": "harsh",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɹændəm/",
+    "section": 4,
+    "word": "random",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɪŋˈkɹɛdɪbəl/",
+    "section": 4,
+    "word": "incredible",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/ɪnˈɛvɪtəbəl/",
+    "section": 4,
+    "word": "inevitable",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈʌltɪmət/",
+    "section": 4,
+    "word": "ultimate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈɹædɪkəl/",
+    "section": 4,
+    "word": "radical",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈmɒdərət/",
+    "section": 4,
+    "word": "moderate",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈtrɪviəl/",
+    "section": 4,
+    "word": "trivial",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/əbˈskjʊər/",
+    "section": 4,
+    "word": "obscure",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/veɪɡ/",
+    "section": 4,
+    "word": "vague",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈdʒenjuɪn/",
+    "section": 4,
+    "word": "genuine",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈfɔːrkæst/",
+    "section": 4,
+    "word": "forecast",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈpɹɒspɛkt/",
+    "section": 4,
+    "word": "prospect",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/kluː/",
+    "section": 4,
+    "word": "clue",
+    "expected": [
+      2,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈmɛɹət/",
+    "section": 4,
+    "word": "merit",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɹæŋk/",
+    "section": 4,
+    "word": "rank",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈɒpʃən/",
+    "section": 4,
+    "word": "option",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/rɪˈɡɑːrdləs/",
+    "section": 5,
+    "word": "regardless",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈnɒvl̩/",
+    "section": 5,
+    "word": "novel",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ɹʌf/",
+    "section": 5,
+    "word": "rough",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/breɪv/",
+    "section": 5,
+    "word": "brave",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈmɑdəst/",
+    "section": 5,
+    "word": "modest",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/sɪnˈsɪə(ɹ)/",
+    "section": 5,
+    "word": "sincere",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/kɹuː(ə)l/",
+    "section": 5,
+    "word": "cruel",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/ˈhɒstaɪl/",
+    "section": 5,
+    "word": "hostile",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/əˈɡɹɛs.ɪv/",
+    "section": 5,
+    "word": "aggressive",
+    "expected": [
+      4,
+      5
+    ]
+  },
+  {
+    "ipa": "/fɪəs/",
+    "section": 5,
+    "word": "fierce",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/ɪnˈdɪfərənt/",
+    "section": 5,
+    "word": "indifferent",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈhʌmbəl/",
+    "section": 5,
+    "word": "humble",
+    "expected": [
+      1,
+      2
+    ]
+  },
+  {
+    "ipa": "/ˈlɔɪəl/",
+    "section": 5,
+    "word": "loyal",
+    "expected": [
+      1,
+      3
+    ]
+  },
+  {
+    "ipa": "/spɒnˈteɪniəs/",
+    "section": 5,
+    "word": "spontaneous",
+    "expected": [
+      5,
+      6
+    ]
+  },
+  {
+    "ipa": "/mɪd.ˈiː.vəl/",
+    "section": 5,
+    "word": "medieval",
+    "expected": [
+      3,
+      5
+    ]
+  },
+  {
+    "ipa": "/ˈɪn.tɪ.mət/",
+    "section": 5,
+    "word": "intimate",
+    "expected": [
+      0,
+      1
+    ]
+  },
+  {
+    "ipa": "/ˈɑkwɚd/",
+    "section": 5,
+    "word": "awkward",
+    "expected": [
+      0,
+      2
+    ]
+  },
+  {
+    "ipa": "/məˈtjʊə/",
+    "section": 5,
+    "word": "mature",
+    "expected": [
+      3,
+      4
+    ]
+  },
+  {
+    "ipa": "/ˈprɪmɪtɪv/",
+    "section": 5,
+    "word": "primitive",
+    "expected": [
+      2,
+      3
+    ]
+  },
+  {
+    "ipa": "/feɪk/",
+    "section": 5,
+    "word": "fake",
+    "expected": [
+      1,
+      2
+    ]
+  }
+]
