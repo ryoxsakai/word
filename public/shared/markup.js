@@ -64,7 +64,7 @@ export function renderMarkup(raw, opts = {}) {
       refHtml = `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${emphasizedLabel}</span>`;
     } else {
       const noSuffix = result.no != null
-        ? `<span class="ref-no"> (no.${escapeHtml(result.no)})</span>`
+        ? `<span class="ref-no"> (${result.type === "idiom" ? "熟 " : "no."}${escapeHtml(result.no)})</span>`
         : "";
       const type = result.type === "idiom" ? "idiom" : "word";
       refHtml = `<a href="#${type}-${escapeHtml(encodeURIComponent(result.id))}" class="ref" data-headword="${escapeHtml(headword)}" data-${type}-id="${escapeHtml(result.id)}">${emphasizedLabel}${noSuffix}</a>`;
@@ -220,9 +220,10 @@ export function renderDerivativeWordMarkup(raw, opts = {}) {
   if (!result?.found) return renderMarkup(text, opts);
 
   const noSuffix = result.no != null
-    ? `<span class="ref-no"> (no. ${escapeHtml(result.no)})</span>`
+    ? `<span class="ref-no"> (${result.type === "idiom" ? "熟 " : "no. "}${escapeHtml(result.no)})</span>`
     : "";
-  return `<a href="#word-${escapeHtml(result.id)}" class="ref derivative-ref" data-headword="${escapeHtml(plain)}" data-word-id="${escapeHtml(result.id)}"><strong>${escapeHtml(plain)}</strong>${noSuffix}</a>`;
+  const type = result.type === "idiom" ? "idiom" : "word";
+  return `<a href="#${type}-${escapeHtml(encodeURIComponent(result.id))}" class="ref derivative-ref" data-headword="${escapeHtml(plain)}" data-${type}-id="${escapeHtml(result.id)}"><strong>${escapeHtml(plain)}</strong>${noSuffix}</a>`;
 }
 
 function escapeRegExp(str) {
