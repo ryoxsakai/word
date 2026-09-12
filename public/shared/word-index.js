@@ -26,7 +26,7 @@ export async function fetchCompleteWordIndex(fetchPage, pageSize = 300) {
  * 参照先を1件に絞る。同じ種類では、単語帳で先に現れる見出し語を優先する。
  * 独立した見出し語がある場合は、その見出し語だけを表示する。
  */
-export function buildAlphabeticalIndexEntries(words) {
+export function buildAlphabeticalIndexEntries(words, idioms = []) {
   const sourceWords = words || [];
   const entries = [];
   const headwordKeys = new Set();
@@ -40,7 +40,14 @@ export function buildAlphabeticalIndexEntries(words) {
       loc: word.seqNo,
       targetId: word.id,
       isRef: false,
+      kind: Number(word.branch) > 0 ? "derivative" : "word",
     });
+  }
+
+  for (const idiom of idioms) {
+    if (idiom.hidden || !idiom.phrase) continue;
+    entries.push({ spelling: idiom.phrase, loc: `熟 ${idiom.no}`, targetId: idiom.key, isRef: false, kind: "idiom" });
+    headwordKeys.add(idiom.phrase.toLowerCase());
   }
 
   const referencePriority = {
@@ -63,6 +70,7 @@ export function buildAlphabeticalIndexEntries(words) {
       spelling,
       targetWord,
       priority: referencePriority[kind],
+      kind,
     };
     const existing = bestReferenceBySpelling.get(key);
     if (!existing || candidate.priority < existing.priority) {
@@ -85,7 +93,7 @@ export function buildAlphabeticalIndexEntries(words) {
     }
   }
 
-  for (const { spelling, targetWord } of bestReferenceBySpelling.values()) {
+  for (const { spelling, targetWord, kind } of bestReferenceBySpelling.values()) {
     const targetSpelling = String(targetWord.spelling).trim();
     const targetLocation = targetWord.seqNo != null ? " " + targetWord.seqNo : "";
     entries.push({
@@ -93,6 +101,7 @@ export function buildAlphabeticalIndexEntries(words) {
       loc: "→ " + targetSpelling + targetLocation,
       targetId: targetWord.id,
       isRef: true,
+      kind: kind === "derivative" ? "derivative" : "related",
     });
   }
 
