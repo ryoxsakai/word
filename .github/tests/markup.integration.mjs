@@ -5,6 +5,7 @@ import {
   collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
   createAutoCrossRefRenderer,
+  renderMarkup,
   renderDerivativeWordMarkup,
   renderWordListMarkup,
   stripMarkup,
@@ -233,3 +234,15 @@ assert.match(protectedMarkup, /<a [^>]*data-headword="like"[^>]*><strong>/);
 assert.doesNotMatch(protectedMarkup, /[\uE000-\uF8FF]/u);
 
 console.log("Markup integration tests passed");
+
+const resolveIdiomNumber = () => ({ found: true, type: "idiom", id: "idiom-1", no: "1" });
+for (const html of [
+  renderMarkup("##look up to O##", { resolve: resolveIdiomNumber }),
+  renderWordListMarkup("look up to O", { resolve: resolveIdiomNumber }),
+  renderDerivativeWordMarkup("look up to O", { resolve: resolveIdiomNumber }),
+]) {
+  assert.ok(html.includes('(熟 1)'));
+  assert.ok(html.includes('href="#idiom-idiom-1"'));
+  assert.ok(html.includes('data-idiom-id="idiom-1"'));
+  assert.ok(!html.includes('data-word-id='));
+}
