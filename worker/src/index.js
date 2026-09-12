@@ -1,6 +1,6 @@
 import { handleIdiomIllustrationRoute } from './idiom-illustrations.js';
 import { renderMarkup } from "../../public/shared/markup.js";
-import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, saveIdiom } from "./idioms.js";
+import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, renameIdiomSection, saveIdiom } from "./idioms.js";
 import { handleMcpRoute } from "./mcp.js";
 import {
   MCP_READ_SCOPE,
@@ -2587,6 +2587,13 @@ async function handleApi(request, env, parts, method) {
   if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && parts[5] === "reorder" && method === "POST") {
     try { return json(await reorderIdiomSections(db, parts[2], await request.json())); }
     catch (error) { return json({ error: error.message }, { status: 400 }); }
+  }
+
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && method === "PUT") {
+    try {
+      const section = await renameIdiomSection(db, parts[2], parts[5], await request.json());
+      return section ? json(section) : notFound("idiom section not found");
+    } catch (error) { return json({ error: error.message }, { status: 400 }); }
   }
 
   // /api/lists/:listId/words
