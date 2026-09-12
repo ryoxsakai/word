@@ -3,6 +3,27 @@ import assert from 'node:assert/strict';
 const {inferStressedSpellingRange: infer} = await import('data:text/javascript;base64,' + fs.readFileSync(new URL('../../public/shared/spelling-stress.js', import.meta.url)).toString('base64'));
 // These calls bypass the verified-word map, including words absent from Groups 1–3.
 for (const [word, ipa, expected] of [
+  ['pure', '/pjɔː/', [1,2]],
+  ['pure', '/pjʊə/', [1,2]],
+  ['pure', '/ˈpjɔː/', [1,2]],
+  ['cure', '/kjʊə/', [1,2]],
+  ['care', '/keə/', [1,2]],
+  ['spare', '/spɛə/', [2,3]],
+  ['scare', '/skɛə/', [2,3]],
+  ['rare', '/rer/', [1,2]],
+  ['repair', '/rɪˈper/', [3,5]],
+  ['disguise', '/dɪsˈɡaɪz/', [5,6]],
+  ['guide', '/ɡaɪd/', [2,3]],
+  ['vaguely', '/ˈveɪɡli/', null],
+  ['mechanism', '/ˈmekənɪzəm/', [1,2]],
+  ['efficient', '/əˈfɪʃənt/', [3,4]],
+  ['statement', '/ˈsteɪtm(ə)nt/', [2,3]],
+  ['widespread', '/ˈwaɪd.spred/', [1,2]],
+  ['worthwhile', '/ˌwɜːrθˈwaɪl/', [7,8]],
+  ['concrete', '/kɵnˈkɹiːt/', [5,6]],
+  ['pure', '/pjɔː, pjʊə/', null],
+  ['pure', null, null],
+  ['care', '/keə.re/', null],
   ['beautiful', '/ˈbjuːtɪfəl/', [1,4]],
   ['information', '/ˌɪnfəˈmeɪʃən/', [6,7]],
   ['education', '/ˌedʒuˈkeɪʃən/', [4,5]],
@@ -38,5 +59,5 @@ for (const group of ['one', 'two', 'three']) {
     if (actual) { assert.deepEqual(actual, row.expected, row.word); correct++; }
   }
 }
-assert.ok(correct >= 340, `General coverage regressed: ${correct}/380`);
+assert.ok(correct >= 369, `General coverage regressed: ${correct}/380`);
 console.log(`General alignment: ${correct}/380 correct, remaining words abstained`);

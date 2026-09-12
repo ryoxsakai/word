@@ -2,61 +2,17 @@
 // future pronunciation change cannot silently inherit an incorrect highlight.
 // These cover non one-to-one vowel alignment, optional sounds and rhotic vowels.
 const VERIFIED_STRESS = new Map([
-
-  ["mechanism|/ˈmek.ə.nɪ.zəm/", [1,2]],
-
   ["idea|/ɑeˈdiə̯/", [2,3]],
-
   ["literacy|/ˈlɪt.ɹə.si/", [1,2]],
-
   ["laboratory|/ləˈbɒr.ə.tri/", [3,4]],
-
-  ["statement|/ˈsteɪtm(ə)nt/", [2,3]],
-
-  ["sculpture|/ˈskʌlptj(ʊ)ə/", [2,3]],
-  ["contemporary|/kənˈtem.pə.rer.i/", [4,5]],
-
   ["eventually|/ɪ.ˈvɛn.tjʊ.li/", [2,3]],
-
-  ["ancient|/ˈeɪn.ʃənt/", [0,1]],
-
-  ["tear|/ter/", [1,3]],
-  ["share|/ʃɛə/", [2,3]],
-
   ["temporary|/ˈtɛmpəɹi/", [1,2]],
-
-  ["vary|/ˈvɛəɹi/", [1,2]],
-  ["disguise|/dɪsˈɡaɪz/", [5,6]],
-
-  ["guarantee|/ˌɡer.ənˈtiː/", [7,9]],
-  ["repair|/rɪˈper/", [3,5]],
-
-  ["various|/ˈvɛə.ɹi.əs/", [1,2]],
-
-  ["widespread|/ˈwaɪd.spred/", [1,2]],
-
-  ["actual|/ˈak(t)ʃj(ʊ)əl/", [0,1]],
-
-  ["concrete|/kɵnˈkɹiːt/", [5,6]],
-
   ["ordinary|/ˈɔːdənɹi/", [0,1]],
-  ["efficient|/əˈfɪʃənt/", [3,4]],
   ["negative|/ˈnɛ(e)ɡəˌɾɪv/", [1,2]],
-
-  ["worthwhile|/ˌwɜːrθˈwaɪl/", [7,8]],
-
-  ["forecast|/ˈfɔːrkæst/", [1,2]],
-
   ["cruel|/kɹuː(ə)l/", [2,3]],
   ["fierce|/fɪəs/", [1,3]],
-
   ["awkward|/ˈɑkwɚd/", [0,2]],
-  ['pure|/ˈpjɔː/', [1, 2]],
-
-  ['rare|/rer/', [1, 2]],
-
   ['extraordinary|/ɪksˈtɹɔː(ɹ)dɪnəɹi/', [5, 6]],
-
 ]);
 
 // Conservative display-only alignment. Ambiguous spellings keep their normal color.
@@ -65,7 +21,7 @@ const SOUNDS = {
   i: ['ʌɪ', 'ɪ', 'aɪ', 'i', 'ə', 'ɜ'], o: ['ɑ', 'ɐ', 'ɒ', 'ɔ', 'oʊ', 'əʊ', 'ʌ', 'u', 'ə'],
   u: ['ʌ', 'ʊ', 'u', 'ə', 'ɜ'], y: ['ɪ', 'i', 'aɪ', 'ə'],
   ai: ['eɪ', 'ɛ'], ay: ['eɪ'], au: ['ɔ', 'ɑ'], aw: ['ɔ', 'ɑ'],
-  ea: ['i', 'ɛ', 'eɪ'], ee: ['i'], ei: ['eɪ', 'i', 'aɪ'], ey: ['eɪ', 'i'],
+  ea: ['i', 'ɛ', 'eɪ', 'e'], ee: ['i'], ei: ['eɪ', 'i', 'aɪ'], ey: ['eɪ', 'i'],
   ie: ['i', 'aɪ'], oa: ['oʊ', 'əʊ'], oe: ['oʊ', 'əʊ'],
   oi: ['ɔɪ'], oy: ['ɔɪ'], oo: ['u', 'ʊ'], ou: ['ə', 'ɔ', 'aʊ', 'ʌ', 'u', 'oʊ', 'əʊ'],
   ow: ['aʊ', 'oʊ', 'əʊ'], iew: ['u'], eau: ['u'], ue: ['u'], ui: ['u', 'ɪ'],
@@ -81,12 +37,12 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
   ipa = ipa.replace(/([lnm])\u0329/g, 'ə$1')
     .replace(/[\u0300-\u036fːˑ]/g, '')
     .replace(/^[/\[]|[/\]]$/g, '')
-    .replace(/ɚ/g, 'ə').replace(/ɝ/g, 'ɜ').replace(/ɨ/g, 'ɪ').replace(/ʉ/g, 'u').replace(/ɫ/g, 'l');
+    .replace(/ɚ/g, 'ə').replace(/ɝ/g, 'ɜ').replace(/ɵ/g, 'ə').replace(/ɨ/g, 'ɪ').replace(/ʉ/g, 'u').replace(/ɫ/g, 'l');
   // Parentheses containing optional consonants do not change vowel alignment.
   // Optional schwa is expanded both ways; competing stress spans remain ambiguous.
   if (!/^[a-zɑɒɔæəɛɜɪʊʌɐɹɾɡŋʃʒθðʔˈˌ.()]+$/u.test(ipa)) return null;
-  const optional = [...ipa.matchAll(/\(([əɹrjtnl])\)/g)];
-  if (optional.length > 3 || ipa.replace(/\(([əɹrjtnl])\)/g, '').match(/[()]/)) return null;
+  const optional = [...ipa.matchAll(/\(([əʊɹrjtnl])\)/g)];
+  if (optional.length > 3 || ipa.replace(/\(([əʊɹrjtnl])\)/g, '').match(/[()]/)) return null;
   let variants = [ipa];
   for (const match of optional) variants = variants.flatMap(v => [v.replace(match[0], match[1]), v.replace(match[0], '')]);
   const spans = new Set();
@@ -94,13 +50,17 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
     const nuclei = [...variant.matchAll(/aɪ|ʌɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɛɜɪʊʌɐ]/gu)];
     const primary = [...variant.matchAll(/ˈ/g)];
     if (!nuclei.length || primary.length > 1) return null;
-    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : nuclei.length === 1 ? 0 : -1;
+    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : (nuclei.length === 1 || (nuclei.length === 2 && /^(ɪə|ɛə|eə|ʊə)$/.test(nuclei.map(n => n[0]).join('')) && !/[.ˌ]/.test(variant))) ? 0 : -1;
     if (stressed < 0) return null;
     const visited = new Set();
     function align(pos, sound, span) {
       const key = `${pos}:${sound}:${span}`;
       if (visited.has(key)) return;
       visited.add(key);
+      if (sound < nuclei.length && nuclei[sound][0] === 'ə' && sound !== stressed && word.slice(pos) === 'm' && word.endsWith('ism')) {
+        // Final -ism may realize an unwritten schwa before m.
+        align(pos, sound + 1, span);
+      }
       if (pos === word.length) {
         if (sound === nuclei.length && span) spans.add(span);
         return;
@@ -112,14 +72,28 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
       }
       // Silent terminal e, including -gue/-que, is an alternative, never assumed.
       if (word[pos] === 'e' && pos === word.length - 1 && !/[aeiouy]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
+      if (word[pos] === 'u' && word[pos - 1] === 'g' && /[aei]/.test(word[pos + 1] || '') && /[gɡ]/.test(variant)) align(pos + 1, sound, span);
       if (word[pos] === 'u' && (word[pos - 1] === 'q' || (word[pos - 1] === 'g' && /[gɡ]w/.test(variant))) && /[aeio]/.test(word[pos + 1] || '')) align(pos + 1, sound, span);
       if (word.slice(pos) === 'ue' && /[gq]/.test(word[pos - 1] || '')) align(word.length, sound, span);
+      // Internal silent e at a long-vowel morpheme boundary (e.g. wide-spread).
+      if (word[pos] === 'e' && sound > 0 && /^(aɪ|eɪ|i|ɔ|ɜ|oʊ|əʊ)$/.test(nuclei[sound - 1][0]) && /[bcdfgklmnprstvwz]/.test(word[pos + 1] || '') && /[bcdfgklmnprstvwz]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
       if (sound >= nuclei.length) return;
       for (let length = 1; length <= 3 && pos + length <= word.length; length++) {
         const letters = word.slice(pos, pos + length);
         if (letters.startsWith('u') && word[pos - 1] === 'g' && /[gɡ]w/.test(variant)) continue;
         let sounds = SOUNDS[letters];
+        const beforeR = word[pos + length] === 'r';
+        if (beforeR && ['a', 'ea', 'ai'].includes(letters)) sounds = [...(sounds || []), 'e'];
+        if (beforeR && letters === 'o') sounds = [...sounds, 'ɜ'];
+        if (beforeR && letters === 'u' && variant.includes('j')) sounds = [...sounds, 'ɔ'];
+        // A centering diphthong before r maps to one vowel spelling (care, near, pure).
+        const center = nuclei[sound][0] + (nuclei[sound + 1]?.[0] || '');
+        const centers = {a:['ɛə','eə'], e:['ɪə'], i:['ɪə'], u:['ʊə'], ea:['ɪə','ɛə','eə'], ai:['ɛə','eə'], ie:['ɪə']};
+        if (beforeR && centers[letters]?.includes(center) && sound + 1 !== stressed) {
+          align(pos + length, sound + 2, sound === stressed ? `${pos},${pos + length}` : span);
+        }
         // -tion/-sion/-cian: i is part of the consonant spelling.
+        if (letters === 'ie' && /[ct]/.test(word[pos - 1] || '') && variant.includes('ʃ')) sounds = ['ə'];
         if ((letters === 'io' || letters === 'ia') && /[tsc]/.test(word[pos - 1] || '')) sounds = ['ə'];
         if (!sounds?.includes(nuclei[sound][0])) continue;
         align(pos + length, sound + 1, sound === stressed ? `${pos},${pos + length}` : span);
