@@ -970,13 +970,14 @@ function setupLazySectionObserver() {
 // 独立見出し語に加え、派生語・類義語・対義語から収録元の見出し語へ戻る参照も索引に含める。
 // 参照語自身が独立見出し語として収録済みの場合は、独立見出し語を優先する。
 function buildAlphabeticalIndex() {
-  return buildAlphabeticalIndexEntries(state.indexWords.filter(matchesEikenLevel));
+  return buildAlphabeticalIndexEntries(state.indexWords.filter(matchesEikenLevel),
+    (state.idiomGroups || []).flatMap(chapter => chapter.sections.flatMap(section => section.items)));
 }
 
 function renderIndexEntryHtml(e) {
   const locTitle = e.isRef ? ` title="${escapeHtml(e.loc)}"` : "";
   return `
-    <div class="index-entry${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-word-id="${escapeHtml(e.targetId)}">
+    <div class="index-entry index-kind-${e.kind}${e.isRef ? " is-ref" : ""}" data-action="index-jump" data-kind="${e.kind}" data-word-id="${escapeHtml(e.targetId)}">
       <span class="index-word">${escapeHtml(e.spelling)}</span>
       <span class="index-loc"${locTitle}>${escapeHtml(e.loc)}</span>
     </div>`;
@@ -1054,6 +1055,12 @@ async function ensureIdioms() {
         return hit ? {found:true, id:hit.id, no:hit.no} : {found:false};
       });
       buildIndex();
+      state.indexRendered = false;
+      if (state.activeView === "index") {
+        renderAlphabeticalIndex();
+        renderActiveBottomNav();
+        setupIndexObserver();
+      }
       renderIdioms();
       const firstSection = state.idiomGroups[0]?.sections[0];
       if (data.managed && firstSection && state.idiomLoadedSectionKeys) await loadIdiomSection(firstSection.key);
@@ -1242,7 +1249,8 @@ el.indexList.addEventListener("click", async (e) => {
   if (!item) return;
   item.setAttribute("aria-busy", "true");
   try {
-    await navigateToWord(item.dataset.wordId);
+    if (item.dataset.kind === "idiom") await openIdiomReference(item.dataset.wordId);
+    else await navigateToWord(item.dataset.wordId);
   } catch (err) {
     showToast(`リンク先の読み込みに失敗しました: ${err.message}`);
   } finally {
@@ -2274,6 +2282,7 @@ async function printWholeBook() {
     state.search = "";
     state.searchMatches = null;
     el.searchInput.value = "";
+    if (PRINT_PART === "index") await ensureIdioms();
     if (["idioms", "all", "all-paged"].includes(PRINT_PART)) {
       await ensureIdioms();
       await loadAllIdiomSections();
