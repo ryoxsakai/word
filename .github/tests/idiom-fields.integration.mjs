@@ -42,5 +42,7 @@ const fixedNumbers=groupIdiomEntries([
   {key:'empty-earlier',subtitle:'非表示',number:3},
   {key:'later',subtitle:'残す',number:8},
 ]}]);
-assert.equal(fixedNumbers[0].sections[0].name,'Section 8');
+assert.equal(fixedNumbers[0].sections[0].name,'Section 1');
+assert.equal(fixedNumbers[0].sections[0].number,1);
+assert.equal(fixedNumbers[0].sections[0].key,'later');
 console.log('Idiom rich fields: shared markup, word/idiom targets, aliases, hidden sections, stable sense numbers and HTML safety passed');
