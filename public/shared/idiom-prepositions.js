@@ -3,9 +3,12 @@ import { escapeHtml } from './markup.js';
 // Exact phrase overrides use zero-based English-token positions. An empty array
 // suppresses all highlights. Keep these separate from spelling and DB identity.
 export const IDIOM_PREPOSITION_OVERRIDES = new Map([
-  ['hand o in', [2]], ['hand in', [1]], ['give up', [1]], ['give in', [1]], ['take off', [1]], ['put off', [1]],
-  ['come about', [1]], ['get by', [1]], ['bring about', [1]],
-  ['look forward to', [1, 2]], ['be used to', [2]], ['used to', []],
+  ['hand o in', { adverbs: [2] }], ['hand in', { adverbs: [1] }],
+  ['give up', { adverbs: [1] }], ['give in', { adverbs: [1] }],
+  ['take off', { adverbs: [1] }], ['put off', { adverbs: [1] }],
+  ['come about', { adverbs: [1] }], ['get by', { adverbs: [1] }], ['bring about', { adverbs: [1] }],
+  ['look forward to', { adverbs: [1], prepositions: [2] }],
+  ['be used to', { prepositions: [2] }], ['used to', []],
 ]);
 const PREPOSITIONS = new Set('of in on at by for from with without into onto upon within beyond among between against despite during through throughout toward towards underneath beneath beside besides'.split(' '));
 const DUAL_USE = new Set('as about above across after along around before behind below down inside near off opposite outside over past round since under until up'.split(' '));
@@ -22,11 +25,14 @@ export function renderIdiomPrepositions(phrase, override) {
     const token = tokens[i], word = token[0].toLowerCase();
     const next = tokens[i + 1];
     if (selected !== undefined) {
-      if (selected.includes(i)) ranges.push([token.index, token.index + token[0].length]);
+      const prepositions = Array.isArray(selected) ? selected : selected.prepositions || [];
+      const adverbs = Array.isArray(selected) ? [] : selected.adverbs || [];
+      const kind = adverbs.includes(i) ? 'adverb' : prepositions.includes(i) ? 'preposition' : null;
+      if (kind) ranges.push([token.index, token.index + token[0].length, kind]);
       continue;
     }
     if (word === 'out' && next?.[0].toLowerCase() === 'of' && /^\s+$/.test(text.slice(token.index + token[0].length, next.index))) {
-      ranges.push([token.index, next.index + next[0].length]); i++; continue;
+      ranges.push([token.index, next.index + next[0].length, 'preposition']); i++; continue;
     }
     let highlight = PREPOSITIONS.has(word);
     // Ambiguous particles require an overt object; leave uncertain cases plain.
@@ -40,12 +46,19 @@ export function renderIdiomPrepositions(phrase, override) {
     if (word === 'like') highlight = /(?:^|\s)(?:look(?:s|ed|ing)?|sound(?:s|ed|ing)?|feel(?:s|ing)?|felt|smell(?:s|ed|ing)?|smelt|taste(?:s|d)?|tasting|act(?:s|ed|ing)?|seem(?:s|ed|ing)?|be|is|are|was|were|been|being)\s*$/.test(before);
     const particle = /^(?:up|down|in|out|on|off|away|back|over|through|along|about|around|round|by|apart|aside|forward)$/;
     const phrasalVerb = /(?:^|\s)(?:be|blow|break|bring|call|carry|catch|check|come|cut|do|draw|drop|eat|fall|figure|fill|find|get|give|go|grow|hand|hang|hold|keep|leave|let|lie|live|look|make|move|pass|pay|pick|point|pull|push|put|read|ride|roll|run|send|set|settle|show|shut|sit|slow|speak|stand|stay|step|stick|stop|take|talk|tear|think|throw|try|turn|use|wake|walk|wear|work|write)(?:\s+(?:o|a|b|it|them|someone|something))?$/;
-    if (particle.test(word) && phrasalVerb.test(before)) highlight = true;
-    if (highlight) ranges.push([token.index, token.index + token[0].length]);
+    let kind = highlight ? 'preposition' : null;
+    if (particle.test(word) && phrasalVerb.test(before)) {
+      const hasObject = !!next && (NOMINAL.test(next[0]) || /ing$/i.test(next[0]));
+      // With an overt object, retain prepositional readings unless the verb
+      // forms a known separable construction (put on O, hand in O, etc.).
+      const separable = /(?:^|\s)(?:give|hand|put|take|turn|switch|bring|pick|fill|carry|figure|find|point|set|shut|throw)(?:\s+(?:o|a|b|it|them|someone|something))?$/.test(before);
+      kind = !hasObject || separable || /^(?:away|back|apart|aside|forward|out)$/.test(word) ? 'adverb' : 'preposition';
+    }
+    if (kind) ranges.push([token.index, token.index + token[0].length, kind]);
   }
   let cursor = 0, html = '';
-  for (const [start, end] of ranges) {
-    html += escapeHtml(text.slice(cursor, start)) + '<span class="idiom-preposition">' + escapeHtml(text.slice(start, end)) + '</span>';
+  for (const [start, end, kind] of ranges) {
+    html += escapeHtml(text.slice(cursor, start)) + '<span class="idiom-' + kind + '">' + escapeHtml(text.slice(start, end)) + '</span>';
     cursor = end;
   }
   return html + escapeHtml(text.slice(cursor));
