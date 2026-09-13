@@ -31,7 +31,7 @@ resolveFetch({managed: true, chapters: IDIOM_CHAPTERS, entries});
 await Promise.all([first, second]);
 assert.match(panel.innerHTML, /Chapter 1/);
 assert.match(panel.innerHTML, /Section 1/);
-assert.match(panel.innerHTML, /hand O in/);
+assert.match(panel.innerHTML.replace(/<[^>]*>/g, ''), /hand O in/);
 assert.doesNotMatch(panel.innerHTML, /href="#word-submit"/);
 assert.doesNotMatch(panel.innerHTML, /idiom-ref-icon|class="idiom-refs"/);
 assert.match(panel.innerHTML, /class="entry idiom-entry"/);
@@ -43,7 +43,7 @@ assert.equal(attrs.has("aria-busy"), false);
 assert.doesNotMatch(panel.innerHTML, /skeleton-line/);
 state.search = "提出";
 context.renderIdioms();
-assert.match(panel.innerHTML, /hand O in/);
+assert.match(panel.innerHTML.replace(/<[^>]*>/g, ''), /hand O in/);
 state.search = "no match";
 context.renderIdioms();
 assert.match(panel.innerHTML, /該当する熟語はありません/);
@@ -71,7 +71,7 @@ context.api = async path => { paths.push(path); return path.endsWith('/idioms') 
 state.search = "";
 await context.ensureIdioms();
 assert.equal(paths.length, 2);
-assert.match(panel.innerHTML, /hand O in/);
+assert.match(panel.innerHTML.replace(/<[^>]*>/g, ''), /hand O in/);
 // No fixed reference numbers: reordering changes the displayed number.
 assert.equal(resolveIdiomReferences(entries, [{id: "submit", spelling: "submit", seqNo: "42"}])[0].meanings[0].refs[0].no, "42");
 console.log("Idiom viewer loading, filtering, rendering, retry and stale-response tests passed");
@@ -130,9 +130,9 @@ assert.doesNotMatch(linked,/href="#word-disappoint"/);
   for (const [phrase, expected] of [
     ['depend on', ['on']], ['be interested in', ['in']],
     ['out of order', ['out of']], ['Out of the blue', ['Out of']],
-    ['look forward to', ['to']], ['look forward to V-ing', ['to']],
-    ['look up to O', ['to']], ['in order to V', ['in']],
-    ['want to do', []], ['used to V', []], ['give up', []], ['take off', []],
+    ['look forward to', ['forward', 'to']], ['look forward to V-ing', ['forward', 'to']],
+    ['look up to O', ['up', 'to']], ['in order to V', ['in']],
+    ['want to do', []], ['used to V', []], ['give up', ['up']], ['take off', ['off']], ['hand O in', ['in']], ['put O off', ['off']], ['come back', ['back']], ['work hard', []],
     ['be used to doing', ['to']], ['as if', []], ['as a result of', ['as', 'of']],
   ]) assert.deepEqual(marked(phrase), expected, phrase);
   assert.equal(render('out of order', []), 'out of order');
