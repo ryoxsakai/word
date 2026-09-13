@@ -2342,3 +2342,5 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .idiom-entry .entry-notes > * + * { margin-top: 0.55rem; }
 
 .headword .spelling-stress { color: #c43b4d; }
+
+.headword .idiom-preposition { color: #c43b4d; }

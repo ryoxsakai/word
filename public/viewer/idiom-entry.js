@@ -1,3 +1,4 @@
+import { renderIdiomPrepositions } from '../shared/idiom-prepositions.js';
 import { escapeHtml, renderMarkup, renderWordListMarkup } from "../shared/markup.js";
 import { renderWordIllustration } from "../shared/illustrations.js";
 
@@ -17,7 +18,7 @@ export function renderIdiomEntry(item, origin, {resolve, renderNotes} = {}) {
     <div class="entry-no idiom-no" aria-label="熟語番号${escapeHtml(item.no)}">${escapeHtml(item.no)}</div>
     <div class="entry-body">
       ${illustration}
-      <div class="entry-head"><h3 class="headword idiom-phrase">${escapeHtml(item.phrase)}</h3></div>
+      <div class="entry-head"><h3 class="headword idiom-phrase">${renderIdiomPrepositions(item.phrase)}</h3></div>
       <div class="entry-content${illustration ? " has-illustration" : ""}"><div class="entry-card">
         ${item.meanings.map((sense, index) => `<div class="idiom-sense">
           <div class="sense-line${(sense.no || index + 1) === 1 ? " sense-primary" : ""}"><span class="sense-item${(sense.no || index + 1) === 1 ? " sense-item-primary" : ""}">${(item.senseCount || item.meanings.length) > 1 || sense.no > 1 ? `<span class="sense-number">${(sense.no || index + 1) <= 20 ? String.fromCodePoint(0x245f + (sense.no || index + 1)) : `(${sense.no || index + 1})`}</span>` : ""}<span class="sense-meaning">${renderMarkup(sense.meaning, {resolve})}</span></span></div>
