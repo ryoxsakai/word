@@ -122,3 +122,23 @@ const linked=renderIdiomEntry({key:'let-down',no:'1',phrase:'let O down',meaning
 assert.doesNotMatch(linked,/idiom-ref-icon|class="idiom-refs"/);
 assert.doesNotMatch(linked,/href="#word-let"/);
 assert.doesNotMatch(linked,/href="#word-disappoint"/);
+
+// Preposition coloring leaves phrase text and navigation identity intact.
+{
+  const { renderIdiomPrepositions: render } = await import('../../public/shared/idiom-prepositions.js');
+  const marked = text => [...render(text).matchAll(/<span class="idiom-preposition">(.*?)<\/span>/g)].map(match => match[1]);
+  for (const [phrase, expected] of [
+    ['depend on', ['on']], ['be interested in', ['in']],
+    ['out of order', ['out of']], ['Out of the blue', ['Out of']],
+    ['look forward to', ['to']], ['look forward to V-ing', ['to']],
+    ['look up to O', ['to']], ['in order to V', ['in']],
+    ['want to do', []], ['used to V', []], ['give up', []], ['take off', []],
+    ['be used to doing', ['to']], ['as if', []], ['as a result of', ['as', 'of']],
+  ]) assert.deepEqual(marked(phrase), expected, phrase);
+  assert.equal(render('out of order', []), 'out of order');
+  assert.match(render('give up', [1]), /idiom-preposition">up/);
+  assert.equal(render('<script>out of</script>').replace(/<span class="idiom-preposition">|<\/span>/g, ''), '&lt;script&gt;out of&lt;/script&gt;');
+  const card = renderIdiomEntry({key:'out-of-order', no:'1', phrase:'out of order', meanings:[]}, 'https://vocab.lrnr.jp');
+  assert.match(card, /id="idiom-out-of-order"/);
+  assert.match(card, /class="idiom-preposition">out of<\/span>/);
+}
