@@ -126,7 +126,7 @@ assert.doesNotMatch(linked,/href="#word-disappoint"/);
 // Preposition coloring leaves phrase text and navigation identity intact.
 {
   const { renderIdiomPrepositions: render } = await import('../../public/shared/idiom-prepositions.js');
-  const marked = text => [...render(text).matchAll(/<span class="idiom-preposition">(.*?)<\/span>/g)].map(match => match[1]);
+  const marked = text => [...render(text).matchAll(/<span class="idiom-(?:preposition|adverb)">(.*?)<\/span>/g)].map(match => match[1]);
   for (const [phrase, expected] of [
     ['look like', ['like']], ['look like A', ['like']], ['looks like A', ['like']],
     ['feel like V-ing', ['like']], ['sound like A', ['like']], ['be like A', ['like']],
@@ -145,4 +145,19 @@ assert.doesNotMatch(linked,/href="#word-disappoint"/);
   const card = renderIdiomEntry({key:'out-of-order', no:'1', phrase:'out of order', meanings:[]}, 'https://vocab.lrnr.jp');
   assert.match(card, /id="idiom-out-of-order"/);
   assert.match(card, /class="idiom-preposition">out of<\/span>/);
+}
+
+{
+  const { renderIdiomPrepositions: render } = await import('../../public/shared/idiom-prepositions.js');
+  const parts = text => [...render(text).matchAll(/<span class="idiom-(preposition|adverb)">(.*?)<\/span>/g)].map(m => [m[2],m[1]]);
+  for (const [phrase, expected] of [
+    ['look forward to', [['forward','adverb'],['to','preposition']]],
+    ['look forward to V-ing', [['forward','adverb'],['to','preposition']]],
+    ['look up to A', [['up','adverb'],['to','preposition']]],
+    ['out of order', [['out of','preposition']]],
+    ['give up', [['up','adverb']]], ['hand O in', [['in','adverb']]],
+    ['put on O', [['on','adverb']]], ['go in A', [['in','preposition']]],
+    ['look like A', [['like','preposition']]], ['would like to V', []],
+  ]) assert.deepEqual(parts(phrase),expected,phrase);
+  assert.match(render('custom word', {adverbs:[1]}), /idiom-adverb">word/);
 }

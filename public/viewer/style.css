@@ -2344,3 +2344,5 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .headword .spelling-stress { color: #c43b4d; }
 
 .headword .idiom-preposition { color: #c43b4d; }
+
+.headword .idiom-adverb { color: #2563b4; }
