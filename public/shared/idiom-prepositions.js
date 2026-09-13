@@ -36,6 +36,8 @@ export function renderIdiomPrepositions(phrase, override) {
     if (word === 'to' && next && /^(?:V|do|be|have)$/i.test(next[0])) highlight = false;
     // Highlight adverbial particles that form a phrasal verb as well.
     const before = text.slice(0, token.index).trim().toLowerCase();
+    // 'like' is a preposition after comparison/sense verbs, not in 'would like'.
+    if (word === 'like') highlight = /(?:^|\s)(?:look(?:s|ed|ing)?|sound(?:s|ed|ing)?|feel(?:s|ing)?|felt|smell(?:s|ed|ing)?|smelt|taste(?:s|d)?|tasting|act(?:s|ed|ing)?|seem(?:s|ed|ing)?|be|is|are|was|were|been|being)\s*$/.test(before);
     const particle = /^(?:up|down|in|out|on|off|away|back|over|through|along|about|around|round|by|apart|aside|forward)$/;
     const phrasalVerb = /(?:^|\s)(?:be|blow|break|bring|call|carry|catch|check|come|cut|do|draw|drop|eat|fall|figure|fill|find|get|give|go|grow|hand|hang|hold|keep|leave|let|lie|live|look|make|move|pass|pay|pick|point|pull|push|put|read|ride|roll|run|send|set|settle|show|shut|sit|slow|speak|stand|stay|step|stick|stop|take|talk|tear|think|throw|try|turn|use|wake|walk|wear|work|write)(?:\s+(?:o|a|b|it|them|someone|something))?$/;
     if (particle.test(word) && phrasalVerb.test(before)) highlight = true;
