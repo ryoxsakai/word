@@ -3,9 +3,9 @@ import { escapeHtml } from './markup.js';
 // Exact phrase overrides use zero-based English-token positions. An empty array
 // suppresses all highlights. Keep these separate from spelling and DB identity.
 export const IDIOM_PREPOSITION_OVERRIDES = new Map([
-  ['hand o in', []], ['hand in', []], ['give up', []], ['give in', []], ['take off', []], ['put off', []],
-  ['come about', []], ['get by', []], ['bring about', []],
-  ['look forward to', [2]], ['be used to', [2]], ['used to', []],
+  ['hand o in', [2]], ['hand in', [1]], ['give up', [1]], ['give in', [1]], ['take off', [1]], ['put off', [1]],
+  ['come about', [1]], ['get by', [1]], ['bring about', [1]],
+  ['look forward to', [1, 2]], ['be used to', [2]], ['used to', []],
 ]);
 const PREPOSITIONS = new Set('of in on at by for from with without into onto upon within beyond among between against despite during through throughout toward towards underneath beneath beside besides'.split(' '));
 const DUAL_USE = new Set('as about above across after along around before behind below down inside near off opposite outside over past round since under until up'.split(' '));
@@ -34,10 +34,11 @@ export function renderIdiomPrepositions(phrase, override) {
     if (word === 'as' && next && /^(?:if|though|soon|long|far|well|much|many)$/i.test(next[0])) highlight = false;
     if (word === 'to') highlight = PREPOSITIONAL_TO.test(text.slice(0, token.index)) || !!next && (NOMINAL.test(next[0]) || /ing$/i.test(next[0]));
     if (word === 'to' && next && /^(?:V|do|be|have)$/i.test(next[0])) highlight = false;
-    // Separable phrasal verbs: the particle remains an adverb on either side of O.
+    // Highlight adverbial particles that form a phrasal verb as well.
     const before = text.slice(0, token.index).trim().toLowerCase();
-    if (word === 'in' && /^(?:hand|give|turn|let|bring|take|fill|check|break|come)(?:\s+o)?$/.test(before)) highlight = false;
-    if (word === 'on' && /^(?:put|try|carry|go|keep|hold|turn|switch)(?:\s+o)?$/.test(before)) highlight = false;
+    const particle = /^(?:up|down|in|out|on|off|away|back|over|through|along|about|around|round|by|apart|aside|forward)$/;
+    const phrasalVerb = /(?:^|\s)(?:be|blow|break|bring|call|carry|catch|check|come|cut|do|draw|drop|eat|fall|figure|fill|find|get|give|go|grow|hand|hang|hold|keep|leave|let|lie|live|look|make|move|pass|pay|pick|point|pull|push|put|read|ride|roll|run|send|set|settle|show|shut|sit|slow|speak|stand|stay|step|stick|stop|take|talk|tear|think|throw|try|turn|use|wake|walk|wear|work|write)(?:\s+(?:o|a|b|it|them|someone|something))?$/;
+    if (particle.test(word) && phrasalVerb.test(before)) highlight = true;
     if (highlight) ranges.push([token.index, token.index + token[0].length]);
   }
   let cursor = 0, html = '';
