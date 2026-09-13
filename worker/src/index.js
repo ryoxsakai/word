@@ -887,7 +887,10 @@ async function getViewerIndex(db, listId, request) {
     count: groupCountById.get(Number(group.id)) || 0,
   }));
 
-  return cacheableJson({ list, chapters, groups, sections, words }, request);
+  const initialSection = new URL(request.url).searchParams.get("initial") === "1" && sections[0]
+    ? { key: sections[0].key, ...await (await listWordsInListFull(db, listId, { sectionKey: sections[0].key })).json() }
+    : null;
+  return cacheableJson({ list, chapters, groups, sections, words, ...(initialSection ? { initialSection } : {}) }, request);
 }
 
 async function searchViewerWords(db, listId, request) {
@@ -2571,7 +2574,13 @@ async function handleApi(request, env, parts, method) {
 
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "index" && method === "GET") {
     if (!await db.prepare("SELECT id FROM lists WHERE id = ?").bind(parts[2]).first()) return notFound("list not found");
-    return cacheableJson(await readIdiomIndex(db, parts[2]), request);
+    const data = await readIdiomIndex(db, parts[2]);
+    if (new URL(request.url).searchParams.get("initial") === "1") {
+      const visibleKeys = new Set(data.entries.filter(entry => !entry.hidden).map(entry => entry.sectionKey));
+      const first = data.chapters.flatMap(chapter => chapter.sections).find(section => visibleKeys.has(section.key));
+      if (first) data.initialSection = await readIdiomSection(db, parts[2], first.key, { illustrations: true });
+    }
+    return cacheableJson(data, request);
   }
 
   if (parts.length === 6 && parts[1] === "lists" && parts[3] === "idioms" && parts[4] === "sections" && method === "GET") {

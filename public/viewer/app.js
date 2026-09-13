@@ -444,7 +444,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
   try {
     let data = viewerIndexCache.get(listId);
     if (!data) {
-      data = await api(`/lists/${encodeURIComponent(listId)}/viewer/index`, { forceRefresh });
+      data = await api(`/lists/${encodeURIComponent(listId)}/viewer/index?initial=1`, { forceRefresh });
       viewerIndexCache.set(listId, data);
     }
     if (generation !== listLoadGeneration) return;
@@ -470,6 +470,10 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     buildIndex();
     renderBookMatter();
     renderSectionShells();
+    if (data.initialSection) {
+      sectionResponseCache.set(sectionCacheKey(listId, data.initialSection.key), data.initialSection);
+      renderLoadedSection(data.initialSection.key, data.initialSection);
+    }
     renderContentsNav();
     if (PRINT_BOOK_MODE && PRINT_PART === "index") renderAlphabeticalIndex();
     renderActiveBottomNav();
@@ -1040,7 +1044,7 @@ async function ensureIdioms() {
     try {
       const base = `/lists/${encodeURIComponent(listId)}`;
       let data;
-      try { data = await api(`${base}/idioms/index`); }
+      try { data = await api(`${base}/idioms/index?initial=1`); }
       catch (error) { if (error.status !== 404) throw error; }
       if (!data?.managed) data = await api(`${base}/words/full`);
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
@@ -1060,6 +1064,11 @@ async function ensureIdioms() {
         renderAlphabeticalIndex();
         renderActiveBottomNav();
         setupIndexObserver();
+      }
+      if (data.initialSection && state.idiomLoadedSectionKeys) {
+        const key = String(data.initialSection.sectionKey);
+        state.idiomSectionEntries.set(key, resolveIdiomReferences(data.initialSection.entries || [], state.indexWords));
+        state.idiomLoadedSectionKeys.add(key);
       }
       renderIdioms();
       const firstSection = state.idiomGroups[0]?.sections[0];
