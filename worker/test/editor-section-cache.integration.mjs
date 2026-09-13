@@ -165,6 +165,12 @@ try {
   const publicIdiomSection = await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms/sections/test");
   assert.equal(publicIdiomSection.status, 200);
   assert.deepEqual(await publicIdiomSection.json(), idiomSection);
+  const initialWords = await (await fetchApi("/lists/editor-cache-test/viewer/index?initial=1")).json();
+  assert.equal(initialWords.initialSection.key, initialWords.sections[0].key);
+  const firstWords = await (await fetchApi(`/lists/editor-cache-test/viewer/sections/${initialWords.sections[0].key}`)).json();
+  assert.deepEqual(initialWords.initialSection.words, firstWords.words);
+  const initialIdioms = await (await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms/index?initial=1")).json();
+  assert.deepEqual(initialIdioms.initialSection, idiomSection);
   const full = await (await fetchApi("/lists/editor-cache-test/words/full")).json();
   assert.equal(full.words.find(w=>w.id === "cache-alpha").relatedIdiomCount, 1);
   assert.equal((await miniflare.dispatchFetch("https://vocab.lrnr.jp/mcp-viewer/api/lists/editor-cache-test/idioms", {method:"PUT"})).status, 405);
@@ -175,6 +181,8 @@ try {
   assert.equal(edited.entries[0].notes,"**メモ**");
   assert.equal(edited.entries[0].hidden,true);
   assert.equal(edited.entries[0].meanings[0].id,"cache-sense");
+  const hiddenInitial = await (await fetchApi("/lists/editor-cache-test/idioms/index?initial=1")).json();
+  assert.equal(hiddenInitial.initialSection, undefined, "hidden-only sections are not preloaded");
   console.log("editor section cache, rich idiom fields and idiom route integration test passed");
 } finally {
   await miniflare.dispose();
