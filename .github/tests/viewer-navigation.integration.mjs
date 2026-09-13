@@ -447,3 +447,21 @@ indexGroups = [];
 menuContext.renderContentsNav();
 assert.match(menuEl.contentsNav.innerHTML, /索引はありません/);
 console.log("Tab-aware contents and word/idiom/index menu jumps passed");
+
+// Startup must not wait for the notebook-list endpoint before requesting content.
+{
+  const { runInNewContext } = await import("node:vm");
+  const calls = [];
+  const cache = new Map();
+  const data = { list: { id: "crossover-v3", name: "crossover" }, initialSection: { words: [] } };
+  const context = {
+    api: async path => { calls.push(path); return data; },
+    CROSSOVER_LIST_ID: "crossover-v3", viewerIndexCache: cache, state: {},
+    el: { listSelect: { appendChild() {} } },
+    document: { createElement: () => ({}) },
+    selectList: async id => { assert.equal(cache.get(id), data); },
+  };
+  const source = appSource.slice(appSource.indexOf("async function loadLists()"), appSource.indexOf("function clearListCaches"));
+  await runInNewContext(source + "\nloadLists()", context);
+  assert.deepEqual(calls, ["/lists/crossover-v3/viewer/index?initial=1"]);
+}

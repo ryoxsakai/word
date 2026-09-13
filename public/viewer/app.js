@@ -399,7 +399,10 @@ function renderRef(spelling) {
 // ---- リスト読み込み ----
 
 async function loadLists() {
-  const allLists = await api("/lists");
+  // The viewer is dedicated to crossover; its index already contains list metadata.
+  const data = await api(`/lists/${encodeURIComponent(CROSSOVER_LIST_ID)}/viewer/index?initial=1`);
+  viewerIndexCache.set(CROSSOVER_LIST_ID, data);
+  const allLists = data.list ? [data.list] : [];
   // 「単語マスター（全語）」は単語帳を組み立てるための管理用リストなので、閲覧ページの対象からは除外する。
   state.lists = allLists.filter((l) => l.isNotebook !== false && l.id === CROSSOVER_LIST_ID);
   el.listSelect.innerHTML = "";
