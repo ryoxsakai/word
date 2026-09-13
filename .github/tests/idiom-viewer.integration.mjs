@@ -128,6 +128,10 @@ assert.doesNotMatch(linked,/href="#word-disappoint"/);
   const { renderIdiomPrepositions: render } = await import('../../public/shared/idiom-prepositions.js');
   const marked = text => [...render(text).matchAll(/<span class="idiom-preposition">(.*?)<\/span>/g)].map(match => match[1]);
   for (const [phrase, expected] of [
+    ['look like', ['like']], ['look like A', ['like']], ['looks like A', ['like']],
+    ['feel like V-ing', ['like']], ['sound like A', ['like']], ['be like A', ['like']],
+    ['would like', []], ['would like A', []], ['would like to V', []],
+    ['would like to look like A', ['like']], ['like A', []],
     ['depend on', ['on']], ['be interested in', ['in']],
     ['out of order', ['out of']], ['Out of the blue', ['Out of']],
     ['look forward to', ['forward', 'to']], ['look forward to V-ing', ['forward', 'to']],
