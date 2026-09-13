@@ -46,7 +46,11 @@ await change('update_idiom',{idiom_id:other.id,hidden:true});assert.equal((await
 assert.equal((await get('get_idiom',{idiom_id:first.id})).idiom.display_no,'1');
 await assert.rejects(change('update_idiom_structure',{sections:[section('s2',0)]}),/populated/);
 await change('update_idiom_structure',{sections:[{...section('s1',0),chapter_subtitle:'Renamed',group_subtitle:'Renamed Group',display_number:7},section('s3',0)].map((s,i)=>({...s,chapter_key:'new',chapter_subtitle:'Renamed',group_subtitle:'Renamed Group',sort_order:i}))});
-assert.equal((await get('get_idiom_structure')).sections[0].display.section,'Section 7');
+const renumberedStructure = await get('get_idiom_structure');
+assert.equal(renumberedStructure.sections[0].section_key, 's1');
+assert.equal(renumberedStructure.sections[0].display_number, 7, 'stored legacy number is preserved');
+assert.equal(renumberedStructure.sections[0].display.section, 'Section 1', 'visible sections are numbered in display order');
+assert.equal(renumberedStructure.sections[1].display, null, 'empty sections have no visible number');
 // Inject an editor write between validation and D1 batch execution.
 beforeBatch=()=>sql.prepare('UPDATE idioms SET notes=? WHERE id=?').run('concurrent',first.id);
 await assert.rejects(change('update_idiom',{idiom_id:first.id,notes:'overwrite'}),/CHECK constraint/);
