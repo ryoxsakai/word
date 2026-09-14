@@ -1,12 +1,13 @@
 // Conservative display-only alignment. Ambiguous spellings keep their normal color.
 const SOUNDS = {
-  a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ', 'a', 'ɪ'], e: ['e', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
-  i: ['ʌɪ', 'ɪ', 'aɪ', 'i', 'ə', 'ɜ'], o: ['ɑ', 'ɐ', 'ɒ', 'ɔ', 'oʊ', 'əʊ', 'ʌ', 'u', 'ə'],
+  a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ', 'e', 'a', 'ɪ'], e: ['e', 'eɪ', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
+  i: ['ʌɪ', 'ɪ', 'aɪ', 'i', 'ə', 'ɜ'], o: ['ɑ', 'ɐ', 'ɒ', 'ɔ', 'oʊ', 'əʊ', 'o', 'ʌ', 'ʊ', 'u', 'ə'],
   u: ['ʌ', 'ʊ', 'u', 'ə', 'ɜ'], y: ['ɪ', 'i', 'aɪ', 'ə'],
-  ai: ['eɪ', 'ɛ', 'aɪ'], ay: ['eɪ'], au: ['ɔ', 'ɑ', 'ɒ'], aw: ['ɔ', 'ɑ'],
+  eu: ['u'], ae: ['i'], uy: ['aɪ'], uu: ['u'],
+  ai: ['eɪ', 'ɛ', 'aɪ', 'ə', 'ɪ'], ay: ['eɪ'], au: ['ɔ', 'ɑ', 'ɒ', 'æ'], aw: ['ɔ', 'ɑ'],
   ea: ['i', 'ɛ', 'eɪ', 'e'], ee: ['i'], ei: ['eɪ', 'i', 'aɪ', 'e'], ey: ['eɪ', 'i'],
-  ie: ['i', 'aɪ'], oa: ['oʊ', 'əʊ'], oe: ['oʊ', 'əʊ'],
-  oi: ['ɔɪ'], oy: ['ɔɪ'], oo: ['u', 'ʊ'], ou: ['ə', 'ɔ', 'aʊ', 'ʌ', 'u', 'oʊ', 'əʊ'],
+  ie: ['i', 'aɪ', 'ɪ'], oa: ['oʊ', 'əʊ', 'ɔ'], oe: ['oʊ', 'əʊ'],
+  oi: ['ɔɪ'], oy: ['ɔɪ'], oo: ['u', 'ʊ', 'ʌ', 'o'], ou: ['ə', 'ɔ', 'aʊ', 'ʌ', 'u', 'ɒ', 'oʊ', 'əʊ'],
   ew: ['u', 'əʊ', 'oʊ'], ueue: ['u'], ow: ['aʊ', 'oʊ', 'əʊ'], iew: ['u'], eau: ['u'], ue: ['u'], ui: ['u', 'ɪ'],
 };
 
@@ -21,12 +22,13 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
   ipa = ipa.replace(/ʃn(?=[/\]]?$)/g, 'ʃən').replace(/([lnm])\u0329/g, 'ə$1')
     .replace(/[\u0300-\u036fːˑ]/g, '')
     .replace(/^[/\[]|[/\]]$/g, '')
-    .replace(/ɚ/g, 'ə').replace(/ɝ/g, 'ɜ').replace(/ɵ/g, 'ə').replace(/ɨ/g, 'ɪ').replace(/ʉ/g, 'u').replace(/ɫ/g, 'l');
+    .replace(/ʍ/g, 'w').replace(/[͜͡]/g, '')
+    .replace(/ɚ/g, 'ə').replace(/ɝ/g, 'ɜ').replace(/ɵ/g, 'ə').replace(/ɘ/g, 'ə').replace(/ɨ/g, 'ɪ').replace(/ʉ/g, 'u').replace(/ɫ/g, 'l');
   // Parentheses containing optional consonants do not change vowel alignment.
   // Optional vowels are expanded both ways; competing stress spans remain ambiguous.
   if (!/^[a-zɑɒɔæəɛɜɪʊʌɐɹɾɡŋʃʒθðʔˈˌ.()]+$/u.test(ipa)) return null;
-  const optional = [...ipa.matchAll(/\(([əɪʊɹrjptnl])\)/g)];
-  if (optional.length > 3 || ipa.replace(/\(([əɪʊɹrjptnl])\)/g, '').match(/[()]/)) return null;
+  const optional = [...ipa.matchAll(/\(([aəɪʊɹrjwkptnl])\)/g)];
+  if (optional.length > 3 || ipa.replace(/\(([aəɪʊɹrjwkptnl])\)/g, '').match(/[()]/)) return null;
   let variants = [ipa];
   for (const match of optional) variants = variants.flatMap(v => [v.replace(match[0], match[1]), v.replace(match[0], '')]);
   const spans = new Set();
@@ -35,11 +37,11 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
     const primary = [...variant.matchAll(/ˈ/g)];
     if (!nuclei.length || primary.length > 1) return null;
     const mandatoryNuclei = [...ipa.replace(/\(ə\)/g, '').replace(/[()]/g, '').matchAll(/aɪ|ʌɪ|aʊ|eɪ|oʊ|əʊ|ɔɪ|[aeiouɑɒɔæəɛɜɪʊʌɐ]/gu)];
-    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : ((optionalSchwaOnly && mandatoryNuclei.length === 1) || nuclei.length === 1 || (nuclei.length === 2 && /^(ɪə|ɛə|eə|ʊə)$/.test(nuclei.map(n => n[0]).join('')) && !/[.ˌ]/.test(variant))) ? 0 : -1;
+    const stressed = primary.length ? nuclei.findIndex(n => n.index > primary[0].index) : ((optionalSchwaOnly && mandatoryNuclei.length === 1) || nuclei.length === 1 || (nuclei.length === 2 && nuclei[1].index === nuclei[0].index + nuclei[0][0].length && /^(ɪə|ɛə|eə|ʊə)$/.test(nuclei.map(n => n[0]).join('')) && !/[.ˌ]/.test(variant))) ? 0 : -1;
     if (stressed < 0) return null;
     const visited = new Set();
-    function align(pos, sound, span) {
-      const key = `${pos}:${sound}:${span}`;
+    function align(pos, sound, span, glideSkipped = false) {
+      const key = `${pos}:${sound}:${span}:${glideSkipped}`;
       if (visited.has(key)) return;
       visited.add(key);
       if (sound < nuclei.length && nuclei[sound][0] === 'ə' && sound !== stressed && word.slice(pos) === 'm' && word.endsWith('ism')) {
@@ -49,6 +51,10 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
       if (pos === word.length) {
         if (sound === nuclei.length && span) spans.add(span);
         return;
+      }
+      // Initial y is consonantal only when the reading explicitly starts with /j/.
+      if (pos === 0 && word[pos] === 'y' && /^[ˈˌ.]*j/.test(variant)) {
+        align(pos + 1, sound, span); return;
       }
       if (!/[aeiouy]/.test(word[pos])) {
         // A written w without /w/ belongs to aw/ow, not a silent consonant.
@@ -66,44 +72,67 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
       if (pos === 4 && word.startsWith('extrao') && nuclei[sound]?.[0] === 'ɔ') align(pos + 1, sound, span);
       // Weak vowels in -ary/-ory/-ery/-eracy may be absent in the registered reading.
       // Only after the stressed vowel has already been aligned.
-      if (span && /^[aeo]r(?:y|ies|ily|acy)$/.test(word.slice(pos))) align(pos + 1, sound, span);
+      if (span && !/[aeiouy]/.test(word[pos - 1] || '') && /^[aeo]r(?:y|ies|ily|acy)$/.test(word.slice(pos))) align(pos + 1, sound, span);
       if (optionalSchwaOnly && word[pos] === 'e' && word[pos - 1] === 'u' && word.slice(pos + 1) === 'l') align(pos + 1, sound, span);
-      if (word[pos] === 'e' && pos === word.length - 1 && !/[aeiouy]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
+      if (word[pos] === 'e' && pos === word.length - 1 && !/[aeiou]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
       if (word[pos] === 'u' && word[pos - 1] === 'g' && /[aei]/.test(word[pos + 1] || '') && /[gɡ]/.test(variant)) align(pos + 1, sound, span);
-      if (word[pos] === 'u' && (word[pos - 1] === 'q' || (word[pos - 1] === 'g' && /[gɡ]w/.test(variant))) && /[aeio]/.test(word[pos + 1] || '')) align(pos + 1, sound, span);
+      if (word[pos] === 'u' && (word[pos - 1] === 'q' || (word[pos - 1] === 'g' && /[gɡ]w/.test(variant))) && /[aeiouy]/.test(word[pos + 1] || '')) align(pos + 1, sound, span);
       if (word.slice(pos) === 'yer' && pos > 1 && word.slice(pos - 2, pos) === 'aw' && nuclei[sound - 1]?.[0] === 'ɔɪ') align(pos + 1, sound, span);
       if (word.slice(pos) === 'ue' && /[gq]/.test(word[pos - 1] || '')) align(word.length, sound, span);
+      // Inflectional -ed has no vowel when its registered ending is /t/ or /d/.
+      if (word.slice(pos) === 'ed' && !/[aeiouy]/.test(word[pos - 1] || '') && sound === nuclei.length && /[td]$/.test(variant)) align(pos + 1, sound, span);
+      // Medial y/i/u can spell a glide rather than a vowel nucleus. Require
+      // the corresponding glide in the local IPA gap before skipping it.
+      const previousNucleus = nuclei[sound - 1];
+      const localGap = variant.slice(previousNucleus ? previousNucleus.index + previousNucleus[0].length : 0, nuclei[sound]?.index ?? variant.length);
+      if (((word[pos] === 'i' && /[nl]/.test(word[pos - 1] || '') && /[aeou]/.test(word[pos + 1] || '')) || (word[pos] === 'y' && /[aeiou]/.test(word[pos + 1] || ''))) && /j/.test(localGap)) align(pos + 1, sound, span, true);
+      if (word[pos] === 'u' && word[pos - 1] === 's' && /[aeio]/.test(word[pos + 1] || '') && /w/.test(localGap)) align(pos + 1, sound, span);
+      // Stem-final e remains silent before -ly/-ful/-ness, provided stress is
+      // already resolved and the remaining spelling still matches all nuclei.
+      if (span && word[pos] === 'e' && /^(ly|ful|ness)$/.test(word.slice(pos + 1)) && !/[aeiouy]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
       // Internal silent e at a long-vowel morpheme boundary (e.g. wide-spread).
-      if (word[pos] === 'e' && sound > 0 && /^(aɪ|eɪ|i|ɔ|ɜ|oʊ|əʊ)$/.test(nuclei[sound - 1][0]) && /[bcdfgklmnprstvwz]/.test(word[pos + 1] || '') && /[bcdfgklmnprstvwz]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
+      if (word[pos] === 'e' && sound > 0 && /^(aɪ|eɪ|i|ɔ|ɜ|oʊ|əʊ)$/.test(nuclei[sound - 1][0]) && /[bcdfgklmnpstvwz]/.test(word[pos + 1] || '') && /[bcdfgklmnprstvwz]/.test(word[pos - 1] || '')) align(pos + 1, sound, span);
       if (sound >= nuclei.length) return;
       // Splitting a vowel digraph cannot span an intervening pronounced consonant.
-      if (sound > 0 && SOUNDS[word.slice(pos - 1, pos + 1)] && !(word[pos - 1] === 'u' && /[gq]/.test(word[pos - 2] || ''))) {
+      if (!glideSkipped && sound > 0 && SOUNDS[word.slice(pos - 1, pos + 1)] && !(word[pos - 1] === 'u' && /[gq]/.test(word[pos - 2] || ''))) {
         const previous = nuclei[sound - 1];
         const gap = variant.slice(previous.index + previous[0].length, nuclei[sound].index);
         if (/[^.ˈˌjw]/.test(gap)) return;
       }
       for (let length = 1; length <= 4 && pos + length <= word.length; length++) {
         const letters = word.slice(pos, pos + length);
-        if (length === 1 && /^(ie|ea)r/.test(word.slice(pos)) && ['ɪə','ɛə','eə'].includes(nuclei[sound][0] + (nuclei[sound + 1]?.[0] || ''))) continue;
-        if (letters.startsWith('u') && word[pos - 1] === 'g' && /[gɡ]w/.test(variant)) continue;
+        if (length === 1 && /^(ie|ea|ai)r/.test(word.slice(pos)) && ['ɪə','ɛə','eə'].includes(nuclei[sound][0] + (nuclei[sound + 1]?.[0] || ''))) continue;
+        if (letters.startsWith('u') && ((word[pos - 1] === 'g' && word.slice(pos) !== 'ue' && /[aei]/.test(word[pos + 1] || '') && /[gɡ]/.test(localGap)) || (word[pos - 1] === 'q' && /w/.test(localGap)))) continue;
         let sounds = SOUNDS[letters];
-        if (letters === 'e' && pos === 0) sounds = [...sounds, 'eɪ'];
+        if (letters === 'a' && word[pos + 1] === 'i' && nuclei[sound][0] === 'aɪ' && nuclei[sound + 1]?.[0] === 'i') sounds = [...sounds, 'aɪ'];
         if (letters === 'aw' && word.slice(pos + length) === 'yer') sounds = [...sounds, 'ɔɪ'];
         if (letters === 'ue' && optionalSchwaOnly && word[pos + length] === 'l') continue;
         const beforeR = word[pos + length] === 'r';
         if (beforeR && ['a', 'ea', 'ai'].includes(letters)) sounds = [...(sounds || []), 'e'];
-        if (beforeR && letters === 'ea') sounds = [...sounds, 'ɜ'];
+        if (beforeR && letters === 'ea') sounds = [...sounds, 'ɜ', 'ɑ', 'ɪ', 'ə'];
+        if (beforeR && ['ee', 'ei'].includes(letters)) sounds = [...sounds, 'ɪ'];
+        if (beforeR && letters === 'ou') sounds = [...sounds, 'ɜ', 'ʊ'];
+        if (beforeR && letters === 'eu') sounds = [...sounds, 'ʊ'];
         if (beforeR && letters === 'o') sounds = [...sounds, 'ɜ'];
-        if (beforeR && letters === 'u') sounds = [...sounds, 'ɔ'];
+        if (beforeR && letters === 'u') sounds = [...sounds, 'ɔ', 'o'];
         // A centering diphthong before r maps to one vowel spelling (care, near, pure).
         const center = nuclei[sound][0] + (nuclei[sound + 1]?.[0] || '');
-        const centers = {a:['ɛə','eə'], e:['ɪə'], i:['ɪə'], u:['ʊə'], o:['oə'], ea:['ɪə','ɛə','eə'], ai:['ɛə','eə'], ie:['ɪə']};
+        const centers = {a:['ɛə','eə'], e:['ɪə'], i:['ɪə','aɪə'], u:['ʊə'], ou:['aʊə'], eu:['ʊə'], o:['oə'], ea:['ɪə','ɛə','eə'], ai:['ɛə','eə'], ie:['ɪə']};
         if (beforeR && centers[letters]?.includes(center) && sound + 1 !== stressed) {
           align(pos + length, sound + 2, sound === stressed ? `${pos},${pos + length}` : span);
         }
         // -tion/-sion/-cian: i is part of the consonant spelling.
         if (letters === 'ie' && /[ct]/.test(word[pos - 1] || '') && variant.includes('ʃ')) sounds = ['ə', 'i'];
-        if ((letters === 'io' || letters === 'ia') && /[tscg]/.test(word[pos - 1] || '')) sounds = ['ə'];
+        if ((letters === 'io' || letters === 'ia') && /[tscgh]/.test(word[pos - 1] || '')) sounds = ['ə'];
+        // -cious/-gious and -geous share a reduced vowel after /ʃ/ or /dʒ/.
+        if (letters === 'iou' && /[cgx]/.test(word[pos - 1] || '') && /[ʃʒ]/.test(localGap)) sounds = ['ə'];
+        if (letters === 'eou' && word[pos - 1] === 'g' && /ʒ/.test(localGap)) sounds = ['ə'];
+        // A pronounced final e cannot absorb a vowel that precedes a spoken
+        // final consonant; -le is the established syllabic-consonant exception.
+        if (letters === 'e' && pos === word.length - 1 && sound === nuclei.length - 1) {
+          const tail = variant.slice(nuclei[sound].index + nuclei[sound][0].length).replace(/[.ˈˌ]/g, '');
+          if (tail && !(word[pos - 1] === 'l' && tail === 'l' && nuclei[sound][0] === 'ə')) continue;
+        }
         if (!sounds?.includes(nuclei[sound][0])) continue;
         align(pos + length, sound + 1, sound === stressed ? `${pos},${pos + length}` : span);
       }
