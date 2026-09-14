@@ -4,9 +4,10 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 const require = createRequire(import.meta.url);
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
-const pagedPath = process.env.PAGED_JS_PATH || require.resolve('pagedjs/dist/paged.polyfill.js');
+const pagedPath = process.env.PAGED_JS_PATH || resolve(dirname(require.resolve('pagedjs')), '../dist/paged.polyfill.js');
 const app = await readFile(new URL('../../public/viewer/app.js', import.meta.url), 'utf8');
 const css = await readFile(new URL('../../public/viewer/style.css', import.meta.url), 'utf8');
 const extract = (start, end) => app.slice(app.indexOf(start), app.indexOf(end, app.indexOf(start)));
