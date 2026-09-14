@@ -132,3 +132,21 @@ for (const [word, ipa, expected] of [
   ['record', '/ˈrekɔːd, rɪˈkɔːd/', null],
 ]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
 console.log('Expanded mechanical stress rules and abstention guards passed');
+
+// Additional 2026-09-15 live readings and dictionary-backed missing entries.
+// Expected spans were reviewed independently; production uses the common rules.
+const expanded = JSON.parse(fs.readFileSync(new URL('./expanded-stress-fixture.json', import.meta.url)));
+for (const {word, ipa, expected} of expanded) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
+for (const [word, ipa, expected] of [
+  ['argue', '/ˈɑː.ɡjuː/', [0,1]],
+  ['view', '/vjuː/', [1,4]],
+  ['fairly', '/ˈfeəli/', [1,3]],
+  ['impair', '/ɪmˈpeə/', [3,5]],
+  ['certain', '/sɝtn̩/', null],
+  ['affluent', '/æfluənt/', null],
+  ['direct', '/d(a)ɪrekt/', null],
+  ['beyond', '/biɒnd/', null],
+  ['as long as', '/əz ˈlɒŋ əz/', null],
+  ['RNA', '/ˌɑːr.enˈeɪ/', null],
+]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
+console.log(`Additional ${expanded.length} reviewed spans and ambiguity guards passed`);
