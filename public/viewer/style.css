@@ -2193,6 +2193,9 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .word-list .section-title { font-size: 10pt; }
   .word-list .section-subtitle { font-size: 8.5pt; }
   .label-divider { min-height: 7mm; margin-top: 2mm; margin-bottom: 0.5mm; padding: 1mm 0; }
+  /* タグを本文の開始位置に揃え、番号列の縦罫線と重ねない。 */
+  .section-entries > .label-divider { padding-left: 3.9rem; }
+  body:not([data-print-pagination="section"]) .section-entries > .label-divider { padding-left: 3.3rem; }
   .word-list .label-title { font-size: 8.5pt; }
   /* ダークテーマのまま印刷しても、バッジ色は明るい配色に固定する */
   .caution-badge.caution-ergative { background: #e0f1fa !important; color: #1d5f8a !important; }
