@@ -1,3 +1,34 @@
+// Reviewed against Cambridge Dictionary on 2026-09-15. Exact reading guards
+// keep these display-only spans from applying to a different pronunciation.
+// Sources: https://dictionary.cambridge.org/dictionary/english/<word>
+const REVIEWED_STRESS_READINGS = [
+  ["whereas", "/weərˈæz/", [5, 6]],
+  ["minute", "/ˈmɪn.ɪt/", [1, 2]],
+  ["moreover", "/mɔːˈɹəʊvə/", [4, 5]],
+  ["somewhat", "/ˈsʌmwɒt/", [1, 2]],
+  ["somehow", "/ˈsʌmhaʊ/", [1, 2]],
+  ["acknowledge", "/əkˈnɒ.lɪdʒ/", [4, 5]],
+  ["tired", "/taɪəd/", [1, 2]],
+  ["tuition", "/tuˈɪʃən/", [2, 3]],
+  ["caregiver", "/ˈkɛrˌɡɪvər/", [1, 2]],
+  ["knowledge", "/ˈnɑlɪdʒ/", [2, 3]],
+  ["nonetheless", "/ˌnʌnðəˈlɛs/", [7, 8]],
+  ["intuition", "/ˌɪntjuˈɪʃən/", [5, 6]],
+  ["foreign", "/ˈfɒrən/", [1, 2]],
+  ["bureaucracy", "/bjʊəˈrɒkrəsi/", [3, 6]],
+  ["parliament", "/ˈpɑːləmənt/", [1, 2]],
+  ["household", "/ˈhaʊshəʊld/", [1, 3]],
+  ["bureau", "/ˈbjʊroʊ/", [1, 2]],
+  ["coworker", "/ˈkəʊwɜːrkər/", [1, 2]],
+  ["hire", "/haɪər/", [1, 2]],
+  ["makeup", "/ˈmeɪkʌp/", [1, 2]],
+  ["carriage", "/ˈkærɪdʒ/", [1, 2]],
+  ["entrepreneur", "/ˌɑːntrəprəˈnɜːr/", [9, 12]],
+  ["eyeball", "/ˈaɪ.bɔːl/", [0, 3]],
+  ["eyelid", "/ˈaɪ.lɪd/", [0, 3]],
+  ["miscarriage", "/ˈmɪsˌkær.ɪdʒ/", [1, 2]],
+];
+
 // Conservative display-only alignment. Ambiguous spellings keep their normal color.
 const SOUNDS = {
   a: ['æ', 'eɪ', 'ɑ', 'ɒ', 'ɔ', 'ə', 'ɛ', 'e', 'a', 'ɪ'], e: ['e', 'eɪ', 'ɛ', 'i', 'ɪ', 'ə', 'ɜ'],
@@ -144,7 +175,9 @@ export function inferStressedSpellingRange(spelling, pronunciation) {
 
 export function stressedSpellingRange(spelling, pronunciation) {
   if (!/^[a-z]+$/i.test(spelling || '') || !pronunciation) return null;
-  return inferStressedSpellingRange(spelling, pronunciation);
+  const reviewed = REVIEWED_STRESS_READINGS.find(([word, ipa]) =>
+    word === spelling.toLowerCase() && ipa === pronunciation);
+  return reviewed ? [...reviewed[2]] : inferStressedSpellingRange(spelling, pronunciation);
 }
 
 export function renderStressedSpelling(spelling, pronunciation, escapeHtml) {
