@@ -50,7 +50,7 @@ for (const [word, ipa, expected] of [
   ['curious', '/ˈkjʊriəs/', [1,2]],
   ['serious', '/ˈsɪriəs/', [1,2]],
   ['blue', '/bluː/', [2,4]],
-  ['yellow', '/ˈjɛləʊ/', null], // Initial consonantal y is not yet aligned.
+  ['yellow', '/ˈjɛləʊ/', [1,2]],
   ['window', '/ˈwɪndəʊ/', [1,2]],
   ['slow', '/sləʊ/', [2,4]],
   ['lawful', '/ˈlɔːfəl/', [1,3]],
@@ -80,3 +80,55 @@ for (const group of ['one', 'two', 'three', 'four', 'five']) {
 }
 assert.ok(correct === 680, `General coverage regressed: ${correct}/680`);
 console.log(`General alignment: ${correct}/680 correct, remaining words abstained`);
+
+// Live Crossover readings retrieved 2026-09-14; primary vowel spans reviewed.
+for (const [word, ipa, expected] of [
+  ["discover", "/dɪsˈkʊvə/", [4, 5]],
+  ["love", "/lʊv/", [1, 2]],
+  ["overwhelm", "/ˌovɚˈʍɛlm/", [6, 7]],
+  ["comfort", "/ˈkʊm.fət/", [1, 2]],
+  ["involved", "/ɪnˈvɒlvd/", [3, 4]],
+  ["convinced", "/kənˈvɪnst/", [4, 5]],
+  ["yet", "/jet/", [1, 2]],
+  ["board", "/bɔːd/", [1, 3]],
+  ["used", "/juːzd/", [0, 1]],
+  ["emerge", "/iˈmɜːd͡ʒ/", [2, 3]],
+  ["yield", "/jild/", [1, 3]],
+  ["accustomed", "/əˈkəstəmd/", [3, 4]],
+  ["short", "/ʃoːt/", [2, 3]],
+  ["useful", "/ˈjuːsfəl/", [0, 1]],
+  ["destined", "/ˈdɛstɪnd/", [1, 2]],
+  ["skilled", "/skɪld/", [2, 3]],
+  ["detached", "/dɪˈtætʃt/", [3, 4]],
+  ["disturbed", "/dɪˈstəɹbd/", [4, 5]],
+  ["astonished", "/əˈstɑnɪʃt/", [3, 4]],
+  ["overwhelmed", "/ˌoʊvəɹˈwɛlmd/", [6, 7]],
+  ["impressed", "/ɪmˈpɹɛst/", [4, 5]],
+  ["diverse", "/daɪˈvɜːrs/", [3, 4]],
+  ["largely", "/ˈlɑːrdʒli/", [1, 2]],
+  ["relatively", "/ˈrelətɪvli/", [1, 2]],
+  ["approximately", "/əˈprɒksɪmətli/", [4, 5]],
+  ["definitely", "/ˈdefɪnətli/", [1, 2]],
+  ["roar", "/rɔː/", [1, 3]],
+  ["yell", "/jel/", [1, 2]],
+  ["broadcast", "/ˈbrɔːdkæst/", [2, 4]],
+  ["yearn", "/jɜːrn/", [1, 3]],
+  ["soar", "/sɔː/", [1, 3]],
+  ["neutral", "/ˈnjuːtɹəl/", [1, 3]],
+  ["leukemia", "/luːˈkiː.mi.ə/", [4, 5]],
+  ["pneumonia", "/njuːˈməʊ.ni.ə/", [5, 6]],
+]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
+
+// Standard readings and guard cases exercise the same rules beyond the live data.
+for (const [word, ipa, expected] of [
+  ['overwhelm', '/ˌəʊ.vəˈwelm/', [6,7]],
+  ['overwhelm', '/ˌoʊ.vɚˈwelm/', [6,7]],
+  ['comfort', '/ˈkʌmfət/', [1,2]],
+  ['comfort', '/kʊmfət/', null],
+  ['overwhelm', '/ovɚʍɛlm/', null],
+  ['exceed', '/ɪkˈsiːd/', [3,5]],
+  ['needed', '/ˈniːdɪd/', [1,3]],
+  ['yell', '/el/', null],
+  ['record', '/ˈrekɔːd, rɪˈkɔːd/', null],
+]) assert.deepEqual(infer(word, ipa), expected, `${word}: ${ipa}`);
+console.log('Expanded mechanical stress rules and abstention guards passed');
