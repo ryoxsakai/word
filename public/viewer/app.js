@@ -488,12 +488,16 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     if (firstSection) await loadSection(firstSection.key);
     if (generation !== listLoadGeneration) return;
     if (state.activeView === "idioms") await ensureIdioms();
-    else void ensureIdioms().then(() => {
-      if (generation === listLoadGeneration) for (const key of [...state.loadedSectionKeys]) {
-        const cached = sectionResponseCache.get(sectionCacheKey(listId, key));
-        if (cached) renderLoadedSection(key, cached);
-      }
-    }).catch(() => {});
+    else {
+      const idiomsReady = ensureIdioms().then(() => {
+        if (generation === listLoadGeneration) for (const key of [...state.loadedSectionKeys]) {
+          const cached = sectionResponseCache.get(sectionCacheKey(listId, key));
+          if (cached) renderLoadedSection(key, cached);
+        }
+      }).catch(() => {});
+      // 印刷DOMの組み替え・版組中に、参照情報の到着で本文を再描画しない。
+      if (PRINT_BOOK_MODE) await idiomsReady;
+    }
     await applyHashScroll();
     if (el.searchInput.value.trim()) void runSearch();
   } catch (err) {
@@ -2073,6 +2077,57 @@ function registerPagedProgressHandler(sectionKeys) {
   let highestReportedPercent = 48;
 
   class PrintProgressHandler extends window.Paged.Handler {
+    deferredIllustrations = new Map();
+
+    renderNode(node, sourceNode, layout) {
+      if (document.body.dataset.printPagination === "section") return;
+      const entry = node.closest?.(".entry");
+      if (!entry) return;
+      const page = layout.element.closest(".pagedjs_page");
+      const deferred = this.deferredIllustrations.get(entry.dataset.wordId);
+      const card = entry.querySelector(".entry-card");
+      if (deferred && deferred.page !== page && card) {
+        // 見出しごと次ページへ移った場合は元の画像が再描画される。
+        if (!entry.querySelector(".headword")?.textContent.trim()) {
+          deferred.figure.dataset.printDeferredIllustration = "true";
+          card.prepend(deferred.figure);
+        }
+        if (deferred.breakBefore == null) delete deferred.lastBlock.dataset.breakBefore;
+        else deferred.lastBlock.dataset.breakBefore = deferred.breakBefore;
+        this.deferredIllustrations.delete(entry.dataset.wordId);
+      }
+
+      const figure = node.matches?.(".entry-illustration")
+        ? node : node.matches?.(".entry-illustration img") ? node.closest(".entry-illustration") : null;
+      if (!figure?.querySelector("img")) return;
+      const inserted = entry.querySelector('[data-print-deferred-illustration="true"]');
+      if (inserted && inserted !== figure) {
+        figure.style.display = "none";
+        return;
+      }
+      const bounds = figure.getBoundingClientRect();
+      // Paged.jsははみ出した内容を横方向の仮想カラムへ送るため、横位置も判定する。
+      const headBounds = entry.querySelector(".entry-head")?.getBoundingClientRect();
+      const headOnPage = headBounds && headBounds.left < layout.bounds.right
+        && headBounds.right > layout.bounds.left && headBounds.top < layout.bounds.bottom;
+      const imageOverflows = bounds.left >= layout.bounds.right || bounds.bottom > layout.bounds.bottom + 1;
+      if (!headOnPage || !imageOverflows) return;
+      const sourceEntry = sourceNode.closest(".entry");
+      const blocks = [...sourceEntry.querySelectorAll(".sense-line, .print-example-row, .notes-block")];
+      const lastBlock = blocks.at(-1);
+      if (!lastBlock) return;
+      // 画像だけ収まらない場合は本文を先に流す。最後の情報行を保険として残し、
+      // 短い項目でも画像が次ページの同じ単語から切り離されないようにする。
+      this.deferredIllustrations.set(entry.dataset.wordId, {
+        page,
+        figure: sourceNode.closest(".entry-illustration").cloneNode(true),
+        lastBlock,
+        breakBefore: lastBlock.dataset.breakBefore,
+      });
+      lastBlock.dataset.breakBefore = "page";
+      figure.style.display = "none";
+    }
+
     afterPageLayout(pageElement) {
       renderedPages += 1;
       const sectionNodes = pageElement?.querySelectorAll?.(".section-group[data-section-key]") || [];
@@ -2093,6 +2148,22 @@ function registerPagedProgressHandler(sectionKeys) {
         }
       }
       const entryNodes = [...(pageElement?.querySelectorAll?.(".entry[data-word-id]") || [])];
+      if (document.body.dataset.printPagination !== "section") {
+        for (const entry of entryNodes) {
+          const head = entry.querySelector(".entry-head");
+          const number = entry.querySelector(".entry-no");
+          // Paged.jsは空の見出し断片にも番号の背景を残すことがある。
+          // 実際の見出し語があるページだけに番号を描画する。
+          if (!head?.querySelector(".headword")?.textContent.trim()) {
+            number?.remove();
+          } else {
+            const badge = number || document.createElement("div");
+            badge.className = "entry-no";
+            badge.textContent = entry.dataset.no;
+            head.prepend(badge);
+          }
+        }
+      }
       const firstEntry = entryNodes[0];
       const lastEntry = entryNodes.at(-1);
       if (this.previousLastEntry && firstEntry
@@ -2106,11 +2177,10 @@ function registerPagedProgressHandler(sectionKeys) {
       }
       this.previousLastEntry = lastEntry || null;
       const isChapterDoor = !!pageElement?.querySelector?.(".print-chapter-door");
-      const startsWithSectionHeading = !!firstSectionNode?.querySelector?.(".section-divider");
       const firstPageMeta = firstSectionNode
         ? sectionMetaByKey.get(String(firstSectionNode.dataset.sectionKey))
         : null;
-      if (firstSectionNode && !isChapterDoor && !startsWithSectionHeading) {
+      if (firstSectionNode && !isChapterDoor) {
         const meta = firstPageMeta;
         if (meta) {
           const header = document.createElement("div");
@@ -2209,14 +2279,31 @@ function preparePrintIllustrationWrapping() {
   for (const entryBody of document.querySelectorAll(".entry-body")) {
     const entryCard = entryBody.querySelector(":scope > .entry-content > .entry-card");
     const illustration = entryCard?.querySelector(":scope > .entry-illustration");
-    const firstSense = entryCard?.querySelector(":scope > .sense-line");
     if (!illustration || !entryCard) continue;
 
-    // 見出しと最初の意味行を画像より先に流す。画像がページ末尾に収まらない場合も、
-    // 先行する本文が余白を使い、画像は次のページで残りの内容と回り込める。
-    if (firstSense) firstSense.after(illustration);
-    else entryCard.prepend(illustration);
+    // 通常は本文右上から回り込ませる。収まらない画像は版組時に次ページへ送る。
+    entryCard.prepend(illustration);
     entryBody.closest(".entry")?.classList.add("has-print-anchored-illustration");
+  }
+}
+
+function preparePrintEntryFlow() {
+  if (document.body.dataset.printPagination === "section") return;
+  const columns = boundedIntegerPrintSetting(el.printExampleColumns.value, 2, 1, 3);
+  for (const entry of document.querySelectorAll(".entry")) {
+    const number = entry.querySelector(":scope > .entry-no");
+    const head = entry.querySelector(".entry-head");
+    // 番号を見出しと同じ改ページ不可の行に入れ、背景だけの断片も残さない。
+    if (number && head) head.prepend(number);
+    for (const examples of entry.querySelectorAll(".example-list")) {
+      const lines = [...examples.querySelectorAll(":scope > .example-line")];
+      for (let i = 0; i < lines.length; i += columns) {
+        const row = document.createElement("div");
+        row.className = "print-example-row";
+        examples.append(row);
+        row.append(...lines.slice(i, i + columns));
+      }
+    }
   }
 }
 
@@ -2249,6 +2336,7 @@ function prepareLightweightPrintDom() {
     }
   }
   preparePrintHierarchy();
+  preparePrintEntryFlow();
   preparePrintIllustrationWrapping();
   document.querySelectorAll("[data-haystack]").forEach((node) => node.removeAttribute("data-haystack"));
   document.querySelectorAll(".speak-btn, .copy-link-btn, .blank-toggle").forEach((node) => {
