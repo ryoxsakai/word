@@ -36,7 +36,7 @@ try {
         </div></div></div></article></div></section>`).join('');
       // Keep the synthetic boundary fixture stable when production headings shrink.
       // These placeholders reserve the original heading heights so image deferral is exercised.
-      await page.setContent(`<html><head><style>${css}\n.group-divider { min-height: 14mm; } .section-divider { min-height: 10.5mm; }\n@page {size:182mm 257mm;margin:12mm 12mm 14mm} .entry-illustration {float:right;width:90px;margin:0 0 8px 12px} .entry-illustration img {width:90px;height:90px}</style></head><body class="is-printing-book" data-print-engine="paged" data-print-pagination="${mode}" data-print-page-size="b5"><main class="word-list">${fixture}</main></body></html>`);
+      await page.setContent(`<html><head><style>${css}\n.group-divider { min-height: 4.75rem; margin-bottom: 0.8rem; padding: 0.85rem 1rem 0.85rem 0; border: 1px solid transparent; } .section-divider { min-height: 2.75rem; margin-bottom: 0.45rem; padding: 0.34rem 0.9rem 0.34rem 0; border: 1px solid transparent; }\n@page {size:182mm 257mm;margin:12mm 12mm 14mm} .entry-illustration {float:right;width:90px;margin:0 0 8px 12px} .entry-illustration img {width:90px;height:90px}</style></head><body class="is-printing-book" data-print-engine="paged" data-print-pagination="${mode}" data-print-page-size="b5"><main class="word-list">${fixture}</main></body></html>`);
       await page.evaluate(({columns, entries}) => {
         window.PagedConfig = {auto:false};
         document.documentElement.style.setProperty('--print-example-columns', columns);
