@@ -32,7 +32,7 @@ jobs:
       - name: Test editor reorder state
         run: node .github/tests/editor-order.integration.mjs
       - name: Test lazy viewer navigation
-        run: node .github/tests/viewer-navigation.integration.mjs && node .github/tests/viewer-startup.integration.mjs
+        run: node .github/tests/viewer-navigation.integration.mjs && node .github/tests/viewer-startup.integration.mjs && node .github/tests/chapter-cache.integration.mjs
       - name: Test headword stress highlighting
         run: node .github/tests/spelling-stress.integration.mjs && node .github/tests/general-stress.integration.mjs && node .github/tests/audited-stress.integration.mjs
       - name: Test shared markup

@@ -24,11 +24,13 @@ import {
   unregisterVocabWebMCP,
   webMCPSupported,
 } from "./webmcp.js";
+import { createChapterCache } from "./chapter-cache.js";
 import { afterBodyPaint } from "./startup.js";
 import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
 import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences } from "../shared/idioms.js";
 import { renderIdiomEntry } from "./idiom-entry.js";
 
+const chapterCache = createChapterCache();
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
@@ -363,8 +365,14 @@ function endPageLoading() {
 
 renderLoadingSkeleton();
 
-async function api(path, { forceRefresh = false } = {}) {
-  beginNetworkActivity();
+async function api(path, options = {}) {
+  const match = path.match(/\/(viewer|idioms)\/index\?initial=1$/);
+  if (match && !PRINT_UI_MODE) return chapterCache.load(`${API}${path}`, path, match[1], requestApi, options);
+  return requestApi(path, options);
+}
+
+async function requestApi(path, { forceRefresh = false, silent = false } = {}) {
+  if (!silent) beginNetworkActivity();
   try {
     const res = await fetch(`${API}${path}`, { cache: forceRefresh ? "reload" : "default" });
     if (!res.ok) {
@@ -375,7 +383,7 @@ async function api(path, { forceRefresh = false } = {}) {
     }
     return await res.json();
   } finally {
-    endNetworkActivity();
+    if (!silent) endNetworkActivity();
   }
 }
 
@@ -440,6 +448,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
   lazyLoadGeneration += 1;
   clearNavigationAnchors();
   state.currentListId = listId;
+  state.forceChapterRefresh = forceRefresh;
   localStorage.setItem(LAST_LIST_KEY, listId);
   el.emptyMsg.hidden = true;
   if (sectionObserver) sectionObserver.disconnect();
@@ -478,6 +487,9 @@ async function selectList(listId, { forceRefresh = false } = {}) {
       sectionResponseCache.set(sectionCacheKey(listId, data.initialSection.key), data.initialSection);
       renderLoadedSection(data.initialSection.key, data.initialSection);
     }
+    for (const section of data.cachedSections || []) {
+      sectionResponseCache.set(sectionCacheKey(listId, section.key), section);
+    }
     el.emptyMsg.hidden = state.indexWords.length > 0;
     const firstSection = state.sections[0];
     if (firstSection) await loadSection(firstSection.key);
@@ -487,6 +499,9 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     pageLoadingFinished = true;
     await afterBodyPaint();
     if (generation !== listLoadGeneration) return;
+    for (const section of data.cachedSections || []) {
+      if (!state.loadedSectionKeys.has(String(section.key))) renderLoadedSection(section.key, section);
+    }
     renderBookMatter();
     renderContentsNav();
     if (PRINT_BOOK_MODE && PRINT_PART === "index") renderAlphabeticalIndex();
@@ -1058,7 +1073,7 @@ async function ensureIdioms() {
     try {
       const base = `/lists/${encodeURIComponent(listId)}`;
       let data;
-      try { data = await api(`${base}/idioms/index?initial=1`); }
+      try { data = await api(`${base}/idioms/index?initial=1`, { forceRefresh: state.forceChapterRefresh }); }
       catch (error) { if (error.status !== 404) throw error; }
       if (!data?.managed) data = await api(`${base}/words/full`);
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
@@ -1082,6 +1097,11 @@ async function ensureIdioms() {
       if (data.initialSection && state.idiomLoadedSectionKeys) {
         const key = String(data.initialSection.sectionKey);
         state.idiomSectionEntries.set(key, resolveIdiomReferences(data.initialSection.entries || [], state.indexWords));
+        state.idiomLoadedSectionKeys.add(key);
+      }
+      for (const section of data.cachedSections || []) {
+        const key = String(section.sectionKey);
+        state.idiomSectionEntries.set(key, resolveIdiomReferences(section.entries || [], state.indexWords));
         state.idiomLoadedSectionKeys.add(key);
       }
       const firstSection = state.idiomGroups[0]?.sections[0];
