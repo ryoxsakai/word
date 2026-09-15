@@ -1,0 +1,116 @@
+[
+  {
+    "slug": "body",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Target word: body, meaning the whole human body. Scene: one full-body rounded humanoid standing comfortably with arms held slightly out and feet apart, a thin soft turquoise outline glow emphasizing their complete body from head to toes. Keep every body part visible, simple, anatomically plausible, nonsexual. Wide white margin for B5 printing. Save result as a local image file."
+  },
+  {
+    "slug": "head",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target head (頭). One full-body white rounded humanoid pointing one finger gently to the TOP of their own round head. A pale coral halo around head only. Their eyes and mouth normal. No pain."
+  },
+  {
+    "slug": "ear",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target ear (耳). Side view of friendly round-headed humanoid from waist up, pointing toward their single clearly visible outer ear. Ear gently colored peach. Not a cutaway diagram, no arrows.",
+    "finishingEditPrompt": "Edit this illustration only to remove all gray shading, black smudges, gradients, and faded edges on the character's chest and torso. Use solid pure white flat fill throughout the whole humanoid body and smooth clean black outlines. Finish the lower torso with a neat rounded closed outline instead of a fading crop. Pure opaque white background. Preserve the exact ear or nose pointing gesture, face, highlighted peach body part, overall style and colors. No added objects, words, border, or watermark."
+  },
+  {
+    "slug": "face",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target face (顔). Close-up head and shoulders of white rounded humanoid. Both hands gently framing their face. Clear eyes, tiny nose, simple mouth, no hair. Pale peach color softly highlights face oval only."
+  },
+  {
+    "slug": "nose",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target nose (鼻). Head-and-shoulders front view of round-headed humanoid, pointing gently to their small, clearly visible nose, pale peach highlight on nose only. Distinct eyes and smiling mouth.",
+    "finishingEditPrompt": "Edit this illustration only to remove all gray shading, black smudges, gradients, and faded edges on the character's chest and torso. Use solid pure white flat fill throughout the whole humanoid body and smooth clean black outlines. Finish the lower torso with a neat rounded closed outline instead of a fading crop. Pure opaque white background. Preserve the exact ear or nose pointing gesture, face, highlighted peach body part, overall style and colors. No added objects, words, border, or watermark."
+  },
+  {
+    "slug": "hand",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target hand (手). One rounded humanoid raising an open palm toward viewer; enlarged hand with exactly five rounded fingers, thumb anatomically clear. Other arm resting down. Hand gently peach-highlighted."
+  },
+  {
+    "slug": "mouth",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target mouth (口). Friendly round-headed humanoid from shoulders up, opening mouth for a medical check. A finger points beside the open mouth, never inside. Clear single open mouth and simple teeth. No medical tools needed."
+  },
+  {
+    "slug": "leg",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target leg (脚). Full-body round white humanoid points downward to own straight leg. Pale blue highlight on one whole leg from thigh to ankle. Both arms, legs and feet fully visible."
+  },
+  {
+    "slug": "tooth",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target tooth (歯). One large friendly clean white molar tooth centered, showing crown and TWO roots in a simple non-realistic educational model, pale blue shading. Small rounded humanoid beside points to the tooth. No face on tooth."
+  },
+  {
+    "slug": "foot",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target foot (足). One simple side-view foot and ankle enlarged at center, foot gently peach-colored, small humanoid beside pointing to the foot. Focus ankle-down region, anatomically plausible, no shoe, nonsexual."
+  },
+  {
+    "slug": "cold",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target cold (風邪). White rounded humanoid with mild runny nose, pink nose, holding tissue to nose beside a small tissue box. Slightly tired expression, no fever thermometer. Respectful, no disgusting discharge."
+  },
+  {
+    "slug": "back",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target back (背中). Back view of friendly white round humanoid from head to feet. One hand points toward own middle/lower back, pale turquoise soft patch highlighting back. Clearly rear view with no face on back of head."
+  },
+  {
+    "slug": "hungry",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target hungry (空腹の). White rounded humanoid at a table, one hand on empty stomach, gazing hopefully at an empty clean plate and spoon. Subtle curved rumbling lines near stomach, no lettering."
+  },
+  {
+    "slug": "sleepy",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target sleepy (眠い). White rounded humanoid sitting on a chair and yawning, half-closed eyes, hand politely covers yawning mouth. Awake but drowsy, no Z letters."
+  },
+  {
+    "slug": "wash",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target wash (洗う). White rounded humanoid carefully washing both hands under a bathroom faucet, gentle blue running water and white soap bubbles. Sink and hands central, dry floor, no text."
+  },
+  {
+    "slug": "wake-up",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target wake up / get up (起きる). Friendly white rounded humanoid sitting upright on edge of bed at morning, feet on floor, arms stretching, eyes open. A small sunrise through square window. Clear getting-out-of-bed action."
+  },
+  {
+    "slug": "nurse",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target nurse (看護師). Friendly white rounded humanoid in pale blue scrub top and trousers, holding a medical observation clipboard, standing beside simple bedside tray. No stethoscope, no cap, no text on clipboard, gender neutral."
+  },
+  {
+    "slug": "headache",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target headache (頭痛). White rounded humanoid sitting down with a concerned expression, one hand gently pressing forehead. Two short coral pain marks near forehead only. No other injury."
+  },
+  {
+    "slug": "dentist",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target dentist (歯科医師). Friendly white rounded dentist in pale blue mask and white coat gently examining seated rounded patient's open mouth with tiny dental mirror. Simple dental chair, no drilling, non-scary."
+  },
+  {
+    "slug": "hospital",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target hospital (病院). Simple welcoming two-story hospital building with blue windows and front entrance, small green medical plus symbol above doorway, one friendly rounded person approaching entrance. No lettering."
+  },
+  {
+    "slug": "skin",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target skin (皮膚・肌). Friendly white rounded humanoid looking at exposed forearm skin and gently touching it with other hand. Small circular magnifying inset shows smooth peach skin texture without hairs or lesions. Clear emphasis on outer surface, not muscles."
+  },
+  {
+    "slug": "temperature",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target temperature (体温). Friendly white rounded nurse holding a digital thermometer near a seated patient's forehead to check temperature. Small thermometer screen has just colored indicator, no numerals, clear medical check, not outdoors weather."
+  },
+  {
+    "slug": "patient",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target patient (患者). White rounded patient in pale green simple clothing seated on examination chair with small wrist bandage, listening to white-coated doctor standing beside with clipboard. Patient is larger central subject, calm and attentive. No queuing, no patience metaphor."
+  },
+  {
+    "slug": "give-up",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target give up smoking (喫煙をやめる). Adult rounded white humanoid decisively dropping an UNLIT cigarette into a small waste bin, determined calm face, other hand making stop gesture. No smoke, no glamorization, no lettering."
+  },
+  {
+    "slug": "fall-down",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target fall down / accident (転ぶ・事故). Rounded white humanoid who has just tripped over a small stone on a walking path, landing seated with one knee bent and palms braced on ground. Concerned expression, two small motion marks, no blood, no severe injury."
+  },
+  {
+    "slug": "careful",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target be careful (気を付ける). Rounded white humanoid in kitchen, concentrating on cutting a carrot on board safely with a small knife, curled fingertips held away from blade. Calm cautious face. No blood, no danger action, no text."
+  },
+  {
+    "slug": "effect",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target have an effect on (影響を与える). Simple cause-and-result educational illustration: on left a white rounded person sleeping peacefully in bed under blue blanket, a clean curved arrow to right showing same person next morning awake, smiling with cheerful posture. No words or numbers. Only two figures."
+  },
+  {
+    "slug": "appointment",
+    "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target make an appointment (予約をする). White rounded person speaking on phone, pointing at a small desk calendar with one green circled blank date square, tiny clinic building icon in a thought bubble. No letters, numbers, no text. Clear booking a clinic visit."
+  }
+]

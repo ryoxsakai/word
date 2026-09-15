@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="からだ・健康・医療をやさしい英語で学ぶ100項目。5級・4級・3級・準2級を対象にしたイラスト付き単語帳。">
+  <title>からだと健康の英単語100</title>
+  <link rel="stylesheet" href="../shared/fonts/charis-sil.css">
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./index.html">からだと健康の英単語100</a><span>英検5級〜準2級</span></header>
+  <main>
+    <section class="intro">
+      <p class="eyebrow">からだ・健康・医療の英語</p>
+      <h1>からだと健康の<br>英単語<span>100</span></h1>
+      <p>身近な「体」から、医療につながる英語へ。</p>
+      <p class="intro-small">4 Chapters · 各25項目 · イラストと短い例文で学ぶ</p>
+    </section>
+    <nav id="chapters" aria-label="章を選ぶ"></nav>
+    <section class="toolbar" aria-label="表示と印刷の設定">
+      <label class="search-label">単語・日本語を検索<input type="search" id="search" placeholder="例：fever、熱" autocomplete="off"></label>
+      <label>表示する章<select id="chapter"><option value="all">全Chapter</option></select></label>
+      <label>用紙<select id="paper"><option value="b5">B5</option><option value="a4">A4</option></select></label>
+      <label class="toggle"><input type="checkbox" id="images" checked>イラスト</label>
+      <button id="print" type="button" disabled>印刷 / PDF保存</button>
+      <p class="print-hint">印刷は選択中の章・検索結果が対象です。</p>
+    </section>
+    <p class="status" id="status" role="status">読み込んでいます…</p>
+    <div id="book"></div>
+    <noscript>単語帳を表示するにはJavaScriptを有効にしてください。</noscript>
+    <footer><p>対象の級は学習の目安です。健康・医療に役立つ語句を含みます。</p><p>赤い母音は単語のアクセントの位置です。熟語の発音記号は、句全体の強勢の一例を示します。</p></footer>
+  </main>
+</body>
+</html>
