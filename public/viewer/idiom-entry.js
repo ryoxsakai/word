@@ -9,7 +9,7 @@ export function renderIdiomEntry(item, origin, {resolve, renderNotes} = {}) {
     ["synonyms", "synonym", "同義語"], ["antonyms", "antonym", "対義語"], ["notes", "memo", "メモ"],
   ].filter(([field]) => item[field]).map(([field, type, label]) => {
     const html = field === "notes"
-      ? (renderNotes ? renderNotes(item[field], {currentHeadword:item.phrase}) : renderMarkup(item[field], {resolve})).replace(/\n/g,"<br>")
+      ? (renderNotes ? renderNotes(item[field], {currentHeadword:item.phrase, autoReferences:false}) : renderMarkup(item[field], {resolve})).replace(/\n/g,"<br>")
       : renderWordListMarkup(item[field], {resolve});
     return `<div class="notes-block notes-${type}"><span class="notes-label ${type}-badge"><span class="notes-label-text">${label}</span></span><span class="notes-content">${html}</span></div>`;
   }).join("");
