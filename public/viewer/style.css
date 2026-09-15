@@ -1573,20 +1573,30 @@ body.is-printing-book > .loading-msg { display: none !important; }
   column-gap: 0.8rem;
   row-gap: 0.35rem;
 }
+/* フレーズと和訳を同じ行に流し、長い項目だけ自然に折り返す。 */
 .example-line {
-  display: grid;
-  grid-template-columns: 0.75rem minmax(0, 1fr);
-  column-gap: 0.25rem;
-  row-gap: 0.08rem;
+  position: relative;
+  display: block;
+  padding-left: 1rem;
   font-size: 0.9rem;
-  align-items: baseline;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
-.bullet { grid-column: 1; grid-row: 1; color: var(--accent); font-size: 0.75rem; }
-.bullet.hollow { color: var(--text-muted); }
-.example-phrase, .example-translation { grid-column: 2; min-width: 0; overflow-wrap: break-word; }
+.example-line > .bullet {
+  position: absolute;
+  left: 0;
+  top: 0.12em;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+.example-line > .bullet.hollow { color: var(--text-muted); }
+.example-phrase, .example-translation { display: inline; overflow-wrap: anywhere; }
 .example-phrase { color: var(--text); }
-.example-translation { color: var(--text-muted); font-size: 0.7em; }
+.example-translation {
+  margin-left: 0.5em;
+  color: var(--text-muted);
+  font-size: 0.7em;
+}
 @media (max-width: 600px) {
   .example-list { grid-template-columns: minmax(0, 1fr); }
 }
