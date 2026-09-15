@@ -2188,8 +2188,6 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   .word-list .group-title { font-size: 12pt; }
   .word-list .group-subtitle { font-size: 9pt; }
   .section-divider {
-    grid-template-columns: var(--hierarchy-copy-column) minmax(0, 1fr);
-    gap: 0;
     min-height: 0;
     margin-bottom: 0.4mm;
     padding: 0.8mm 0;
@@ -2205,7 +2203,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   body:not([data-print-pagination="section"]) .section-entries > .label-divider { padding-left: 3.3rem; }
   .section-divider + .label-divider,
   .section-divider + .section-entries > .label-divider:first-child,
-  .print-heading-stack .section-divider + .label-divider {
+  .print-heading-stack + .label-divider,
+  .print-heading-stack + .section-entries > .label-divider:first-child {
     min-height: 0;
     margin-top: 0.4mm;
     padding-top: 0.5mm;
