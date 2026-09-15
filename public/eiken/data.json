@@ -1,0 +1,2232 @@
+{
+  "schemaVersion": 1,
+  "id": "eiken-medical-100",
+  "title": "からだと健康の英単語100",
+  "subtitle": "医系英語のはじめの一冊",
+  "levelNote": "対象の級は学習の目安です。健康・医療に役立つ語句を含みます。",
+  "chapters": [
+    {
+      "id": 1,
+      "title": "からだ・身近な体調",
+      "target": "5級"
+    },
+    {
+      "id": 2,
+      "title": "症状・病院・健康習慣",
+      "target": "4級"
+    },
+    {
+      "id": 3,
+      "title": "病気・けが・回復",
+      "target": "3級"
+    },
+    {
+      "id": 4,
+      "title": "治療・予防・健康問題",
+      "target": "準2級"
+    }
+  ],
+  "entries": [
+    {
+      "id": "eiken-med-001",
+      "number": 1,
+      "chapter": 1,
+      "spelling": "body",
+      "pronunciation": "/ˈbɒd.i/",
+      "pos": "名",
+      "meaning": "体",
+      "example": "Move your body.",
+      "translation": "体を動かしましょう。",
+      "notes": "body は体全体を指します。",
+      "illustration": {
+        "path": "./assets/images/body.png",
+        "alt": "体を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-002",
+      "number": 2,
+      "chapter": 1,
+      "spelling": "head",
+      "pronunciation": "/hed/",
+      "pos": "名",
+      "meaning": "頭",
+      "example": "My head hurts.",
+      "translation": "頭が痛いです。",
+      "notes": "my head のように、だれの頭かを添えて使います。",
+      "illustration": {
+        "path": "./assets/images/head.png",
+        "alt": "頭を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-003",
+      "number": 3,
+      "chapter": 1,
+      "spelling": "face",
+      "pronunciation": "/feɪs/",
+      "pos": "名",
+      "meaning": "顔",
+      "example": "Wash your face.",
+      "translation": "顔を洗いましょう。",
+      "notes": "wash my face で「顔を洗う」。",
+      "illustration": {
+        "path": "./assets/images/face.png",
+        "alt": "顔を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-004",
+      "number": 4,
+      "chapter": 1,
+      "spelling": "eye",
+      "pronunciation": "/aɪ/",
+      "pos": "名",
+      "meaning": "目",
+      "example": "Close your eyes.",
+      "translation": "目を閉じてください。",
+      "notes": "両目を指すときは eyes と複数形にします。",
+      "illustration": {
+        "path": "./assets/images/crossover-eyeball.png",
+        "alt": "目を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-005",
+      "number": 5,
+      "chapter": 1,
+      "spelling": "ear",
+      "pronunciation": "/ɪər/",
+      "pos": "名",
+      "meaning": "耳",
+      "example": "My left ear hurts.",
+      "translation": "左の耳が痛いです。",
+      "notes": "left ear は「左耳」、right ear は「右耳」。",
+      "illustration": {
+        "path": "./assets/images/ear.png",
+        "alt": "耳を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-006",
+      "number": 6,
+      "chapter": 1,
+      "spelling": "nose",
+      "pronunciation": "/nəʊz/",
+      "pos": "名",
+      "meaning": "鼻",
+      "example": "My nose is red.",
+      "translation": "鼻が赤くなっています。",
+      "notes": "blow my nose で「鼻をかむ」。",
+      "illustration": {
+        "path": "./assets/images/nose.png",
+        "alt": "鼻を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-007",
+      "number": 7,
+      "chapter": 1,
+      "spelling": "mouth",
+      "pronunciation": "/maʊθ/",
+      "pos": "名",
+      "meaning": "口",
+      "example": "Open your mouth.",
+      "translation": "口を開けてください。",
+      "notes": "診察でよく使われる表現です。",
+      "illustration": {
+        "path": "./assets/images/mouth.png",
+        "alt": "口を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-008",
+      "number": 8,
+      "chapter": 1,
+      "spelling": "tooth",
+      "pronunciation": "/tuːθ/",
+      "pos": "名",
+      "meaning": "歯",
+      "example": "This tooth hurts.",
+      "translation": "この歯が痛いです。",
+      "notes": "複数形は teeth。brush my teeth で「歯を磨く」。",
+      "illustration": {
+        "path": "./assets/images/tooth.png",
+        "alt": "歯を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-009",
+      "number": 9,
+      "chapter": 1,
+      "spelling": "hand",
+      "pronunciation": "/hænd/",
+      "pos": "名",
+      "meaning": "手",
+      "example": "Wash your hands.",
+      "translation": "手を洗いましょう。",
+      "notes": "両手なら hands と複数形にします。",
+      "illustration": {
+        "path": "./assets/images/hand.png",
+        "alt": "手を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-010",
+      "number": 10,
+      "chapter": 1,
+      "spelling": "arm",
+      "pronunciation": "/ɑːm/",
+      "pos": "名",
+      "meaning": "腕",
+      "example": "I can move my arm.",
+      "translation": "腕を動かせます。",
+      "notes": "肩から手首までの部分を指します。",
+      "illustration": {
+        "path": "./assets/images/crossover-arm.png",
+        "alt": "腕を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-011",
+      "number": 11,
+      "chapter": 1,
+      "spelling": "leg",
+      "pronunciation": "/leɡ/",
+      "pos": "名",
+      "meaning": "脚",
+      "example": "My right leg hurts.",
+      "translation": "右脚が痛いです。",
+      "notes": "脚全体を指す語です。",
+      "illustration": {
+        "path": "./assets/images/leg.png",
+        "alt": "脚を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-012",
+      "number": 12,
+      "chapter": 1,
+      "spelling": "foot",
+      "pronunciation": "/fʊt/",
+      "pos": "名",
+      "meaning": "足",
+      "example": "My left foot hurts.",
+      "translation": "左足が痛いです。",
+      "notes": "足首から先を指します。複数形は feet。",
+      "illustration": {
+        "path": "./assets/images/foot.png",
+        "alt": "足を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-013",
+      "number": 13,
+      "chapter": 1,
+      "spelling": "back",
+      "pronunciation": "/bæk/",
+      "pos": "名",
+      "meaning": "背中・腰",
+      "example": "My back hurts.",
+      "translation": "背中が痛いです。",
+      "notes": "lower back は「腰・背中の下部」。",
+      "illustration": {
+        "path": "./assets/images/back.png",
+        "alt": "背中・腰を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-014",
+      "number": 14,
+      "chapter": 1,
+      "spelling": "cold",
+      "pronunciation": "/kəʊld/",
+      "pos": "名",
+      "meaning": "風邪",
+      "example": "I have a cold.",
+      "translation": "私は風邪をひいています。",
+      "notes": "風邪の意味では a cold。「寒い」という形容詞の意味もあります。",
+      "illustration": {
+        "path": "./assets/images/cold.png",
+        "alt": "風邪を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-015",
+      "number": 15,
+      "chapter": 1,
+      "spelling": "sick",
+      "pronunciation": "/sɪk/",
+      "pos": "形",
+      "meaning": "気分が悪い・病気の",
+      "example": "I am sick today.",
+      "translation": "今日は具合が悪いです。",
+      "notes": "be sick で「具合が悪い」。",
+      "illustration": {
+        "path": "./assets/images/crossover-ill.png",
+        "alt": "気分が悪い・病気のを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-016",
+      "number": 16,
+      "chapter": 1,
+      "spelling": "tired",
+      "pronunciation": "/taɪəd/",
+      "pos": "形",
+      "meaning": "疲れた",
+      "example": "I am tired.",
+      "translation": "疲れています。",
+      "notes": "体や気持ちが疲れている状態を表します。",
+      "illustration": {
+        "path": "./assets/images/crossover-weary.png",
+        "alt": "疲れたを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-017",
+      "number": 17,
+      "chapter": 1,
+      "spelling": "hungry",
+      "pronunciation": "/ˈhʌŋ.ɡri/",
+      "pos": "形",
+      "meaning": "空腹の",
+      "example": "Are you hungry?",
+      "translation": "おなかがすいていますか。",
+      "notes": "be hungry で「おなかがすいている」。",
+      "illustration": {
+        "path": "./assets/images/hungry.png",
+        "alt": "空腹のを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-018",
+      "number": 18,
+      "chapter": 1,
+      "spelling": "thirsty",
+      "pronunciation": "/ˈθɜː.sti/",
+      "pos": "形",
+      "meaning": "喉が渇いた",
+      "example": "I am thirsty.",
+      "translation": "喉が渇いています。",
+      "notes": "be thirsty で「喉が渇いている」。",
+      "illustration": {
+        "path": "./assets/images/crossover-thirst.png",
+        "alt": "喉が渇いたを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-019",
+      "number": 19,
+      "chapter": 1,
+      "spelling": "sleepy",
+      "pronunciation": "/ˈsliː.pi/",
+      "pos": "形",
+      "meaning": "眠い",
+      "example": "I am sleepy now.",
+      "translation": "今、眠いです。",
+      "notes": "眠りたいと感じている状態を表します。",
+      "illustration": {
+        "path": "./assets/images/sleepy.png",
+        "alt": "眠いを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-020",
+      "number": 20,
+      "chapter": 1,
+      "spelling": "well",
+      "pronunciation": "/wel/",
+      "pos": "形",
+      "meaning": "健康で・元気で",
+      "example": "I am well now.",
+      "translation": "今は元気です。",
+      "notes": "体調を表す well。not well で「具合がよくない」。",
+      "illustration": {
+        "path": "./assets/images/crossover-healthy.png",
+        "alt": "健康で・元気でを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-021",
+      "number": 21,
+      "chapter": 1,
+      "spelling": "wash",
+      "pronunciation": "/wɒʃ/",
+      "pos": "動",
+      "meaning": "洗う",
+      "example": "I wash my hands.",
+      "translation": "私は手を洗います。",
+      "notes": "wash の後ろに、洗うものを置きます。",
+      "illustration": {
+        "path": "./assets/images/wash.png",
+        "alt": "洗うを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-022",
+      "number": 22,
+      "chapter": 1,
+      "spelling": "go to bed",
+      "pronunciation": "/ɡəʊ tə ˈbed/",
+      "pos": "熟",
+      "meaning": "寝る・床に就く",
+      "example": "I go to bed at nine.",
+      "translation": "私は9時に寝ます。",
+      "notes": "就寝する意味では bed に a や the を付けません。",
+      "illustration": {
+        "path": "./assets/images/crossover-asleep.png",
+        "alt": "寝る・床に就くを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          7,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-023",
+      "number": 23,
+      "chapter": 1,
+      "spelling": "wake up",
+      "pronunciation": "/weɪk ˈʌp/",
+      "pos": "熟",
+      "meaning": "目が覚める",
+      "example": "I wake up at seven.",
+      "translation": "私は7時に目が覚めます。",
+      "notes": "眠っていた状態から目が覚めることです。",
+      "illustration": {
+        "path": "./assets/images/wake-up.png",
+        "alt": "目が覚めるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-024",
+      "number": 24,
+      "chapter": 1,
+      "spelling": "lie down",
+      "pronunciation": "/laɪ ˈdaʊn/",
+      "pos": "熟",
+      "meaning": "横になる",
+      "example": "Please lie down here.",
+      "translation": "ここに横になってください。",
+      "notes": "lie の活用は lie–lay–lain。まず lie down をひとまとまりで覚えましょう。",
+      "illustration": {
+        "path": "./assets/images/crossover-rest.png",
+        "alt": "横になるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          5,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-025",
+      "number": 25,
+      "chapter": 1,
+      "spelling": "get up",
+      "pronunciation": "/ɡet ˈʌp/",
+      "pos": "熟",
+      "meaning": "起きる・起床する",
+      "example": "I get up at seven.",
+      "translation": "私は7時に起きます。",
+      "notes": "ベッドから出て起き上がることを表します。",
+      "illustration": {
+        "path": "./assets/images/wake-up.png",
+        "alt": "起きる・起床するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-026",
+      "number": 26,
+      "chapter": 2,
+      "spelling": "fever",
+      "pronunciation": "/ˈfiː.vər/",
+      "pos": "名",
+      "meaning": "熱・発熱",
+      "example": "She had a fever yesterday.",
+      "translation": "彼女は昨日、熱がありました。",
+      "notes": "have a fever で「熱がある」。",
+      "illustration": {
+        "path": "./assets/images/crossover-fever.png",
+        "alt": "熱・発熱を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-027",
+      "number": 27,
+      "chapter": 2,
+      "spelling": "headache",
+      "pronunciation": "/ˈhed.eɪk/",
+      "pos": "名",
+      "meaning": "頭痛",
+      "example": "I had a headache this morning.",
+      "translation": "今朝、頭が痛かったです。",
+      "notes": "have a headache で「頭痛がする」。",
+      "illustration": {
+        "path": "./assets/images/headache.png",
+        "alt": "頭痛を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-028",
+      "number": 28,
+      "chapter": 2,
+      "spelling": "stomachache",
+      "pronunciation": "/ˈstʌm.ək.eɪk/",
+      "pos": "名",
+      "meaning": "腹痛",
+      "example": "He has a stomachache.",
+      "translation": "彼はおなかが痛いです。",
+      "notes": "have a stomachache で「腹痛がする」。stomach ache とも書きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-stomachache.png",
+        "alt": "腹痛を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-029",
+      "number": 29,
+      "chapter": 2,
+      "spelling": "cough",
+      "pronunciation": "/kɒf/",
+      "pos": "名・動",
+      "meaning": "せき・せきをする",
+      "example": "I have a bad cough.",
+      "translation": "ひどいせきが出ます。",
+      "notes": "have a cough で「せきが出る」。語末は /f/ の音です。",
+      "illustration": {
+        "path": "./assets/images/crossover-cough.png",
+        "alt": "せき・せきをするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-030",
+      "number": 30,
+      "chapter": 2,
+      "spelling": "pain",
+      "pronunciation": "/peɪn/",
+      "pos": "名",
+      "meaning": "痛み",
+      "example": "I have a pain in my back.",
+      "translation": "背中に痛みがあります。",
+      "notes": "pain in ... で「…の痛み」。",
+      "illustration": {
+        "path": "./assets/images/crossover-pain.png",
+        "alt": "痛みを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-031",
+      "number": 31,
+      "chapter": 2,
+      "spelling": "doctor",
+      "pronunciation": "/ˈdɒk.tər/",
+      "pos": "名",
+      "meaning": "医師",
+      "example": "I saw a doctor yesterday.",
+      "translation": "昨日、医師の診察を受けました。",
+      "notes": "see a doctor は「医師の診察を受ける」という意味でも使います。",
+      "illustration": {
+        "path": "./assets/images/crossover-diagnose.png",
+        "alt": "医師を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-032",
+      "number": 32,
+      "chapter": 2,
+      "spelling": "nurse",
+      "pronunciation": "/nɜːs/",
+      "pos": "名",
+      "meaning": "看護師",
+      "example": "The nurse helped me.",
+      "translation": "その看護師は私を助けてくれました。",
+      "notes": "性別に関係なく使う語です。",
+      "illustration": {
+        "path": "./assets/images/nurse.png",
+        "alt": "看護師を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-033",
+      "number": 33,
+      "chapter": 2,
+      "spelling": "dentist",
+      "pronunciation": "/ˈden.tɪst/",
+      "pos": "名",
+      "meaning": "歯科医師",
+      "example": "I went to the dentist yesterday.",
+      "translation": "昨日、歯医者に行きました。",
+      "notes": "go to the dentist で「歯医者に行く」。",
+      "illustration": {
+        "path": "./assets/images/dentist.png",
+        "alt": "歯科医師を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-034",
+      "number": 34,
+      "chapter": 2,
+      "spelling": "hospital",
+      "pronunciation": "/ˈhɒs.pɪ.təl/",
+      "pos": "名",
+      "meaning": "病院",
+      "example": "My mother works at a hospital.",
+      "translation": "母は病院で働いています。",
+      "notes": "at a hospital は「ある病院で」。",
+      "illustration": {
+        "path": "./assets/images/hospital.png",
+        "alt": "病院を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-035",
+      "number": 35,
+      "chapter": 2,
+      "spelling": "medicine",
+      "pronunciation": "/ˈmed.ɪ.sən/",
+      "pos": "名",
+      "meaning": "薬",
+      "example": "This medicine is for my cough.",
+      "translation": "この薬は私のせきのためのものです。",
+      "notes": "take medicine で「薬を飲む」。drink は通常使いません。",
+      "illustration": {
+        "path": "./assets/images/crossover-medicine.png",
+        "alt": "薬を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-036",
+      "number": 36,
+      "chapter": 2,
+      "spelling": "health",
+      "pronunciation": "/helθ/",
+      "pos": "名",
+      "meaning": "健康",
+      "example": "Good sleep is important for your health.",
+      "translation": "よい睡眠は健康のために大切です。",
+      "notes": "your health で「あなたの健康」。",
+      "illustration": {
+        "path": "./assets/images/crossover-healthy.png",
+        "alt": "健康を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-037",
+      "number": 37,
+      "chapter": 2,
+      "spelling": "healthy",
+      "pronunciation": "/ˈhel.θi/",
+      "pos": "形",
+      "meaning": "健康な・健康によい",
+      "example": "My grandfather is very healthy.",
+      "translation": "祖父はとても健康です。",
+      "notes": "a healthy meal なら「健康によい食事」。",
+      "illustration": {
+        "path": "./assets/images/crossover-healthy.png",
+        "alt": "健康な・健康によいを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-038",
+      "number": 38,
+      "chapter": 2,
+      "spelling": "exercise",
+      "pronunciation": "/ˈek.sə.saɪz/",
+      "pos": "名・動",
+      "meaning": "運動・運動する",
+      "example": "I exercise in the park.",
+      "translation": "私は公園で運動します。",
+      "notes": "get some exercise で「少し運動する」。",
+      "illustration": {
+        "path": "./assets/images/crossover-exercise.png",
+        "alt": "運動・運動するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-039",
+      "number": 39,
+      "chapter": 2,
+      "spelling": "rest",
+      "pronunciation": "/rest/",
+      "pos": "名・動",
+      "meaning": "休息・休む",
+      "example": "I rested at home yesterday.",
+      "translation": "昨日は家で休みました。",
+      "notes": "体を休めるときに使う語です。",
+      "illustration": {
+        "path": "./assets/images/crossover-rest.png",
+        "alt": "休息・休むを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-040",
+      "number": 40,
+      "chapter": 2,
+      "spelling": "stomach",
+      "pronunciation": "/ˈstʌm.ək/",
+      "pos": "名",
+      "meaning": "胃・おなか",
+      "example": "My stomach hurts.",
+      "translation": "おなかが痛いです。",
+      "notes": "臓器の「胃」のほか、日常会話では「おなか」も表します。",
+      "illustration": {
+        "path": "./assets/images/crossover-stomach.png",
+        "alt": "胃・おなかを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-041",
+      "number": 41,
+      "chapter": 2,
+      "spelling": "heart",
+      "pronunciation": "/hɑːt/",
+      "pos": "名",
+      "meaning": "心臓",
+      "example": "My heart is beating fast.",
+      "translation": "心臓が速く打っています。",
+      "notes": "beat は、ここでは「鼓動する」という意味です。",
+      "illustration": {
+        "path": "./assets/images/crossover-heart.png",
+        "alt": "心臓を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-042",
+      "number": 42,
+      "chapter": 2,
+      "spelling": "blood",
+      "pronunciation": "/blʌd/",
+      "pos": "名",
+      "meaning": "血液・血",
+      "example": "There is blood on his hand.",
+      "translation": "彼の手に血が付いています。",
+      "notes": "通常、a を付けず、複数形にしません。",
+      "illustration": {
+        "path": "./assets/images/crossover-bloodstream.png",
+        "alt": "血液・血を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-043",
+      "number": 43,
+      "chapter": 2,
+      "spelling": "skin",
+      "pronunciation": "/skɪn/",
+      "pos": "名",
+      "meaning": "皮膚・肌",
+      "example": "My skin is dry in winter.",
+      "translation": "冬は肌が乾燥します。",
+      "notes": "dry skin で「乾燥した肌」。",
+      "illustration": {
+        "path": "./assets/images/skin.png",
+        "alt": "皮膚・肌を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-044",
+      "number": 44,
+      "chapter": 2,
+      "spelling": "hurt",
+      "pronunciation": "/hɜːt/",
+      "pos": "動",
+      "meaning": "痛む・痛める",
+      "example": "I hurt my foot yesterday.",
+      "translation": "昨日、足を痛めました。",
+      "notes": "hurt–hurt–hurt と活用します。My foot hurts. なら「足が痛い」。",
+      "illustration": {
+        "path": "./assets/images/crossover-injure.png",
+        "alt": "痛む・痛めるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-045",
+      "number": 45,
+      "chapter": 2,
+      "spelling": "go to hospital",
+      "pronunciation": "/ɡəʊ tə ˈhɒs.pɪ.təl/",
+      "pos": "熟",
+      "meaning": "病院へ行く",
+      "example": "He went to hospital yesterday.",
+      "translation": "彼は昨日、病院へ行きました。",
+      "notes": "治療を受けるために行く表現。米語では通常 go to the hospital。",
+      "illustration": {
+        "path": "./assets/images/hospital.png",
+        "alt": "病院へ行くを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          7,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-046",
+      "number": 46,
+      "chapter": 2,
+      "spelling": "take care of",
+      "pronunciation": "/teɪk ˈkeər əv/",
+      "pos": "熟",
+      "meaning": "世話をする・大切にする",
+      "example": "I take care of my grandmother.",
+      "translation": "私は祖母の世話をしています。",
+      "notes": "of の後ろに、世話をする相手などを置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-caregiver.png",
+        "alt": "世話をする・大切にするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-047",
+      "number": 47,
+      "chapter": 2,
+      "spelling": "feel sick",
+      "pronunciation": "/fiːl ˈsɪk/",
+      "pos": "熟",
+      "meaning": "気分が悪い・吐き気がする",
+      "example": "I felt sick on the bus.",
+      "translation": "バスの中で気分が悪くなりました。",
+      "notes": "feel の過去形は felt。乗り物酔いの場面でも使います。",
+      "illustration": {
+        "path": "./assets/images/cold.png",
+        "alt": "気分が悪い・吐き気がするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          6,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-048",
+      "number": 48,
+      "chapter": 2,
+      "spelling": "get better",
+      "pronunciation": "/ɡet ˈbet.ər/",
+      "pos": "熟",
+      "meaning": "よくなる・回復する",
+      "example": "She is getting better.",
+      "translation": "彼女の具合はよくなってきています。",
+      "notes": "病気やけがの状態がよくなることを表します。",
+      "illustration": {
+        "path": "./assets/images/crossover-recover.png",
+        "alt": "よくなる・回復するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-049",
+      "number": 49,
+      "chapter": 2,
+      "spelling": "take a rest",
+      "pronunciation": "/teɪk ə ˈrest/",
+      "pos": "熟",
+      "meaning": "休憩する・体を休める",
+      "example": "Let's take a rest here.",
+      "translation": "ここで少し休みましょう。",
+      "notes": "a を忘れずに、ひとまとまりで覚えましょう。",
+      "illustration": {
+        "path": "./assets/images/crossover-rest.png",
+        "alt": "休憩する・体を休めるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          8,
+          9
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-050",
+      "number": 50,
+      "chapter": 2,
+      "spelling": "stay in bed",
+      "pronunciation": "/steɪ ɪn ˈbed/",
+      "pos": "熟",
+      "meaning": "寝ている・寝て休む",
+      "example": "I stayed in bed all day.",
+      "translation": "一日中、寝て休んでいました。",
+      "notes": "病気などでベッドに入ったままでいることを表します。",
+      "illustration": {
+        "path": "./assets/images/crossover-ill.png",
+        "alt": "寝ている・寝て休むを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          9,
+          10
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-051",
+      "number": 51,
+      "chapter": 3,
+      "spelling": "patient",
+      "pronunciation": "/ˈpeɪ.ʃənt/",
+      "pos": "名",
+      "meaning": "患者",
+      "example": "The doctor is talking to a patient.",
+      "translation": "医師は患者と話しています。",
+      "notes": "ここでは名詞の「患者」。a patient と数えられます。",
+      "illustration": {
+        "path": "./assets/images/patient.png",
+        "alt": "患者を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-052",
+      "number": 52,
+      "chapter": 3,
+      "spelling": "injury",
+      "pronunciation": "/ˈɪn.dʒər.i/",
+      "pos": "名",
+      "meaning": "けが",
+      "example": "He could not play because of his injury.",
+      "translation": "彼はけがのため試合に出られませんでした。",
+      "notes": "an injury と数えられます。a leg injury は「脚のけが」。",
+      "illustration": {
+        "path": "./assets/images/crossover-injure.png",
+        "alt": "けがを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-053",
+      "number": 53,
+      "chapter": 3,
+      "spelling": "accident",
+      "pronunciation": "/ˈæk.sɪ.dənt/",
+      "pos": "名",
+      "meaning": "事故",
+      "example": "She hurt her arm in an accident.",
+      "translation": "彼女は事故で腕をけがしました。",
+      "notes": "in an accident で「事故で」。",
+      "illustration": {
+        "path": "./assets/images/fall-down.png",
+        "alt": "事故を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-054",
+      "number": 54,
+      "chapter": 3,
+      "spelling": "disease",
+      "pronunciation": "/dɪˈziːz/",
+      "pos": "名",
+      "meaning": "病気・疾患",
+      "example": "The doctor explained the disease to us.",
+      "translation": "医師はその病気について私たちに説明しました。",
+      "notes": "heart disease は「心臓病」。",
+      "illustration": {
+        "path": "./assets/images/crossover-disease.png",
+        "alt": "病気・疾患を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-055",
+      "number": 55,
+      "chapter": 3,
+      "spelling": "breath",
+      "pronunciation": "/breθ/",
+      "pos": "名",
+      "meaning": "息・呼吸",
+      "example": "Take a deep breath.",
+      "translation": "深呼吸をしてください。",
+      "notes": "名詞です。語末は /θ/ の音です。",
+      "illustration": {
+        "path": "./assets/images/crossover-breath.png",
+        "alt": "息・呼吸を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-056",
+      "number": 56,
+      "chapter": 3,
+      "spelling": "breathe",
+      "pronunciation": "/briːð/",
+      "pos": "動",
+      "meaning": "息をする・呼吸する",
+      "example": "It is hard to breathe through my nose.",
+      "translation": "鼻で息をするのがつらいです。",
+      "notes": "動詞です。語末は /ð/ の音です。",
+      "illustration": {
+        "path": "./assets/images/crossover-breathe.png",
+        "alt": "息をする・呼吸するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-057",
+      "number": 57,
+      "chapter": 3,
+      "spelling": "temperature",
+      "pronunciation": "/ˈtem.prə.tʃər/",
+      "pos": "名",
+      "meaning": "体温・温度",
+      "example": "The nurse took my temperature.",
+      "translation": "看護師が私の体温を測りました。",
+      "notes": "take someone's temperature で「人の体温を測る」。",
+      "illustration": {
+        "path": "./assets/images/temperature.png",
+        "alt": "体温・温度を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-058",
+      "number": 58,
+      "chapter": 3,
+      "spelling": "bandage",
+      "pronunciation": "/ˈbæn.dɪdʒ/",
+      "pos": "名",
+      "meaning": "包帯",
+      "example": "The nurse put a bandage on my arm.",
+      "translation": "看護師が私の腕に包帯を巻きました。",
+      "notes": "put a bandage on ... で「…に包帯を巻く」。",
+      "illustration": {
+        "path": "./assets/images/crossover-bandage.png",
+        "alt": "包帯を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-059",
+      "number": 59,
+      "chapter": 3,
+      "spelling": "ambulance",
+      "pronunciation": "/ˈæm.bjə.ləns/",
+      "pos": "名",
+      "meaning": "救急車",
+      "example": "Someone called an ambulance.",
+      "translation": "だれかが救急車を呼びました。",
+      "notes": "call an ambulance で「救急車を呼ぶ」。",
+      "illustration": {
+        "path": "./assets/images/crossover-ambulance.png",
+        "alt": "救急車を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-060",
+      "number": 60,
+      "chapter": 3,
+      "spelling": "weak",
+      "pronunciation": "/wiːk/",
+      "pos": "形",
+      "meaning": "弱い・力が出ない",
+      "example": "I still feel weak after my illness.",
+      "translation": "病気の後で、まだ力が出ません。",
+      "notes": "feel weak で「力が出ないと感じる」。",
+      "illustration": {
+        "path": "./assets/images/crossover-weary.png",
+        "alt": "弱い・力が出ないを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-061",
+      "number": 61,
+      "chapter": 3,
+      "spelling": "ill",
+      "pronunciation": "/ɪl/",
+      "pos": "形",
+      "meaning": "病気で・具合が悪い",
+      "example": "He has been ill for three days.",
+      "translation": "彼は3日間、具合が悪いままです。",
+      "notes": "be ill で「病気である」。",
+      "illustration": {
+        "path": "./assets/images/crossover-ill.png",
+        "alt": "病気で・具合が悪いを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-062",
+      "number": 62,
+      "chapter": 3,
+      "spelling": "safe",
+      "pronunciation": "/seɪf/",
+      "pos": "形",
+      "meaning": "安全な",
+      "example": "Is it safe to drink this water?",
+      "translation": "この水は飲んでも安全ですか。",
+      "notes": "Is it safe to ...? で「…しても安全ですか」。",
+      "illustration": {
+        "path": "./assets/images/crossover-safe.png",
+        "alt": "安全なを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-063",
+      "number": 63,
+      "chapter": 3,
+      "spelling": "safety",
+      "pronunciation": "/ˈseɪf.ti/",
+      "pos": "名",
+      "meaning": "安全",
+      "example": "We learned about road safety.",
+      "translation": "私たちは交通安全について学びました。",
+      "notes": "for your safety で「あなたの安全のために」。",
+      "illustration": {
+        "path": "./assets/images/crossover-safe.png",
+        "alt": "安全を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-064",
+      "number": 64,
+      "chapter": 3,
+      "spelling": "improve",
+      "pronunciation": "/ɪmˈpruːv/",
+      "pos": "動",
+      "meaning": "よくなる・よくする",
+      "example": "Her health has improved.",
+      "translation": "彼女の健康状態はよくなりました。",
+      "notes": "improve your health なら「健康状態をよくする」。",
+      "illustration": {
+        "path": "./assets/images/crossover-recover.png",
+        "alt": "よくなる・よくするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-065",
+      "number": 65,
+      "chapter": 3,
+      "spelling": "enough",
+      "pronunciation": "/ɪˈnʌf/",
+      "pos": "形・副",
+      "meaning": "十分な・十分に",
+      "example": "I did not get enough sleep last night.",
+      "translation": "昨夜は十分に眠れませんでした。",
+      "notes": "enough sleep のように名詞の前に置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-enough.png",
+        "alt": "十分な・十分にを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-066",
+      "number": 66,
+      "chapter": 3,
+      "spelling": "regular",
+      "pronunciation": "/ˈreɡ.jə.lər/",
+      "pos": "形",
+      "meaning": "定期的な・規則正しい",
+      "example": "I try to eat meals at regular times.",
+      "translation": "私は決まった時刻に食事をするようにしています。",
+      "notes": "同じような間隔で繰り返すことを表します。",
+      "illustration": {
+        "path": "./assets/images/crossover-regular.png",
+        "alt": "定期的な・規則正しいを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-067",
+      "number": 67,
+      "chapter": 3,
+      "spelling": "advice",
+      "pronunciation": "/ədˈvaɪs/",
+      "pos": "名",
+      "meaning": "助言・アドバイス",
+      "example": "The doctor gave me some advice.",
+      "translation": "医師は私にいくつか助言をしてくれました。",
+      "notes": "通常、an advice や advices とはしません。",
+      "illustration": {
+        "path": "./assets/images/crossover-advice.png",
+        "alt": "助言・アドバイスを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-068",
+      "number": 68,
+      "chapter": 3,
+      "spelling": "energy",
+      "pronunciation": "/ˈen.ə.dʒi/",
+      "pos": "名",
+      "meaning": "エネルギー・活力",
+      "example": "Food gives us energy.",
+      "translation": "食べ物は私たちにエネルギーを与えます。",
+      "notes": "have energy で「活力がある」。",
+      "illustration": {
+        "path": "./assets/images/crossover-nutrition.png",
+        "alt": "エネルギー・活力を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-069",
+      "number": 69,
+      "chapter": 3,
+      "spelling": "meal",
+      "pronunciation": "/miːl/",
+      "pos": "名",
+      "meaning": "食事",
+      "example": "We had a healthy meal together.",
+      "translation": "私たちは一緒に健康によい食事をしました。",
+      "notes": "have a meal で「食事をする」。",
+      "illustration": {
+        "path": "./assets/images/crossover-nutrition.png",
+        "alt": "食事を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-070",
+      "number": 70,
+      "chapter": 3,
+      "spelling": "fall down",
+      "pronunciation": "/fɔːl ˈdaʊn/",
+      "pos": "熟",
+      "meaning": "転ぶ・倒れる",
+      "example": "She fell down and hurt her knee.",
+      "translation": "彼女は転んで膝をけがしました。",
+      "notes": "fall の過去形は fell、過去分詞は fallen。",
+      "illustration": {
+        "path": "./assets/images/fall-down.png",
+        "alt": "転ぶ・倒れるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-071",
+      "number": 71,
+      "chapter": 3,
+      "spelling": "look after",
+      "pronunciation": "/lʊk ˈɑːf.tər/",
+      "pos": "熟",
+      "meaning": "世話をする",
+      "example": "Who will look after him at home?",
+      "translation": "家ではだれが彼の世話をしますか。",
+      "notes": "after の後ろに世話をする相手を置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-caregiver.png",
+        "alt": "世話をするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-072",
+      "number": 72,
+      "chapter": 3,
+      "spelling": "give up",
+      "pronunciation": "/ɡɪv ˈʌp/",
+      "pos": "熟",
+      "meaning": "やめる・諦める",
+      "example": "My father gave up smoking last year.",
+      "translation": "父は去年、たばこをやめました。",
+      "notes": "動作を表す語を続けるなら give up doing の形です。",
+      "illustration": {
+        "path": "./assets/images/give-up.png",
+        "alt": "やめる・諦めるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-073",
+      "number": 73,
+      "chapter": 3,
+      "spelling": "catch a cold",
+      "pronunciation": "/kætʃ ə ˈkəʊld/",
+      "pos": "熟",
+      "meaning": "風邪をひく",
+      "example": "I caught a cold last week.",
+      "translation": "先週、風邪をひきました。",
+      "notes": "catch の過去形・過去分詞は caught。",
+      "illustration": {
+        "path": "./assets/images/cold.png",
+        "alt": "風邪をひくを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          9,
+          10
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-074",
+      "number": 74,
+      "chapter": 3,
+      "spelling": "be good for",
+      "pronunciation": "/biː ˈɡʊd fər/",
+      "pos": "熟",
+      "meaning": "…によい",
+      "example": "Walking is good for your health.",
+      "translation": "歩くことは健康によいです。",
+      "notes": "for の後ろに、よい影響を受けるものを置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-healthy.png",
+        "alt": "…によいを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-075",
+      "number": 75,
+      "chapter": 3,
+      "spelling": "be careful",
+      "pronunciation": "/biː ˈkeə.fəl/",
+      "pos": "熟",
+      "meaning": "気を付ける",
+      "example": "Be careful when you use this knife.",
+      "translation": "このナイフを使うときは気を付けてください。",
+      "notes": "Be careful! だけでも注意を促せます。",
+      "illustration": {
+        "path": "./assets/images/careful.png",
+        "alt": "気を付けるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          7
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-076",
+      "number": 76,
+      "chapter": 4,
+      "spelling": "treatment",
+      "pronunciation": "/ˈtriːt.mənt/",
+      "pos": "名",
+      "meaning": "治療",
+      "example": "The patient is receiving treatment.",
+      "translation": "その患者は治療を受けています。",
+      "notes": "receive treatment で「治療を受ける」。",
+      "illustration": {
+        "path": "./assets/images/crossover-medical.png",
+        "alt": "治療を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-077",
+      "number": 77,
+      "chapter": 4,
+      "spelling": "prevent",
+      "pronunciation": "/prɪˈvent/",
+      "pos": "動",
+      "meaning": "防ぐ・予防する",
+      "example": "This program aims to prevent accidents.",
+      "translation": "この計画は事故を防ぐことを目指しています。",
+      "notes": "prevent の後ろに、防ぎたい出来事を置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-prevent.png",
+        "alt": "防ぐ・予防するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-078",
+      "number": 78,
+      "chapter": 4,
+      "spelling": "recover",
+      "pronunciation": "/rɪˈkʌv.ər/",
+      "pos": "動",
+      "meaning": "回復する",
+      "example": "She is recovering from her injury.",
+      "translation": "彼女はけがから回復しつつあります。",
+      "notes": "recover from ... で「…から回復する」。",
+      "illustration": {
+        "path": "./assets/images/crossover-recover.png",
+        "alt": "回復するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-079",
+      "number": 79,
+      "chapter": 4,
+      "spelling": "symptom",
+      "pronunciation": "/ˈsɪmp.təm/",
+      "pos": "名",
+      "meaning": "症状",
+      "example": "Please tell me about your symptoms.",
+      "translation": "症状について教えてください。",
+      "notes": "複数の症状なら symptoms とします。",
+      "illustration": {
+        "path": "./assets/images/crossover-symptom.png",
+        "alt": "症状を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-080",
+      "number": 80,
+      "chapter": 4,
+      "spelling": "infection",
+      "pronunciation": "/ɪnˈfek.ʃən/",
+      "pos": "名",
+      "meaning": "感染・感染症",
+      "example": "The doctor checked for signs of infection.",
+      "translation": "医師は感染の兆候がないか確認しました。",
+      "notes": "signs of infection は「感染の兆候」。",
+      "illustration": {
+        "path": "./assets/images/crossover-infect.png",
+        "alt": "感染・感染症を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-081",
+      "number": 81,
+      "chapter": 4,
+      "spelling": "stress",
+      "pronunciation": "/stres/",
+      "pos": "名",
+      "meaning": "ストレス",
+      "example": "She feels stress before exams.",
+      "translation": "彼女は試験前にストレスを感じます。",
+      "notes": "under stress で「ストレスを受けている」。",
+      "illustration": {
+        "path": "./assets/images/crossover-stress.png",
+        "alt": "ストレスを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-082",
+      "number": 82,
+      "chapter": 4,
+      "spelling": "mental",
+      "pronunciation": "/ˈmen.təl/",
+      "pos": "形",
+      "meaning": "心の・精神の",
+      "example": "We talked about mental health in class.",
+      "translation": "授業で心の健康について話し合いました。",
+      "notes": "mental health で「心の健康」。",
+      "illustration": {
+        "path": "./assets/images/crossover-mental.png",
+        "alt": "心の・精神のを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-083",
+      "number": 83,
+      "chapter": 4,
+      "spelling": "physical",
+      "pronunciation": "/ˈfɪz.ɪ.kəl/",
+      "pos": "形",
+      "meaning": "身体の",
+      "example": "Walking is a form of physical activity.",
+      "translation": "歩くことは身体活動の一つです。",
+      "notes": "physical activity で「身体活動」。",
+      "illustration": {
+        "path": "./assets/images/crossover-physical.png",
+        "alt": "身体のを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-084",
+      "number": 84,
+      "chapter": 4,
+      "spelling": "medical",
+      "pronunciation": "/ˈmed.ɪ.kəl/",
+      "pos": "形",
+      "meaning": "医療の・医学の",
+      "example": "He needs medical care at home.",
+      "translation": "彼には自宅での医療的なケアが必要です。",
+      "notes": "medical care で「医療・医療的なケア」。",
+      "illustration": {
+        "path": "./assets/images/crossover-medical.png",
+        "alt": "医療の・医学のを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-085",
+      "number": 85,
+      "chapter": 4,
+      "spelling": "emergency",
+      "pronunciation": "/ɪˈmɜː.dʒən.si/",
+      "pos": "名",
+      "meaning": "緊急事態",
+      "example": "Do you know what to do in an emergency?",
+      "translation": "緊急時に何をすべきか知っていますか。",
+      "notes": "in an emergency で「緊急時に」。",
+      "illustration": {
+        "path": "./assets/images/crossover-emergency.png",
+        "alt": "緊急事態を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          2,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-086",
+      "number": 86,
+      "chapter": 4,
+      "spelling": "research",
+      "pronunciation": "/rɪˈsɜːtʃ/",
+      "pos": "名",
+      "meaning": "研究",
+      "example": "She does research on heart disease.",
+      "translation": "彼女は心臓病の研究をしています。",
+      "notes": "do research on ... で「…について研究する」。通常、複数形にしません。",
+      "illustration": {
+        "path": "./assets/images/crossover-research.png",
+        "alt": "研究を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-087",
+      "number": 87,
+      "chapter": 4,
+      "spelling": "risk",
+      "pronunciation": "/rɪsk/",
+      "pos": "名",
+      "meaning": "危険性・リスク",
+      "example": "The doctor explained the risks of the treatment.",
+      "translation": "医師はその治療のリスクを説明しました。",
+      "notes": "the risk of ... で「…の危険性」。",
+      "illustration": {
+        "path": "./assets/images/crossover-risk.png",
+        "alt": "危険性・リスクを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-088",
+      "number": 88,
+      "chapter": 4,
+      "spelling": "spread",
+      "pronunciation": "/spred/",
+      "pos": "動",
+      "meaning": "広がる・広げる",
+      "example": "The disease spread to nearby towns.",
+      "translation": "その病気は近くの町々に広がりました。",
+      "notes": "spread–spread–spread と活用します。",
+      "illustration": {
+        "path": "./assets/images/crossover-infect.png",
+        "alt": "広がる・広げるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-089",
+      "number": 89,
+      "chapter": 4,
+      "spelling": "cause",
+      "pronunciation": "/kɔːz/",
+      "pos": "動",
+      "meaning": "引き起こす",
+      "example": "The accident caused a serious injury.",
+      "translation": "その事故で重いけがが生じました。",
+      "notes": "cause の後ろに、結果として起きることを置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-cause.png",
+        "alt": "引き起こすを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-090",
+      "number": 90,
+      "chapter": 4,
+      "spelling": "protect",
+      "pronunciation": "/prəˈtekt/",
+      "pos": "動",
+      "meaning": "守る",
+      "example": "This helmet protects my head.",
+      "translation": "このヘルメットは私の頭を守ります。",
+      "notes": "protect A from B で「AをBから守る」。",
+      "illustration": {
+        "path": "./assets/images/crossover-protect.png",
+        "alt": "守るを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-091",
+      "number": 91,
+      "chapter": 4,
+      "spelling": "contain",
+      "pronunciation": "/kənˈteɪn/",
+      "pos": "動",
+      "meaning": "含む",
+      "example": "This food contains a lot of salt.",
+      "translation": "この食品には塩分が多く含まれています。",
+      "notes": "食品の成分を説明するときにも使います。",
+      "illustration": {
+        "path": "./assets/images/crossover-contain.png",
+        "alt": "含むを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-092",
+      "number": 92,
+      "chapter": 4,
+      "spelling": "reduce",
+      "pronunciation": "/rɪˈdjuːs/",
+      "pos": "動",
+      "meaning": "減らす",
+      "example": "We are trying to reduce food waste.",
+      "translation": "私たちは食品の無駄を減らそうとしています。",
+      "notes": "reduce the risk で「危険性を減らす」。",
+      "illustration": {
+        "path": "./assets/images/crossover-reduce.png",
+        "alt": "減らすを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-093",
+      "number": 93,
+      "chapter": 4,
+      "spelling": "provide",
+      "pronunciation": "/prəˈvaɪd/",
+      "pos": "動",
+      "meaning": "提供する",
+      "example": "The hospital provides meals for patients.",
+      "translation": "その病院は患者に食事を提供しています。",
+      "notes": "provide A for B で「BにAを提供する」。",
+      "illustration": {
+        "path": "./assets/images/crossover-provide.png",
+        "alt": "提供するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-094",
+      "number": 94,
+      "chapter": 4,
+      "spelling": "support",
+      "pronunciation": "/səˈpɔːt/",
+      "pos": "動",
+      "meaning": "支える・支援する",
+      "example": "Her family supported her during treatment.",
+      "translation": "治療中、家族が彼女を支えました。",
+      "notes": "人の気持ちや生活を支えるときにも使います。",
+      "illustration": {
+        "path": "./assets/images/crossover-support.png",
+        "alt": "支える・支援するを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          6
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-095",
+      "number": 95,
+      "chapter": 4,
+      "spelling": "suffer from",
+      "pronunciation": "/ˈsʌf.ər frəm/",
+      "pos": "熟",
+      "meaning": "…に苦しむ・…を患う",
+      "example": "He suffers from back pain.",
+      "translation": "彼は腰の痛みに悩まされています。",
+      "notes": "from の後ろに病気や症状などを置きます。",
+      "illustration": {
+        "path": "./assets/images/crossover-pain.png",
+        "alt": "…に苦しむ・…を患うを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-096",
+      "number": 96,
+      "chapter": 4,
+      "spelling": "in danger",
+      "pronunciation": "/ɪn ˈdeɪn.dʒər/",
+      "pos": "熟",
+      "meaning": "危険な状態で",
+      "example": "The patient's life was in danger.",
+      "translation": "その患者の命は危険な状態でした。",
+      "notes": "be in danger で「危険な状態にある」。",
+      "illustration": {
+        "path": "./assets/images/crossover-risk.png",
+        "alt": "危険な状態でを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-097",
+      "number": 97,
+      "chapter": 4,
+      "spelling": "prevent A from doing",
+      "pronunciation": "/prɪˈvent/",
+      "pos": "熟",
+      "meaning": "Aが…するのを防ぐ",
+      "example": "The injury prevented him from walking.",
+      "translation": "けがのため、彼は歩けませんでした。",
+      "notes": "Aには人などを、doingには動詞のing形を入れます。例：prevent him from walking。",
+      "illustration": {
+        "path": "./assets/images/crossover-prevent.png",
+        "alt": "Aが…するのを防ぐを表すイラスト"
+      },
+      "pronunciationNote": "prevent の発音",
+      "stressRanges": [
+        [
+          4,
+          5
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-098",
+      "number": 98,
+      "chapter": 4,
+      "spelling": "have an effect on",
+      "pronunciation": "/hæv ən ɪˈfekt ɒn/",
+      "pos": "熟",
+      "meaning": "…に影響を与える",
+      "example": "Sleep has an effect on our mood.",
+      "translation": "睡眠は私たちの気分に影響を与えます。",
+      "notes": "on の後ろに影響を受けるものを置きます。",
+      "illustration": {
+        "path": "./assets/images/effect.png",
+        "alt": "…に影響を与えるを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          11,
+          12
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-099",
+      "number": 99,
+      "chapter": 4,
+      "spelling": "make an appointment",
+      "pronunciation": "/meɪk ən əˈpɔɪnt.mənt/",
+      "pos": "熟",
+      "meaning": "予約をする",
+      "example": "I'd like to make an appointment with a doctor.",
+      "translation": "医師の診察の予約をしたいです。",
+      "notes": "with の後ろに、会う相手を置けます。",
+      "illustration": {
+        "path": "./assets/images/appointment.png",
+        "alt": "予約をするを表すイラスト"
+      },
+      "stressRanges": [
+        [
+          11,
+          13
+        ]
+      ]
+    },
+    {
+      "id": "eiken-med-100",
+      "number": 100,
+      "chapter": 4,
+      "spelling": "first aid",
+      "pronunciation": "/ˌfɜːst ˈeɪd/",
+      "pos": "熟",
+      "meaning": "応急手当",
+      "example": "We learned first aid at school.",
+      "translation": "学校で応急手当を学びました。",
+      "notes": "give first aid で「応急手当をする」。",
+      "illustration": {
+        "path": "./assets/images/crossover-injure.png",
+        "alt": "応急手当を表すイラスト"
+      },
+      "stressRanges": [
+        [
+          6,
+          8
+        ]
+      ]
+    }
+  ]
+}
