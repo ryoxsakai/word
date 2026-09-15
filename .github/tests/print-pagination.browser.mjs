@@ -34,7 +34,9 @@ try {
         <div class="sense-line">Meaning ${no}</div><div class="example-list">${Array.from({length:6}, (_, k) => `<div class="example-line"><span class="bullet">◇</span><span class="example-phrase">Phrase ${no}-${k}</span><span class="example-translation">Translation ${no}-${k}</span></div>`).join('')}</div>
         <div class="entry-notes"><div class="notes-block">First note ${no}</div><div class="notes-block">Last note ${no}</div></div>
         </div></div></div></article></div></section>`).join('');
-      await page.setContent(`<html><head><style>${css}\n@page {size:182mm 257mm;margin:12mm 12mm 14mm} .entry-illustration {float:right;width:90px;margin:0 0 8px 12px} .entry-illustration img {width:90px;height:90px}</style></head><body class="is-printing-book" data-print-engine="paged" data-print-pagination="${mode}" data-print-page-size="b5"><main class="word-list">${fixture}</main></body></html>`);
+      // Keep the synthetic boundary fixture stable when production headings shrink.
+      // These placeholders reserve the original heading heights so image deferral is exercised.
+      await page.setContent(`<html><head><style>${css}\n.group-divider { min-height: 14mm; } .section-divider { min-height: 10.5mm; }\n@page {size:182mm 257mm;margin:12mm 12mm 14mm} .entry-illustration {float:right;width:90px;margin:0 0 8px 12px} .entry-illustration img {width:90px;height:90px}</style></head><body class="is-printing-book" data-print-engine="paged" data-print-pagination="${mode}" data-print-page-size="b5"><main class="word-list">${fixture}</main></body></html>`);
       await page.evaluate(({columns, entries}) => {
         window.PagedConfig = {auto:false};
         document.documentElement.style.setProperty('--print-example-columns', columns);
