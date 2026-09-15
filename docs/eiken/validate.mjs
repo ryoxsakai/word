@@ -23,6 +23,13 @@ for (const [index,w] of book.entries.entries()) {
 }
 const manifest=JSON.parse(await readFile(new URL('docs/eiken/asset-manifest.json',root),'utf8'));
 assert.equal(manifest.length,100);
+assert.equal(new Set(book.entries.map(w=>w.illustration.path)).size,100,'Every entry needs a distinct illustration path');
+assert.equal(new Set(manifest.map(w=>w.sha256)).size,100,'No image bytes may be reused');
+for(const w of book.entries){
+ const item=manifest.find(m=>m.entryId===w.id);
+ assert.ok(item, `${w.id} missing manifest`);
+ assert.equal(item.file, 'public/eiken/'+w.illustration.path.replace(/^\.\//,''));
+}
 for(const item of manifest){
   const bytes=await readFile(new URL(item.file,root));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),item.sha256,`${item.entryId} asset changed`);

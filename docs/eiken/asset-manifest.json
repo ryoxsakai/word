@@ -215,10 +215,10 @@
     "entryId": "eiken-med-023",
     "spelling": "wake up",
     "kind": "generated",
-    "promptSlug": "wake-up",
-    "file": "public/eiken/assets/images/wake-up.png",
-    "sha256": "e9f55731fa404774ca44fb61fb507afee3dc58a8dad485b92ea24c7f17b87365",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-wake-up",
+    "file": "public/eiken/assets/images/distinct-wake-up.png",
+    "sha256": "aea4c073ed61a611e20381c4a08f2e6f58c48da43bd45e4efc32e6f76f4a4a5b",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-024",
@@ -235,10 +235,10 @@
     "entryId": "eiken-med-025",
     "spelling": "get up",
     "kind": "generated",
-    "promptSlug": "wake-up",
-    "file": "public/eiken/assets/images/wake-up.png",
-    "sha256": "e9f55731fa404774ca44fb61fb507afee3dc58a8dad485b92ea24c7f17b87365",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-get-up",
+    "file": "public/eiken/assets/images/distinct-get-up.png",
+    "sha256": "ae9063db486cc398991c4bd88101d4c40bd3b09fe107f7d4fb18c71216feb690",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-026",
@@ -345,24 +345,20 @@
   {
     "entryId": "eiken-med-036",
     "spelling": "health",
-    "kind": "crossover-copy",
-    "sourceWord": "healthy",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/healthy/e85b6ac2-f34e-4175-84f5-fc6851076295.png",
-    "sourceMeaning": "健康な",
-    "file": "public/eiken/assets/images/crossover-healthy.png",
-    "sha256": "f7e171024ee86097883a0b880cd6e87facc2183e543430c7231c471acb3a0843",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-health",
+    "file": "public/eiken/assets/images/distinct-health.png",
+    "sha256": "8998123f80ba2eb1ada7f585268a95d191af23ae84d694d9913b919b41d404ef",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-037",
     "spelling": "healthy",
-    "kind": "crossover-copy",
-    "sourceWord": "healthy",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/healthy/e85b6ac2-f34e-4175-84f5-fc6851076295.png",
-    "sourceMeaning": "健康な",
-    "file": "public/eiken/assets/images/crossover-healthy.png",
-    "sha256": "f7e171024ee86097883a0b880cd6e87facc2183e543430c7231c471acb3a0843",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-healthy",
+    "file": "public/eiken/assets/images/distinct-healthy.png",
+    "sha256": "0c270772cc4b0dfefa23fd65f1e5175d89026ce989b39d7f98796e54b2d36416",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-038",
@@ -378,13 +374,11 @@
   {
     "entryId": "eiken-med-039",
     "spelling": "rest",
-    "kind": "crossover-copy",
-    "sourceWord": "rest",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/rest/4C177ABF-DE03-4E4F-AFB0-1F0274C8A67C.png",
-    "sourceMeaning": "休息",
-    "file": "public/eiken/assets/images/crossover-rest.png",
-    "sha256": "5cd5443c24121d634fd1bc0f0c372a8e70928a61e7a8c71e6b4c0f04598b64e6",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-rest",
+    "file": "public/eiken/assets/images/distinct-rest.png",
+    "sha256": "863f44f83ebe739574fd09f1307c357ca4365676364d18ba569ce0b7186c6009",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-040",
@@ -443,10 +437,10 @@
     "entryId": "eiken-med-045",
     "spelling": "go to hospital",
     "kind": "generated",
-    "promptSlug": "hospital",
-    "file": "public/eiken/assets/images/hospital.png",
-    "sha256": "99e4e3fe53aecd08866815676917d587490fa15fbdd0ffd5d679a0807e7d8bb7",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-go-to-hospital",
+    "file": "public/eiken/assets/images/distinct-go-to-hospital.png",
+    "sha256": "c3a106d3ee733ad31bcebcf0d492d6ac41656ec357cefc55aedf4a22a5cffaab",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-046",
@@ -463,10 +457,10 @@
     "entryId": "eiken-med-047",
     "spelling": "feel sick",
     "kind": "generated",
-    "promptSlug": "cold",
-    "file": "public/eiken/assets/images/cold.png",
-    "sha256": "7e53a5dd7625af7b29bc5822c74c3fee88c730eab4c8be902fd174501bbbdfe9",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-feel-sick",
+    "file": "public/eiken/assets/images/distinct-feel-sick.png",
+    "sha256": "f3bcd78a435028e6b701d51750037aacb2d6b151a284292c489d028c87831d63",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-048",
@@ -482,24 +476,20 @@
   {
     "entryId": "eiken-med-049",
     "spelling": "take a rest",
-    "kind": "crossover-copy",
-    "sourceWord": "rest",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/rest/4C177ABF-DE03-4E4F-AFB0-1F0274C8A67C.png",
-    "sourceMeaning": "休息",
-    "file": "public/eiken/assets/images/crossover-rest.png",
-    "sha256": "5cd5443c24121d634fd1bc0f0c372a8e70928a61e7a8c71e6b4c0f04598b64e6",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-take-a-rest",
+    "file": "public/eiken/assets/images/distinct-take-a-rest.png",
+    "sha256": "27a32592f9f72a21699741eaefd215998d3ca140d08cd4fbada41d5a75297a56",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-050",
     "spelling": "stay in bed",
-    "kind": "crossover-copy",
-    "sourceWord": "ill",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/ill/751a0da9-283e-4b7c-8aa8-7624d70a3630.png",
-    "sourceMeaning": "病気で",
-    "file": "public/eiken/assets/images/crossover-ill.png",
-    "sha256": "c861f9a5765fa422c07b134bea29e666505ca332fd932789e88354c8b98f71c3",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-stay-in-bed",
+    "file": "public/eiken/assets/images/distinct-stay-in-bed.png",
+    "sha256": "1eebc2975b17ae956d6c0092e545b1889075fceceaa26e256ffbe95fa3e04640",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-051",
@@ -513,13 +503,11 @@
   {
     "entryId": "eiken-med-052",
     "spelling": "injury",
-    "kind": "crossover-copy",
-    "sourceWord": "injure",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/injure/166e9249-93e6-4df9-b518-aba9589b235e.png",
-    "sourceMeaning": "を傷つける",
-    "file": "public/eiken/assets/images/crossover-injure.png",
-    "sha256": "6b9f6f10e3efb702324d19a5c5d1a180c5b65a9ee2b7a2d966026e6e27319983",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-injury",
+    "file": "public/eiken/assets/images/distinct-injury.png",
+    "sha256": "d42cbb3153c75e5e814a06ebe7f32dd262b05054627960b674734c1e634390d7",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-053",
@@ -597,24 +585,20 @@
   {
     "entryId": "eiken-med-060",
     "spelling": "weak",
-    "kind": "crossover-copy",
-    "sourceWord": "weary",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/weary/8aa2906e-d485-4b47-8be2-f4792208fbf5.png",
-    "sourceMeaning": "疲れ果てた",
-    "file": "public/eiken/assets/images/crossover-weary.png",
-    "sha256": "4c7c988fbd9d6618ba98c25dbc9f459c6312f3dc7ae97c1f3a4da47a7dcfcd0a",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-weak",
+    "file": "public/eiken/assets/images/distinct-weak.png",
+    "sha256": "371bafaf67a369ae6702f482c0e6ccf4893444a38804ada727651c8ba878097c",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-061",
     "spelling": "ill",
-    "kind": "crossover-copy",
-    "sourceWord": "ill",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/ill/751a0da9-283e-4b7c-8aa8-7624d70a3630.png",
-    "sourceMeaning": "病気で",
-    "file": "public/eiken/assets/images/crossover-ill.png",
-    "sha256": "c861f9a5765fa422c07b134bea29e666505ca332fd932789e88354c8b98f71c3",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-ill",
+    "file": "public/eiken/assets/images/distinct-ill.png",
+    "sha256": "d2bf0f991013f942d7b5477b3a8f9c59aae8c5cf9d454dedd8a0c1a01fc74b21",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-062",
@@ -630,24 +614,20 @@
   {
     "entryId": "eiken-med-063",
     "spelling": "safety",
-    "kind": "crossover-copy",
-    "sourceWord": "safe",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/safe/945d9a65-c7e0-48a1-8cc3-428d0ba912d5.png",
-    "sourceMeaning": "安全な",
-    "file": "public/eiken/assets/images/crossover-safe.png",
-    "sha256": "bed6a4b8bdf12528976d6458b74ce716e2c6451131d46e9a666541c6a5d17e8e",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-safety",
+    "file": "public/eiken/assets/images/distinct-safety.png",
+    "sha256": "4d458e8044f6fd9374680cbe667bd92569f78b568f04f2d1eb2b86a7b392b989",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-064",
     "spelling": "improve",
-    "kind": "crossover-copy",
-    "sourceWord": "recover",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/recover/e16fa84e-44b7-4c43-8adc-0a217683e03d.png",
-    "sourceMeaning": "回復する",
-    "file": "public/eiken/assets/images/crossover-recover.png",
-    "sha256": "0d26e48bb28bc03626e78ee757e03a4fa6e13470e607819a085b6bd3ffaf2177",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-improve",
+    "file": "public/eiken/assets/images/distinct-improve.png",
+    "sha256": "ffccf5be1b88c0e0ae5a8e1313689bd0188fa7c50332e8f298da5b591ef0caa1",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-065",
@@ -663,13 +643,11 @@
   {
     "entryId": "eiken-med-066",
     "spelling": "regular",
-    "kind": "crossover-copy",
-    "sourceWord": "regular",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/regular/8c21180d-ec0d-49b2-a190-82ef5e29ce45.png",
-    "sourceMeaning": "定期的な・規則正しい",
-    "file": "public/eiken/assets/images/crossover-regular.png",
-    "sha256": "934dc93fffad0fea985da78bab6a516a9f266eca7e3830dcdca6a532702dc125",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-regular",
+    "file": "public/eiken/assets/images/distinct-regular.png",
+    "sha256": "544a68bd54ff72488d6e8cc550f0e8a5670453de2cafd342d91bbcbecd50beb0",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-067",
@@ -696,33 +674,29 @@
   {
     "entryId": "eiken-med-069",
     "spelling": "meal",
-    "kind": "crossover-copy",
-    "sourceWord": "nutrition",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/nutrition/3bfd617d-a1d6-4c6c-a28c-9c1fbff8333f.png",
-    "sourceMeaning": "栄養",
-    "file": "public/eiken/assets/images/crossover-nutrition.png",
-    "sha256": "f970f91863cf284f4aca9970e994ecc42ef9dfd849e65fd65ed264eebaee28f3",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-meal",
+    "file": "public/eiken/assets/images/distinct-meal.png",
+    "sha256": "e081f9a67bfd19efc8113cb6c0b2bb6193daec51ebba9dfd1253d31f07ebf268",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-070",
     "spelling": "fall down",
     "kind": "generated",
-    "promptSlug": "fall-down",
-    "file": "public/eiken/assets/images/fall-down.png",
-    "sha256": "192fb98ebc60234db1d6769f585e344e96f6832c249206504c4d3cbb87fc0747",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-fall-down",
+    "file": "public/eiken/assets/images/distinct-fall-down.png",
+    "sha256": "15a4a1a614ef2cd769b57cb0f6353eab91513d481af225f9d5a51c26a793fa3c",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-071",
     "spelling": "look after",
-    "kind": "crossover-copy",
-    "sourceWord": "caregiver",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/caregiver/2c28358c-0d7f-4378-99c6-e2ef41f0a4ec.png",
-    "sourceMeaning": "介護者・世話をする人",
-    "file": "public/eiken/assets/images/crossover-caregiver.png",
-    "sha256": "460a3d83f2a06cc3bd30bf87517c3743c16e503cd9c3592950ed3488074f2410",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-look-after",
+    "file": "public/eiken/assets/images/distinct-look-after.png",
+    "sha256": "dfd198ca2ee3d6320f652f75d0a9fa2715ff64695f4269dd7ecc728d5105b9da",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-072",
@@ -737,21 +711,19 @@
     "entryId": "eiken-med-073",
     "spelling": "catch a cold",
     "kind": "generated",
-    "promptSlug": "cold",
-    "file": "public/eiken/assets/images/cold.png",
-    "sha256": "7e53a5dd7625af7b29bc5822c74c3fee88c730eab4c8be902fd174501bbbdfe9",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "promptSlug": "distinct-catch-a-cold",
+    "file": "public/eiken/assets/images/distinct-catch-a-cold.png",
+    "sha256": "0ec26228ddf48debb53cb3d8e6def737fbe86e8cb250cb3e57c56dd2dc2309ba",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-074",
     "spelling": "be good for",
-    "kind": "crossover-copy",
-    "sourceWord": "healthy",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/healthy/e85b6ac2-f34e-4175-84f5-fc6851076295.png",
-    "sourceMeaning": "健康な",
-    "file": "public/eiken/assets/images/crossover-healthy.png",
-    "sha256": "f7e171024ee86097883a0b880cd6e87facc2183e543430c7231c471acb3a0843",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-be-good-for",
+    "file": "public/eiken/assets/images/distinct-be-good-for.png",
+    "sha256": "f5b2460cffb60cc414569acddc44e6e627c5391393787fbab5663cfcb2211a97",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-075",
@@ -787,13 +759,11 @@
   {
     "entryId": "eiken-med-078",
     "spelling": "recover",
-    "kind": "crossover-copy",
-    "sourceWord": "recover",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/recover/e16fa84e-44b7-4c43-8adc-0a217683e03d.png",
-    "sourceMeaning": "回復する",
-    "file": "public/eiken/assets/images/crossover-recover.png",
-    "sha256": "0d26e48bb28bc03626e78ee757e03a4fa6e13470e607819a085b6bd3ffaf2177",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-recover",
+    "file": "public/eiken/assets/images/distinct-recover.png",
+    "sha256": "405e51859767d95fc669c12f8188da6d3a4227a8839138e21c89416d9499054a",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-079",
@@ -853,13 +823,11 @@
   {
     "entryId": "eiken-med-084",
     "spelling": "medical",
-    "kind": "crossover-copy",
-    "sourceWord": "medical",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/medical/ae991fe1-8072-4770-8c3a-09b1a1d7bad4.png",
-    "sourceMeaning": "医学の・医療の",
-    "file": "public/eiken/assets/images/crossover-medical.png",
-    "sha256": "c16b378fd6f2ec89fafc85bc0c0a3739746422aef2d65add001db123eb2d65cc",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-medical",
+    "file": "public/eiken/assets/images/distinct-medical.png",
+    "sha256": "e6224552d522918a75584c8d3136ee8a90c038a0da844293a26d3e943124ca1d",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-085",
@@ -897,13 +865,11 @@
   {
     "entryId": "eiken-med-088",
     "spelling": "spread",
-    "kind": "crossover-copy",
-    "sourceWord": "infect",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/infect/4d88e8ad-7e63-466b-9eba-440227c5ed4f.png",
-    "sourceMeaning": "AをBに感染させる",
-    "file": "public/eiken/assets/images/crossover-infect.png",
-    "sha256": "5e83e0670916766bb9c0efc0a15b24886cee0acfc688e201ced83662a91f0d56",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-spread",
+    "file": "public/eiken/assets/images/distinct-spread.png",
+    "sha256": "dbab509a834f481d780f2c8f470b453c02ec70c6dbbb325b882b389c822c312e",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-089",
@@ -974,35 +940,29 @@
   {
     "entryId": "eiken-med-095",
     "spelling": "suffer from",
-    "kind": "crossover-copy",
-    "sourceWord": "pain",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/pain/c62b8e10-5f3b-4837-bdf3-675eae81afad.png",
-    "sourceMeaning": "苦痛・痛み",
-    "file": "public/eiken/assets/images/crossover-pain.png",
-    "sha256": "410c4ee91617d19740c74830004d797138857d5f6c5b79216ba60abf554dcbe7",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-suffer-from",
+    "file": "public/eiken/assets/images/distinct-suffer-from.png",
+    "sha256": "66ac04bcfbc1d14199c32392887302717bcff6189445ea0e3cf82fda23c51801",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-096",
     "spelling": "in danger",
-    "kind": "crossover-copy",
-    "sourceWord": "risk",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/risk/205dea0b-949e-4c9b-a8b4-71dd7f9bab50.png",
-    "sourceMeaning": "Vする危険を冒す",
-    "file": "public/eiken/assets/images/crossover-risk.png",
-    "sha256": "bfd6c9b4d3bfbf5a4bb16db1912cc5e5e2024eee4d3adce756ccb02d39643428",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-in-danger",
+    "file": "public/eiken/assets/images/distinct-in-danger.png",
+    "sha256": "ed6b11cd1caa4ee7e3b4099dfdfc163cc816f50c6a446723fd2098927f0f13f9",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-097",
     "spelling": "prevent A from doing",
-    "kind": "crossover-copy",
-    "sourceWord": "prevent",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/prevent/572cbec1-687e-4bac-94f2-40862c888e72.png",
-    "sourceMeaning": "OがVするのを妨げる",
-    "file": "public/eiken/assets/images/crossover-prevent.png",
-    "sha256": "96df966e9bb0cad975d8e7db75b3a5e4e7957cde73f1a196886129e45317edae",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-prevent-a-from-doing",
+    "file": "public/eiken/assets/images/distinct-prevent-a-from-doing.png",
+    "sha256": "1d2a4c6de821e5e4c115ed13f2836b97dd2430c70d6bb89057251ead7412d9ae",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   },
   {
     "entryId": "eiken-med-098",
@@ -1025,12 +985,10 @@
   {
     "entryId": "eiken-med-100",
     "spelling": "first aid",
-    "kind": "crossover-copy",
-    "sourceWord": "injure",
-    "sourceUrl": "https://vocab.lrnr.jp/mcp-viewer/api/illustrations/injure/166e9249-93e6-4df9-b518-aba9589b235e.png",
-    "sourceMeaning": "を傷つける",
-    "file": "public/eiken/assets/images/crossover-injure.png",
-    "sha256": "6b9f6f10e3efb702324d19a5c5d1a180c5b65a9ee2b7a2d966026e6e27319983",
-    "review": "2026-09-15: meaning and image reviewed; all 20 B5 body PDF pages visually verified"
+    "kind": "generated",
+    "promptSlug": "distinct-first-aid",
+    "file": "public/eiken/assets/images/distinct-first-aid.png",
+    "sha256": "ee26622058315aa2bb6a9666e8529292a8ff86253800568ace595b419fb5f2e2",
+    "review": "2026-09-15: distinct scene for this entry; reviewed for meaning and repetition"
   }
 ]

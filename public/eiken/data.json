@@ -523,8 +523,8 @@
       "translation": "私は7時に目が覚めます。",
       "notes": "眠っていた状態から目が覚めることです。",
       "illustration": {
-        "path": "./assets/images/wake-up.png",
-        "alt": "目が覚めるを表すイラスト"
+        "path": "./assets/images/distinct-wake-up.png",
+        "alt": "wake up：目が覚めるを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -567,8 +567,8 @@
       "translation": "私は7時に起きます。",
       "notes": "ベッドから出て起き上がることを表します。",
       "illustration": {
-        "path": "./assets/images/wake-up.png",
-        "alt": "起きる・起床するを表すイラスト"
+        "path": "./assets/images/distinct-get-up.png",
+        "alt": "get up：起きる・起床するを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -809,8 +809,8 @@
       "translation": "よい睡眠は健康のために大切です。",
       "notes": "your health で「あなたの健康」。",
       "illustration": {
-        "path": "./assets/images/crossover-healthy.png",
-        "alt": "健康を表すイラスト"
+        "path": "./assets/images/distinct-health.png",
+        "alt": "health：健康を表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -831,8 +831,8 @@
       "translation": "祖父はとても健康です。",
       "notes": "a healthy meal なら「健康によい食事」。",
       "illustration": {
-        "path": "./assets/images/crossover-healthy.png",
-        "alt": "健康な・健康によいを表すイラスト"
+        "path": "./assets/images/distinct-healthy.png",
+        "alt": "healthy：健康な・健康によいを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -875,8 +875,8 @@
       "translation": "昨日は家で休みました。",
       "notes": "体を休めるときに使う語です。",
       "illustration": {
-        "path": "./assets/images/crossover-rest.png",
-        "alt": "休息・休むを表すイラスト"
+        "path": "./assets/images/distinct-rest.png",
+        "alt": "rest：休息・休むを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1007,8 +1007,8 @@
       "translation": "彼は昨日、病院へ行きました。",
       "notes": "治療を受けるために行く表現。米語では通常 go to the hospital。",
       "illustration": {
-        "path": "./assets/images/hospital.png",
-        "alt": "病院へ行くを表すイラスト"
+        "path": "./assets/images/distinct-go-to-hospital.png",
+        "alt": "go to hospital：病院へ行くを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1051,8 +1051,8 @@
       "translation": "バスの中で気分が悪くなりました。",
       "notes": "feel の過去形は felt。乗り物酔いの場面でも使います。",
       "illustration": {
-        "path": "./assets/images/cold.png",
-        "alt": "気分が悪い・吐き気がするを表すイラスト"
+        "path": "./assets/images/distinct-feel-sick.png",
+        "alt": "feel sick：気分が悪い・吐き気がするを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1095,8 +1095,8 @@
       "translation": "ここで少し休みましょう。",
       "notes": "a を忘れずに、ひとまとまりで覚えましょう。",
       "illustration": {
-        "path": "./assets/images/crossover-rest.png",
-        "alt": "休憩する・体を休めるを表すイラスト"
+        "path": "./assets/images/distinct-take-a-rest.png",
+        "alt": "take a rest：休憩する・体を休めるを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1117,8 +1117,8 @@
       "translation": "一日中、寝て休んでいました。",
       "notes": "病気などでベッドに入ったままでいることを表します。",
       "illustration": {
-        "path": "./assets/images/crossover-ill.png",
-        "alt": "寝ている・寝て休むを表すイラスト"
+        "path": "./assets/images/distinct-stay-in-bed.png",
+        "alt": "stay in bed：寝ている・寝て休むを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1161,8 +1161,8 @@
       "translation": "彼はけがのため試合に出られませんでした。",
       "notes": "an injury と数えられます。a leg injury は「脚のけが」。",
       "illustration": {
-        "path": "./assets/images/crossover-injure.png",
-        "alt": "けがを表すイラスト"
+        "path": "./assets/images/distinct-injury.png",
+        "alt": "injury：けがを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1337,8 +1337,8 @@
       "translation": "病気の後で、まだ力が出ません。",
       "notes": "feel weak で「力が出ないと感じる」。",
       "illustration": {
-        "path": "./assets/images/crossover-weary.png",
-        "alt": "弱い・力が出ないを表すイラスト"
+        "path": "./assets/images/distinct-weak.png",
+        "alt": "weak：弱い・力が出ないを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1359,8 +1359,8 @@
       "translation": "彼は3日間、具合が悪いままです。",
       "notes": "be ill で「病気である」。",
       "illustration": {
-        "path": "./assets/images/crossover-ill.png",
-        "alt": "病気で・具合が悪いを表すイラスト"
+        "path": "./assets/images/distinct-ill.png",
+        "alt": "ill：病気で・具合が悪いを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1403,8 +1403,8 @@
       "translation": "私たちは交通安全について学びました。",
       "notes": "for your safety で「あなたの安全のために」。",
       "illustration": {
-        "path": "./assets/images/crossover-safe.png",
-        "alt": "安全を表すイラスト"
+        "path": "./assets/images/distinct-safety.png",
+        "alt": "safety：安全を表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1425,8 +1425,8 @@
       "translation": "彼女の健康状態はよくなりました。",
       "notes": "improve your health なら「健康状態をよくする」。",
       "illustration": {
-        "path": "./assets/images/crossover-recover.png",
-        "alt": "よくなる・よくするを表すイラスト"
+        "path": "./assets/images/distinct-improve.png",
+        "alt": "improve：よくなる・よくするを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1469,8 +1469,8 @@
       "translation": "私は決まった時刻に食事をするようにしています。",
       "notes": "同じような間隔で繰り返すことを表します。",
       "illustration": {
-        "path": "./assets/images/crossover-regular.png",
-        "alt": "定期的な・規則正しいを表すイラスト"
+        "path": "./assets/images/distinct-regular.png",
+        "alt": "regular：定期的な・規則正しいを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1535,8 +1535,8 @@
       "translation": "私たちは一緒に健康によい食事をしました。",
       "notes": "have a meal で「食事をする」。",
       "illustration": {
-        "path": "./assets/images/crossover-nutrition.png",
-        "alt": "食事を表すイラスト"
+        "path": "./assets/images/distinct-meal.png",
+        "alt": "meal：食事を表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1557,8 +1557,8 @@
       "translation": "彼女は転んで膝をけがしました。",
       "notes": "fall の過去形は fell、過去分詞は fallen。",
       "illustration": {
-        "path": "./assets/images/fall-down.png",
-        "alt": "転ぶ・倒れるを表すイラスト"
+        "path": "./assets/images/distinct-fall-down.png",
+        "alt": "fall down：転ぶ・倒れるを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1579,8 +1579,8 @@
       "translation": "家ではだれが彼の世話をしますか。",
       "notes": "after の後ろに世話をする相手を置きます。",
       "illustration": {
-        "path": "./assets/images/crossover-caregiver.png",
-        "alt": "世話をするを表すイラスト"
+        "path": "./assets/images/distinct-look-after.png",
+        "alt": "look after：世話をするを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1623,8 +1623,8 @@
       "translation": "先週、風邪をひきました。",
       "notes": "catch の過去形・過去分詞は caught。",
       "illustration": {
-        "path": "./assets/images/cold.png",
-        "alt": "風邪をひくを表すイラスト"
+        "path": "./assets/images/distinct-catch-a-cold.png",
+        "alt": "catch a cold：風邪をひくを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1645,8 +1645,8 @@
       "translation": "歩くことは健康によいです。",
       "notes": "for の後ろに、よい影響を受けるものを置きます。",
       "illustration": {
-        "path": "./assets/images/crossover-healthy.png",
-        "alt": "…によいを表すイラスト"
+        "path": "./assets/images/distinct-be-good-for.png",
+        "alt": "be good for：…によいを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1733,8 +1733,8 @@
       "translation": "彼女はけがから回復しつつあります。",
       "notes": "recover from ... で「…から回復する」。",
       "illustration": {
-        "path": "./assets/images/crossover-recover.png",
-        "alt": "回復するを表すイラスト"
+        "path": "./assets/images/distinct-recover.png",
+        "alt": "recover：回復するを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1865,8 +1865,8 @@
       "translation": "彼には自宅での医療的なケアが必要です。",
       "notes": "medical care で「医療・医療的なケア」。",
       "illustration": {
-        "path": "./assets/images/crossover-medical.png",
-        "alt": "医療の・医学のを表すイラスト"
+        "path": "./assets/images/distinct-medical.png",
+        "alt": "medical：医療の・医学のを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -1953,8 +1953,8 @@
       "translation": "その病気は近くの町々に広がりました。",
       "notes": "spread–spread–spread と活用します。",
       "illustration": {
-        "path": "./assets/images/crossover-infect.png",
-        "alt": "広がる・広げるを表すイラスト"
+        "path": "./assets/images/distinct-spread.png",
+        "alt": "spread：広がる・広げるを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -2107,8 +2107,8 @@
       "translation": "彼は腰の痛みに悩まされています。",
       "notes": "from の後ろに病気や症状などを置きます。",
       "illustration": {
-        "path": "./assets/images/crossover-pain.png",
-        "alt": "…に苦しむ・…を患うを表すイラスト"
+        "path": "./assets/images/distinct-suffer-from.png",
+        "alt": "suffer from：…に苦しむ・…を患うを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -2129,8 +2129,8 @@
       "translation": "その患者の命は危険な状態でした。",
       "notes": "be in danger で「危険な状態にある」。",
       "illustration": {
-        "path": "./assets/images/crossover-risk.png",
-        "alt": "危険な状態でを表すイラスト"
+        "path": "./assets/images/distinct-in-danger.png",
+        "alt": "in danger：危険な状態でを表す専用イラスト"
       },
       "stressRanges": [
         [
@@ -2151,8 +2151,8 @@
       "translation": "けがのため、彼は歩けませんでした。",
       "notes": "Aには人などを、doingには動詞のing形を入れます。例：prevent him from walking。",
       "illustration": {
-        "path": "./assets/images/crossover-prevent.png",
-        "alt": "Aが…するのを防ぐを表すイラスト"
+        "path": "./assets/images/distinct-prevent-a-from-doing.png",
+        "alt": "prevent A from doing：Aが…するのを防ぐを表す専用イラスト"
       },
       "pronunciationNote": "prevent の発音",
       "stressRanges": [
@@ -2218,8 +2218,8 @@
       "translation": "学校で応急手当を学びました。",
       "notes": "give first aid で「応急手当をする」。",
       "illustration": {
-        "path": "./assets/images/crossover-injure.png",
-        "alt": "応急手当を表すイラスト"
+        "path": "./assets/images/distinct-first-aid.png",
+        "alt": "first aid：応急手当を表す専用イラスト"
       },
       "stressRanges": [
         [
