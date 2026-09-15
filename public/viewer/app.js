@@ -782,7 +782,6 @@ function renderEntry(w) {
         ${synonymsHtml}
         ${antonymsHtml}
         ${relatedWordsHtml}
-        ${w.relatedIdiomCount ? `<div class="notes-block"><button type="button" class="related-idioms-link" data-action="show-idioms" data-spelling="${escapeHtml(w.spelling)}">関連する熟語（${Number(w.relatedIdiomCount)}件）</button></div>` : ""}
         ${etymologyHtml}
         ${notesHtml}
         </div>
