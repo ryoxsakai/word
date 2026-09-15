@@ -1,0 +1,168 @@
+{
+  "entries": 100,
+  "uniqueImages": 100,
+  "replacements": [
+    {
+      "number": 47,
+      "word": "feel sick",
+      "previous": "./assets/images/cold.png",
+      "replacement": "./assets/images/distinct-feel-sick.png"
+    },
+    {
+      "number": 73,
+      "word": "catch a cold",
+      "previous": "./assets/images/cold.png",
+      "replacement": "./assets/images/distinct-catch-a-cold.png"
+    },
+    {
+      "number": 50,
+      "word": "stay in bed",
+      "previous": "./assets/images/crossover-ill.png",
+      "replacement": "./assets/images/distinct-stay-in-bed.png"
+    },
+    {
+      "number": 36,
+      "word": "health",
+      "previous": "./assets/images/crossover-healthy.png",
+      "replacement": "./assets/images/distinct-health.png"
+    },
+    {
+      "number": 61,
+      "word": "ill",
+      "previous": "./assets/images/crossover-ill.png",
+      "replacement": "./assets/images/distinct-ill.png"
+    },
+    {
+      "number": 37,
+      "word": "healthy",
+      "previous": "./assets/images/crossover-healthy.png",
+      "replacement": "./assets/images/distinct-healthy.png"
+    },
+    {
+      "number": 60,
+      "word": "weak",
+      "previous": "./assets/images/crossover-weary.png",
+      "replacement": "./assets/images/distinct-weak.png"
+    },
+    {
+      "number": 74,
+      "word": "be good for",
+      "previous": "./assets/images/crossover-healthy.png",
+      "replacement": "./assets/images/distinct-be-good-for.png"
+    },
+    {
+      "number": 25,
+      "word": "get up",
+      "previous": "./assets/images/wake-up.png",
+      "replacement": "./assets/images/distinct-get-up.png"
+    },
+    {
+      "number": 49,
+      "word": "take a rest",
+      "previous": "./assets/images/crossover-rest.png",
+      "replacement": "./assets/images/distinct-take-a-rest.png"
+    },
+    {
+      "number": 95,
+      "word": "suffer from",
+      "previous": "./assets/images/crossover-pain.png",
+      "replacement": "./assets/images/distinct-suffer-from.png"
+    },
+    {
+      "number": 39,
+      "word": "rest",
+      "previous": "./assets/images/crossover-rest.png",
+      "replacement": "./assets/images/distinct-rest.png"
+    },
+    {
+      "number": 45,
+      "word": "go to hospital",
+      "previous": "./assets/images/hospital.png",
+      "replacement": "./assets/images/distinct-go-to-hospital.png"
+    },
+    {
+      "number": 52,
+      "word": "injury",
+      "previous": "./assets/images/crossover-injure.png",
+      "replacement": "./assets/images/distinct-injury.png"
+    },
+    {
+      "number": 64,
+      "word": "improve",
+      "previous": "./assets/images/crossover-recover.png",
+      "replacement": "./assets/images/distinct-improve.png"
+    },
+    {
+      "number": 100,
+      "word": "first aid",
+      "previous": "./assets/images/crossover-injure.png",
+      "replacement": "./assets/images/distinct-first-aid.png"
+    },
+    {
+      "number": 78,
+      "word": "recover",
+      "previous": "./assets/images/crossover-recover.png",
+      "replacement": "./assets/images/distinct-recover.png"
+    },
+    {
+      "number": 70,
+      "word": "fall down",
+      "previous": "./assets/images/fall-down.png",
+      "replacement": "./assets/images/distinct-fall-down.png"
+    },
+    {
+      "number": 71,
+      "word": "look after",
+      "previous": "./assets/images/crossover-caregiver.png",
+      "replacement": "./assets/images/distinct-look-after.png"
+    },
+    {
+      "number": 63,
+      "word": "safety",
+      "previous": "./assets/images/crossover-safe.png",
+      "replacement": "./assets/images/distinct-safety.png"
+    },
+    {
+      "number": 84,
+      "word": "medical",
+      "previous": "./assets/images/crossover-medical.png",
+      "replacement": "./assets/images/distinct-medical.png"
+    },
+    {
+      "number": 69,
+      "word": "meal",
+      "previous": "./assets/images/crossover-nutrition.png",
+      "replacement": "./assets/images/distinct-meal.png"
+    },
+    {
+      "number": 97,
+      "word": "prevent A from doing",
+      "previous": "./assets/images/crossover-prevent.png",
+      "replacement": "./assets/images/distinct-prevent-a-from-doing.png"
+    },
+    {
+      "number": 88,
+      "word": "spread",
+      "previous": "./assets/images/crossover-infect.png",
+      "replacement": "./assets/images/distinct-spread.png"
+    },
+    {
+      "number": 96,
+      "word": "in danger",
+      "previous": "./assets/images/crossover-risk.png",
+      "replacement": "./assets/images/distinct-in-danger.png"
+    },
+    {
+      "number": 23,
+      "word": "wake up",
+      "previous": "./assets/images/wake-up.png",
+      "replacement": "./assets/images/distinct-wake-up.png"
+    },
+    {
+      "number": 66,
+      "word": "regular",
+      "previous": "./assets/images/crossover-regular.png",
+      "replacement": "./assets/images/distinct-regular.png"
+    }
+  ]
+}

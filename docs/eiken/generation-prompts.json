@@ -112,5 +112,113 @@
   {
     "slug": "appointment",
     "prompt": "Create a square print-quality vocabulary illustration for Japanese middle-school learners. Match the reference image's simple rounded white humanoid with oval black eyes, clean black outlines, pure white background, friendly minimal flat-color workbook style. No text, no letters, no watermark, no frame. Wide white margin, clear central subject readable at 24 mm on B5 paper. Target make an appointment (予約をする). White rounded person speaking on phone, pointing at a small desk calendar with one green circled blank date square, tiny clinic building icon in a thought bubble. No letters, numbers, no text. Clear booking a clinic visit."
+  },
+  {
+    "slug": "distinct-feel-sick",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: feel sick. Scene: A white rounded humanoid seated on a bus seat, hand over stomach and other hand near mouth, slightly nauseated face, bus window behind. No sneezing or tissues. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-catch-a-cold",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: catch a cold. Scene: One white rounded humanoid sneezing into a tissue while checking a small calendar beside them, red nose and scarf. Distinct side view standing, no bed. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-stay-in-bed",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: stay in bed. Scene: Sick white rounded humanoid staying tucked under a blue blanket in bed, a clock and water glass on bedside table, closed eyes, restful scene. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-health",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: health. Scene: White rounded humanoid standing beside three clear simple health symbols: a heart, an apple and a crescent moon. A balanced composition representing overall health. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-ill",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: ill. Scene: White rounded humanoid sitting hunched in a chair wrapped in a blanket, looking unwell, with a thermometer on nearby small table. No bed or caregiver. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-healthy",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: healthy. Scene: Energetic elderly white rounded humanoid with small round glasses walking briskly with upright posture, happy face, tiny sun and grass. No potted plant. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-weak",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: weak. Scene: A frail white rounded humanoid attempting to lift a very small light grocery bag with both hands, visibly struggling, slightly bent knees, no heavy stack of boxes. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-be-good-for",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: be good for. Scene: White rounded humanoid happily walking along a short path, and a large red heart with a small upward arrow nearby showing benefit to health. Simple and clear. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-get-up",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: get up. Scene: White rounded humanoid physically rising to stand beside bed, both feet on floor, one hand pushing off mattress. Body half upright, blanket left on bed, morning sun. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-take-a-rest",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: take a rest. Scene: White rounded humanoid pauses during a walk, sitting on a rock with a water bottle, small backpack on ground. Relaxed posture indicating a brief break. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-suffer-from",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: suffer from. Scene: White rounded humanoid standing with one hand pressed to lower back, knees slightly bent, distressed face, small red pain zigzags at lower back. No cane. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-rest",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: rest. Scene: White rounded humanoid sitting relaxed on a park bench, hands resting in lap, calm eyes, a small tree nearby. No recliner. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-go-to-hospital",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: go to hospital. Scene: White rounded humanoid with one arm in a sling walking toward the visible entrance doors of a small hospital, doctor visible at doorway. Focus on movement toward entrance, no written signage. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-injury",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: injury. Scene: White rounded humanoid seated examining a scraped knee with a small clean red mark, soccer ball nearby. No bandage being applied and no helper. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-improve",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: improve. Scene: White rounded humanoid practicing walking between parallel rehabilitation bars, an upward turquoise progress arrow nearby. No bed. Simple rehabilitation improvement scene. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-first-aid",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: first aid. Scene: One white rounded humanoid kneeling and applying a bandage to another seated humanoid's forearm, open first aid box with a green medical cross beside them. Clear hands and safe gentle action. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-recover",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: recover. Scene: White rounded humanoid happily stepping away from a pair of crutches propped safely against a chair, small healed bandage on knee. Recovery, upright confident posture, no bed. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-fall-down",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: fall down. Scene: White rounded humanoid just tripped on an uneven paving stone, one knee and one hand on ground, startled face, shoe beside small stone. No blood. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-look-after",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: look after. Scene: Adult white rounded humanoid gently bringing a bowl of soup on a tray to an elderly seated humanoid at home, no wheelchair, friendly caregiving. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-safety",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: safety. Scene: White rounded humanoid waiting on sidewalk at a zebra crossing with a green pedestrian signal visible, checking both directions, calm. No house or umbrella. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG.\nFinishing edit: Correct only the character's head in this safety illustration. The character must have one normal face with exactly TWO oval black eyes and ONE small smile, facing slightly left. Remove duplicated eyes and the second partial face. Keep both blue directional arrows, sidewalk, crosswalk, cars, green pedestrian light, pose and all other composition unchanged. Clean white rounded humanoid, opaque white face and body. No text."
+  },
+  {
+    "slug": "distinct-medical",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: medical. Scene: White rounded doctor with a stethoscope and white coat, examining a simple medical chart beside a small examination table. No assisting patient to walk, no text. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-meal",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: meal. Scene: White rounded humanoid seated at a dining table with a plate of rice vegetables and fish, spoon in hand ready to eat. No radiating energy marks, simple side view. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-prevent-a-from-doing",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: prevent A from doing. Scene: Adult white rounded humanoid gently holding a child's hand to prevent the child from stepping onto a road, child on sidewalk, adult protective open hand. No cars close, clear safe pose. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-spread",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: spread. Scene: Three white rounded humanoids arranged from left to right, small stylized green germs and curved arrows spreading from one to next, educational disease transmission scene. No anatomical details. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-in-danger",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Word/phrase: in danger. Scene: White rounded humanoid standing precariously on a visibly cracked wooden footbridge over a small deep ravine, startled expression, red warning triangle nearby. No injury, no gore. Style: simple rounded white humanoids with oval black eyes, smooth clean black outlines, minimal flat pastel colors, solid white bodies and pure white background. Friendly minimal workbook illustration. All anatomy coherent. Composition: clear central scene readable at 24mm on B5 paper, generous white margin. No text, letters, watermark, frame, gradients or gray smudges. Save result as a local PNG."
+  },
+  {
+    "slug": "distinct-wake-up",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Target: wake up. White rounded humanoid lying in bed with head still on pillow, eyes just opened wide and one hand rubbing an eye. Blanket covers lower body, alarm clock beside bed, tiny morning sun through window. Do not sit on edge of bed or stand. Clearly waking from sleep. Simple rounded white humanoids, oval black eyes, clean black outlines, minimal pastel flat colors, white background, consistent friendly workbook illustration. All anatomy coherent. Generous margins; readable at 24mm on B5. No text, letters, watermark or frame."
+  },
+  {
+    "slug": "distinct-regular",
+    "prompt": "Use case: scientific-educational. Create ONE square print-quality vocabulary illustration for Japanese middle-school learners. Target: regular. White rounded humanoid eating breakfast beside a simple weekly calendar showing three successive days with identical small clock symbols each at the same time. Small plate and cup on table. Emphasize repeating at regular intervals using equally spaced calendar columns and repeated clock symbols. No letters or numbers, no sorting blocks. Simple rounded white humanoids, oval black eyes, clean black outlines, minimal pastel flat colors, white background, consistent friendly workbook illustration. All anatomy coherent. Generous margins; readable at 24mm on B5. No text, letters, watermark or frame."
   }
 ]
