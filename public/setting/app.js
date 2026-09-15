@@ -336,6 +336,7 @@ function rebuildAutoCrossRefRenderer() {
   state.renderNotesMarkup = createAutoCrossRefRenderer([...headwordIndex.keys(), ...(state.idiomResolver?.phrases || [])], {
     resolve: resolveRef,
     derivativeReferences,
+    idiomReferences: state.idiomResolver?.phrases || [],
     phraseReferences: collectPhraseCrossReferences(state.referenceWords),
   });
 }

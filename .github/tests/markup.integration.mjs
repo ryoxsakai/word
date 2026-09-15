@@ -246,3 +246,22 @@ for (const html of [
   assert.ok(html.includes('data-idiom-id="idiom-1"'));
   assert.ok(!html.includes('data-word-id='));
 }
+
+// Memo policy: idioms win over component words and word phrase aliases.
+const memoResolve = (target) => target === 'idiom:do A good' || target === 'idiom:benefit'
+  ? {found:true,type:'idiom',id:'do-good',no:7}
+  : ['do','good'].includes(target) ? {found:true,id:target,no:1} : {found:false};
+const memoPolicy = createAutoCrossRefRenderer(['do','good','do A good'], {
+  resolve:memoResolve, idiomReferences:['do A good'],
+  phraseReferences:[{phrase:'do A good',target:'good'}],
+});
+const phraseMemo = memoPolicy('do A good / do A good / good', {currentHeadword:'do'});
+assert.equal((phraseMemo.match(/data-idiom-id="do-good"/g) || []).length, 1);
+assert.equal((phraseMemo.match(/data-word-id="good"/g) || []).length, 1);
+assert.doesNotMatch(phraseMemo, /data-word-id="do"/);
+assert.equal((memoPolicy('##idiom:benefit|benefit## / do A good').match(/class="ref-no"/g) || []).length, 1);
+assert.equal((memoPolicy('do A good / ##idiom:benefit|benefit##').match(/class="ref-no"/g) || []).length, 1);
+assert.equal((memoPolicy('do A good').match(/class="ref-no"/g) || []).length, 1); // fresh memo resets deduplication
+assert.doesNotMatch(memoPolicy('good / do A good', {autoReferences:false}), /class="ref"/);
+assert.equal((memoPolicy('good / ##good## / ##good##', {autoReferences:false}).match(/class="ref-no"/g) || []).length, 1);
+console.log('Memo reference policy tests passed');

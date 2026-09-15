@@ -48,7 +48,8 @@ export function escapeHtml(str) {
  */
 export function renderMarkup(raw, opts = {}) {
   if (!raw) return "";
-  const { resolve, boldRefs = false } = opts;
+  const { resolve, boldRefs = false, uniqueRefs = false } = opts;
+  const seenRefs = new Set();
   const renderedRefs = [];
   const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
@@ -63,6 +64,13 @@ export function renderMarkup(raw, opts = {}) {
     if (!result || !result.found) {
       refHtml = `<span class="ref ref-missing" data-headword="${escapeHtml(headword)}" title="未登録の見出し語です">${emphasizedLabel}</span>`;
     } else {
+      const key = `${result.type === "idiom" ? "idiom" : "word"}:${result.id}`;
+      if (uniqueRefs && seenRefs.has(key)) {
+        const token = `\uE100${renderedRefs.length}\uE101`;
+        renderedRefs.push(emphasizedLabel);
+        return token;
+      }
+      seenRefs.add(key);
       const noSuffix = result.no != null
         ? `<span class="ref-no"> (${result.type === "idiom" ? "熟 " : "no."}${escapeHtml(result.no)})</span>`
         : "";
@@ -376,6 +384,15 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     referenceByLower.set(key, { label: phrase, target, isHeadword: false });
   }
 
+  // Registered idioms override word aliases for the same phrase.
+  for (const rawPhrase of opts.idiomReferences || []) {
+    const phrase = String(rawPhrase).trim();
+    if (!phrase || /[#|]/.test(phrase)) continue;
+    referenceByLower.set(phrase.toLowerCase(), {
+      label: phrase, target: `idiom:${phrase}`, isHeadword: true,
+    });
+  }
+
   const alternatives = [...referenceByLower.values()]
     .map((reference) => reference.label)
     .sort((a, b) => b.length - a.length)
@@ -472,7 +489,9 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     }
 
     const autoRefs = [];
-    const withAutoRefs = autoHeadwordRe
+    const withAutoRefs = context.autoReferences === false
+      ? markCurrentHeadword(protectedText)
+      : autoHeadwordRe
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
           const reference = referenceByLower.get(matched.toLowerCase());
           if (!reference && currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
@@ -522,7 +541,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       /\uE000(\d+)\uE001/g,
       (_match, index) => explicitRefs[Number(index)] || ""
     );
-    let html = renderMarkup(restored, { ...opts, boldRefs: true });
+    let html = renderMarkup(restored, { ...opts, boldRefs: true, uniqueRefs: true });
     html = html.replace(
       /\uE200(\d+)\uE201/g,
       (_match, index) => "<strong>" + escapeHtml(boldLabels[Number(index)] || "") + "</strong>"
