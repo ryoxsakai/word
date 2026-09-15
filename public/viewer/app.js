@@ -721,7 +721,7 @@ function renderEntry(w) {
     ? `<div class="notes-block notes-related"><span class="notes-label related-badge"><span class="notes-label-text">関連語</span></span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
     : "";
   const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge"><span class="notes-label-text">メモ</span></span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling })}</span></div>`
+    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge"><span class="notes-label-text">メモ</span></span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: (w.examples || []).filter(ex => ex.type === "phrase").map(ex => ex.sentence) })}</span></div>`
     : "";
 
   const cautionHtml = [

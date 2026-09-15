@@ -68,7 +68,7 @@ const selfPhrase = renderWithPhrases("seem C／seem to Vは第2文型。", {
 });
 assert.equal(
   selfPhrase,
-  '<strong class="memo-current-headword">seem</strong> <strong>C</strong>／<strong class="memo-current-headword">seem</strong> <strong>to</strong> <strong>V</strong>は第2文型。'
+  '<strong class="memo-current-headword">seem C</strong>／<strong class="memo-current-headword">seem to V</strong>は第2文型。'
 );
 assert.doesNotMatch(selfPhrase, /data-headword="seem"/);
 
@@ -265,3 +265,10 @@ assert.equal((memoPolicy('do A good').match(/class="ref-no"/g) || []).length, 1)
 assert.doesNotMatch(memoPolicy('good / do A good', {autoReferences:false}), /class="ref"/);
 assert.equal((memoPolicy('good / ##good## / ##good##', {autoReferences:false}).match(/class="ref-no"/g) || []).length, 1);
 console.log('Memo reference policy tests passed');
+
+const saveMemo = render("save A BではBにtimeを置く。saveも使う。saved A B", {
+  currentHeadword: "save", currentPhrases: ["save A", "save A B"],
+});
+assert.match(saveMemo, /^<strong class="memo-current-headword">save A B<\/strong>では/);
+assert.match(saveMemo, /<strong class="memo-current-headword">save<\/strong>も/);
+assert.doesNotMatch(saveMemo, /memo-current-headword">saved/);
