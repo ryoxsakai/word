@@ -352,7 +352,7 @@ export function addDerivativeCrossReferenceAliases(headwordIndex, derivativeRefe
  * @param {object} [opts] renderMarkup と同じオプション
  * @param {Iterable<{derivative: string, target: string}>} [opts.derivativeReferences]
  * @param {Iterable<{phrase: string, target: string}>} [opts.phraseReferences]
- * @returns {(raw: string, context?: {currentHeadword?: string}) => string}
+ * @returns {(raw: string, context?: {currentHeadword?: string, currentPhrases?: string[]}) => string}
  */
 export function createAutoCrossRefRenderer(headwords, opts = {}) {
   const canonicalByLower = new Map();
@@ -410,6 +410,12 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     if (!raw) return "";
     const currentHeadword = String(context.currentHeadword || "").trim();
     const currentHeadwordLower = currentHeadword.toLowerCase();
+    const currentPhrases = context.currentPhrases || (opts.phraseReferences || [])
+      .filter(ref => String(ref.target).toLowerCase() === currentHeadwordLower)
+      .map(ref => ref.phrase);
+    const currentLabels = [currentHeadword, ...currentPhrases]
+      .map(label => String(label || "").trim()).filter(Boolean);
+    const currentLabelsLower = new Set(currentLabels.map(label => label.toLowerCase()));
     const boldLabels = [];
     const boldToken = (label) => {
       const token = `\uE200${boldLabels.length}\uE201`;
@@ -425,7 +431,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     const markCurrentHeadword = (text) => {
       if (!currentHeadword) return String(text);
       const currentHeadwordRe = new RegExp(
-        boundaryPattern(escapeRegExp(currentHeadword)),
+        boundaryPattern(currentLabels.sort((a, b) => b.length - a.length).map(escapeRegExp).join("|")),
         "giu"
       );
       return String(text).replace(
@@ -478,10 +484,10 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
     // 熟語を含む最長一致の候補へ、新規作成中の見出し語も加える。
     // 先に単独で太字化すると、take off より draft の take が先に一致してしまうため。
     let autoHeadwordRe = plainHeadwordRe;
-    if (currentHeadword && !canonicalByLower.has(currentHeadwordLower)) {
+    if (currentHeadword && (currentPhrases.length || !canonicalByLower.has(currentHeadwordLower))) {
       const draftAlternatives = [
         ...[...referenceByLower.values()].map((reference) => reference.label),
-        currentHeadword,
+        ...currentLabels,
       ]
         .sort((a, b) => b.length - a.length)
         .map(escapeRegExp);
@@ -494,7 +500,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       : autoHeadwordRe
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
           const reference = referenceByLower.get(matched.toLowerCase());
-          if (!reference && currentHeadwordLower && matched.toLowerCase() === currentHeadwordLower) {
+          if (currentHeadwordLower && currentLabelsLower.has(matched.toLowerCase())) {
             return `${prefix}${currentHeadwordToken(matched)}`;
           }
           if (!reference) return `${prefix}${matched}`;
