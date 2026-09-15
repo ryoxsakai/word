@@ -1186,7 +1186,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   box-shadow: none;
   scroll-margin-top: 6.2rem;
 }
-.hierarchy-icon-group { display: none; }
+.group-divider > .hierarchy-icon-group { display: none; }
 .group-title-row {
   display: flex;
   min-width: 0;
