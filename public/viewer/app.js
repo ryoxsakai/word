@@ -24,6 +24,7 @@ import {
   unregisterVocabWebMCP,
   webMCPSupported,
 } from "./webmcp.js";
+import { afterBodyPaint } from "./startup.js";
 import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./navigation.js";
 import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences } from "../shared/idioms.js";
 import { renderIdiomEntry } from "./idiom-entry.js";
@@ -432,6 +433,7 @@ function clearListCaches(listId) {
 
 async function selectList(listId, { forceRefresh = false } = {}) {
   beginPageLoading();
+  let pageLoadingFinished = false;
   const generation = ++listLoadGeneration;
   searchGeneration += 1;
   navigationGeneration += 1;
@@ -471,22 +473,27 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     el.indexList.innerHTML = "";
     assignSequentialNumbers();
     buildIndex();
-    renderBookMatter();
     renderSectionShells();
     if (data.initialSection) {
       sectionResponseCache.set(sectionCacheKey(listId, data.initialSection.key), data.initialSection);
       renderLoadedSection(data.initialSection.key, data.initialSection);
     }
+    el.emptyMsg.hidden = state.indexWords.length > 0;
+    const firstSection = state.sections[0];
+    if (firstSection) await loadSection(firstSection.key);
+    if (generation !== listLoadGeneration) return;
+    // Release the page skeleton as soon as the first body is ready.
+    endPageLoading();
+    pageLoadingFinished = true;
+    await afterBodyPaint();
+    if (generation !== listLoadGeneration) return;
+    renderBookMatter();
     renderContentsNav();
     if (PRINT_BOOK_MODE && PRINT_PART === "index") renderAlphabeticalIndex();
     renderActiveBottomNav();
     setupSectionObserver();
     setupIndexObserver();
     setupLazySectionObserver();
-    el.emptyMsg.hidden = state.indexWords.length > 0;
-    const firstSection = state.sections[0];
-    if (firstSection) await loadSection(firstSection.key);
-    if (generation !== listLoadGeneration) return;
     if (state.activeView === "idioms") await ensureIdioms();
     else {
       const idiomsReady = ensureIdioms().then(() => {
@@ -504,7 +511,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     if (generation !== listLoadGeneration) return;
     el.wordList.innerHTML = `<p class="empty-msg">読み込みに失敗しました: ${escapeHtml(err.message)}</p>`;
   } finally {
-    endPageLoading();
+    if (!pageLoadingFinished) endPageLoading();
   }
 }
 
@@ -1077,9 +1084,18 @@ async function ensureIdioms() {
         state.idiomSectionEntries.set(key, resolveIdiomReferences(data.initialSection.entries || [], state.indexWords));
         state.idiomLoadedSectionKeys.add(key);
       }
-      renderIdioms();
       const firstSection = state.idiomGroups[0]?.sections[0];
-      if (data.managed && firstSection && state.idiomLoadedSectionKeys) await loadIdiomSection(firstSection.key);
+      if (data.managed && firstSection && state.idiomLoadedSectionKeys) await loadIdiomSection(firstSection.key, { rerender: false });
+      if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+      renderIdioms({ deferNavigation: true });
+      el.idiomList.removeAttribute("aria-busy");
+      await afterBodyPaint();
+      if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+      if (state.activeView === "idioms") {
+        renderIdiomNavigation();
+        setupSectionObserver();
+        setupIdiomLazyObserver();
+      }
     } catch (error) {
       if (generation === listLoadGeneration) {
         el.idiomList.innerHTML = `<p class="index-empty">熟語の読み込みに失敗しました。<button type="button" data-action="retry-idioms">再試行</button></p>`;
@@ -1125,7 +1141,7 @@ function idiomSectionSkeleton(section) {
   return `<div class="idiom-entries idiom-section-loading" data-idiom-section-entries="${escapeHtml(String(section.key))}" aria-busy="true"><div class="idiom-loading-row"><span class="skeleton-headword skeleton-line"></span><span class="skeleton-meaning skeleton-line"></span></div><div class="idiom-loading-row"><span class="skeleton-headword skeleton-line"></span><span class="skeleton-meaning skeleton-line"></span></div></div>`;
 }
 
-function renderIdioms() {
+function renderIdioms({ deferNavigation = false } = {}) {
   if (!state.idiomEntries) return;
   const groups = visibleIdiomGroups();
   el.idiomList.innerHTML = groups.length ? groups.map(chapter => chapter.sections.map((section, index) => {
@@ -1139,7 +1155,7 @@ function renderIdioms() {
       ${idiomSectionIsLoaded(section.key) ? `<div class="idiom-entries" data-idiom-section-entries="${escapeHtml(String(section.key))}">${section.items.map(item => renderIdiomEntry(item, VIEWER_API_BASE, {resolve:resolveRef, renderNotes:state.renderNotesMarkup})).join("")}</div>` : idiomSectionSkeleton(section)}
     </section>`;
   }).join("")).join("") : '<p class="index-empty">該当する熟語はありません。</p>';
-  if (state.activeView === "idioms") {
+  if (state.activeView === "idioms" && !deferNavigation) {
     renderIdiomNavigation();
     setupSectionObserver();
     setupIdiomLazyObserver();

@@ -15,6 +15,10 @@ const state = { wordIndex:new Map(), currentListId: "crossover-v3", indexWords: 
 let resolveFetch;
 let fetches = 0;
 const context = vm.createContext({ state, el: {idiomList: panel}, listLoadGeneration: 1,
+  afterBodyPaint: async () => {
+    assert.match(panel.innerHTML, /class="entry idiom-entry"/, "idiom body is rendered before yielding for navigation");
+    assert.equal(attrs.has("aria-busy"), false, "body is readable before navigation");
+  },
   api: () => { fetches++; return new Promise(resolve => { resolveFetch = resolve; }); },
   createIdiomReferenceResolver, buildIndex() {}, resolveRef: () => ({found:false}), buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences, renderIdiomEntry, VIEWER_API_BASE: "https://vocab.lrnr.jp/mcp-viewer", escapeHtml, matchesEikenLevel: () => true, hierarchyIcon: () => "",
 });
