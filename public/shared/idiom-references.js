@@ -1,3 +1,4 @@
+import { idiomAlternateForms, idiomAliasNames } from "./idiom-forms.js";
 // Same ##target|label## syntax as words; optional word:/idiom: disambiguation.
 const normalize = text => String(text || '').replace(/V-ed/gi, 'Vpp').replace(/’/g, "'").trim().replace(/\s+/g, ' ').toLowerCase();
 export function createIdiomReferenceResolver(groups, resolveWord = () => ({found:false})) {
@@ -13,12 +14,13 @@ export function createIdiomReferenceResolver(groups, resolveWord = () => ({found
     if (e.hidden) continue;
     const ref = {found:true, type:'idiom', id:e.key, no:e.no};
     ids.set(e.key, ref); add(e.phrase,ref);
-    for (const alias of e.aliases || []) { add(alias.phrase,ref); if(alias.key) ids.set(alias.key,ref); }
+    for (const form of idiomAlternateForms(e)) add(form,ref);
+    for (const alias of idiomAliasNames(e.aliases)) { add(alias,ref); ids.set(alias,ref); }
   }
   const resolve = raw => {
     const text = String(raw).trim();
     if (/^word:/i.test(text)) return resolveWord(text.slice(5).trim());
-    if (/^idiom:/i.test(text)) return index.get(normalize(text.slice(6))) || ids.get(text.slice(6).trim()) || {found:false};
+    if (/^idiom:/i.test(text)) { const name=text.slice(6).trim(), key=normalize(name); return index.has(key) ? index.get(key) || {found:false} : ids.get(name) || {found:false}; }
     const word = resolveWord(text);
     return word?.found ? word : index.get(normalize(text)) || {found:false};
   };

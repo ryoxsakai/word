@@ -1,3 +1,4 @@
+import { idiomAliasNames, validateIdiomAlternateForms } from '../../public/shared/idiom-forms.js';
 import { readIdioms } from './idioms.js';
 import { groupIdiomEntries } from '../../public/shared/idioms.js';
 import { MCP_READ_SCOPE, MCP_WRITE_SCOPE } from './mcp-oauth.js';
@@ -10,6 +11,7 @@ const meaning = { type: 'object', additionalProperties: false, properties: {
   word_ids: { type: 'array', items: str, maxItems: 30, uniqueItems: true },
 }, required: ['meaning'] };
 const fields = { phrase: { type: 'string', minLength: 1, maxLength: 500 }, section_key: str,
+  alternate_forms: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 500 }, maxItems: 30, uniqueItems: true },
   synonyms: text, antonyms: text, notes: text, hidden: { type: 'boolean' },
   aliases: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 500 }, maxItems: 100, uniqueItems: true },
   meanings: { type: 'array', items: meaning, minItems: 1, maxItems: 30 } };
@@ -74,7 +76,7 @@ async function snapshot(db, listId) {
   const displayEntries = new Map(display.flatMap(c => c.sections.flatMap(s => s.items.map(e => [e.key, e.no]))));
   const displaySections = new Map(display.flatMap(c => c.sections.map(s => [s.key, { chapter: c.name, group: s.groupName || null, section: s.name }])));
   return { revision: rev, sections: sections.map(s => ({ ...s, display: displaySections.get(s.section_key) || null })),
-    entries: entries.map(e => ({ ...e, aliases: JSON.parse(e.aliases), hidden: !!e.hidden, display_no: displayEntries.get(e.id) || null,
+    entries: entries.map(e => ({ ...e, aliases: JSON.parse(e.aliases), alternate_forms: JSON.parse(e.alternate_forms || '[]'), hidden: !!e.hidden, display_no: displayEntries.get(e.id) || null,
       meanings: senses.filter(s => s.idiom_id === e.id).map(s => ({ ...s, refs: refs.filter(r => r.sense_id === s.id) })) })) };
 }
 export async function callIdiomRead(name, args, db) {
@@ -98,13 +100,13 @@ export async function callIdiomRead(name, args, db) {
   }
   if (name === 'get_idiom') {
     if (!!args.idiom_id === !!args.phrase) throw new Error('Specify exactly one of idiom_id or phrase');
-    const found = data.entries.filter(e => args.idiom_id ? e.id === args.idiom_id : [e.phrase, ...e.aliases].some(p => norm(p) === norm(args.phrase)));
+    const found = data.entries.filter(e => args.idiom_id ? e.id === args.idiom_id : [e.phrase, ...(e.alternate_forms || []), ...idiomAliasNames(e.aliases)].some(p => norm(p) === norm(args.phrase)));
     if (found.length !== 1) throw new Error(found.length ? 'Ambiguous phrase; use idiom_id' : 'Idiom not found');
     return { listId: args.list_id, revision: data.revision, idiom: found[0], section: data.sections.find(s => s.section_key === found[0].section_key) };
   }
   const allowed = new Set(data.sections.filter(s => (!args.chapter_key || s.chapter_key === args.chapter_key) && (!args.group_key || s.group_key === args.group_key) && (!args.section_key || s.section_key === args.section_key)).map(s => s.section_key));
   const order = new Map(data.sections.map((s, i) => [s.section_key, i]));
-  const found = data.entries.filter(e => allowed.has(e.section_key) && (args.include_hidden || !e.hidden) && (!args.query || norm([e.phrase, ...e.aliases, e.synonyms, e.antonyms, e.notes, ...e.meanings.map(s => s.meaning)].join(' ')).includes(norm(args.query))))
+  const found = data.entries.filter(e => allowed.has(e.section_key) && (args.include_hidden || !e.hidden) && (!args.query || norm([e.phrase, ...e.alternate_forms, ...idiomAliasNames(e.aliases), e.synonyms, e.antonyms, e.notes, ...e.meanings.map(s => s.meaning)].join(' ')).includes(norm(args.query))))
     .sort((a, b) => order.get(a.section_key) - order.get(b.section_key) || a.sort_order - b.sort_order || a.id.localeCompare(b.id));
   const offset = args.offset ?? 0, limit = args.limit ?? 50, entries = found.slice(offset, offset + limit);
   return { listId: args.list_id, revision: data.revision, entries, pagination: { totalCount: found.length, offset, limit, returnedCount: entries.length, hasMore: offset + limit < found.length, nextOffset: offset + limit < found.length ? offset + limit : null } };
@@ -129,15 +131,20 @@ export async function callIdiomWrite(name, args, db, auth) {
     const phrase = body.phrase?.trim() ?? old?.phrase;
     const key = body.section_key ?? old?.section_key; section(key);
     const aliases = body.aliases ?? old?.aliases ?? [];
-    if ((!old || (body.phrase !== undefined && norm(phrase) !== norm(old.phrase))) && data.entries.some(e => e.id !== id && [e.phrase, ...e.aliases].some(p => norm(p) === norm(phrase)))) throw new Error('Duplicate phrase; use update_idiom or merge_idioms');
-    if (body.aliases !== undefined && aliases.some(a => data.entries.some(e => e.id !== id && [e.phrase, ...e.aliases].some(p => norm(p) === norm(a))))) throw new Error('Alias conflicts with another idiom');
+    const forms = body.alternate_forms === undefined ? (old?.alternate_forms || [])
+      : validateIdiomAlternateForms(body.alternate_forms, phrase);
+    if (body.alternate_forms !== undefined && forms.some(form => data.entries.some(e => e.id !== id &&
+      [e.phrase, ...e.alternate_forms, ...idiomAliasNames(e.aliases)].some(p => norm(p) === norm(form))))) throw new Error('Alternate form conflicts with another idiom');
+    if ((!old || (body.phrase !== undefined && norm(phrase) !== norm(old.phrase))) && data.entries.some(e => e.id !== id && [e.phrase, ...(e.alternate_forms || []), ...idiomAliasNames(e.aliases)].some(p => norm(p) === norm(phrase)))) throw new Error('Duplicate phrase; use update_idiom or merge_idioms');
+    if (body.aliases !== undefined && aliases.some(a => data.entries.some(e => e.id !== id && [e.phrase, ...(e.alternate_forms || []), ...idiomAliasNames(e.aliases)].some(p => norm(p) === norm(a))))) throw new Error('Alias conflicts with another idiom');
     if (!old) {
-      if (created.some(e => [e.phrase, ...e.aliases].some(p => [phrase, ...aliases].some(a => norm(a) === norm(p))))) throw new Error('Duplicate phrase in batch');
-      created.push({ id, phrase, aliases });
+      if (created.some(e => [e.phrase, ...(e.alternate_forms || []), ...idiomAliasNames(e.aliases)].some(p => [phrase, ...forms, ...idiomAliasNames(aliases)].some(a => norm(a) === norm(p))))) throw new Error('Duplicate phrase in batch');
+      created.push({ id, phrase, aliases, alternate_forms: forms });
       add('INSERT INTO idioms (id, list_id, phrase, section_key, sort_order) VALUES (?, ?, ?, ?, ?)', id, args.list_id, phrase, key, Math.max(0, ...data.entries.map(e => e.sort_order)) + created.length);
     } else affected.add(id);
     const changes = { ...Object.fromEntries(['synonyms', 'antonyms', 'notes'].filter(k => body[k] !== undefined).map(k => [k, body[k]])), phrase, section_key: key };
     if (body.hidden !== undefined) changes.hidden = Number(body.hidden);
+    if (body.alternate_forms !== undefined) changes.alternate_forms = JSON.stringify(forms);
     if (body.aliases !== undefined) changes.aliases = JSON.stringify(aliases);
     add(`UPDATE idioms SET ${Object.keys(changes).map(k => k + ' = ?').join(', ')}, updated_at = datetime('now') WHERE id = ? AND list_id = ?`, ...Object.values(changes), id, args.list_id);
     if (body.meanings !== undefined) {
@@ -208,7 +215,9 @@ export async function callIdiomWrite(name, args, db, auth) {
     // Keep every sense identity, including equal text with different references.
     let order = Math.max(-1, ...target.meanings.map(s => s.sort_order)) + 1;
     for (const source of sources) for (const sense of source.meanings) add('UPDATE idiom_senses SET idiom_id = ?, sort_order = ? WHERE id = ?', target.id, order++, sense.id);
-    const combined = ['synonyms', 'antonyms', 'notes'].map(k => [...new Set(all.map(e => e[k]).filter(Boolean))].join('\n'));
+    const forms = [...new Set(all.flatMap(e => e.alternate_forms || []))].filter(form => norm(form) !== norm(target.phrase));
+    if (forms.length) add('UPDATE idioms SET alternate_forms = ? WHERE id = ?', JSON.stringify(validateIdiomAlternateForms(forms, target.phrase)), target.id);
+    const combined = ['synonyms' , 'antonyms', 'notes'].map(k => [...new Set(all.map(e => e[k]).filter(Boolean))].join('\n'));
     if (combined.some(v => v.length > 20000)) throw new Error('Merged field is too long');
     add("UPDATE idioms SET synonyms = ?, antonyms = ?, notes = ?, aliases = ?, updated_at = datetime('now') WHERE id = ?", ...combined, JSON.stringify(aliases), target.id);
     for (const source of sources) add('DELETE FROM idioms WHERE id = ? AND list_id = ?', source.id, args.list_id);
