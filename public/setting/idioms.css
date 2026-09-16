@@ -57,4 +57,4 @@
 /* Reserve space so unloaded sections do not all enter the viewport at once. */
 .idiom-table .section-status-row td { height: 12rem; vertical-align: middle; }
 
-.idiom-alternate-form { color: var(--muted, #777); font-size: .82em; font-weight: 400; }
+.idiom-alternate-form { color: var(--muted, #777); font-size: .82em; font-weight: 700; }

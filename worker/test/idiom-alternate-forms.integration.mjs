@@ -49,3 +49,22 @@ await assert.rejects(saveIdiom(db,'crossover-v3',{...payload,alternateForms:['  
 await assert.rejects(saveIdiom(db,'crossover-v3',{...payload,alternateForms:['provide B for A','provide B for A']}),/Duplicate/);
 const stale=seed();stale.prepare('UPDATE idioms SET phrase=? WHERE id=?').run('edited since audit',fixture[0].id);stale.exec(migration('0053_idiom_alternate_forms.sql'));assert.equal(stale.prepare('SELECT phrase FROM idioms WHERE id=?').get(fixture[0].id).phrase,'edited since audit');
 console.log(`Alternate forms: ${fixture.length} migrations, ${fixture.reduce((n,e)=>n+e.alternateForms.length,0)} forms, preservation, index, links, render, MCP and editor saves passed`);
+
+// The six fixed-SVOO expressions also have complete prepositional alternants.
+const svoo=JSON.parse(readFileSync(new URL('./fixtures/idiom-svoo-forms.json',import.meta.url),'utf8'));
+const alternants=['do good to A','do harm to A','do damage to A','do justice to A','do a favor for A','ask a favor of A'];
+for(const [i,e] of svoo.entries()){
+ sql.prepare("INSERT INTO idioms(id,list_id,phrase,section_key,sort_order,notes,alternate_forms) VALUES (?,'crossover-v3',?,'s',?,?,?)").run(e.id,e.phrase,1000+i,e.notes,JSON.stringify(e.alternate_forms));
+ for(const sense of e.meanings)sql.prepare('INSERT INTO idiom_senses VALUES (?,?,?,?)').run(sense.id,e.id,sense.meaning,sense.sort_order);
+}
+const priorSenses=sql.prepare('SELECT * FROM idiom_senses').all();
+sql.exec(migration('0054_svoo_alternate_forms.sql'));
+sql.exec(migration('0054_svoo_alternate_forms.sql')); // Reapplication must not duplicate forms.
+assert.deepEqual(sql.prepare('SELECT * FROM idiom_senses').all(),priorSenses);
+for(const [i,e] of svoo.entries()){
+ const row=(await get(e.phrase)).idiom;
+ assert.deepEqual(row.alternate_forms,[alternants[i]]);
+ assert.equal(row.notes,e.notes);
+ assert.equal((await get(alternants[i])).idiom.id,e.id);
+}
+console.log('Six SVOO alternants: complete lookup, preserved notes/senses and idempotent registration passed');
