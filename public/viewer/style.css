@@ -2387,3 +2387,6 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .headword .idiom-preposition { color: #c43b4d; }
 
 .headword .idiom-adverb { color: #2563b4; }
+
+.idiom-phrase .idiom-parenthetical,
+.idiom-phrase .idiom-parenthetical * { color: #777; }
