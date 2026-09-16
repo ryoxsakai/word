@@ -1,3 +1,4 @@
+import { idiomAlternateForms } from "./idiom-forms.js";
 import { parseWordListItems, stripMarkup } from "./markup.js";
 
 export function getAlphabeticalIndexKey(spelling) {
@@ -48,6 +49,10 @@ export function buildAlphabeticalIndexEntries(words, idioms = []) {
     if (idiom.hidden || !idiom.phrase) continue;
     entries.push({ spelling: idiom.phrase, loc: `熟 ${idiom.no}`, targetId: idiom.key, isRef: false, kind: "idiom" });
     headwordKeys.add(idiom.phrase.toLowerCase());
+    for (const spelling of idiomAlternateForms(idiom)) {
+      entries.push({spelling, loc: `熟 ${idiom.no}`, targetId: idiom.key, isRef: false, kind: "idiom"});
+      headwordKeys.add(spelling.toLowerCase());
+    }
   }
 
   const referencePriority = {

@@ -1151,7 +1151,7 @@ function visibleIdiomGroups() {
         meanings: item.meanings.map(sense => ({ ...sense,
           refs: sense.refs.filter(ref => matchesEikenLevel(ref)),
         })).filter(sense => (sense.refs.length || state.eikenLevel === "all") && (!query ||
-          `${item.phrase} ${item.synonyms || ""} ${item.antonyms || ""} ${item.notes || ""} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
+          `${item.phrase} ${(item.alternateForms || []).join(" ")} ${item.synonyms || ""} ${item.antonyms || ""} ${item.notes || ""} ${sense.meaning} ${sense.refs.map(ref => `${ref.spelling} ${ref.no}`).join(" ")}`.toLowerCase().includes(query))),
       })).filter(item => !idiomSectionIsLoaded(section.key) || item.meanings.length),
     })).filter(section => !idiomSectionIsLoaded(section.key) || section.items.length),
   })).filter(chapter => chapter.sections.length);

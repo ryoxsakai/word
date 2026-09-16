@@ -1,3 +1,4 @@
+import { validateIdiomAlternateForms } from '../../public/shared/idiom-forms.js';
 import { idiomIllustrationUrl } from './idiom-illustrations.js';
 // Idioms are independent of word fields. Reference numbers/tags are resolved by
 // the viewer against its current notebook index, never stored in this table.
@@ -37,6 +38,7 @@ async function readIdiomEntries(db, listId, sectionKey = null, illustrations = f
     if (!entries.has(row.id)) {
       const entry = { key: row.id, phrase: row.phrase, sectionKey: row.sectionKey, meanings: [] };
       for (const field of ["synonyms", "antonyms", "notes"]) if (row[field]) entry[field] = row[field];
+      if (row.alternate_forms) entry.alternateForms = JSON.parse(row.alternate_forms);
       if (row.hidden) entry.hidden = true;
       if (row.aliases && row.aliases !== "[]") entry.aliases = JSON.parse(row.aliases);
       if (row.illustrationId) entry.illustration={url:idiomIllustrationUrl(row.id,row.illustrationId),jobId:row.illustrationId,meaning:row.illustrationMeaning};
@@ -65,7 +67,7 @@ export async function readIdioms(db, listId, { illustrations = false } = {}) {
 // only when a section is opened or approaches the viewport.
 export async function readIdiomIndex(db, listId) {
   const { sections, chapters } = await readIdiomSections(db, listId);
-  const { results } = await db.prepare(`SELECT id AS key, phrase, section_key AS sectionKey,
+  const { results } = await db.prepare(`SELECT *, id AS key, phrase, section_key AS sectionKey,
     sort_order AS sortOrder, hidden, aliases
     FROM idioms WHERE list_id = ? ORDER BY sort_order, id`).bind(listId).all();
   const entries = results.map(row => ({
@@ -74,6 +76,7 @@ export async function readIdiomIndex(db, listId) {
     sectionKey: row.sectionKey,
     sortOrder: row.sortOrder,
     meanings: [],
+    ...(row.alternate_forms ? { alternateForms: JSON.parse(row.alternate_forms) } : {}),
     ...(row.hidden ? { hidden: true } : {}),
     ...(row.aliases && row.aliases !== "[]" ? { aliases: JSON.parse(row.aliases) } : {}),
   }));
@@ -146,6 +149,10 @@ export async function saveIdiom(db, listId, body) {
     if (body[field] === undefined) continue; // Older clients retain newly added fields.
     if (typeof body[field] !== "string" || body[field].length > 20000) throw new Error(`Invalid ${field}`);
     statements.push(db.prepare(`UPDATE idioms SET ${field} = ? WHERE id = ?`).bind(body[field], id));
+  }
+  if (body.alternateForms !== undefined) {
+    const forms = validateIdiomAlternateForms(body.alternateForms, body.phrase);
+    statements.push(db.prepare("UPDATE idioms SET alternate_forms = ? WHERE id = ?").bind(JSON.stringify(forms), id));
   }
   if (body.hidden !== undefined) {
     if (typeof body.hidden !== "boolean") throw new Error("Invalid hidden");

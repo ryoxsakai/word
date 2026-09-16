@@ -1,0 +1,2226 @@
+[
+  {
+    "id": "grammar-idiom-db6db350d7f261ebd0e0",
+    "phrase": "object to O / Ving",
+    "aliases": [],
+    "main": "object to O",
+    "alternateForms": [
+      "object to Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-0a7858f7df6baf81d843",
+    "phrase": "provide A with B / provide B for A",
+    "aliases": [
+      "provide B for A",
+      "g12-idiom-0448aa1f91bddd4532ac"
+    ],
+    "main": "provide A with B",
+    "alternateForms": [
+      "provide B for A"
+    ]
+  },
+  {
+    "id": "grammar-idiom-26c13de2284bf1ce1d43",
+    "phrase": "supply A with B / supply B to A",
+    "aliases": [
+      "supply B to A",
+      "g12-idiom-4e07ed2077af22a2429e"
+    ],
+    "main": "supply A with B",
+    "alternateForms": [
+      "supply B to A"
+    ]
+  },
+  {
+    "id": "g12-idiom-574620aa8f9111da2ed6",
+    "phrase": "serve A with B / serve B to A",
+    "aliases": [
+      "serve B to A",
+      "g12-idiom-a6a15f3d793666326fcf"
+    ],
+    "main": "serve A with B",
+    "alternateForms": [
+      "serve B to A"
+    ]
+  },
+  {
+    "id": "g12-idiom-35f9373491c36c45c528",
+    "phrase": "compare A with / to B",
+    "aliases": [
+      "compare A to B",
+      "g12-idiom-3b8647b887f84d86ef29"
+    ],
+    "main": "compare A with B",
+    "alternateForms": [
+      "compare A to B"
+    ]
+  },
+  {
+    "id": "g12-idiom-817188a0ba1ba656a863",
+    "phrase": "connect A with / to B",
+    "aliases": [
+      "connect A to B",
+      "g12-idiom-e9e856eab287e755c1c3"
+    ],
+    "main": "connect A with B",
+    "alternateForms": [
+      "connect A to B"
+    ]
+  },
+  {
+    "id": "g12-idiom-6753a87d4f3156cfb9f2",
+    "phrase": "link A with / to B",
+    "aliases": [
+      "link A to B",
+      "g12-idiom-08f56235a735bd6663e3"
+    ],
+    "main": "link A with B",
+    "alternateForms": [
+      "link A to B"
+    ]
+  },
+  {
+    "id": "grammar-idiom-c8a312a8eda9f4861cd2",
+    "phrase": "devote / dedicate A to O / Ving",
+    "aliases": [
+      "dedicate A to B",
+      "g12-idiom-d3603545962b79c3f864",
+      "devote A to B / Ving"
+    ],
+    "main": "devote A to O",
+    "alternateForms": [
+      "devote A to Ving",
+      "dedicate A to O",
+      "dedicate A to Ving"
+    ]
+  },
+  {
+    "id": "e11c04b6-7e4a-4a9d-af01-0c75db34b2de",
+    "phrase": "commit oneself to O / Ving",
+    "aliases": [
+      "commit A / oneself to O / Ving"
+    ],
+    "main": "commit oneself to O",
+    "alternateForms": [
+      "commit oneself to Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-39f70f5979bbef3217e1",
+    "phrase": "regard / see / view A as B",
+    "aliases": [
+      "see A as B",
+      "g12-idiom-3599539df909b1d384f2",
+      "view A as B",
+      "g12-idiom-7cdf110dcb841b43ac7b",
+      "regard A as B"
+    ],
+    "main": "regard A as B",
+    "alternateForms": [
+      "see A as B",
+      "view A as B"
+    ]
+  },
+  {
+    "id": "crossover-idiom-662e412485a34fade113fd14",
+    "phrase": "look on / upon A as B",
+    "aliases": [],
+    "main": "look on A as B",
+    "alternateForms": [
+      "look upon A as B"
+    ]
+  },
+  {
+    "id": "g12-idiom-5ba687a136e5f4a4c417",
+    "phrase": "describe / speak of A as B",
+    "aliases": [
+      "speak of A as B",
+      "g12-idiom-e6fc50556b44bed5598b",
+      "describe A as B"
+    ],
+    "main": "describe A as B",
+    "alternateForms": [
+      "speak of A as B"
+    ]
+  },
+  {
+    "id": "grammar-idiom-d70ff8187a17ac49b093",
+    "phrase": "may / might as well V",
+    "aliases": [],
+    "main": "may as well V",
+    "alternateForms": [
+      "might as well V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-605de7d2292d0009d5f7",
+    "phrase": "if it were not for O / were it not for O",
+    "aliases": [
+      "were it not for O",
+      "grammar-idiom-d0049c74c61f265bf498"
+    ],
+    "main": "if it were not for O",
+    "alternateForms": [
+      "were it not for O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-48ad49737ac0e109057c",
+    "phrase": "if it had not been for O / had it not been for O",
+    "aliases": [
+      "had it not been for O",
+      "grammar-idiom-4dd8ba4c65be609934bb"
+    ],
+    "main": "if it had not been for O",
+    "alternateForms": [
+      "had it not been for O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-c96e414377026130246c",
+    "phrase": "I wish S 過去形 / had Vpp",
+    "aliases": [
+      {
+        "phrase": "I wish S had V-ed"
+      },
+      "I wish S had Vpp",
+      "grammar-idiom-9b4bbcc7508a79a9399e"
+    ],
+    "main": "I wish S 過去形",
+    "alternateForms": [
+      "I wish S had Vpp"
+    ]
+  },
+  {
+    "id": "grammar-idiom-b1511caca37a83415fa8",
+    "phrase": "if only S 過去形 / had Vpp",
+    "aliases": [
+      {
+        "phrase": "if only S had V-ed"
+      },
+      "if only S had Vpp",
+      "ga-idiom-9d50a40d1597eb995dc9"
+    ],
+    "main": "if only S 過去形",
+    "alternateForms": [
+      "if only S had Vpp"
+    ]
+  },
+  {
+    "id": "grammar-idiom-377d6f8547381541ffb3",
+    "phrase": "as if S V / as though S V",
+    "aliases": [],
+    "main": "as if S V",
+    "alternateForms": [
+      "as though S V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-6e17b24ecb4985514256",
+    "phrase": "would rather S 過去形 / had Vpp",
+    "aliases": [
+      {
+        "phrase": "would rather S had V-ed"
+      },
+      "would rather S had Vpp",
+      "ga-idiom-5a71826b8704dbedd02a"
+    ],
+    "main": "would rather S 過去形",
+    "alternateForms": [
+      "would rather S had Vpp"
+    ]
+  },
+  {
+    "id": "ga-idiom-5f9588412bc21502cdf0",
+    "phrase": "It is (about / high) time S 過去形",
+    "aliases": [
+      {
+        "key": "ga-idiom-a91cca0556a90fd451d4",
+        "phrase": "It is about time S 過去形"
+      },
+      {
+        "key": "grammar-idiom-e23bea3fbca0288eabd3",
+        "phrase": "It is high time S 過去形"
+      },
+      {
+        "phrase": "It is time S 過去形"
+      }
+    ],
+    "main": "It is time S 過去形",
+    "alternateForms": [
+      "It is about time S 過去形",
+      "It is high time S 過去形"
+    ]
+  },
+  {
+    "id": "ga-idiom-1eebd6bc44ae97429aa7",
+    "phrase": "otherwise S would V / would have Vpp",
+    "aliases": [
+      {
+        "phrase": "otherwise S would have V-ed"
+      },
+      "otherwise S would have Vpp",
+      "ga-idiom-547a5e7a62d290cf5b36"
+    ],
+    "main": "otherwise S would V",
+    "alternateForms": [
+      "otherwise S would have Vpp"
+    ]
+  },
+  {
+    "id": "crossover-idiom-f3316259c4d74464a47f8943",
+    "phrase": "to make matters / things worse",
+    "aliases": [],
+    "main": "to make matters worse",
+    "alternateForms": [
+      "to make things worse"
+    ]
+  },
+  {
+    "id": "crossover-idiom-c799063ea132018315f2500c",
+    "phrase": "look forward to O / Ving",
+    "aliases": [],
+    "main": "look forward to O",
+    "alternateForms": [
+      "look forward to Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-d87777006c6733312ffa",
+    "phrase": "be used to O / Ving",
+    "aliases": [],
+    "main": "be used to O",
+    "alternateForms": [
+      "be used to Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-3722c5a87c5fba2c69e96350",
+    "phrase": "be opposed to O / Ving",
+    "aliases": [],
+    "main": "be opposed to O",
+    "alternateForms": [
+      "be opposed to Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-fde5a82f5456b9acb0ee",
+    "phrase": "be accustomed to O / Ving",
+    "aliases": [],
+    "main": "be accustomed to O",
+    "alternateForms": [
+      "be accustomed to Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-fd9c336714028912faef",
+    "phrase": "物 need Ving / to be Vpp",
+    "aliases": [
+      "物 need to be V-ed",
+      "物 need to be Vpp",
+      "ga-idiom-f167cfc3cbf6eacda910",
+      "物 need Ving"
+    ],
+    "main": "物 need Ving",
+    "alternateForms": [
+      "物 need to be Vpp"
+    ]
+  },
+  {
+    "id": "grammar-idiom-e0b43e97ecc7ddb8a937",
+    "phrase": "it is no use / good Ving",
+    "aliases": [
+      {
+        "key": "grammar-idiom-1a6090c8a85aa3cd1093",
+        "phrase": "it is no good Ving"
+      },
+      {
+        "phrase": "it is no use Ving"
+      }
+    ],
+    "main": "it is no use Ving",
+    "alternateForms": [
+      "it is no good Ving"
+    ]
+  },
+  {
+    "id": "ga-idiom-5ae7e043ac6927f57d7b",
+    "phrase": "there is no point / sense in Ving",
+    "aliases": [
+      {
+        "key": "ga-idiom-c28eb975695b9a8a3e11",
+        "phrase": "there is no sense in Ving"
+      },
+      {
+        "phrase": "there is no point in Ving"
+      }
+    ],
+    "main": "there is no point in Ving",
+    "alternateForms": [
+      "there is no sense in Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-26dd9ade758ed2c5a59d",
+    "phrase": "have difficulty / trouble / a hard time (in) Ving",
+    "aliases": [
+      "have trouble (in) Ving",
+      "grammar-idiom-199e558b3f446131ad13",
+      "have a hard time (in) Ving",
+      "grammar-idiom-819df3cd99f18dda7c5a",
+      "have difficulty (in) Ving"
+    ],
+    "main": "have difficulty (in) Ving",
+    "alternateForms": [
+      "have trouble (in) Ving",
+      "have a hard time (in) Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-9a2b6c1be49b3bc5640d",
+    "phrase": "speaking / talking of O",
+    "aliases": [
+      "talking of",
+      "grammar-idiom-0e5a5912bbc3e0537840",
+      "speaking of"
+    ],
+    "main": "speaking of O",
+    "alternateForms": [
+      "talking of O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-5fbb9845cf9b95dfa953",
+    "phrase": "what few＋複数名詞 / what little＋不可算名詞",
+    "aliases": [
+      "what little ＋不可算名詞",
+      "grammar-idiom-690bc3a333bd72ddc30b"
+    ],
+    "main": "what few＋複数名詞",
+    "alternateForms": [
+      "what little＋不可算名詞"
+    ]
+  },
+  {
+    "id": "ga-idiom-04a59f9bb6506b294648",
+    "phrase": "what S is / was / used to be",
+    "aliases": [
+      "what S used to be",
+      "grammar-idiom-d8f981d38b595c7e23ec",
+      "what S is",
+      "grammar-idiom-98a4e754af66d020ba3c"
+    ],
+    "main": "what S is",
+    "alternateForms": [
+      "what S was",
+      "what S used to be"
+    ]
+  },
+  {
+    "id": "grammar-idiom-2fab8d53f2bc2d062b66",
+    "phrase": "What / How about O / Ving?",
+    "aliases": [
+      "How about O / Ving?",
+      "grammar-idiom-27ebfe4a67c8dac77ee8"
+    ],
+    "main": "What about O?",
+    "alternateForms": [
+      "What about Ving?",
+      "How about O?",
+      "How about Ving?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-c27bc4fcf7585919dfc3",
+    "phrase": "every / each time S V",
+    "aliases": [
+      "each time S V",
+      "grammar-idiom-fcd34e849194fe1d0af6",
+      "every time S V"
+    ],
+    "main": "every time S V",
+    "alternateForms": [
+      "each time S V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-411c261b0edef831dc3e",
+    "phrase": "the moment / instant / minute S V",
+    "aliases": [
+      "the instant S V",
+      "grammar-idiom-3c8cddeeb5ab22b874ea",
+      "the minute S V",
+      "grammar-idiom-b8b785e97ea2666d11d4",
+      "the moment S V"
+    ],
+    "main": "the moment S V",
+    "alternateForms": [
+      "the instant S V",
+      "the minute S V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-27ce182a3b06b3e13461",
+    "phrase": "as / so long as S V",
+    "aliases": [
+      "so long as S V",
+      "grammar-idiom-b06369e522b38b314088",
+      "as long as S V"
+    ],
+    "main": "as long as S V",
+    "alternateForms": [
+      "so long as S V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-18455a2b8c837ed1c062",
+    "phrase": "provided / providing (that) S V",
+    "aliases": [
+      "providing that S V",
+      "grammar-idiom-2018b9845c259a7a53ba",
+      "provided that S V"
+    ],
+    "main": "provided (that) S V",
+    "alternateForms": [
+      "providing (that) S V"
+    ]
+  },
+  {
+    "id": "ga-idiom-569e5bbb38248997eba4",
+    "phrase": "suppose / supposing (that) S V",
+    "aliases": [
+      "supposing that S V",
+      "grammar-idiom-472c8828fbe2038a8c86",
+      "suppose that S V"
+    ],
+    "main": "suppose (that) S V",
+    "alternateForms": [
+      "supposing (that) S V"
+    ]
+  },
+  {
+    "id": "ga-idiom-e93528ae72ef363f1ddd",
+    "phrase": "whether S V or not / whether or not S V",
+    "aliases": [
+      {
+        "key": "ga-idiom-4bbfd2d4a4108dcafd69",
+        "phrase": "whether or not S V"
+      },
+      {
+        "phrase": "whether S V or not"
+      }
+    ],
+    "main": "whether S V or not",
+    "alternateForms": [
+      "whether or not S V"
+    ]
+  },
+  {
+    "id": "ga-idiom-bcf80172ac63547e0c6e",
+    "phrase": "granting / granted that S V",
+    "aliases": [
+      {
+        "key": "ga-idiom-62319ecbe88b50f7cf45",
+        "phrase": "granted that S V"
+      },
+      {
+        "phrase": "granting that S V"
+      }
+    ],
+    "main": "granting that S V",
+    "alternateForms": [
+      "granted that S V"
+    ]
+  },
+  {
+    "id": "ga-idiom-b8d135e074aa62ee1c5a",
+    "phrase": "形容詞 as / though S V",
+    "aliases": [
+      {
+        "key": "ga-idiom-7fecaf78b9b711a8b46f",
+        "phrase": "形容詞 though S V"
+      },
+      {
+        "phrase": "形容詞 as S V"
+      }
+    ],
+    "main": "形容詞 as S V",
+    "alternateForms": [
+      "形容詞 though S V"
+    ]
+  },
+  {
+    "id": "grammar-idiom-e4158a4cce9521a71a2a",
+    "phrase": "as / so far as S V",
+    "aliases": [
+      "so far as S V",
+      "grammar-idiom-a650d132581c814484a1",
+      "as far as S V"
+    ],
+    "main": "as far as S V",
+    "alternateForms": [
+      "so far as S V"
+    ]
+  },
+  {
+    "id": "crossover-idiom-ac98107bdec4e20f5f153093",
+    "phrase": "be anxious about O / Ving",
+    "aliases": [],
+    "main": "be anxious about O",
+    "alternateForms": [
+      "be anxious about Ving"
+    ]
+  },
+  {
+    "id": "grammar-idiom-b669ffe28b63f1e936dc",
+    "phrase": "under control / under the influence of O",
+    "aliases": [
+      "under the influence of O",
+      "ga-idiom-96fa2d8fa400830df77d"
+    ],
+    "main": "under control",
+    "alternateForms": [
+      "under the influence of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-90942dda5be0e5011209d65b",
+    "phrase": "with / in regard to O",
+    "aliases": [],
+    "main": "with regard to O",
+    "alternateForms": [
+      "in regard to O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d81ec8710d11c3264e0c11ff",
+    "phrase": "for fear of O / Ving",
+    "aliases": [],
+    "main": "for fear of O",
+    "alternateForms": [
+      "for fear of Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-ffbf8138bb8e16c8e32fba5c",
+    "phrase": "on / in behalf of O",
+    "aliases": [],
+    "main": "on behalf of O",
+    "alternateForms": [
+      "in behalf of O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-ebe8222c3a9805bda843",
+    "phrase": "apart / aside from O",
+    "aliases": [
+      "aside from O",
+      "grammar-idiom-a39d78dbea8548536e9a"
+    ],
+    "main": "apart from O",
+    "alternateForms": [
+      "aside from O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-10797a16dd2364c9d975abaa",
+    "phrase": "for lack / want of O",
+    "aliases": [],
+    "main": "for lack of O",
+    "alternateForms": [
+      "for want of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-eced58bca49b2e989f1f1d0b",
+    "phrase": "for / with all O",
+    "aliases": [
+      "with all O",
+      "crossover-idiom-e9f386866be42a8e9fa8078c",
+      "for all O"
+    ],
+    "main": "for all O",
+    "alternateForms": [
+      "with all O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-25feb888c8ddaaf9a107dea1",
+    "phrase": "take turns Ving / to V",
+    "aliases": [
+      "take turns",
+      "crossover-idiom-bcac59641b260b91e6684dd9"
+    ],
+    "main": "take turns Ving",
+    "alternateForms": [
+      "take turns to V"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a2943e8c761872a6f12487e3",
+    "phrase": "take / catch / hold O by the arm",
+    "aliases": [
+      {
+        "key": "ga-idiom-67ef6ae909f49d5376c2",
+        "phrase": "take O by the arm"
+      },
+      {
+        "key": "ga-idiom-11e83fe2afb9c97c2661",
+        "phrase": "hold O by the arm"
+      },
+      {
+        "phrase": "catch a person by the arm"
+      }
+    ],
+    "main": "take O by the arm",
+    "alternateForms": [
+      "catch O by the arm",
+      "hold O by the arm"
+    ]
+  },
+  {
+    "id": "ga-idiom-98d649b7e840ce75b1c6",
+    "phrase": "hit / pat O on the＋身体部位",
+    "aliases": [
+      "pat O on the shoulder",
+      "ga-idiom-8b48919927406ee46ef4"
+    ],
+    "main": "hit O on the＋身体部位",
+    "alternateForms": [
+      "pat O on the＋身体部位"
+    ]
+  },
+  {
+    "id": "grammar-idiom-13f5773c3532550ea39f",
+    "phrase": "each other / one another",
+    "aliases": [
+      "one another",
+      "grammar-idiom-e38bf3af6a2e6dadf3db"
+    ],
+    "main": "each other",
+    "alternateForms": [
+      "one another"
+    ]
+  },
+  {
+    "id": "grammar-idiom-2345515a3f84086f9859",
+    "phrase": "as＋形容詞・副詞＋as possible / S can",
+    "aliases": [
+      "as 形容詞 as S can",
+      "ga-idiom-2cfd3fe8acd43813db60"
+    ],
+    "main": "as＋形容詞・副詞＋as possible",
+    "alternateForms": [
+      "as＋形容詞・副詞＋as S can"
+    ]
+  },
+  {
+    "id": "grammar-idiom-e21f7959a2a21d9eda40",
+    "phrase": "肯定文, much / still more O",
+    "aliases": [
+      "肯定文, still more O",
+      "grammar-idiom-989136936afaace25fc2",
+      "肯定文, much more O"
+    ],
+    "main": "肯定文, much more O",
+    "alternateForms": [
+      "肯定文, still more O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-a1b3a531e278e36ee653",
+    "phrase": "否定文, much / still less O",
+    "aliases": [
+      "否定文, still less O",
+      "grammar-idiom-3cc89cdc8e66c3c0e18e",
+      "否定文, much less O"
+    ],
+    "main": "否定文, much less O",
+    "alternateForms": [
+      "否定文, still less O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-65b6122967c4e1652a20",
+    "phrase": "It was / will not be long before S V",
+    "aliases": [
+      "It will not be long before S V",
+      "grammar-idiom-47d25532fc77638119a1"
+    ],
+    "main": "It was not long before S V",
+    "alternateForms": [
+      "It will not be long before S V"
+    ]
+  },
+  {
+    "id": "ga-idiom-45be01d6ec755883f77b",
+    "phrase": "hardly / scarcely ever V",
+    "aliases": [
+      {
+        "key": "ga-idiom-a0804d2ca42c56d0a8c6",
+        "phrase": "scarcely ever V"
+      },
+      {
+        "phrase": "hardly ever V"
+      }
+    ],
+    "main": "hardly ever V",
+    "alternateForms": [
+      "scarcely ever V"
+    ]
+  },
+  {
+    "id": "ga-idiom-6bd83c258dcdcc06fd47",
+    "phrase": "hardly / scarcely any O",
+    "aliases": [
+      {
+        "key": "ga-idiom-a775779593336e9a8f4d",
+        "phrase": "scarcely any O"
+      },
+      {
+        "phrase": "hardly any O"
+      }
+    ],
+    "main": "hardly any O",
+    "alternateForms": [
+      "scarcely any O"
+    ]
+  },
+  {
+    "id": "ga-idiom-690331cb4bfc3689cc4a",
+    "phrase": "not … in the least / slightest",
+    "aliases": [
+      {
+        "key": "ga-idiom-050cc51f77e238abbb79",
+        "phrase": "not … in the slightest"
+      },
+      {
+        "phrase": "not … in the least"
+      }
+    ],
+    "main": "not … in the least",
+    "alternateForms": [
+      "not … in the slightest"
+    ]
+  },
+  {
+    "id": "grammar-idiom-41653231e173143874eb",
+    "phrase": "I think so.  / I don't think so.",
+    "aliases": [
+      "I don't think so.",
+      "grammar-idiom-2f09124159709e24a7da"
+    ],
+    "main": "I think so.",
+    "alternateForms": [
+      "I don't think so."
+    ]
+  },
+  {
+    "id": "grammar-idiom-7ae74b0f0357f89c945d",
+    "phrase": "I hope so.  / I hope not.",
+    "aliases": [
+      "I hope not.",
+      "grammar-idiom-062c67c9f607d5ddca5c"
+    ],
+    "main": "I hope so.",
+    "alternateForms": [
+      "I hope not."
+    ]
+  },
+  {
+    "id": "grammar-idiom-2163d3f5d11cb5ec496f",
+    "phrase": "I'm afraid so.  / I'm afraid not.",
+    "aliases": [
+      "I'm afraid not.",
+      "grammar-idiom-fae86fb431a7bc906f9e"
+    ],
+    "main": "I'm afraid so.",
+    "alternateForms": [
+      "I'm afraid not."
+    ]
+  },
+  {
+    "id": "crossover-idiom-dd75a220535be8c08e0c13f9",
+    "phrase": "turn over (O) / turn O over",
+    "aliases": [],
+    "main": "turn over (O)",
+    "alternateForms": [
+      "turn O over"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a344521f0c97add5e847d053",
+    "phrase": "call at / in at O",
+    "aliases": [],
+    "main": "call at O",
+    "alternateForms": [
+      "call in at O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-45bc6d477447ca508fc24af6",
+    "phrase": "have / take a look (at O)",
+    "aliases": [],
+    "main": "have a look (at O)",
+    "alternateForms": [
+      "take a look (at O)"
+    ]
+  },
+  {
+    "id": "crossover-idiom-8a28e06875b48304a1dc7cea",
+    "phrase": "get / be even with O",
+    "aliases": [],
+    "main": "get even with O",
+    "alternateForms": [
+      "be even with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d8b884bb5d70c7e835f8bad1",
+    "phrase": "get / have the better of O",
+    "aliases": [],
+    "main": "get the better of O",
+    "alternateForms": [
+      "have the better of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-ca83bc22232400176840990e",
+    "phrase": "make light / little of O",
+    "aliases": [],
+    "main": "make light of O",
+    "alternateForms": [
+      "make little of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-b15a66f92bd3a5bc83d292a5",
+    "phrase": "speak well / highly of O",
+    "aliases": [
+      "crossover-idiom-fb4507994fcefec4a2d26360",
+      "speak highly of O"
+    ],
+    "main": "speak well of O",
+    "alternateForms": [
+      "speak highly of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-5ea51319f3604a1cd1d495c6",
+    "phrase": "tell on / upon O",
+    "aliases": [
+      "tell on / upon O",
+      "crossover-idiom-73ad47e72ee5aad7202b688f"
+    ],
+    "main": "tell on O",
+    "alternateForms": [
+      "tell upon O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d9d65f6baaaa904c528172ce",
+    "phrase": "think much / highly of O",
+    "aliases": [],
+    "main": "think much of O",
+    "alternateForms": [
+      "think highly of O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-bd7cd1caea7ed9a6d2449b35",
+    "phrase": "keep abreast of / with O",
+    "aliases": [],
+    "main": "keep abreast of O",
+    "alternateForms": [
+      "keep abreast with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d2a457a539d9015189dad854",
+    "phrase": "be / have done with O",
+    "aliases": [],
+    "main": "be done with O",
+    "alternateForms": [
+      "have done with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-fd2047edd91e299eed27db78",
+    "phrase": "make away / off with O",
+    "aliases": [],
+    "main": "make away with O",
+    "alternateForms": [
+      "make off with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-4dfd910d0e3f411ece89d4d3",
+    "phrase": "fall on / upon O",
+    "aliases": [],
+    "main": "fall on O",
+    "alternateForms": [
+      "fall upon O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-ccdb3925ad4ac355855dff45",
+    "phrase": "stand a chance of O / Ving",
+    "aliases": [],
+    "main": "stand a chance of O",
+    "alternateForms": [
+      "stand a chance of Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-c716bce5e1512f90b299c030",
+    "phrase": "call O back / call back O",
+    "aliases": [],
+    "main": "call O back",
+    "alternateForms": [
+      "call back O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-8035d252fc1dac9369dc3f9c",
+    "phrase": "carry O through / carry through with O",
+    "aliases": [],
+    "main": "carry O through",
+    "alternateForms": [
+      "carry through with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d15733a5c93281925bb31e35",
+    "phrase": "give O away / give away O",
+    "aliases": [],
+    "main": "give O away",
+    "alternateForms": [
+      "give away O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-87e7ce2903e64da819ee4d07",
+    "phrase": "hold / keep O in check",
+    "aliases": [],
+    "main": "hold O in check",
+    "alternateForms": [
+      "keep O in check"
+    ]
+  },
+  {
+    "id": "crossover-idiom-113dea2e3d8e5870dec63754",
+    "phrase": "keep / bear O in mind",
+    "aliases": [],
+    "main": "keep O in mind",
+    "alternateForms": [
+      "bear O in mind"
+    ]
+  },
+  {
+    "id": "crossover-idiom-7528c72e52b5b45f9f756667",
+    "phrase": "let O down / let down O",
+    "aliases": [],
+    "main": "let O down",
+    "alternateForms": [
+      "let down O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-0233eb5eb2883a43bb230bbc",
+    "phrase": "put on O / put O on",
+    "aliases": [],
+    "main": "put on O",
+    "alternateForms": [
+      "put O on"
+    ]
+  },
+  {
+    "id": "crossover-idiom-439de08fca4c010a0923bd6b",
+    "phrase": "take O off / take off O",
+    "aliases": [],
+    "main": "take O off",
+    "alternateForms": [
+      "take off O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-990a709fca53123f1eefc91e",
+    "phrase": "turn off O / turn O off",
+    "aliases": [],
+    "main": "turn off O",
+    "alternateForms": [
+      "turn O off"
+    ]
+  },
+  {
+    "id": "crossover-idiom-293274e36afde1497134c67b",
+    "phrase": "turn on O / turn O on",
+    "aliases": [],
+    "main": "turn on O",
+    "alternateForms": [
+      "turn O on"
+    ]
+  },
+  {
+    "id": "crossover-idiom-09ed1a4c731204da27c7cccd",
+    "phrase": "turn up / turn O up",
+    "aliases": [],
+    "main": "turn up",
+    "alternateForms": [
+      "turn O up"
+    ]
+  },
+  {
+    "id": "crossover-idiom-364d0f2428cb2d82dc81f68e",
+    "phrase": "catch up with / to O",
+    "aliases": [
+      "catch up with O",
+      "crossover-idiom-9e4aede3006efa1b2c8e2a7f"
+    ],
+    "main": "catch up with O",
+    "alternateForms": [
+      "catch up to O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-39256c6fbe44d86247533759",
+    "phrase": "look back on / upon / to O",
+    "aliases": [],
+    "main": "look back on O",
+    "alternateForms": [
+      "look back upon O",
+      "look back to O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-96c6deb3a2938ecfab271653",
+    "phrase": "come up with / hit on O",
+    "aliases": [
+      "hit on O",
+      "g12-idiom-61b387610449b39731d5",
+      "come up with O"
+    ],
+    "main": "come up with O",
+    "alternateForms": [
+      "hit on O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-71728e3395239bc6de1fd6e7",
+    "phrase": "for sure / for certain",
+    "aliases": [],
+    "main": "for sure",
+    "alternateForms": [
+      "for certain"
+    ]
+  },
+  {
+    "id": "crossover-idiom-acebc613581f5cc9ad994f10",
+    "phrase": "on second thoughts / on second thought",
+    "aliases": [],
+    "main": "on second thoughts",
+    "alternateForms": [
+      "on second thought"
+    ]
+  },
+  {
+    "id": "crossover-idiom-746c9493a743fcb974ac4e14",
+    "phrase": "at second hand / second-hand",
+    "aliases": [],
+    "main": "at second hand",
+    "alternateForms": [
+      "second-hand"
+    ]
+  },
+  {
+    "id": "grammar-idiom-169e7e73c863a1e5115e",
+    "phrase": "to some extent / degree",
+    "aliases": [
+      "to some degree",
+      "grammar-idiom-96d649d12a1b0086e4a4"
+    ],
+    "main": "to some extent",
+    "alternateForms": [
+      "to some degree"
+    ]
+  },
+  {
+    "id": "crossover-idiom-4358b264a1fdb4ee52bb4f7d",
+    "phrase": "at / on short notice",
+    "aliases": [],
+    "main": "at short notice",
+    "alternateForms": [
+      "on short notice"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a6927870799760f0375b1e69",
+    "phrase": "get around / round O",
+    "aliases": [],
+    "main": "get around O",
+    "alternateForms": [
+      "get round O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a8cb0c8058c8578b34916305",
+    "phrase": "see about O / Ving",
+    "aliases": [],
+    "main": "see about O",
+    "alternateForms": [
+      "see about Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-cf3db414de3b7cee30b6ac51",
+    "phrase": "speak out / up",
+    "aliases": [],
+    "main": "speak out",
+    "alternateForms": [
+      "speak up"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a86951b740f31c7eccbc3f3a",
+    "phrase": "make an effort / efforts",
+    "aliases": [],
+    "main": "make an effort",
+    "alternateForms": [
+      "make efforts"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a1ce640e3d9c8f36cf5f7046",
+    "phrase": "put O into practice / operation",
+    "aliases": [],
+    "main": "put O into practice",
+    "alternateForms": [
+      "put O into operation"
+    ]
+  },
+  {
+    "id": "crossover-idiom-cb426fc0217752786b9681ff",
+    "phrase": "set about O / Ving",
+    "aliases": [],
+    "main": "set about O",
+    "alternateForms": [
+      "set about Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-de585bafa6e8a5f862248b33",
+    "phrase": "have time / a day off",
+    "aliases": [],
+    "main": "have time off",
+    "alternateForms": [
+      "have a day off"
+    ]
+  },
+  {
+    "id": "crossover-idiom-26f82c98fcd48e23f998f8b0",
+    "phrase": "make / earn a / one's living",
+    "aliases": [],
+    "main": "make a living",
+    "alternateForms": [
+      "make one's living",
+      "earn a living",
+      "earn one's living"
+    ]
+  },
+  {
+    "id": "crossover-idiom-da735299143d716118d96c4c",
+    "phrase": "take out insurance / a loan",
+    "aliases": [
+      "take out a loan",
+      "crossover-idiom-653ba37cf42df44398b082da",
+      "take out insurance / a loan"
+    ],
+    "main": "take out insurance",
+    "alternateForms": [
+      "take out a loan"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d8c712ddae0fa414637e4119",
+    "phrase": "take time / a day off",
+    "aliases": [],
+    "main": "take time off",
+    "alternateForms": [
+      "take a day off"
+    ]
+  },
+  {
+    "id": "crossover-idiom-64e9ec4d557ed7e87aa73515",
+    "phrase": "break one's promise / word",
+    "aliases": [],
+    "main": "break one's promise",
+    "alternateForms": [
+      "break one's word"
+    ]
+  },
+  {
+    "id": "crossover-idiom-7b32eb490bd6bafd091b06c3",
+    "phrase": "call on / upon A",
+    "aliases": [],
+    "main": "call on A",
+    "alternateForms": [
+      "call upon A"
+    ]
+  },
+  {
+    "id": "crossover-idiom-b83ba476ce0e499b21a75b3a",
+    "phrase": "fall in love with A / O",
+    "aliases": [],
+    "main": "fall in love with A",
+    "alternateForms": [
+      "fall in love with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-5121f139f304117b0f242325",
+    "phrase": "get along / on (with O)",
+    "aliases": [
+      "get on (with A)",
+      "crossover-idiom-ee6d0e987b097478dc16817e",
+      "get along / on with O",
+      "crossover-idiom-95325668f0b118ceff3c8bd0",
+      "get along (with A)"
+    ],
+    "main": "get along (with O)",
+    "alternateForms": [
+      "get on (with O)"
+    ]
+  },
+  {
+    "id": "crossover-idiom-732cc615aaf172a68e93577b",
+    "phrase": "keep one's promise / word",
+    "aliases": [],
+    "main": "keep one's promise",
+    "alternateForms": [
+      "keep one's word"
+    ]
+  },
+  {
+    "id": "crossover-idiom-379b666f7f447bdaa36f07c2",
+    "phrase": "that said / that being said",
+    "aliases": [],
+    "main": "that said",
+    "alternateForms": [
+      "that being said"
+    ]
+  },
+  {
+    "id": "crossover-idiom-5cd84d2d7f312c8623c0e48e",
+    "phrase": "carry O around / about",
+    "aliases": [],
+    "main": "carry O around",
+    "alternateForms": [
+      "carry O about"
+    ]
+  },
+  {
+    "id": "crossover-idiom-321a84293dd6d5fa781cce18",
+    "phrase": "get in / into a car",
+    "aliases": [],
+    "main": "get in a car",
+    "alternateForms": [
+      "get into a car"
+    ]
+  },
+  {
+    "id": "crossover-idiom-3b41bd105323949f3e1ba8c9",
+    "phrase": "look around / round",
+    "aliases": [],
+    "main": "look around",
+    "alternateForms": [
+      "look round"
+    ]
+  },
+  {
+    "id": "crossover-idiom-6c6a9916faafa1c15d5084da",
+    "phrase": "pull over / pull a car over",
+    "aliases": [],
+    "main": "pull over",
+    "alternateForms": [
+      "pull a car over"
+    ]
+  },
+  {
+    "id": "crossover-idiom-0ebb40d0766593990ca4a7f4",
+    "phrase": "pull up / pull a car up",
+    "aliases": [],
+    "main": "pull up",
+    "alternateForms": [
+      "pull a car up"
+    ]
+  },
+  {
+    "id": "crossover-idiom-0ff85e164d6d79ed2c8b2682",
+    "phrase": "come around / round",
+    "aliases": [],
+    "main": "come around",
+    "alternateForms": [
+      "come round"
+    ]
+  },
+  {
+    "id": "crossover-idiom-f32dc970150c970b6f918a4c",
+    "phrase": "come close / near to Ving",
+    "aliases": [],
+    "main": "come close to Ving",
+    "alternateForms": [
+      "come near to Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-c5e1ac10f499bc58c31d7ce5",
+    "phrase": "come into being / existence",
+    "aliases": [],
+    "main": "come into being",
+    "alternateForms": [
+      "come into existence"
+    ]
+  },
+  {
+    "id": "crossover-idiom-5a8a2c5f354d1a939f76318c",
+    "phrase": "cut down / back (on) O",
+    "aliases": [],
+    "main": "cut down (on) O",
+    "alternateForms": [
+      "cut back (on) O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-b7a3e53e3511e12afb57a445",
+    "phrase": "hang on to / onto O",
+    "aliases": [],
+    "main": "hang on to O",
+    "alternateForms": [
+      "hang onto O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-1767287d93aa8dfb0dc61a66",
+    "phrase": "be / get carried away",
+    "aliases": [],
+    "main": "be carried away",
+    "alternateForms": [
+      "get carried away"
+    ]
+  },
+  {
+    "id": "crossover-idiom-ebb17737616128bce85faff3",
+    "phrase": "come to / come to one's senses",
+    "aliases": [],
+    "main": "come to",
+    "alternateForms": [
+      "come to one's senses"
+    ]
+  },
+  {
+    "id": "crossover-idiom-a6a3a7fd7fe7e556207305b8",
+    "phrase": "make up one's face / make oneself up",
+    "aliases": [],
+    "main": "make up one's face",
+    "alternateForms": [
+      "make oneself up"
+    ]
+  },
+  {
+    "id": "crossover-idiom-d0bcbae79fd7b9e125dad3ee",
+    "phrase": "turn O around / round",
+    "aliases": [],
+    "main": "turn O around",
+    "alternateForms": [
+      "turn O round"
+    ]
+  },
+  {
+    "id": "crossover-idiom-c3834e587dd1cafda5a4210c",
+    "phrase": "have / get one's (own) way",
+    "aliases": [],
+    "main": "have one's (own) way",
+    "alternateForms": [
+      "get one's (own) way"
+    ]
+  },
+  {
+    "id": "crossover-idiom-46ce4ac2581e7bdcf27f9b25",
+    "phrase": "stand around / about",
+    "aliases": [],
+    "main": "stand around",
+    "alternateForms": [
+      "stand about"
+    ]
+  },
+  {
+    "id": "crossover-idiom-1f09fa3105ab3d9bab3082b6",
+    "phrase": "take pride in O / Ving",
+    "aliases": [],
+    "main": "take pride in O",
+    "alternateForms": [
+      "take pride in Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-bb063d4b455e9cef03da4100",
+    "phrase": "be particular about / over O",
+    "aliases": [],
+    "main": "be particular about O",
+    "alternateForms": [
+      "be particular over O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-f96e0b9305b0365bfcbb3d2f",
+    "phrase": "be indifferent to / toward(s) O",
+    "aliases": [],
+    "main": "be indifferent to O",
+    "alternateForms": [
+      "be indifferent toward(s) O"
+    ]
+  },
+  {
+    "id": "grammar-idiom-81cd8cf644a943427211",
+    "phrase": "be devoted / dedicated to O",
+    "aliases": [
+      "be dedicated to O",
+      "grammar-idiom-990d67cf0ce70a74a367"
+    ],
+    "main": "be devoted to O",
+    "alternateForms": [
+      "be dedicated to O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-b636532926dace33cb3045b4",
+    "phrase": "on and off / off and on",
+    "aliases": [],
+    "main": "on and off",
+    "alternateForms": [
+      "off and on"
+    ]
+  },
+  {
+    "id": "crossover-idiom-42331205b90e79c8ddf7eec0",
+    "phrase": "in comparison with / to O",
+    "aliases": [],
+    "main": "in comparison with O",
+    "alternateForms": [
+      "in comparison to O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-8f801f951b378aaf176aa711",
+    "phrase": "in contrast to / with O",
+    "aliases": [],
+    "main": "in contrast to O",
+    "alternateForms": [
+      "in contrast with O"
+    ]
+  },
+  {
+    "id": "crossover-idiom-984865ebf9bb499ddce28443",
+    "phrase": "on the brink of O / Ving",
+    "aliases": [],
+    "main": "on the brink of O",
+    "alternateForms": [
+      "on the brink of Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-2086baa5bdabd16eca53106e",
+    "phrase": "on the verge of O / Ving",
+    "aliases": [],
+    "main": "on the verge of O",
+    "alternateForms": [
+      "on the verge of Ving"
+    ]
+  },
+  {
+    "id": "crossover-idiom-063dad045bc4c1176696789d",
+    "phrase": "Long time no see. / It’s been a long time.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-3bcade55a7022ac60346",
+        "phrase": "It's been a long time since I saw you last."
+      },
+      {
+        "key": "ga-idiom-4415503efd2cb8df2555",
+        "phrase": "I haven’t seen you for a long time."
+      },
+      {
+        "phrase": "Long time no see"
+      }
+    ],
+    "main": "Long time no see.",
+    "alternateForms": [
+      "It’s been a long time."
+    ]
+  },
+  {
+    "id": "grammar-idiom-c18b881b81e0136c8a8c",
+    "phrase": "Nice to meet you. / It’s a pleasure to meet you.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-0a28153cd6d82d3bedab",
+        "phrase": "It's a pleasure to meet you."
+      },
+      {
+        "phrase": "Nice to meet you."
+      }
+    ],
+    "main": "Nice to meet you.",
+    "alternateForms": [
+      "It’s a pleasure to meet you."
+    ]
+  },
+  {
+    "id": "grammar-idiom-bf72a70fc4acfd605f8f",
+    "phrase": "How is everything / How are things / How’s it going?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-5377accb4767d8713c49",
+        "phrase": "How are things (going)?"
+      },
+      {
+        "key": "grammar-idiom-468ff42276484486b0b1",
+        "phrase": "How's it going?"
+      },
+      {
+        "phrase": "How is everything (going)?"
+      }
+    ],
+    "main": "How is everything?",
+    "alternateForms": [
+      "How are things?",
+      "How’s it going?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-ab55a60854e1b699c68a",
+    "phrase": "What’s up? / What’s happening?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-ecfd1ebe43e6b5c71d7d",
+        "phrase": "What's happening?"
+      },
+      {
+        "phrase": "What's up?"
+      }
+    ],
+    "main": "What’s up?",
+    "alternateForms": [
+      "What’s happening?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-a2cf6cdbb29a3a9e3578",
+    "phrase": "I’m fine. / I’m doing well. / Not too bad.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-0771c5a7c0324f85c5da",
+        "phrase": "I'm doing well."
+      },
+      {
+        "key": "grammar-idiom-9a15d9767cf7ccabd950",
+        "phrase": "Not too bad."
+      },
+      {
+        "phrase": "I'm fine."
+      }
+    ],
+    "main": "I’m fine.",
+    "alternateForms": [
+      "I’m doing well.",
+      "Not too bad."
+    ]
+  },
+  {
+    "id": "grammar-idiom-b85013a2f9aa72c07c66",
+    "phrase": "Where are you from? / Where do you come from?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-b2c2f2cf6d1f537b2c75",
+        "phrase": "Where do you come from?"
+      },
+      {
+        "phrase": "Where are you from?"
+      }
+    ],
+    "main": "Where are you from?",
+    "alternateForms": [
+      "Where do you come from?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-7f8128428831df68c686",
+    "phrase": "See you later / soon. / So long. / Goodbye.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-8b162f2e334e66bd4865",
+        "phrase": "So long."
+      },
+      {
+        "key": "grammar-idiom-82e35a63ceba37e96464",
+        "phrase": "Good bye."
+      },
+      {
+        "key": "grammar-idiom-242cc08e101524e80c74",
+        "phrase": "See you soon."
+      },
+      {
+        "phrase": "See you later."
+      }
+    ],
+    "main": "See you later.",
+    "alternateForms": [
+      "See you soon.",
+      "So long.",
+      "Goodbye."
+    ]
+  },
+  {
+    "id": "grammar-idiom-abab687c62f76c647944",
+    "phrase": "Say hello / Remember me / Give my regards to A.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-6eedfa24dd440fac36a9",
+        "phrase": "Remember me to A."
+      },
+      {
+        "key": "grammar-idiom-f1acaaa4c6797ef92826",
+        "phrase": "Give my (best) regards to A."
+      },
+      {
+        "phrase": "Say hello to A."
+      }
+    ],
+    "main": "Say hello to A.",
+    "alternateForms": [
+      "Remember me to A.",
+      "Give my regards to A."
+    ]
+  },
+  {
+    "id": "grammar-idiom-5691b867631a18af7a72",
+    "phrase": "May I speak / talk to A?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-b300a65ed65d7eccb27e",
+        "phrase": "May I talk to A?"
+      },
+      {
+        "phrase": "May I speak to A?"
+      }
+    ],
+    "main": "May I speak to A?",
+    "alternateForms": [
+      "May I talk to A?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-22f0d06ea81be09a3e54",
+    "phrase": "Who’s calling / speaking? / Who is this?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-56d05ef5b76c7cb3599d",
+        "phrase": "Who is this?"
+      },
+      {
+        "key": "grammar-idiom-cc5b5fc60ff9d578decd",
+        "phrase": "Who is it?"
+      },
+      {
+        "key": "grammar-idiom-b90e06ae48a4789ef139",
+        "phrase": "Who's speaking?"
+      },
+      {
+        "phrase": "Who's calling?"
+      }
+    ],
+    "main": "Who’s calling?",
+    "alternateForms": [
+      "Who’s speaking?",
+      "Who is this?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-c1079621356fb5497cfb",
+    "phrase": "Shall / May I take a message?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-9b466c8ed2d2a8868c21",
+        "phrase": "May I take a message?"
+      },
+      {
+        "phrase": "Shall I take a message?"
+      }
+    ],
+    "main": "Shall I take a message?",
+    "alternateForms": [
+      "May I take a message?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-8b7d5ce639f7fff40e2c",
+    "phrase": "Can / May I leave a message (with A)?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-60826a04d4cbc574262d",
+        "phrase": "May I leave a message (with A)?"
+      },
+      {
+        "phrase": "Can I leave a message (with A)?"
+      }
+    ],
+    "main": "Can I leave a message (with A)?",
+    "alternateForms": [
+      "May I leave a message (with A)?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-9cebc68222b48c3ffedc",
+    "phrase": "Please hold on / hold the line.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-8f1a827c6c036501d4e4",
+        "phrase": "Please hold the line."
+      },
+      {
+        "phrase": "Please hold on."
+      }
+    ],
+    "main": "Please hold on.",
+    "alternateForms": [
+      "Please hold the line."
+    ]
+  },
+  {
+    "id": "grammar-idiom-7f23ac7131a59df6efd4",
+    "phrase": "The line is busy / engaged.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-592c7f205ab77d7635aa",
+        "phrase": "The line is engaged."
+      },
+      {
+        "phrase": "The line is busy."
+      }
+    ],
+    "main": "The line is busy.",
+    "alternateForms": [
+      "The line is engaged."
+    ]
+  },
+  {
+    "id": "grammar-idiom-7ee63952e8fed8453961",
+    "phrase": "A is on another line / phone.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-309cf8da1e4aeda830a3",
+        "phrase": "A is on another phone."
+      },
+      {
+        "phrase": "A is on another line."
+      }
+    ],
+    "main": "A is on another line.",
+    "alternateForms": [
+      "A is on another phone."
+    ]
+  },
+  {
+    "id": "grammar-idiom-4248ccac72ee85826d31",
+    "phrase": "May / Can I help you? / What can I do for you?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-f59514f8a8328d7c63a5",
+        "phrase": "Can I help you?"
+      },
+      {
+        "key": "grammar-idiom-4d83f3acf86da2343909",
+        "phrase": "What can I do for you?"
+      },
+      {
+        "phrase": "May I help you?"
+      }
+    ],
+    "main": "May I help you?",
+    "alternateForms": [
+      "Can I help you?",
+      "What can I do for you?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-71c856b936b77f78a3c5",
+    "phrase": "What’s the price of A? / How much is A?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-628bc114431e9ee5d74a",
+        "phrase": "How much is A?"
+      },
+      {
+        "phrase": "What's the price of A?"
+      }
+    ],
+    "main": "What’s the price of A?",
+    "alternateForms": [
+      "How much is A?"
+    ]
+  },
+  {
+    "id": "crossover-idiom-985c703d6444f3aa93c4d560",
+    "phrase": "Let's split the bill / Let's go Dutch",
+    "aliases": [],
+    "main": "Let's split the bill",
+    "alternateForms": [
+      "Let's go Dutch"
+    ]
+  },
+  {
+    "id": "grammar-idiom-373a770fce21c2499bad",
+    "phrase": "May / Can I take your order?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-b69a101aea5eb80d69bf",
+        "phrase": "Can I take your order?"
+      },
+      {
+        "phrase": "May I take your order?"
+      }
+    ],
+    "main": "May I take your order?",
+    "alternateForms": [
+      "Can I take your order?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-612263930a2428a2f611",
+    "phrase": "Have you been waited on / served?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-377faebcd171d7895441",
+        "phrase": "Have you been served?"
+      },
+      {
+        "phrase": "Have you been waited on?"
+      }
+    ],
+    "main": "Have you been waited on?",
+    "alternateForms": [
+      "Have you been served?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-8f80443619c9f16506ed",
+    "phrase": "The same for me. / Same here.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-0a8ded9028cf94fce6a9",
+        "phrase": "Same here."
+      },
+      {
+        "phrase": "The same for me."
+      }
+    ],
+    "main": "The same for me.",
+    "alternateForms": [
+      "Same here."
+    ]
+  },
+  {
+    "id": "grammar-idiom-0d9b1355e892e689b03d",
+    "phrase": "I’m full. / I’ve had enough / plenty / lots.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-1cadd6a8ae1d60205617",
+        "phrase": "I've had enough."
+      },
+      {
+        "key": "grammar-idiom-1fb235088faed4f365d8",
+        "phrase": "I've had plenty."
+      },
+      {
+        "key": "grammar-idiom-94a14467d8b24eee50ce",
+        "phrase": "I've had lots."
+      },
+      {
+        "phrase": "I'm full."
+      }
+    ],
+    "main": "I’m full.",
+    "alternateForms": [
+      "I’ve had enough.",
+      "I’ve had plenty.",
+      "I’ve had lots."
+    ]
+  },
+  {
+    "id": "grammar-idiom-7615e641a29c708d93e9",
+    "phrase": "Let me pay my bill / share.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-c35070b9ea427a6db42f",
+        "phrase": "Let me pay my share."
+      },
+      {
+        "phrase": "Let me pay my bill."
+      }
+    ],
+    "main": "Let me pay my bill.",
+    "alternateForms": [
+      "Let me pay my share."
+    ]
+  },
+  {
+    "id": "grammar-idiom-5d6abbd62c435f3f8c8f",
+    "phrase": "It’s on me. / I’ll treat you. / It’s my treat. / Be my guest.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-5d91a8375f48d6dd5536",
+        "phrase": "I'll treat you."
+      },
+      {
+        "key": "grammar-idiom-c66cfec21a1955f9b6be",
+        "phrase": "It's my treat."
+      },
+      {
+        "key": "grammar-idiom-71524467538e9ffe5eb3",
+        "phrase": "Be my guest."
+      },
+      {
+        "phrase": "It's on me."
+      }
+    ],
+    "main": "It’s on me.",
+    "alternateForms": [
+      "I’ll treat you.",
+      "It’s my treat.",
+      "Be my guest."
+    ]
+  },
+  {
+    "id": "grammar-idiom-e3a53266206d40547099",
+    "phrase": "Do / Would you mind if S V?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-561cb620500f8d91399c",
+        "phrase": "Would you mind if S 過去形?"
+      },
+      {
+        "phrase": "Do you mind if S V?"
+      }
+    ],
+    "main": "Do you mind if S V?",
+    "alternateForms": [
+      "Would you mind if S 過去形?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-2cbc47d1a6b0aac3a5be",
+    "phrase": "Do / Would you mind my Ving?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-c7bdc528fb2b48c330c1",
+        "phrase": "Would you mind my Ving?"
+      },
+      {
+        "phrase": "Do you mind my Ving?"
+      }
+    ],
+    "main": "Do you mind my Ving?",
+    "alternateForms": [
+      "Would you mind my Ving?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-c6dcc2e68f3d47b31a57",
+    "phrase": "Would you be kind / good enough to V?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-37d8cd3a1715cfa4b582",
+        "phrase": "Would you be good enough to V?"
+      },
+      {
+        "phrase": "Would you be kind enough to V?"
+      }
+    ],
+    "main": "Would you be kind enough to V?",
+    "alternateForms": [
+      "Would you be good enough to V?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-664e6f8f8201526f4f29",
+    "phrase": "Would you do me a favor? / May I ask a favor of you?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-6a1630a87a2188103ce4",
+        "phrase": "May I ask a favor of you?"
+      },
+      {
+        "phrase": "Would you do me a favor?"
+      }
+    ],
+    "main": "Would you do me a favor?",
+    "alternateForms": [
+      "May I ask a favor of you?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-b678258c51274114b543",
+    "phrase": "Go ahead. / No problem. / Certainly. / Why not?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-9b1aff5cf5bd58242780",
+        "phrase": "No problem."
+      },
+      {
+        "key": "grammar-idiom-00fd2615de994cb3841b",
+        "phrase": "Certainly."
+      },
+      {
+        "key": "ga-idiom-fae1cd1b4494d53a73eb",
+        "phrase": "Why not?"
+      },
+      {
+        "phrase": "Go ahead."
+      }
+    ],
+    "main": "Go ahead.",
+    "alternateForms": [
+      "No problem.",
+      "Certainly.",
+      "Why not?"
+    ]
+  },
+  {
+    "id": "grammar-idiom-f1f5175cac7219d52742",
+    "phrase": "No way. / Absolutely not.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-8cedaef56cd7e5f0f08d",
+        "phrase": "Absolutely not."
+      },
+      {
+        "phrase": "No way."
+      }
+    ],
+    "main": "No way.",
+    "alternateForms": [
+      "Absolutely not."
+    ]
+  },
+  {
+    "id": "ga-idiom-92fffd41392ea79c6637",
+    "phrase": "No, I don’t. / Not at all. / Of course not.",
+    "aliases": [
+      {
+        "key": "ga-idiom-dbab42484bafb203c9c6",
+        "phrase": "Not at all."
+      },
+      {
+        "key": "ga-idiom-a03739fa4952c2cd33d5",
+        "phrase": "Of course not."
+      },
+      {
+        "phrase": "No, I don’t."
+      }
+    ],
+    "main": "No, I don’t.",
+    "alternateForms": [
+      "Not at all.",
+      "Of course not."
+    ]
+  },
+  {
+    "id": "grammar-idiom-6db914c9113c9b9401bd",
+    "phrase": "After you. / I’ll follow you.",
+    "aliases": [
+      {
+        "key": "ga-idiom-1a40e6635877776b2dda",
+        "phrase": "I’ll follow you."
+      },
+      {
+        "phrase": "After you."
+      }
+    ],
+    "main": "After you.",
+    "alternateForms": [
+      "I’ll follow you."
+    ]
+  },
+  {
+    "id": "grammar-idiom-9513e235892488ebb85a",
+    "phrase": "You’re welcome. / Don’t mention it. / Never mind. / Don’t worry.",
+    "aliases": [
+      {
+        "key": "grammar-idiom-d4f28366bf1980d99169",
+        "phrase": "You're welcome."
+      },
+      {
+        "key": "grammar-idiom-75eb6224d3db03d60e08",
+        "phrase": "Anytime."
+      },
+      {
+        "key": "grammar-idiom-8bbe4029df0fdea763d9",
+        "phrase": "Never mind."
+      },
+      {
+        "key": "grammar-idiom-8e9041532d0976ac4c5e",
+        "phrase": "Don't worry."
+      },
+      {
+        "phrase": "Don't mention it."
+      }
+    ],
+    "main": "You’re welcome.",
+    "alternateForms": [
+      "Don’t mention it.",
+      "Never mind.",
+      "Don’t worry."
+    ]
+  },
+  {
+    "id": "grammar-idiom-d741080760f3e02b93fb",
+    "phrase": "What’s the matter / problem? / What’s wrong?",
+    "aliases": [
+      {
+        "key": "grammar-idiom-011e1ab4b9278972727b",
+        "phrase": "What's wrong?"
+      },
+      {
+        "key": "grammar-idiom-f6071ff90427f5faf981",
+        "phrase": "What is the problem (with you)?"
+      },
+      {
+        "phrase": "What is the matter (with you)?"
+      }
+    ],
+    "main": "What’s the matter?",
+    "alternateForms": [
+      "What’s the problem?",
+      "What’s wrong?"
+    ]
+  },
+  {
+    "id": "crossover-idiom-138a7aa152ecd60b2c565ab8",
+    "phrase": "I dare say / I daresay",
+    "aliases": [],
+    "main": "I dare say",
+    "alternateForms": [
+      "I daresay"
+    ]
+  },
+  {
+    "id": "crossover-idiom-7a3b2662f1ba0231c6717caa",
+    "phrase": "I tell you / I'm telling you",
+    "aliases": [],
+    "main": "I tell you",
+    "alternateForms": [
+      "I'm telling you"
+    ]
+  }
+]
