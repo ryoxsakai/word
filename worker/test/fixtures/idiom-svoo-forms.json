@@ -1,0 +1,146 @@
+[
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "do A harm, do A damage",
+    "display_no": "23",
+    "hidden": false,
+    "id": "grammar-idiom-6478579e37aff45f013e",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "grammar-sense-6478579e37aff45f013e",
+        "idiom_id": "grammar-idiom-6478579e37aff45f013e",
+        "meaning": "A に利益を与える",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "##word:good|good##はここでは「利益・役に立つこと」を表す不可算名詞。**do** A **good**で「Aのためになる」。**do** A **a lot of good**のように程度を加えられる。",
+    "phrase": "do A good",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 832,
+    "synonyms": "benefit A, be beneficial to A",
+    "updated_at": "2026-09-15 14:12:15"
+  },
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "do A good",
+    "display_no": "24",
+    "hidden": false,
+    "id": "grammar-idiom-78423c5c75bd52f83b63",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "grammar-sense-78423c5c75bd52f83b63",
+        "idiom_id": "grammar-idiom-78423c5c75bd52f83b63",
+        "meaning": "A に損害を与える",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "##word:harm|harm##はここでは不可算名詞で、**a**を付けない。**do harm to** Aともいう。身体的な害だけでなく、評判・関係などへの悪影響にも使う。",
+    "phrase": "do A harm",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 833,
+    "synonyms": "harm A, do A damage",
+    "updated_at": "2026-09-15 14:12:35"
+  },
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "do A good",
+    "display_no": "25",
+    "hidden": false,
+    "id": "grammar-idiom-333cc36144b0fbf04522",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "grammar-sense-333cc36144b0fbf04522",
+        "idiom_id": "grammar-idiom-333cc36144b0fbf04522",
+        "meaning": "A に損害を与える",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "##word:damage|damage##はこの意味では不可算名詞で、**a damage**・**damages**にしない。**do damage to** Aともいう。**damages**は別の意味で「損害賠償金」を表す。",
+    "phrase": "do A damage",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 834,
+    "synonyms": "damage A, do damage to A, do A harm",
+    "updated_at": "2026-09-15 14:12:56"
+  },
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "",
+    "display_no": "26",
+    "hidden": false,
+    "id": "e556799f-4495-4e23-a2b8-1c666d825fec",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "84ed2282-4db3-49ee-b3c8-fb050d2797e5",
+        "idiom_id": "e556799f-4495-4e23-a2b8-1c666d825fec",
+        "meaning": "Aを正当に評価する・十分に表現する",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "##word:justice|justice##はここでは不可算名詞。**do justice to** Aともいう。Aが人なら能力・功績を正当に評価すること、作品・景色などならそのよさを十分に表すことをいう。否定形では「本当のよさを伝えきれない」の意味になりやすい。",
+    "phrase": "do A justice",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 835,
+    "synonyms": "do justice to A",
+    "updated_at": "2026-09-15 14:13:17"
+  },
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "",
+    "display_no": "27",
+    "hidden": false,
+    "id": "grammar-idiom-61f24e9a062efbe037cc",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "grammar-sense-61f24e9a062efbe037cc",
+        "idiom_id": "grammar-idiom-61f24e9a062efbe037cc",
+        "meaning": "A のお願いを聞く",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "##word:favor|favor##は可算名詞なので**a**が必要。**do a favor for** Aともいう。頼まれたことをしてあげる場合だけでなく、相手のために親切な行為をする場合にも使う。##idiom:grammar-idiom-16f45f03f02d7e69268a|ask A a favor##は「Aに頼む」側の表現で、対義語ではない。",
+    "phrase": "do A a favor",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 836,
+    "synonyms": "do a favor for A, help A",
+    "updated_at": "2026-09-15 14:13:37"
+  },
+  {
+    "aliases": [],
+    "alternate_forms": [],
+    "antonyms": "",
+    "display_no": "28",
+    "hidden": false,
+    "id": "grammar-idiom-16f45f03f02d7e69268a",
+    "list_id": "crossover-v3",
+    "meanings": [
+      {
+        "id": "grammar-sense-16f45f03f02d7e69268a",
+        "idiom_id": "grammar-idiom-16f45f03f02d7e69268a",
+        "meaning": "A にお願いをする",
+        "refs": [],
+        "sort_order": 0
+      }
+    ],
+    "notes": "**ask** A **a favor**＝**ask a favor of** A。##word:favor|favor##の前の**a**を忘れない。実際にしてほしい行為は**ask** A **to V**で表せる。##idiom:grammar-idiom-61f24e9a062efbe037cc|do A a favor##は頼みを引き受けて行う側の表現。",
+    "phrase": "ask A a favor",
+    "section_key": "g12-fixed-svoo",
+    "sort_order": 837,
+    "synonyms": "ask a favor of A",
+    "updated_at": "2026-09-15 14:13:57"
+  }
+]

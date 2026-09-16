@@ -924,7 +924,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .idiom-section-loading { min-height: 9rem; }
 .idiom-entry { break-inside: avoid; }
 .idiom-phrase { margin: 0; text-align: left; overflow-wrap: anywhere; }
-.idiom-phrase .idiom-alternate-form { color: #777; font-size: .82em; font-weight: 400; }
+.idiom-phrase .idiom-alternate-form { color: #777; font-size: .82em; font-weight: 700; }
 .idiom-sense + .idiom-sense { margin-top: 0.6rem; }
 .idiom-sense .sense-meaning { overflow-wrap: anywhere; }
 .idiom-refs { margin-top: 0.2rem; text-align: right; color: var(--text-muted); font-size: calc(0.72rem * var(--font-scale)); line-height: 1.6; font-variant-numeric: tabular-nums; }
