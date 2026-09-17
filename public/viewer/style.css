@@ -2390,3 +2390,6 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 
 .idiom-phrase .idiom-parenthetical,
 .idiom-phrase .idiom-parenthetical * { color: #777; }
+
+.idiom-entries > .label-divider { grid-column: 1 / -1; }
+.section-divider + .idiom-entries > .label-divider:first-child { margin-top: .1rem; }

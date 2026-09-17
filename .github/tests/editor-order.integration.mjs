@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import vm from "node:vm";
+import { orderIdiomLabels } from "../../public/shared/idioms.js";
 import { readFile } from "node:fs/promises";
 
 const wordSource = await readFile(new URL("../../public/setting/app.js", import.meta.url), "utf8");
@@ -58,6 +59,7 @@ const entry = (key, sectionKey) => ({ key, sectionKey, phrase: key, meanings: [{
 const a = entry("a", "s1"), b = entry("b", "s1"), hidden = { ...entry("h", "s1"), hidden: true }, z = entry("z", "s2");
 const idiomRequests = [], idiomAlerts = [];
 const idiomContext = vm.createContext({
+  orderIdiomLabels,
   data: { chapters: [{ key: "chapter", sections: [{ key: "s1" }, { key: "s2" }] }], entries: [a, hidden, b, z] },
   sectionEntries: new Map([["s1", [a, hidden, b]], ["s2", [z]]]),
   sectionPromises: new Map(), listId: "book", generation: 1, lazyObserver: { disconnect() {} },

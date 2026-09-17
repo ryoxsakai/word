@@ -1,3 +1,4 @@
+import { orderIdiomLabels } from '../../public/shared/idioms.js';
 import { validateIdiomAlternateForms } from '../../public/shared/idiom-forms.js';
 import { idiomIllustrationUrl } from './idiom-illustrations.js';
 // Idioms are independent of word fields. Reference numbers/tags are resolved by
@@ -14,7 +15,7 @@ async function readIdiomSections(db, listId) {
       chapter = { key: section.chapterKey, subtitle: section.chapterSubtitle, sections: [] };
       chapters.push(chapter);
     }
-    chapter.sections.push({ key: section.key, subtitle: section.subtitle,
+    chapter.sections.push({ key: section.key, subtitle: section.subtitle, ...(section.labels && section.labels !== '[]' ? { labels: JSON.parse(section.labels) } : {}),
       ...(section.display_number != null ? { number: section.display_number } : {}),
       ...(section.group_key ? { groupKey: section.group_key, groupSubtitle: section.group_subtitle, groupOrder: section.group_order } : {}),
     });
@@ -36,7 +37,7 @@ async function readIdiomEntries(db, listId, sectionKey = null, illustrations = f
   const entries = new Map();
   for (const row of rows) {
     if (!entries.has(row.id)) {
-      const entry = { key: row.id, phrase: row.phrase, sectionKey: row.sectionKey, meanings: [] };
+      const entry = { key: row.id, phrase: row.phrase, sectionKey: row.sectionKey, meanings: [], ...(row.label_key ? { labelKey: row.label_key } : {}) };
       for (const field of ["synonyms", "antonyms", "notes"]) if (row[field]) entry[field] = row[field];
       if (row.alternate_forms) entry.alternateForms = JSON.parse(row.alternate_forms);
       if (row.hidden) entry.hidden = true;
@@ -74,6 +75,7 @@ export async function readIdiomIndex(db, listId) {
     key: row.key,
     phrase: row.phrase,
     sectionKey: row.sectionKey,
+    ...(row.label_key ? { labelKey: row.label_key } : {}),
     sortOrder: row.sortOrder,
     meanings: [],
     ...(row.alternate_forms ? { alternateForms: JSON.parse(row.alternate_forms) } : {}),
@@ -84,20 +86,21 @@ export async function readIdiomIndex(db, listId) {
 }
 
 export async function readIdiomSection(db, listId, sectionKey, { illustrations = false } = {}) {
-  const section = await db.prepare("SELECT 1 FROM idiom_sections WHERE list_id = ? AND section_key = ?")
+  const section = await db.prepare("SELECT * FROM idiom_sections WHERE list_id = ? AND section_key = ?")
     .bind(listId, sectionKey).first();
   if (!section) return null;
-  return { sectionKey, entries: await readIdiomEntries(db, listId, sectionKey, illustrations) };
+  return { sectionKey, entries: orderIdiomLabels(await readIdiomEntries(db, listId, sectionKey, illustrations), JSON.parse(section.labels || '[]')) };
 }
 
 export async function reorderIdioms(db, listId, body) {
   const items = body?.entries;
   if (!Array.isArray(items)) throw new Error("entries is required");
   const [{ results: current }, { results: sections }] = await Promise.all([
-    db.prepare("SELECT id FROM idioms WHERE list_id = ?").bind(listId).all(),
+    db.prepare("SELECT * FROM idioms WHERE list_id = ?").bind(listId).all(),
     db.prepare("SELECT section_key AS sectionKey FROM idiom_sections WHERE list_id = ?").bind(listId).all(),
   ]);
-  const currentIds = new Set(current.map(row => row.id));
+  const currentById = new Map(current.map(row => [row.id, row]));
+  const currentIds = new Set(currentById.keys());
   const sectionKeys = new Set(sections.map(row => row.sectionKey));
   if (items.length !== currentIds.size || new Set(items.map(item => item?.id)).size !== currentIds.size) {
     throw new Error("entries must contain every idiom exactly once");
@@ -107,7 +110,7 @@ export async function reorderIdioms(db, listId, body) {
     if (!sectionKeys.has(item?.sectionKey)) throw new Error("Unknown idiom section");
   }
   await runIdiomBatches(db, items.map((item, index) => db.prepare(
-    "UPDATE idioms SET sort_order = ?, section_key = ?, updated_at = datetime('now') WHERE id = ? AND list_id = ?"
+    `UPDATE idioms SET sort_order = ?, ${currentById.get(item.id)?.label_key && currentById.get(item.id)?.section_key !== item.sectionKey ? 'label_key = NULL,' : ''} section_key = ?, updated_at = datetime('now') WHERE id = ? AND list_id = ?`
   ).bind(index + 1, item.sectionKey, item.id, listId)));
   return { updated: items.length };
 }
@@ -133,18 +136,22 @@ export async function saveIdiom(db, listId, body) {
       !Array.isArray(body.meanings) || !body.meanings.length || body.meanings.length > 30) {
     throw new Error("phrase and 1–30 meanings are required");
   }
-  const section = await db.prepare("SELECT section_key FROM idiom_sections WHERE list_id = ? AND section_key = ?")
+  const section = await db.prepare("SELECT * FROM idiom_sections WHERE list_id = ? AND section_key = ?")
     .bind(listId, body.sectionKey || "").first();
   if (!section) throw new Error("Unknown idiom section");
   const id = body.id || crypto.randomUUID();
   if (typeof id !== "string" || id.length > 200) throw new Error("Invalid idiom ID");
   const existing = await db.prepare("SELECT * FROM idioms WHERE id = ?").bind(id).first();
   if (existing && existing.list_id !== listId) throw new Error("Idiom belongs to another notebook");
-  const statements = [db.prepare(`INSERT INTO idioms (id, list_id, phrase, section_key, sort_order)
+  const labelKey = body.labelKey === undefined ? (existing?.section_key === body.sectionKey ? existing?.label_key : null) : body.labelKey;
+  if (labelKey != null && (typeof labelKey !== 'string' || !JSON.parse(section.labels || '[]').some(label => label.key === labelKey))) throw new Error('Unknown idiom label in section');
+  const clearLabel = existing?.label_key && existing.section_key !== body.sectionKey;
+  const statements = [...(clearLabel ? [db.prepare('UPDATE idioms SET label_key = NULL WHERE id = ?').bind(id)] : []), db.prepare(`INSERT INTO idioms (id, list_id, phrase, section_key, sort_order)
     VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET phrase = excluded.phrase,
     section_key = excluded.section_key, sort_order = excluded.sort_order, updated_at = datetime('now')`)
     .bind(id, listId, body.phrase.trim(), body.sectionKey, Number.isInteger(body.sortOrder) ? body.sortOrder : (existing?.sort_order ?? 10000)),
     db.prepare("DELETE FROM idiom_senses WHERE idiom_id = ?").bind(id)];
+  if (body.labelKey !== undefined || labelKey != null) statements.push(db.prepare('UPDATE idioms SET label_key = ? WHERE id = ?').bind(labelKey ?? null, id));
   for (const field of ["synonyms", "antonyms", "notes"]) {
     if (body[field] === undefined) continue; // Older clients retain newly added fields.
     if (typeof body[field] !== "string" || body[field].length > 20000) throw new Error(`Invalid ${field}`);
