@@ -44,3 +44,13 @@
 `npm run test:idiom-mcp` で取得、ページング、部分更新、参照保持、別単語帳拒否、統合、構成、同時編集、ロールバック、OAuth経路を検証する。`npm run test:mcp-write` は実D1互換環境でOAuthを通すテストも含む。公開後は `node test/idiom-mcp.production.mjs` でツール一覧と公開熟語DBを読み取り照合する。
 
 サーバーに新ツールが公開されても、チャット側が保持するツール一覧は別に更新が必要な場合がある。新しい接続のツール一覧に上記10種類があるか確認する。既存チャットのツール一覧が古いことと、サーバーでの実装・公開状況を区別する。
+
+## 熟語Label
+
+`update_idiom_structure.sections[].labels` に `[{key, name}, ...]` を指定する。配列順がLabel順。省略時は既存定義を保持する。使用中のLabelの削除、キー・名前の重複は拒否する。
+
+`create_idioms`、`update_idiom`、`move_idioms` は `label_key` に対応。nullで解除、省略時は同じSectionなら保持し、別Sectionへ移動すると解除する。Labelは移動先Sectionで定義されたキーのみ指定できる。
+
+取得APIはSectionの`labels`と熟語の`labelKey`（MCPでは`label_key`）を返す。Label順・内部登録順で表示し、遅延取得、検索、索引参照番号、編集画面、印刷で共通の順序を使用する。
+
+0055は保存欄と整合性トリガーを追加する。0056はGroup 2を前置詞ごとのSectionへまとめ、元の細分類をLabelへ移す。元Section・熟語行は`idiom_group2_sections_backup`・`idiom_group2_entries_backup`に保存する。語義、単語参照、別形、画像、非表示設定には変更を加えない。

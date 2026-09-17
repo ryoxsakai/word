@@ -141,7 +141,7 @@ export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
   return chapters.map((chapter, chapterIndex) => ({
     ...chapter, name: `Chapter ${chapterIndex + 1}`, tone: (chapterIndex % 6) + 1,
     sections: chapter.sections.map(section => ({
-      ...section, items: entries.filter(entry => !entry.hidden && entry.sectionKey === section.key).map(entry => ({ ...entry, no: String(++entryNumber), senseCount: entry.meanings.length, meanings: entry.meanings.map((sense, index) => ({ ...sense, no: index + 1 })) })),
+      ...section, items: orderIdiomLabels(entries.filter(entry => !entry.hidden && entry.sectionKey === section.key), section.labels).map(entry => ({ ...entry, no: String(++entryNumber), senseCount: entry.meanings.length, meanings: entry.meanings.map((sense, index) => ({ ...sense, no: index + 1 })) })),
     })).filter(section => section.items.length).map(section => {
       if (section.groupKey && !groupNumbers.has(section.groupKey)) groupNumbers.set(section.groupKey, groupNumbers.size + 1);
       const number = ++sectionNumber;
@@ -150,4 +150,10 @@ export function groupIdiomEntries(entries, chapters = IDIOM_CHAPTERS) {
       };
     }),
   })).filter(chapter => chapter.sections.length);
+}
+
+export function orderIdiomLabels(entries, labels = []) {
+  if (!labels.length) return entries;
+  const rank = new Map(labels.map((label, index) => [label.key, index]));
+  return [...entries].sort((a, b) => (rank.get(a.labelKey) ?? labels.length) - (rank.get(b.labelKey) ?? labels.length));
 }

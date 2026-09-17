@@ -58,3 +58,5 @@
 .idiom-table .section-status-row td { height: 12rem; vertical-align: middle; }
 
 .idiom-alternate-form { color: var(--muted, #777); font-size: .82em; font-weight: 700; }
+
+.idiom-label-row th { padding: .6rem .8rem; text-align: left; color: var(--text); background: var(--bg-soft); font-weight: 700; }

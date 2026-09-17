@@ -165,3 +165,9 @@ assert.doesNotMatch(linked,/href="#word-disappoint"/);
   ]) assert.deepEqual(parts(phrase),expected,phrase);
   assert.match(render('custom word', {adverbs:[1]}), /idiom-adverb">word/);
 }
+
+const labeled = context.renderLabeledIdiomEntries({labels:[{key:'reason',name:'理由 <script>'},{key:'exchange',name:'交換'}],items:[{...entries[0],labelKey:'reason'},{...entries[0],labelKey:'reason'},{...entries[0],labelKey:'exchange'}]});
+assert.equal((labeled.match(/class="label-divider"/g)||[]).length,2);
+assert.match(labeled,/理由 &lt;script&gt;/);
+assert.equal((context.renderLabeledIdiomEntries({labels:[{key:'reason',name:'理由'}],items:[]}).match(/label-divider/g)||[]).length,0);
+console.log('Idiom Label headings: grouping, empty filters and HTML escaping passed');

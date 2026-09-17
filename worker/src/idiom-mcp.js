@@ -10,7 +10,7 @@ const meaning = { type: 'object', additionalProperties: false, properties: {
   id: str, meaning: { type: 'string', minLength: 1, maxLength: 2000 },
   word_ids: { type: 'array', items: str, maxItems: 30, uniqueItems: true },
 }, required: ['meaning'] };
-const fields = { phrase: { type: 'string', minLength: 1, maxLength: 500 }, section_key: str,
+const fields = { phrase: { type: 'string', minLength: 1, maxLength: 500 }, section_key: str, label_key: { anyOf: [str, { type: 'null' }] },
   alternate_forms: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 500 }, maxItems: 30, uniqueItems: true },
   synonyms: text, antonyms: text, notes: text, hidden: { type: 'boolean' },
   aliases: { type: 'array', items: { type: 'string', minLength: 1, maxLength: 500 }, maxItems: 100, uniqueItems: true },
@@ -22,7 +22,7 @@ function tool(name, description, properties = {}, required = [], write = false) 
     annotations: { readOnlyHint: !write, destructiveHint: write, openWorldHint: false },
     ...(write ? { securitySchemes: [{ type: 'oauth2', scopes: [MCP_READ_SCOPE, MCP_WRITE_SCOPE] }] } : {}) };
 }
-const filters = { chapter_key: str, group_key: str, section_key: str, query: { type: 'string', maxLength: 500 },
+const filters = { label_key: str, chapter_key: str, group_key: str, section_key: str, query: { type: 'string', maxLength: 500 },
   include_hidden: { type: 'boolean', default: false }, limit: { type: 'integer', minimum: 1, maximum: 100 }, offset: { type: 'integer', minimum: 0 } };
 export const IDIOM_READ_TOOLS = [
   tool('get_idiom_structure', '熟語・定型構文専用のChapter・Group・SectionをDBキー、表示番号、件数、revision付きで取得。単語用の数値IDとは別。'),
@@ -31,6 +31,7 @@ export const IDIOM_READ_TOOLS = [
   tool('get_idiom', '熟語の全語義、語義ごとの単語参照、メモ、別表記、掲載先、revisionを取得。IDまたは完全一致表現を指定。', { idiom_id: str, phrase: fields.phrase }),
 ];
 const sectionSchema = { type: 'object', additionalProperties: false, properties: {
+  labels: { type: 'array', maxItems: 100, items: { type: 'object', additionalProperties: false, properties: { key: str, name: str }, required: ['key', 'name'] } },
   section_key: str, subtitle: fields.phrase, chapter_key: str, chapter_subtitle: fields.phrase,
   chapter_order: { type: 'integer', minimum: 0 }, sort_order: { type: 'integer', minimum: 0 },
   group_key: { anyOf: [str, { type: 'null' }] }, group_subtitle: { anyOf: [fields.phrase, { type: 'null' }] },
@@ -40,9 +41,9 @@ const sectionSchema = { type: 'object', additionalProperties: false, properties:
 export const IDIOM_WRITE_TOOLS = [
   tool('create_idioms', '最大30件の熟語を一括追加。同一表現・別表記は重複として拒否。全件検証後に一括保存。', { idioms: { type: 'array', minItems: 1, maxItems: 30, items: { type: 'object', properties: fields, required: ['phrase', 'section_key', 'meanings'], additionalProperties: false } } }, ['idioms'], true),
   tool('update_idiom', '指定フィールドだけ部分更新。meanings指定時は全語義配列を置換するため既存IDを保持。word_ids省略時は既存参照を保持。hiddenで掲載を外せる。', { idiom_id: str, ...fields }, ['idiom_id'], true),
-  tool('move_idioms', '確認済みの熟語DB IDを別の熟語Section末尾へ移動。語義・参照先は保持。', { idiom_ids: ids, section_key: str }, ['idiom_ids', 'section_key'], true),
+  tool('move_idioms', '確認済みの熟語DB IDを別の熟語Section末尾へ移動。語義・参照先は保持。', { idiom_ids: ids, section_key: str, label_key: fields.label_key }, ['idiom_ids', 'section_key'], true),
   tool('reorder_idioms', '指定Sectionの全熟語ID（非表示も含む）を漏れなく指定して並べ替え。', { idiom_ids: ids, section_key: str }, ['idiom_ids', 'section_key'], true),
-  tool('update_idiom_structure', '熟語Chapter・Group・Sectionの追加・名称変更・所属変更・並べ替え。既存全Sectionを含む完成形を指定。空Sectionだけ省略で削除可能。DBキーを保持し、表示番号をキーに使わない。', { sections: { type: 'array', minItems: 1, maxItems: 500, items: sectionSchema } }, ['sections'], true),
+  tool('update_idiom_structure', '熟語Chapter・Group・Sectionの追加・名称変更・所属変更・並べ替え。labelsでSection内Labelの定義と順序を設定（省略時保持）。既存全Sectionを含む完成形を指定。空Sectionだけ省略で削除可能。DBキーを保持し、表示番号をキーに使わない。', { sections: { type: 'array', minItems: 1, maxItems: 500, items: sectionSchema } }, ['sections'], true),
   tool('merge_idioms', '確認済みの重複熟語をtarget_idに統合。異なる語義・参照・メモ・別表記を保持し、元IDをaliasesに保存。統合前の全データを監査履歴へ保存。', { target_id: str, source_ids: { ...ids, maxItems: 30 } }, ['target_id', 'source_ids'], true),
 ];
 
@@ -75,7 +76,7 @@ async function snapshot(db, listId) {
   const display = groupIdiomEntries(managed.entries, managed.chapters);
   const displayEntries = new Map(display.flatMap(c => c.sections.flatMap(s => s.items.map(e => [e.key, e.no]))));
   const displaySections = new Map(display.flatMap(c => c.sections.map(s => [s.key, { chapter: c.name, group: s.groupName || null, section: s.name }])));
-  return { revision: rev, sections: sections.map(s => ({ ...s, display: displaySections.get(s.section_key) || null })),
+  return { revision: rev, sections: sections.map(s => ({ ...s, labels: JSON.parse(s.labels || '[]'), display: displaySections.get(s.section_key) || null })),
     entries: entries.map(e => ({ ...e, aliases: JSON.parse(e.aliases), alternate_forms: JSON.parse(e.alternate_forms || '[]'), hidden: !!e.hidden, display_no: displayEntries.get(e.id) || null,
       meanings: senses.filter(s => s.idiom_id === e.id).map(s => ({ ...s, refs: refs.filter(r => r.sense_id === s.id) })) })) };
 }
@@ -106,8 +107,9 @@ export async function callIdiomRead(name, args, db) {
   }
   const allowed = new Set(data.sections.filter(s => (!args.chapter_key || s.chapter_key === args.chapter_key) && (!args.group_key || s.group_key === args.group_key) && (!args.section_key || s.section_key === args.section_key)).map(s => s.section_key));
   const order = new Map(data.sections.map((s, i) => [s.section_key, i]));
-  const found = data.entries.filter(e => allowed.has(e.section_key) && (args.include_hidden || !e.hidden) && (!args.query || norm([e.phrase, ...e.alternate_forms, ...idiomAliasNames(e.aliases), e.synonyms, e.antonyms, e.notes, ...e.meanings.map(s => s.meaning)].join(' ')).includes(norm(args.query))))
-    .sort((a, b) => order.get(a.section_key) - order.get(b.section_key) || a.sort_order - b.sort_order || a.id.localeCompare(b.id));
+  const labelRank = e => { const labels = data.sections.find(s => s.section_key === e.section_key)?.labels || []; const index = labels.findIndex(l => l.key === e.label_key); return index < 0 ? labels.length : index; };
+  const found = data.entries.filter(e => allowed.has(e.section_key) && (!args.label_key || e.label_key === args.label_key) && (args.include_hidden || !e.hidden) && (!args.query || norm([e.phrase, ...e.alternate_forms, ...idiomAliasNames(e.aliases), e.synonyms, e.antonyms, e.notes, ...e.meanings.map(s => s.meaning)].join(' ')).includes(norm(args.query))))
+    .sort((a, b) => order.get(a.section_key) - order.get(b.section_key) || labelRank(a) - labelRank(b) || a.sort_order - b.sort_order || a.id.localeCompare(b.id));
   const offset = args.offset ?? 0, limit = args.limit ?? 50, entries = found.slice(offset, offset + limit);
   return { listId: args.list_id, revision: data.revision, entries, pagination: { totalCount: found.length, offset, limit, returnedCount: entries.length, hasMore: offset + limit < found.length, nextOffset: offset + limit < found.length ? offset + limit : null } };
 }
@@ -121,6 +123,7 @@ export async function callIdiomWrite(name, args, db, auth) {
   const add = (sql, ...values) => statements.push(db.prepare(sql).bind(...values));
   const entry = id => { const e = data.entries.find(e => e.id === id); if (!e) throw new Error('Idiom not found in this notebook: ' + id); affected.add(id); return e; };
   const section = key => { if (!data.sections.some(s => s.section_key === key)) throw new Error('Unknown idiom section'); };
+  const label = (key, labelKey) => { if (labelKey != null && !data.sections.find(s => s.section_key === key)?.labels.some(l => l.key === labelKey)) throw new Error('Unknown idiom label in section'); };
   const refsFor = async (sense, old) => {
     const wordIds = sense.word_ids ?? old?.refs.map(r => r.word_id) ?? [];
     for (const id of wordIds) if (!await db.prepare('SELECT 1 FROM list_items WHERE list_id = ? AND word_id = ?').bind(args.list_id, id).first()) throw new Error('Reference word is not in this notebook: ' + id);
@@ -143,6 +146,10 @@ export async function callIdiomWrite(name, args, db, auth) {
       add('INSERT INTO idioms (id, list_id, phrase, section_key, sort_order) VALUES (?, ?, ?, ?, ?)', id, args.list_id, phrase, key, Math.max(0, ...data.entries.map(e => e.sort_order)) + created.length);
     } else affected.add(id);
     const changes = { ...Object.fromEntries(['synonyms', 'antonyms', 'notes'].filter(k => body[k] !== undefined).map(k => [k, body[k]])), phrase, section_key: key };
+    if (body.label_key !== undefined || (old?.label_key && old.section_key !== key)) {
+      changes.label_key = body.label_key ?? null;
+      label(key, changes.label_key);
+    }
     if (body.hidden !== undefined) changes.hidden = Number(body.hidden);
     if (body.alternate_forms !== undefined) changes.alternate_forms = JSON.stringify(forms);
     if (body.aliases !== undefined) changes.aliases = JSON.stringify(aliases);
@@ -176,7 +183,11 @@ export async function callIdiomWrite(name, args, db, auth) {
       if (all.length !== selected.length || selected.some(e => e.section_key !== args.section_key)) throw new Error('Include every idiom in the section, including hidden entries');
     }
     const start = name === 'move_idioms' ? Math.max(0, ...data.entries.filter(e => e.section_key === args.section_key).map(e => e.sort_order)) + 1 : 0;
-    selected.forEach((e, i) => add("UPDATE idioms SET section_key = ?, sort_order = ?, updated_at = datetime('now') WHERE id = ? AND list_id = ?", args.section_key, start + i, e.id, args.list_id));
+    if (name === 'move_idioms' && args.label_key !== undefined) label(args.section_key, args.label_key);
+    selected.forEach((e, i) => {
+      const changeLabel = name === 'move_idioms' && (args.label_key !== undefined || (e.label_key && e.section_key !== args.section_key));
+      add(`UPDATE idioms SET ${changeLabel ? 'label_key = ?, ' : ''}section_key = ?, sort_order = ?, updated_at = datetime('now') WHERE id = ? AND list_id = ?`, ...(changeLabel ? [args.label_key ?? null] : []), args.section_key, start + i, e.id, args.list_id);
+    });
   }
   if (name === 'update_idiom_structure') {
     const keys = new Set(), chapters = new Map(), groups = new Map(), chapterOrders = new Map(), orders = new Set(), numbers = new Set();
@@ -195,10 +206,15 @@ export async function callIdiomWrite(name, args, db, auth) {
         const g = JSON.stringify([s.chapter_key, s.group_subtitle, s.group_order]);
         if (groups.has(s.group_key) && groups.get(s.group_key) !== g) throw new Error('Inconsistent Group metadata'); groups.set(s.group_key, g);
       } else if (s.group_subtitle != null || s.group_order != null) throw new Error('Group metadata requires group_key');
+      if (s.labels !== undefined) {
+        if (new Set(s.labels.map(l => l.key)).size !== s.labels.length || new Set(s.labels.map(l => norm(l.name))).size !== s.labels.length) throw new Error('Duplicate label key or name');
+        if (data.entries.some(e => e.section_key === s.section_key && e.label_key && !s.labels.some(l => l.key === e.label_key))) throw new Error('Cannot remove an assigned idiom label');
+      }
       const columns = ['subtitle', 'chapter_key', 'chapter_subtitle', 'chapter_order', 'sort_order', 'group_key', 'group_subtitle', 'group_order', 'display_number'];
       add(`INSERT INTO idiom_sections (list_id, section_key, ${columns.join(', ')}) VALUES (${Array(11).fill('?').join(', ')})
         ON CONFLICT(list_id, section_key) DO UPDATE SET ${columns.map(k => k + ' = excluded.' + k).join(', ')}`,
       args.list_id, s.section_key, ...columns.map(k => s[k] ?? null));
+      if (s.labels !== undefined) add('UPDATE idiom_sections SET labels = ? WHERE list_id = ? AND section_key = ?', JSON.stringify(s.labels), args.list_id, s.section_key);
     }
     for (const s of data.sections) if (!keys.has(s.section_key)) {
       if (data.entries.some(e => e.section_key === s.section_key)) throw new Error('Cannot remove a populated Section; move its idioms first');
