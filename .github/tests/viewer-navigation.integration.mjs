@@ -399,6 +399,7 @@ const menuContext = vm.createContext({
   ] }],
   document: { getElementById: id => ({ scrollIntoView() { scrolledTo = id; } }) },
   closeContentsMenu() { closedMenus++; }, loadIdiomSection: async () => {},
+  navigateToIdiomTarget(id) { scrolledTo = id; closedMenus++; },
   navigateToSection: async key => { movedSection = key; return true; },
   showToast(message) { throw new Error(message); },
 });
@@ -464,4 +465,63 @@ console.log("Tab-aware contents and word/idiom/index menu jumps passed");
   const source = appSource.slice(appSource.indexOf("async function loadLists()"), appSource.indexOf("function clearListCaches"));
   await runInNewContext(source + "\nloadLists()", context);
   assert.deepEqual(calls, ["/lists/crossover-v3/viewer/index?initial=1"]);
+}
+
+// Idiom destinations load and render before scrolling, including rapid clicks.
+{
+  const sections = [{key: "a", groupKey: "g"}, {key: "b"}];
+  const events = [], deferred = new Map();
+  let revision = 0;
+  const idiomState = {activeView: "idioms", currentListId: "book",
+    idiomLoadedSectionKeys: new Set(), idiomSectionPromises: new Map()};
+  const ctx = vm.createContext({state: idiomState, listLoadGeneration: 1,
+    window: {innerHeight: 800},
+    visibleIdiomGroups: () => [{key: "c", sections}],
+    document: {getElementById: id => {
+      const version = revision;
+      return {closest: () => ({getBoundingClientRect: () => ({height: 2000}),
+        classList: {add() {}, remove() {}}}),
+        scrollIntoView: options => events.push({id, version, behavior: options.behavior})};
+    }},
+    closeContentsMenu() {}, afterBodyPaint: async () => {},
+    renderIdioms() {revision++;}, setupIdiomLazyObserver() {},
+    showToast: message => events.push({error: message}),
+    loadIdiomSection(key) {
+      if (!deferred.has(key)) {
+        let resolve, reject;
+        const promise = new Promise((yes, no) => {resolve = yes; reject = no;});
+        deferred.set(key, {promise, resolve, reject});
+      }
+      return deferred.get(key).promise;
+    },
+  });
+  vm.runInContext("let idiomNavigationGeneration = 0, idiomNavigationPending = false, idiomLazyObserver;\n" +
+    functionSource("async function navigateToIdiomTarget", "function navigateToIndex"), ctx);
+  const first = ctx.navigateToIdiomTarget("idiom-section-a");
+  const second = ctx.navigateToIdiomTarget("idiom-section-b");
+  assert.equal(events.length, 0, "no scroll before loading");
+  deferred.get("a").resolve(); deferred.get("b").resolve();
+  assert.equal(await first, false, "a superseded click cannot scroll");
+  assert.equal(await second, true);
+  assert.ok(events.every(e => e.id === "idiom-section-b" && e.version === 1 && e.behavior === "auto"),
+    "scroll uses the freshly rendered destination without a competing smooth animation");
+  for (const id of ["idiom-chapter-c", "idiom-group-g"]) {
+    events.length = 0;
+    assert.equal(await ctx.navigateToIdiomTarget(id), true);
+    assert.equal(events.at(-1).id, id);
+  }
+  events.length = 0; deferred.clear();
+  const failed = ctx.navigateToIdiomTarget("idiom-section-a");
+  deferred.get("a").reject(new Error("offline"));
+  assert.equal(await failed, false);
+  assert.equal(events.length, 1);
+  assert.match(events[0].error, /offline/);
+  events.length = 0; deferred.clear();
+  const stale = ctx.navigateToIdiomTarget("idiom-section-a");
+  idiomState.currentListId = "other";
+  deferred.get("a").resolve();
+  assert.equal(await stale, false);
+  assert.equal(events.length, 0, "a notebook change cancels the jump");
+  assert.equal(ctx.navigateToIdiom({target: {closest: () => null}}), false);
+  console.log("Idiom load-before-scroll, chapter/group, rapid-click, failure and stale navigation tests passed");
 }
