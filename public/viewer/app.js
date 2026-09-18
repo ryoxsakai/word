@@ -1203,7 +1203,7 @@ async function loadIdiomSection(sectionKey, {forceRefresh=false, rerender=true}=
     if(generation!==listLoadGeneration||listId!==state.currentListId)return;
     state.idiomSectionEntries.set(key,resolveIdiomReferences(data.entries||[],state.indexWords));
     state.idiomLoadedSectionKeys.add(key);
-    if(rerender)renderIdioms();
+    if(rerender && !idiomNavigationPending)renderIdioms();
   }catch(error){if(generation===listLoadGeneration&&listId===state.currentListId){const target=el.idiomList.querySelector(`[data-idiom-section-entries="${CSS.escape(key)}"]`);if(target)target.innerHTML=`<div class="section-load-error">読み込みに失敗しました: ${escapeHtml(error.message)} <button type="button" data-action="retry-idiom-section" data-section-key="${escapeHtml(key)}">再試行</button></div>`;}throw error;}})();
   state.idiomSectionPromises.set(key,promise);try{await promise;}finally{if(state.idiomSectionPromises.get(key)===promise)state.idiomSectionPromises.delete(key);}
 }
@@ -1211,7 +1211,9 @@ async function loadIdiomSection(sectionKey, {forceRefresh=false, rerender=true}=
 async function loadAllIdiomSections(){const keys=state.idiomGroups.flatMap(chapter=>chapter.sections.map(section=>section.key));let cursor=0;const workers=Array.from({length:Math.min(3,keys.length)},async()=>{while(cursor<keys.length){const key=keys[cursor++];await loadIdiomSection(key,{rerender:false});}});await Promise.all(workers);renderIdioms();}
 
 let idiomLazyObserver;
-function setupIdiomLazyObserver(){idiomLazyObserver?.disconnect();const targets=el.idiomList.querySelectorAll('[data-idiom-section-entries][aria-busy="true"]');if(!targets.length)return;if(!('IntersectionObserver'in window)){loadAllIdiomSections().catch(()=>{});return;}idiomLazyObserver=new IntersectionObserver(items=>{for(const item of items)if(item.isIntersecting){idiomLazyObserver.unobserve(item.target);loadIdiomSection(item.target.dataset.idiomSectionEntries).catch(()=>{});}},{rootMargin:'1000px 0px'});targets.forEach(target=>idiomLazyObserver.observe(target));}
+let idiomNavigationGeneration = 0;
+let idiomNavigationPending = false;
+function setupIdiomLazyObserver(){idiomLazyObserver?.disconnect();if(idiomNavigationPending)return;const targets=el.idiomList.querySelectorAll('[data-idiom-section-entries][aria-busy="true"]');if(!targets.length)return;if(!('IntersectionObserver'in window)){loadAllIdiomSections().catch(()=>{});return;}idiomLazyObserver=new IntersectionObserver(items=>{for(const item of items)if(item.isIntersecting && !idiomNavigationPending){idiomLazyObserver.unobserve(item.target);loadIdiomSection(item.target.dataset.idiomSectionEntries).catch(()=>{});}},{rootMargin:'1000px 0px'});targets.forEach(target=>idiomLazyObserver.observe(target));}
 
 function renderIdiomNavigation() {
   const groups = visibleIdiomGroups();
@@ -1255,14 +1257,75 @@ async function openIdiomReference(id, {historyMode = "push"} = {}) {
   document.getElementById(`idiom-${encodeURIComponent(hit.id)}`)?.scrollIntoView({behavior:"smooth",block:"center"});
 }
 
+async function navigateToIdiomTarget(targetId) {
+  const listId = state.currentListId, listGeneration = listLoadGeneration;
+  const isCurrent = () => generation === idiomNavigationGeneration &&
+    listId === state.currentListId && listGeneration === listLoadGeneration && state.activeView === "idioms";
+  const chapters = visibleIdiomGroups();
+  const sections = chapters.flatMap(chapter => chapter.sections);
+  const section = sections.find(section => `idiom-section-${section.key}` === targetId) ||
+    chapters.find(chapter => `idiom-chapter-${chapter.key}` === targetId)?.sections[0] ||
+    sections.find(section => `idiom-group-${section.groupKey}` === targetId);
+  if (!section) return false;
+  const generation = ++idiomNavigationGeneration;
+
+  idiomNavigationPending = true;
+  idiomLazyObserver?.disconnect();
+  closeContentsMenu();
+  const anchors = [];
+  try {
+    // Include preceding placeholders within the observer margin so they cannot expand after arrival.
+    const keys = [String(section.key)];
+    let distance = 0;
+    for (let i = sections.indexOf(section) - 1; i >= 0 && distance < 1000 + window.innerHeight; i--) {
+      keys.unshift(String(sections[i].key));
+      const group = document.getElementById(`idiom-section-${sections[i].key}`)?.closest(".section-group");
+      distance += Math.min(group?.getBoundingClientRect().height || 160, 160);
+    }
+    if (state.idiomLoadedSectionKeys) {
+      const pending = [...state.idiomSectionPromises.values()];
+      const results = await Promise.allSettled([
+        ...keys.map(key => loadIdiomSection(key, { rerender: false })), ...pending,
+      ]);
+      if (!isCurrent()) return false;
+      const failure = results.find(result => result.status === "rejected");
+      if (failure) throw failure.reason;
+    }
+    if (!isCurrent()) return false;
+    renderIdioms();
+    for (const key of keys) {
+      const group = document.getElementById(`idiom-section-${key}`)?.closest(".section-group");
+      if (group) { group.classList.add("is-navigation-anchor"); anchors.push(group); }
+    }
+    // Resolve the destination only after rendering; the old DOM nodes have been replaced.
+    await afterBodyPaint();
+    if (!isCurrent()) return false;
+    const target = document.getElementById(targetId);
+    if (!target) return false;
+    target.scrollIntoView({ behavior: "auto", block: "start" });
+    await afterBodyPaint();
+    if (!isCurrent()) return false;
+    for (const group of anchors) group.classList.remove("is-navigation-anchor");
+    await afterBodyPaint();
+    if (!isCurrent()) return false;
+    document.getElementById(targetId)?.scrollIntoView({ behavior: "auto", block: "start" });
+    return true;
+  } catch (error) {
+    if (isCurrent()) showToast(`リンク先の読み込みに失敗しました: ${error.message}`);
+    return false;
+  } finally {
+    for (const group of anchors) group.classList.remove("is-navigation-anchor");
+    if (generation === idiomNavigationGeneration) {
+      idiomNavigationPending = false;
+      if (state.activeView === "idioms") setupIdiomLazyObserver();
+    }
+  }
+}
+
 function navigateToIdiom(event) {
   const button = event.target.closest("button[data-idiom-target]");
   if (!button) return false;
-  const target = document.getElementById(button.dataset.idiomTarget);
-  const sectionKey=button.dataset.idiomTarget?.startsWith('idiom-section-')?button.dataset.idiomTarget.slice(14):null;
-  if(sectionKey)loadIdiomSection(sectionKey).catch(()=>{});
-  target?.scrollIntoView({ behavior: "smooth", block: "start" });
-  closeContentsMenu();
+  void navigateToIdiomTarget(button.dataset.idiomTarget);
   return true;
 }
 
