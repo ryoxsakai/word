@@ -15,8 +15,8 @@ const DUAL_USE = new Set('as about above across after along around before behind
 const PREPOSITIONAL_TO = /\b(?:according|owing|due|thanks|prior|subsequent|contrary|subject|opposed|accustomed|addicted|allergic|committed|devoted|dedicated|related|similar|equal|superior|inferior|junior|senior|next|close|refer|refers|referred|referring|belong|belongs|belonged|belonging|listen|listens|listened|listening|object|objects|objected|objecting|resort|resorts|resorted|resorting|contribute|contributes|contributed|contributing|lead|leads|led|leading|amount|amounts|amounted|amounting|look forward|be used|get used)\s+$/i;
 const NOMINAL = /^(?:[A-Z]|O|A|B|N|Ving|V-ing|doing|being|having|someone|somebody|something|one|oneself|you|me|him|her|us|them|it|this|that|the|a|an|my|your|his|its|our|their)$/;
 const GRAMMAR_MARKERS = new Map([
-  ['s', 'subject'], ['o', 'object'], ['a', 'argument-a'], ['b', 'argument-b'], ['c', 'complement'],
-  ['v', 'verb'], ['ving', 'verb-form'], ['v-ing', 'verb-form'],
+  ['S', 'subject'], ['O', 'object'], ['A', 'argument-a'], ['B', 'argument-b'], ['C', 'complement'],
+  ['V', 'verb'], ['Ving', 'verb-form'], ['V-ing', 'verb-form'],
 ]);
 
 export function renderIdiomPrepositions(phrase, override) {
@@ -28,7 +28,8 @@ export function renderIdiomPrepositions(phrase, override) {
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i], word = token[0].toLowerCase();
     const next = tokens[i + 1];
-    const grammarKind = GRAMMAR_MARKERS.get(word);
+    // Grammar markers are deliberately uppercase; do not color ordinary words such as article "a".
+    const grammarKind = GRAMMAR_MARKERS.get(token[0]);
     // In an infinitive pattern, color both words as one grammatical unit.
     const infinitive = word === 'to' && next && /^(?:V)$/i.test(next[0]);
     if (grammarKind || infinitive) {
