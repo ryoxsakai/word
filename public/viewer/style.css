@@ -2388,6 +2388,13 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 
 .headword .idiom-adverb { color: #2563b4; }
 
+/* Grammar placeholders in idiom patterns remain distinct from lexical colors. */
+.headword .idiom-subject { color: #f59e0b; }
+.headword .idiom-object { color: #ec4899; }
+.headword .idiom-complement { color: #10b981; }
+.headword .idiom-verb,
+.headword .idiom-verb-form { color: #0ea5e9; }
+
 .idiom-phrase .idiom-parenthetical,
 .idiom-phrase .idiom-parenthetical * { color: #777; }
 
