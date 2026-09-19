@@ -2432,6 +2432,52 @@ function collectTags() {
   return tags;
 }
 
+function editorRowFromSavedWord(word, previous) {
+  const membership = isNotebookView()
+    ? word.lists?.find((item) => item.listId === state.currentListId)
+    : null;
+  const primary = word.senses?.find((sense) => sense.is_primary) || word.senses?.[0] || {};
+  return {
+    ...previous,
+    ...word,
+    primaryPos: primary.pos || "",
+    primaryMeaning: primary.meaning || "",
+    awl: word.tags?.awl || "",
+    cefr: word.tags?.cefr_provisional || "",
+    eiken: word.tags?.eiken || "",
+    target1900: previous?.target1900 || "",
+    target1400: previous?.target1400 || "",
+    no: membership?.no ?? previous?.no,
+    branch: membership?.branch ?? previous?.branch ?? 0,
+    displayNo: membership?.displayNo ?? previous?.displayNo ?? "",
+    sectionId: membership?.sectionId ?? previous?.sectionId ?? null,
+    labelId: membership?.labelId ?? previous?.labelId ?? null,
+    labelName: membership?.labelName ?? previous?.labelName ?? null,
+  };
+}
+
+function replaceSavedWordInEditor(word) {
+  const previous = state.words.find((item) => item.id === word.id);
+  const row = editorRowFromSavedWord(word, previous);
+  state.words = previous
+    ? state.words.map((item) => item.id === word.id ? row : item)
+    : [...state.words, row];
+  state.listWordIndex = new Map(state.words.map((item) => [item.spelling.toLowerCase(), { id: item.id, no: item.displayNo }]));
+  for (const [key, rows] of state.sectionWords) {
+    const withoutSaved = rows.filter((item) => item.id !== word.id);
+    const belongsHere = editorSectionKey(row.sectionId) === key;
+    state.sectionWords.set(key, belongsHere ? [...withoutSaved, row] : withoutSaved);
+  }
+  const targetKey = editorSectionKey(row.sectionId);
+  if (state.sectionWords.has(targetKey)) {
+    const rows = state.sectionWords.get(targetKey).filter((item) => item.id !== word.id);
+    state.sectionWords.set(targetKey, [...rows, row]);
+  }
+  rebuildAutoCrossRefRenderer();
+  renderWordTableHead();
+  renderWordTable();
+}
+
 async function saveWord() {
   if (!el.fieldSpelling.value.trim()) {
     alert("スペルを入力してください");
@@ -2487,10 +2533,19 @@ async function saveWord() {
         api(`/words/${encodeURIComponent(wordId)}`, { method: "PUT", body: JSON.stringify(body) }),
         listItemUpdate,
       ]);
+      // The membership update runs in parallel above; read back only this word so
+      // its row reflects the authoritative no./Section/Label after both writes.
+      if (isNotebookView() && listItemUpdate) word = await api(`/words/${encodeURIComponent(wordId)}`);
     }
     state.masterWordIndex = null;
     if (isNotebookView()) state.collapsedSectionIds.delete(sectionId);
-    await loadWordsForList(state.currentListId);
+    if (isNotebookView()) replaceSavedWordInEditor(word);
+    else {
+      const previous = state.words.find((item) => item.id === word.id);
+      state.words = previous ? state.words.map((item) => item.id === word.id ? editorRowFromSavedWord(word, previous) : item) : [editorRowFromSavedWord(word), ...state.words];
+      renderWordTableHead();
+      renderWordTable();
+    }
     closeEditor();
     showToast("保存しました");
   } catch (err) {
@@ -2819,9 +2874,6 @@ document.addEventListener("keydown", (e) => {
   if (!el.sectionModalOverlay.hidden) { closeSectionEditor(); return; }
   if (!el.chapterModalOverlay.hidden) { closeChapterEditor(); return; }
   if (el.topbarMenu.classList.contains("is-open")) closeTopbarMenu();
-});
-el.editModalOverlay.addEventListener("click", (e) => {
-  if (e.target === el.editModalOverlay) closeEditor();
 });
 el.sectionModalOverlay.addEventListener("click", (e) => {
   if (e.target === el.sectionModalOverlay) closeSectionEditor();
