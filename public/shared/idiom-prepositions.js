@@ -29,7 +29,10 @@ export function renderIdiomPrepositions(phrase, override) {
     const token = tokens[i], word = token[0].toLowerCase();
     const next = tokens[i + 1];
     // Grammar markers are deliberately uppercase; do not color ordinary words such as article "a".
-    const grammarKind = GRAMMAR_MARKERS.get(token[0]);
+    // In the structural pair S V, the predicate marker shares S's color.
+    const grammarKind = token[0] === 'V' && tokens[i - 1]?.[0] === 'S'
+      ? 'subject'
+      : GRAMMAR_MARKERS.get(token[0]);
     // In an infinitive pattern, color both words as one grammatical unit.
     const infinitive = word === 'to' && next && /^(?:V)$/i.test(next[0]);
     if (grammarKind || infinitive) {
