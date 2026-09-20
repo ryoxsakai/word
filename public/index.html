@@ -70,6 +70,15 @@
         <button type="button" class="fontsize-btn" data-font-level="5" aria-label="最大">A</button>
       </div>
     </div>
+    <div class="cache-settings">
+      <label><input type="checkbox" id="cacheEnabled" checked /> キャッシュを保存</label>
+      <div class="cache-actions">
+        <button type="button" id="refreshViewerCache">最新版を読み込む</button>
+        <button type="button" id="clearViewerCache">キャッシュを削除</button>
+      </div>
+      <small>保存済みの内容を先に表示し、更新を確認します。</small>
+      <small id="cacheUpdateNotice" role="status" hidden>更新があります。「最新版を読み込む」で反映できます。</small>
+    </div>
     <div class="theme-row">
       <span class="theme-label">テーマ</span>
       <button id="themeToggleBtn" type="button" class="chip-toggle" title="ダーク/ライト切り替え">ダーク</button>

@@ -30,7 +30,14 @@ import { navigationSectionKeys, sectionNumberRanges, wordIdFromHash } from "./na
 import { buildIdiomEntries, groupIdiomEntries, resolveIdiomReferences } from "../shared/idioms.js";
 import { renderIdiomEntry } from "./idiom-entry.js";
 
-const chapterCache = createChapterCache();
+const CACHE_ENABLED_KEY = "vocab-viewer-cache-enabled";
+let cacheEnabled = true;
+try { cacheEnabled = localStorage.getItem(CACHE_ENABLED_KEY) !== "0"; } catch {}
+const chapterCache = createChapterCache({ onUpdate: () => {
+  const notice = document.getElementById("cacheUpdateNotice");
+  if (notice) notice.hidden = false;
+  showToast("更新があります。歯車の「最新版を読み込む」で反映できます");
+} });
 const API = `${VIEWER_API_BASE}/api`;
 const LAST_LIST_KEY = "vocab-viewer-last-list";
 const THEME_KEY = "vocab-viewer-theme";
@@ -367,7 +374,7 @@ renderLoadingSkeleton();
 
 async function api(path, options = {}) {
   const match = path.match(/\/(viewer|idioms)\/index\?initial=1$/);
-  if (match && !PRINT_UI_MODE) return chapterCache.load(`${API}${path}`, path, match[1], requestApi, options);
+  if (match && !PRINT_UI_MODE && cacheEnabled) return chapterCache.load(`${API}${path}`, path, match[1], requestApi, options);
   return requestApi(path, options);
 }
 
@@ -499,9 +506,6 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     pageLoadingFinished = true;
     await afterBodyPaint();
     if (generation !== listLoadGeneration) return;
-    for (const section of data.cachedSections || []) {
-      if (!state.loadedSectionKeys.has(String(section.key))) renderLoadedSection(section.key, section);
-    }
     renderBookMatter();
     renderContentsNav();
     if (PRINT_BOOK_MODE && PRINT_PART === "index") renderAlphabeticalIndex();
@@ -2623,10 +2627,36 @@ if (el.fontSizeSteps) {
 
 applyFontSize(Number(localStorage.getItem(FONT_SIZE_KEY)) || 3);
 
+// Cache controls also work when persistent storage is unavailable.
+const cacheToggle = document.getElementById("cacheEnabled");
+if (cacheToggle) {
+  cacheToggle.checked = cacheEnabled;
+  cacheToggle.addEventListener("change", async () => {
+    cacheEnabled = cacheToggle.checked;
+    try { localStorage.setItem(CACHE_ENABLED_KEY, cacheEnabled ? "1" : "0"); } catch {}
+    if (!cacheEnabled) await chapterCache.clear();
+    showToast(cacheEnabled ? "次回の読み込みからキャッシュを保存します" : "キャッシュ保存をオフにしました");
+  });
+}
+document.getElementById("clearViewerCache")?.addEventListener("click", async () => {
+  await chapterCache.clear();
+  viewerIndexCache.clear();
+  sectionResponseCache.clear();
+  showToast("保存したキャッシュを削除しました");
+});
+document.getElementById("refreshViewerCache")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  try { await refreshCurrentList(); }
+  finally { button.disabled = false; }
+});
+
 // ---- プルリフレッシュ ----
 
 async function refreshCurrentList() {
   if (!state.currentListId) return;
+  const notice = document.getElementById("cacheUpdateNotice");
+  if (notice) notice.hidden = true;
   await selectList(state.currentListId, { forceRefresh: true });
 }
 
