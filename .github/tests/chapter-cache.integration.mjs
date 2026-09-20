@@ -8,7 +8,7 @@ const index = {
   initialSection: { key: "85", words: [{ id: "first" }] },
 };
 const values = new Map();
-const store = { get: async key => structuredClone(values.get(key)), put: async (key, value) => values.set(key, structuredClone(value)) };
+const store = { get: async key => structuredClone(values.get(key)), put: async (key, value) => values.set(key, structuredClone(value)), clear: async () => values.clear() };
 const tasks = [];
 const cache = createChapterCache({ store, now: () => 1000, schedule: task => tasks.push(task) });
 const calls = [];
@@ -22,16 +22,17 @@ const cold = await cache.load("origin:words", path, "viewer", fetcher);
 assert.equal(cold.list.id, "book");
 assert.equal(calls.length, 1, "cold startup does not wait for the rest of Chapter 1");
 await tasks.shift()();
-assert.deepEqual(values.get("origin:words").data.cachedSections.map(s => s.key), ["85", "86"]);
-assert.ok(calls.every(([, options]) => options.forceRefresh && options.silent));
+assert.deepEqual(values.get("origin:words").data.cachedSections.map(s => s.key), ["85"]);
+assert.equal(calls.length, 1, "saving must not issue chapter-wide prefetches");
+assert.ok(calls.every(([, options]) => !options.forceRefresh && options.silent));
 
 // A slow/offline refresh cannot block or erase a previously saved chapter.
 let rejectRefresh;
 const warm = await cache.load("origin:words", path, "viewer", () => new Promise((_, reject) => { rejectRefresh = reject; }));
-assert.equal(warm.cachedSections[1].words[0].id, "second");
+assert.equal(warm.cachedSections[0].words[0].id, "first");
 rejectRefresh(new Error("offline"));
 await new Promise(resolve => setImmediate(resolve));
-assert.equal(values.get("origin:words").data.cachedSections.length, 2);
+assert.equal(values.get("origin:words").data.cachedSections.length, 1);
 
 // A new index atomically replaces old section bodies and removed sections.
 const fresh = { ...index, sections: [index.sections[0]], initialSection: { key: "85", words: [{ id: "edited" }] } };
@@ -64,6 +65,29 @@ await cache.load("origin:idioms", "/lists/book/idioms/index?initial=1", "idioms"
   return { sectionKey: "s2", entries: [{ phrase: "second" }] };
 });
 await tasks.shift()();
-assert.equal(values.get("origin:idioms").data.cachedSections.length, 2);
+assert.equal(values.get("origin:idioms").data.cachedSections.length, 1);
 assert.equal(values.get("origin:words").data.cachedSections[0].words[0].id, "edited", "word and idiom snapshots are isolated");
 console.log("Chapter cache: cold/warm/offline, refresh, expiry, invalid data, storage fallback and idiom isolation passed");
+
+// Clearing while a network refresh is pending must not repopulate storage.
+let finishFetch;
+const delayed = cache.load("pending", path, "viewer", () => new Promise(resolve => { finishFetch = resolve; }));
+await new Promise(resolve => setImmediate(resolve));
+await cache.clear();
+finishFetch(index);
+await delayed;
+while (tasks.length) await tasks.shift()();
+assert.equal(values.size, 0);
+
+// Notify only when server content changes, without replacing the visible snapshot.
+let updates = 0;
+values.set("notice", {version: 1, savedAt: 1000, data: {...index, cachedSections: [index.initialSection]}});
+const notifying = createChapterCache({store, now: () => 1000, schedule: () => {}, onUpdate: () => updates++});
+await notifying.load("notice", path, "viewer", async () => structuredClone(index));
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(updates, 0);
+const visible = await notifying.load("notice", path, "viewer", async () => fresh);
+await new Promise(resolve => setImmediate(resolve));
+assert.equal(updates, 1);
+assert.equal(visible.initialSection.words[0].id, "first");
+console.log("No speculative requests, clear-during-refresh and update notification passed");

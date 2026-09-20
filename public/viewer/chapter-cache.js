@@ -36,6 +36,7 @@ export function createChapterStore(indexedDB = globalThis.indexedDB) {
   return {
     get: key => transaction("readonly", store => store.get(key)),
     put: (key, value) => transaction("readwrite", store => store.put(value, key)),
+    clear: () => transaction("readwrite", store => store.clear()),
   };
 }
 
@@ -59,57 +60,56 @@ function validSnapshot(snapshot, kind, now) {
   return data.cachedSections.every(section => section && keys.has(String(kind === "viewer" ? section.key : section.sectionKey)) && Array.isArray(kind === "viewer" ? section.words : section.entries));
 }
 
-export function createChapterCache({ store = createChapterStore(), now = Date.now, schedule = task => setTimeout(task, 250) } = {}) {
+export function createChapterCache({ store = createChapterStore(), now = Date.now, schedule = task => setTimeout(task, 250), onUpdate = () => {} } = {}) {
   const pending = new Map();
+  let epoch = 0;
   const revisions = new Map();
-  function refresh(key, path, kind, fetcher) {
-    if (pending.has(key)) return pending.get(key);
+  function refresh(key, path, kind, fetcher, { forceRefresh = false, saved } = {}) {
+    // Explicit refresh must not reuse a request started before a user edit.
+    if (!forceRefresh && pending.has(key)) return pending.get(key);
+    const generation = epoch;
     const revision = (revisions.get(key) || 0) + 1;
     revisions.set(key, revision);
-    const request = fetcher(path, { forceRefresh: true, silent: true });
+    const current = () => epoch === generation && revisions.get(key) === revision;
+    const request = Promise.resolve().then(() => fetcher(path, { forceRefresh, silent: true }));
     pending.set(key, request);
     request.then(data => {
+      if (!current()) return;
+      if (saved) {
+        const { cachedSections, ...previous } = saved.data;
+        if (JSON.stringify(previous) !== JSON.stringify(data)) onUpdate(key);
+      }
       schedule(async () => {
         try {
-          if (kind === "idioms" && !data.managed) return;
-          const keys = chapterSectionKeys(data, kind);
+          if (!current() || (kind === "idioms" && !data.managed)) return;
+          // Save the initial body already returned by the index. Do not download
+          // an entire chapter in the background while the reader is navigating.
           const initial = data.initialSection;
-          const initialKey = initial && String(kind === "viewer" ? initial.key : initial.sectionKey);
-          const sections = new Map(initial && keys.includes(initialKey) ? [[initialKey, initial]] : []);
-          // One atomic snapshot: never combine a new index with old section bodies.
-          const save = async () => {
-            if (revisions.get(key) !== revision) return;
-            await store.put(key, { version: 1, savedAt: now(), data: { ...data, cachedSections: [...sections.values()] } });
-          };
-          await save();
-          let cursor = 0;
-          const missing = keys.filter(sectionKey => !sections.has(sectionKey));
-          await Promise.all(Array.from({ length: Math.min(2, missing.length) }, async () => {
-            while (cursor < missing.length && revisions.get(key) === revision) {
-              const sectionKey = missing[cursor++];
-              try {
-                const section = await fetcher(`${path.split(`/${kind}/index`)[0]}/${kind}/sections/${encodeURIComponent(sectionKey)}`, { forceRefresh: true, silent: true });
-                sections.set(sectionKey, section);
-              } catch { /* Keep successful sections; the normal loader can retry missing ones. */ }
-            }
-          }));
-          await save();
+          await store.put(key, { version: 1, savedAt: now(), data: { ...data, cachedSections: initial ? [initial] : [] } });
         } catch { /* Caching must not affect normal reading. */ }
       });
     }, () => {}).finally(() => { if (pending.get(key) === request) pending.delete(key); });
     return request;
   }
   return {
+    async clear() {
+      epoch += 1;
+      pending.clear();
+      revisions.clear();
+      return store.clear();
+    },
     async load(key, path, kind, fetcher, { forceRefresh = false } = {}) {
+      const generation = epoch;
       if (!forceRefresh) {
         let saved;
         try { saved = await store.get(key); } catch { /* Network fallback. */ }
+        if (generation !== epoch) return fetcher(path, { forceRefresh: true });
         if (validSnapshot(saved, kind, now())) {
-          void refresh(key, path, kind, fetcher).catch(() => {});
+          void refresh(key, path, kind, fetcher, { saved }).catch(() => {});
           return saved.data;
         }
       }
-      return refresh(key, path, kind, fetcher);
+      return refresh(key, path, kind, fetcher, { forceRefresh });
     },
   };
 }

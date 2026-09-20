@@ -1933,6 +1933,14 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"],
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] > .view-panel,
 body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .print-chapter-door { page: print-a5-numbered; }
 
+
+.cache-settings { display: grid; gap: .5rem; min-width: 0; }
+.cache-settings label { display: flex; align-items: center; gap: .4rem; }
+.cache-settings input { width: auto; }
+.cache-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.cache-settings small { overflow-wrap: anywhere; }
+@media print { .cache-settings { display: none; } }
+
 @media print {
   html { font-size: var(--print-font-size, 10pt); }
   /* テーマに関わらず、印刷は明るい配色に固定して枠・背景をはっきり出す */
