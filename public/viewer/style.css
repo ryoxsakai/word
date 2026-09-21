@@ -1471,6 +1471,32 @@ body.is-printing-book > .loading-msg { display: none !important; }
   gap: 0.55rem;
 }
 .entry-notes:empty { display: none; }
+/* Reserve image space while text is painted and the illustration is fetched. */
+.entry-illustration { position: relative; aspect-ratio: 1; }
+.illustration-placeholder { display: none; }
+.entry-illustration.is-loading .illustration-placeholder,
+.entry-illustration.is-error .illustration-placeholder {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: #f1f3f5;
+  color: #68717c;
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+.entry-illustration.is-loading img,
+.entry-illustration.is-error img { opacity: 0; }
+@media print {
+  .entry-illustration .illustration-placeholder { display: none !important; }
+  .entry-illustration img { opacity: 1 !important; }
+}
+
 .entry-illustration {
   float: right;
   margin: 0 0 0.65rem 1rem;
@@ -2410,3 +2436,4 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 
 .idiom-entries > .label-divider { grid-column: 1 / -1; }
 .section-divider + .idiom-entries > .label-divider:first-child { margin-top: .1rem; }
+

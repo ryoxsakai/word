@@ -99,7 +99,7 @@ context.renderIdiomNavigation();
 assert.match(bottom,/>Section 2<\/button>/);
 assert.doesNotMatch(bottom,/>take<\/button>/);
 const illustrated=renderIdiomEntry({...ordered[0].sections[0].items[0], illustration:{url:'/mcp-viewer/api/idiom-illustrations/grammar-idiom-example/11111111-1111-1111-1111-111111111111.png',meaning:'調べる'}},'https://vocab.lrnr.jp');
-assert.match(illustrated,/class="entry-illustration"/);
+assert.match(illustrated,/class="entry-illustration\b/);
 assert.match(illustrated,/loading="lazy"/);
 assert.doesNotMatch(renderIdiomEntry({key:'unsafe',no:'3',phrase:'<script>',meanings:[]},'https://vocab.lrnr.jp'), /<script>/);
 console.log('Idiom word-card layout, stable numbering, navigation and future illustration tests passed');

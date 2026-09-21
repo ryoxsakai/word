@@ -9,7 +9,7 @@ import {
   renderWordListMarkup,
   escapeHtml,
 } from "../shared/markup.js";
-import { renderWordIllustration, prepareIllustrationsForPrint } from "../shared/illustrations.js";
+import { renderWordIllustration, prepareIllustrationsForPrint, setupIllustrationLoading } from "../shared/illustrations.js";
 import { VIEWER_API_BASE } from "../shared/config.js";
 import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../shared/word-index.js";
 import { renderStressedSpelling } from "../shared/spelling-stress.js";
@@ -371,6 +371,7 @@ function endPageLoading() {
 }
 
 renderLoadingSkeleton();
+setupIllustrationLoading(document.body);
 
 async function api(path, options = {}) {
   const match = path.match(/\/(viewer|idioms)\/index\?initial=1$/);
