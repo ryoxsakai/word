@@ -375,6 +375,9 @@ renderLoadingSkeleton();
 async function api(path, options = {}) {
   const match = path.match(/\/(viewer|idioms)\/index\?initial=1$/);
   if (match && !PRINT_UI_MODE && cacheEnabled) return chapterCache.load(`${API}${path}`, path, match[1], requestApi, options);
+  if (!PRINT_UI_MODE && cacheEnabled && /\/(viewer|idioms)\/sections\/[^/?]+$/.test(path)) {
+    return chapterCache.load(`${API}${path}`, path, "section", requestApi, options);
+  }
   return requestApi(path, options);
 }
 
@@ -513,6 +516,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     setupSectionObserver();
     setupIndexObserver();
     setupLazySectionObserver();
+    if (!PRINT_UI_MODE) void prefetchSections(listId, "viewer", state.sections.map(section => section.key), generation);
     if (state.activeView === "idioms") await ensureIdioms();
     else {
       const idiomsReady = ensureIdioms().then(() => {
@@ -865,6 +869,24 @@ function renderSectionShells() {
   applyFilters();
 }
 
+let prefetchGeneration = 0;
+
+// Keep only one speculative request active; bodies are rendered on navigation.
+async function prefetchSections(listId, kind, keys, generation) {
+  const prefetchRun = prefetchGeneration;
+  for (const key of keys) {
+    await new Promise(resolve => setTimeout(resolve, 40));
+    if (prefetchRun !== prefetchGeneration || generation !== listLoadGeneration || listId !== state.currentListId || !cacheEnabled) return;
+    const memoryKey = sectionCacheKey(listId, String(key));
+    if (kind === "viewer" && sectionResponseCache.has(memoryKey)) continue;
+    try {
+      const data = await api(`/lists/${encodeURIComponent(listId)}/${kind}/sections/${encodeURIComponent(key)}`, { silent: true });
+      if (prefetchRun !== prefetchGeneration || generation !== listLoadGeneration || listId !== state.currentListId || !cacheEnabled) return;
+      if (kind === "viewer") sectionResponseCache.set(memoryKey, data);
+    } catch { /* A failed section must not stop preloading the rest. */ }
+  }
+}
+
 function sectionCacheKey(listId, sectionKey) {
   return `${listId}:${sectionKey}`;
 }
@@ -1112,6 +1134,7 @@ async function ensureIdioms() {
       if (data.managed && firstSection && state.idiomLoadedSectionKeys) await loadIdiomSection(firstSection.key, { rerender: false });
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
       renderIdioms({ deferNavigation: true });
+      if (!PRINT_UI_MODE && data.managed) void prefetchSections(listId, "idioms", state.idiomGroups.flatMap(chapter => chapter.sections.map(section => section.key)), generation);
       el.idiomList.removeAttribute("aria-busy");
       await afterBodyPaint();
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
@@ -2634,11 +2657,12 @@ if (cacheToggle) {
   cacheToggle.addEventListener("change", async () => {
     cacheEnabled = cacheToggle.checked;
     try { localStorage.setItem(CACHE_ENABLED_KEY, cacheEnabled ? "1" : "0"); } catch {}
-    if (!cacheEnabled) await chapterCache.clear();
+    if (!cacheEnabled) { prefetchGeneration += 1; await chapterCache.clear(); }
     showToast(cacheEnabled ? "次回の読み込みからキャッシュを保存します" : "キャッシュ保存をオフにしました");
   });
 }
 document.getElementById("clearViewerCache")?.addEventListener("click", async () => {
+  prefetchGeneration += 1;
   await chapterCache.clear();
   viewerIndexCache.clear();
   sectionResponseCache.clear();
@@ -2657,6 +2681,8 @@ async function refreshCurrentList() {
   if (!state.currentListId) return;
   const notice = document.getElementById("cacheUpdateNotice");
   if (notice) notice.hidden = true;
+  prefetchGeneration += 1;
+  await chapterCache.clear();
   await selectList(state.currentListId, { forceRefresh: true });
 }
 
