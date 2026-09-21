@@ -14,7 +14,7 @@ const panel = { innerHTML: "", setAttribute: (k,v) => attrs.set(k,v), removeAttr
 const state = { wordIndex:new Map(), currentListId: "crossover-v3", indexWords: [{id: "submit", spelling: "submit", seqNo: "1315"}], idiomEntries: null, idiomGroups: [], idiomPromise: null, activeView: "list", search: "" };
 let resolveFetch;
 let fetches = 0;
-const context = vm.createContext({ state, el: {idiomList: panel}, listLoadGeneration: 1,
+const context = vm.createContext({ PRINT_UI_MODE: false, prefetchSections: async () => {}, state, el: {idiomList: panel}, listLoadGeneration: 1,
   afterBodyPaint: async () => {
     assert.match(panel.innerHTML, /class="entry idiom-entry"/, "idiom body is rendered before yielding for navigation");
     assert.equal(attrs.has("aria-busy"), false, "body is readable before navigation");

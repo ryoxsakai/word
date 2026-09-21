@@ -53,6 +53,7 @@ export function chapterSectionKeys(data, kind) {
 function validSnapshot(snapshot, kind, now) {
   const data = snapshot?.data;
   if (snapshot?.version !== 1 || !Number.isFinite(snapshot.savedAt) || now - snapshot.savedAt > MAX_AGE || now < snapshot.savedAt) return false;
+  if (kind === "section") return !!data && (Array.isArray(data.words) || Array.isArray(data.entries));
   if (!data || !Array.isArray(data.chapters) || !Array.isArray(data.cachedSections)) return false;
   if (kind === "viewer" && (!data.list || !Array.isArray(data.words) || !Array.isArray(data.sections))) return false;
   if (kind === "idioms" && (!data.managed || !Array.isArray(data.entries) || data.chapters.some(c => !Array.isArray(c.sections)))) return false;
@@ -82,10 +83,9 @@ export function createChapterCache({ store = createChapterStore(), now = Date.no
       schedule(async () => {
         try {
           if (!current() || (kind === "idioms" && !data.managed)) return;
-          // Save the initial body already returned by the index. Do not download
-          // an entire chapter in the background while the reader is navigating.
+          // Index and individual section snapshots share the same optional store.
           const initial = data.initialSection;
-          await store.put(key, { version: 1, savedAt: now(), data: { ...data, cachedSections: initial ? [initial] : [] } });
+          await store.put(key, { version: 1, savedAt: now(), data: kind === "section" ? data : { ...data, cachedSections: initial ? [initial] : [] } });
         } catch { /* Caching must not affect normal reading. */ }
       });
     }, () => {}).finally(() => { if (pending.get(key) === request) pending.delete(key); });

@@ -91,3 +91,24 @@ await new Promise(resolve => setImmediate(resolve));
 assert.equal(updates, 1);
 assert.equal(visible.initialSection.words[0].id, "first");
 console.log("No speculative requests, clear-during-refresh and update notification passed");
+
+// Section bodies from any chapter survive a page reload and work offline.
+for (const [kind, body] of [["viewer", { key: "90", words: [{ id: "later-chapter" }] }],
+  ["idioms", { sectionKey: "s3", entries: [{ phrase: "later idiom" }] }]]) {
+  const storage = new Map();
+  const scheduled = [];
+  const sectionStore = { get: async key => storage.get(key), put: async (key, value) => storage.set(key, value), clear: async () => storage.clear() };
+  const options = { store: sectionStore, schedule: task => scheduled.push(task) };
+  const sectionPath = `/lists/book/${kind}/sections/later`;
+  const firstVisit = createChapterCache(options);
+  await firstVisit.load(sectionPath, sectionPath, "section", async () => body);
+  await scheduled.shift()();
+  const secondVisit = createChapterCache(options);
+  assert.deepEqual(await secondVisit.load(sectionPath, sectionPath, "section", async () => { throw new Error("offline"); }), body);
+  await new Promise(resolve => setImmediate(resolve));
+  const edited = kind === "viewer" ? { ...body, words: [] } : { ...body, entries: [] };
+  await secondVisit.load(sectionPath, sectionPath, "section", async () => edited, { forceRefresh: true });
+  await scheduled.shift()();
+  assert.deepEqual(storage.get(sectionPath).data, edited);
+}
+console.log("Persistent word/idiom sections: later chapters, reload, offline and forced refresh passed");
