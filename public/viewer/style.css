@@ -1490,6 +1490,11 @@ body.is-printing-book > .loading-msg { display: none !important; }
   line-height: 1.5;
   text-align: center;
 }
+.entry-illustration.is-loading .illustration-placeholder {
+  background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
 .entry-illustration.is-loading img,
 .entry-illustration.is-error img { opacity: 0; }
 @media print {
@@ -1861,12 +1866,14 @@ body.has-section-nav .back-to-top { bottom: calc(4.2rem + env(safe-area-inset-bo
 @media (prefers-reduced-motion: reduce) {
   .loading-progress::before,
   .skeleton-line,
+  .entry-illustration.is-loading .illustration-placeholder,
   .entry.flash,
   .section-divider.flash,
   .group-divider.flash,
   .chapter-divider.flash { animation: none; }
   .loading-progress { transition: none; }
-  .skeleton-line { background: var(--skeleton-base); }
+  .skeleton-line,
+  .entry-illustration.is-loading .illustration-placeholder { background: var(--skeleton-base); }
   .entry.flash,
   .section-divider.flash,
   .group-divider.flash,
@@ -2436,4 +2443,3 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 
 .idiom-entries > .label-divider { grid-column: 1 / -1; }
 .section-divider + .idiom-entries > .label-divider:first-child { margin-top: .1rem; }
-
