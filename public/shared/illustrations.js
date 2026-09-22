@@ -4,7 +4,7 @@ export function renderWordIllustration(word, origin) {
   const illustration = word.illustration;
   if (!illustration?.url || !/^\/mcp-viewer\/api\/(?:illustrations|idiom-illustrations)\/[^/]+\/[a-f0-9-]+\.png$/i.test(illustration.url)) return '';
   const url = new URL(illustration.url, origin).href;
-  return `<figure class="entry-illustration is-loading"><span class="illustration-placeholder" aria-hidden="true">画像を読み込み中</span><img data-illustration-src="${escape(url)}" alt="${escape(word.spelling)}：${escape(illustration.meaning)}のイラスト" width="1024" height="1024" loading="lazy" decoding="async" fetchpriority="low"></figure>`;
+  return `<figure class="entry-illustration is-loading"><span class="illustration-placeholder" aria-hidden="true"></span><img data-illustration-src="${escape(url)}" alt="${escape(word.spelling)}：${escape(illustration.meaning)}のイラスト" width="1024" height="1024" loading="lazy" decoding="async" fetchpriority="low"></figure>`;
 }
 
 export async function prepareIllustrationsForPrint(root) {
