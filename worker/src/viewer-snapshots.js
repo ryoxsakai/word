@@ -18,14 +18,15 @@ export class ViewerSnapshotPublisher {
   constructor(ctx, env) { this.ctx = ctx; this.env = env; }
   async fetch(request) {
     const path = new URL(request.url).pathname;
-    if (path === '/status') return json(await this.ctx.storage.get('status') || { state: 'uninitialized' });
+    if (path === '/status') return json({...await this.ctx.storage.get('status') || {state:'uninitialized'},scheduledAt:await this.ctx.storage.getAlarm()});
     return this.ctx.blockConcurrencyWhile(async () => {
       const leases = await this.ctx.storage.get('leases') || {};
       const id = request.headers.get('x-edit-id');
       if (path === '/begin') leases[id] = Date.now() + 120000;
       else if (path === '/end') delete leases[id];
       await this.ctx.storage.put('leases', leases);
-      if (!await this.ctx.storage.getAlarm()) await this.ctx.storage.setAlarm(Date.now() + 2000);
+      const next=Date.now()+2000, alarm=await this.ctx.storage.getAlarm();
+      if (!alarm || alarm>next) await this.ctx.storage.setAlarm(next);
       return json({ queued: true });
     });
   }
@@ -79,7 +80,7 @@ export class ViewerSnapshotPublisher {
         await this.ctx.storage.put('stage',stage);
       }
       if(Object.keys(stage.pendingChapters || {}).length) {
-        await this.ctx.storage.put('status',{state:'building',files:Object.keys(stage.files).length,remainingChapters:Object.keys(stage.pendingChapters).length,updatedAt:new Date().toISOString()});
+        await this.ctx.storage.put('status',{state:'building',files:Object.keys(stage.files).length,remainingChapters:Object.keys(stage.pendingChapters).length,chapterProgress:Object.values(stage.pendingChapters).map(c=>({chapter:c.chapter,kind:c.kind,completedSections:c.progress?.next||0})),updatedAt:new Date().toISOString()});
         await this.ctx.storage.setAlarm(Date.now()+1000);return;
       }
       // Regenerating the page shell reuses the already-built first chapter.
