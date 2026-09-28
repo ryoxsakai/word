@@ -35,7 +35,7 @@ assert.equal(wordIdFromHash("#word-record"), "record");
 assert.equal(wordIdFromHash("#section-2"), null);
 assert.equal(wordIdFromHash("#word-"), null);
 
-const appSource = await readFile(new URL("../../public/viewer/app.js", import.meta.url), "utf8");
+const appSource = await readFile(new URL("../../public/viewer/app.js", import.meta.url), "utf8") + await readFile(new URL("../../public/viewer/word-entry.js", import.meta.url), "utf8");
 const styleSource = await readFile(new URL("../../public/viewer/style.css", import.meta.url), "utf8");
 const indexSource = await readFile(new URL("../../public/index.html", import.meta.url), "utf8");
 
@@ -350,7 +350,7 @@ assert.match(styleSource, /data-print-engine="native"/);
 assert.match(styleSource, /body\.is-print-mode \.book-print-settings\.print-mode-only/);
 assert.match(styleSource, /font-size:\s*var\(--print-font-size, 10pt\)/);
 assert.match(styleSource, /line-height:\s*var\(--print-line-height, 1\.5\)/);
-assert.match(appSource, /class="sense-number">\$\{formatSenseNumber\(index \+ 1\)\}/);
+assert.match(await readFile(new URL("../../public/viewer/word-entry.js", import.meta.url), "utf8"), /class="sense-number">\$\{formatSenseNumber\(index \+ 1\)\}/);
 assert.match(appSource, /const CIRCLED_SENSE_NUMBERS = \["①", "②", "③"/);
 assert.doesNotMatch(styleSource, /counter-reset:\s*sense-num/);
 assert.match(indexSource, /shared\/qr\/crossover\.svg/);
@@ -463,6 +463,7 @@ console.log("Tab-aware contents and word/idiom/index menu jumps passed");
     selectList: async id => { assert.equal(cache.get(id), data); },
   };
   const source = appSource.slice(appSource.indexOf("async function loadLists()"), appSource.indexOf("function clearListCaches"));
+  context.PRINT_UI_MODE = false; context.staticBootstrap = async () => null;
   await runInNewContext(source + "\nloadLists()", context);
   assert.deepEqual(calls, ["/lists/crossover-v3/viewer/index?initial=1"]);
 }

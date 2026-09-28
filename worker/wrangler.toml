@@ -1,8 +1,8 @@
 name = "vocab-app"
 main = "src/coverage-entry.js"
 compatibility_date = "2024-11-01"
-# The dashboard routes only /mcp*, /oauth/*, and /.well-known/oauth-* to this Worker.
-# The rest of vocab.lrnr.jp remains on GitHub Pages.
+# Dashboard-managed routes include the viewer home and existing MCP/OAuth routes.
+# Non-viewer Pages paths pass through to the existing GitHub Pages origin.
 workers_dev = false
 # Preserve dashboard-managed VOCAB_MCP_API_KEY and VOCAB_MCP_SESSION_SECRET.
 keep_vars = true
@@ -10,8 +10,10 @@ keep_vars = true
 [assets]
 directory = "../public"
 binding = "ASSETS"
+run_worker_first = true
 
 [vars]
+VIEWER_STATIC_ENABLED = "true"
 # 一時的に /mcp と /mcp-write の編集・監査ツールを認証なしで公開する。再保護時は "false" に変更する。
 MCP_ALLOW_ANONYMOUS_WRITES = "true"
 # GitHub PagesなどAPIと別オリジンからアクセスするフロントエンドのURLをカンマ区切りで指定。
@@ -21,8 +23,7 @@ ALLOWED_ORIGINS = "https://ryoxsakai.github.io,https://vocab.lrnr.jp"
 # 音声・モデルはダッシュボード側の変数で上書きできる。
 ELEVENLABS_VOICE_ID = "Sq93GQT4X1lKDXsQcixO"
 ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
-# 毎分この件数まで、発音記号登録済みで音声がない見出し語を自動生成する。
-AUDIO_AUTO_BATCH_SIZE = "5"
+# スペル変更時だけ音声を生成する。
 AUDIO_AUTO_ENABLED = "true"
 # Images run only for explicitly queued words; the API key must be set as a Worker Secret.
 ILLUSTRATIONS_ENABLED = "false"
@@ -41,3 +42,15 @@ bucket_name = "vocab-audio"
 [[r2_buckets]]
 binding = "ILLUSTRATION_BUCKET"
 bucket_name = "vocab-illustrations"
+
+[[r2_buckets]]
+binding = "VIEWER_SNAPSHOTS"
+bucket_name = "vocab-viewer-snapshots"
+
+[[durable_objects.bindings]]
+name = "VIEWER_PUBLISHER"
+class_name = "ViewerSnapshotPublisher"
+
+[[migrations]]
+tag = "viewer-snapshots-v1"
+new_sqlite_classes = ["ViewerSnapshotPublisher"]

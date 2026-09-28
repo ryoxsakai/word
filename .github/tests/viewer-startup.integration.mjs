@@ -9,7 +9,7 @@ for (const stale of [false, true]) {
   const events = [];
   let resumePaint;
   const context = vm.createContext({
-    state: { activeView: "list" },
+    state: { activeView: "list" }, staticIdiomSections: new Map(), PRINT_UI_MODE: false,
     el: { emptyMsg: {}, idiomList: {}, indexList: {}, wordList: {}, searchInput: { value: "" } },
     localStorage: { setItem() {} }, LAST_LIST_KEY: "list",
     listLoadGeneration: 0, searchGeneration: 0, navigationGeneration: 0, lazyLoadGeneration: 0,
