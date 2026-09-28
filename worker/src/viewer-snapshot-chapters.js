@@ -52,10 +52,25 @@ export async function buildChapter(env,stage,job) {
  if(!index)return null;
  const sections=job.kind==='viewer'?index.sections.filter(s=>String(s.chapterKey)===job.chapter).map(s=>s.key):idioms?.chapters.find(c=>String(c.key)===job.chapter)?.sections.map(s=>s.key)||[];
  if(!sections.length)return null;
- const loaded=await Promise.all(sections.map(key=>read(env,stage.files[job.kind==='viewer'?wordSection(job.list,key):idiomSection(job.list,key)])));
- const shards=Object.fromEntries(sections.map((key,i)=>[key,loaded[i]||{words:[],entries:[]}]));
- const rendered=job.kind==='viewer'?renderWordChapter(index,idioms,job.chapter,shards):renderIdiomChapter(index,idioms,job.chapter,shards);
- return {...rendered,...job,sections,search:job.kind==='viewer'?searchWords(Object.values(shards).flatMap(s=>s.words)):null};
+ const progress=job.progress ||= {next:0,parts:[],dependencies:[]};
+ // Bound CPU per alarm, including expensive note/cross-reference rendering.
+ const selected=sections.slice(progress.next,progress.next+2);
+ const loaded=await Promise.all(selected.map(key=>read(env,stage.files[job.kind==='viewer'?wordSection(job.list,key):idiomSection(job.list,key)])));
+ const shards=Object.fromEntries(selected.map((key,i)=>[key,loaded[i]||{words:[],entries:[]} ]));
+ const rendered=job.kind==='viewer'?renderWordChapter(index,idioms,job.chapter,shards,new Set(selected)):renderIdiomChapter(index,idioms,job.chapter,shards,new Set(selected));
+ const partKey=`fragments/${crypto.randomUUID()}.html`;
+ await env.VIEWER_SNAPSHOTS.put(partKey,rendered.html,{httpMetadata:{contentType:'text/html; charset=utf-8'}});
+ progress.parts.push(partKey);progress.next+=selected.length;
+ progress.dependencies=[...new Set([...progress.dependencies,...rendered.dependencies])];
+ if(progress.next<sections.length)return {pending:true};
+ const html=(await Promise.all(progress.parts.map(async key=>(await env.VIEWER_SNAPSHOTS.get(key)).text()))).join('');
+ let search=null;
+ if(job.kind==='viewer') {
+  const bodies=await Promise.all(sections.map(key=>read(env,stage.files[wordSection(job.list,key)])));
+  search=searchWords(bodies.flatMap(s=>s?.words||[]));
+ }
+ return {html,dependencies:progress.dependencies,list:job.list,kind:job.kind,chapter:job.chapter,sections,search};
+
 }
 export async function buildHomePage(env,stage) {
  const list='crossover-v3',index=await read(env,stage.files[indexKey(list,'viewer-index')]);
