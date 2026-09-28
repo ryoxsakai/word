@@ -185,7 +185,14 @@ export async function processAutomaticAudio(
   env,
   { generate = generateWordAudio, limit = batchSize(env.AUDIO_AUTO_BATCH_SIZE), now = Date.now } = {}
 ) {
-  await reconcileAutomaticAudioJobs(env);
+  // Word and list membership triggers enqueue only changed Crossover words.
+  // Recover interrupted jobs here without rescanning words or generated audio.
+  await env.DB.prepare(
+    `UPDATE word_audio_jobs
+     SET status = 'retry', next_attempt_at = unixepoch(), updated_at = datetime('now')
+     WHERE status = 'processing'
+       AND updated_at <= datetime('now', '-${STUCK_JOB_MINUTES} minutes')`
+  ).run();
   const { results: jobs } = await env.DB
     .prepare(
       `SELECT word_id AS wordId, attempts

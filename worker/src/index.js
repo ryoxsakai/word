@@ -23,7 +23,6 @@ import {
   automaticAudioEnabled,
   automaticAudioStatus,
   processAutomaticAudio,
-  reconcileAutomaticAudioJobs,
 } from "./audio-auto-generation.js";
 import { normalizeSenseMeaning } from "./sense-normalization.js";
 import { handleIllustrationRoute, illustrationUrl, processIllustrationQueue } from "./word-illustrations.js";
@@ -2928,7 +2927,6 @@ export default {
           if (request.method !== "GET") {
             return withCors(json({ error: "method not allowed" }, { status: 405 }), allowedOrigin);
           }
-          await reconcileAutomaticAudioJobs(env);
           return withCors(json(await automaticAudioStatus(env)), allowedOrigin);
         }
 

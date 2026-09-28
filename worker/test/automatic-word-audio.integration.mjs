@@ -146,6 +146,34 @@ assert.deepEqual(status, {
   ],
 });
 
+// Existing triggers enqueue a changed Crossover word, without queuing other lists.
+await db.prepare("UPDATE words SET spelling = 'alpha changed' WHERE id = 'alpha'").run();
+await db.prepare("UPDATE words SET spelling = 'outside changed' WHERE id = 'outside'").run();
+assert.equal(
+  (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'alpha'").first()).count,
+  1
+);
+assert.equal(
+  (await db.prepare("SELECT COUNT(*) AS count FROM word_audio_jobs WHERE word_id = 'outside'").first()).count,
+  0
+);
+
+const scheduledSql = [];
+const trackedDb = {
+  ...db,
+  prepare(sql) {
+    scheduledSql.push(sql);
+    return db.prepare(sql);
+  },
+};
+const changedWordRun = await processAutomaticAudio(
+  { DB: trackedDb, AUDIO_AUTO_BATCH_SIZE: "5" },
+  { generate: fakeGenerate, now: () => 2_000_000_000_000 }
+);
+assert.equal(changedWordRun.generated, 1);
+assert.deepEqual(calls, ["alpha", "broken", "alpha"]);
+assert.ok(!scheduledSql.some((sql) => /\b(?:FROM|UPDATE)\s+(?:words|list_items|word_audio)\b/i.test(sql)));
+
 await db.prepare(
   `INSERT INTO word_audio (word_id, variant_key, provider, voice_id, model_id)
    VALUES ('alpha', 'primary', 'elevenlabs-native', 'old-voice', 'old-model')`
