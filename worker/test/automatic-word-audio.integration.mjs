@@ -146,7 +146,6 @@ assert.deepEqual(status, {
   ],
 });
 
-
 // Existing triggers enqueue a changed Crossover word, without queuing other lists.
 await db.prepare("UPDATE words SET spelling = 'alpha changed' WHERE id = 'alpha'").run();
 await db.prepare("UPDATE words SET spelling = 'outside changed' WHERE id = 'outside'").run();
@@ -173,7 +172,7 @@ const changedWordRun = await processAutomaticAudio(
 );
 assert.equal(changedWordRun.generated, 1);
 assert.deepEqual(calls, ["alpha", "broken", "alpha"]);
-assert.ok(!scheduledSql.some((sql) => /\\b(?:FROM|UPDATE)\\s+(?:words|list_items|word_audio)\\b/i.test(sql)));
+assert.ok(!scheduledSql.some((sql) => /\b(?:FROM|UPDATE)\s+(?:words|list_items|word_audio)\b/i.test(sql)));
 
 await db.prepare(
   `INSERT INTO word_audio (word_id, variant_key, provider, voice_id, model_id)
