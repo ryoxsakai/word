@@ -1402,9 +1402,10 @@ async function updateWord(env, args, auth) {
   }
   const statements = childStatements(db, word.id, args, true);
   if (statements.length) await db.batch(statements);
-  if (args.spelling !== undefined && word.spelling !== args.spelling) {
+  const updatedSpelling = args.spelling === undefined ? undefined : requiredText(args.spelling, "spelling", 200);
+  if (updatedSpelling !== undefined && word.spelling !== updatedSpelling) {
     try {
-      await generateAudioAfterSpellingChange(env, word.id, word.spelling, args.spelling);
+      await generateAudioAfterSpellingChange(env, word.id, word.spelling, updatedSpelling);
     } catch (error) {
       console.error("Spelling-triggered audio generation failed", word.id, error);
     }
