@@ -53,14 +53,6 @@ export class ViewerSnapshotPublisher {
           const object = old?.hash === hash ? { key: old.key, hash } : await putJson(bucket, result.data);
           stage.files[id] = { ...object, media: result.media };
         } else delete stage.files[id];
-        if (job.kind === 'word-section') {
-          const existingSearch = stage.search[job.list_id];
-          const searchObject = existingSearch && await bucket.get(existingSearch.key);
-          const search = searchObject ? await searchObject.json() : {};
-          if (result) search[job.section_key] = result.search;
-          else delete search[job.section_key];
-          stage.search[job.list_id] = await putJson(bucket, search);
-        }
         // Save progress before acknowledging the journal record. A crash can
         // rebuild the same shard, but can never lose a pending publication.
         await this.ctx.storage.put('stage', stage);
@@ -72,14 +64,15 @@ export class ViewerSnapshotPublisher {
         await this.ctx.storage.put('status', { state:'building', files:Object.keys(stage.files).length, updatedAt:new Date().toISOString() });
         await this.ctx.storage.setAlarm(Date.now() + 1000); return;
       }
+      for(const [key,c]of Object.entries(stage.chapters||{}))if(c.kind==='viewer'&&!c.search){stage.pendingChapters ||= {};stage.pendingChapters[key]={list:c.list,kind:c.kind,chapter:c.chapter};}
       const chapterJobs = Object.entries(stage.pendingChapters || {}).slice(0, 2);
       for (const [key, job] of chapterJobs) {
         const built = await buildChapter(this.env, stage, job);
         if (built) {
           const hash = await digest(built.html), objectKey = `objects/${hash}.html`;
           if(stage.chapters[key]?.hash !== hash) await bucket.put(objectKey, built.html, {httpMetadata:{contentType:'text/html; charset=utf-8'}});
-          const {html,...metadata}=built;
-          stage.chapters[key]={...metadata,hash,key:objectKey};
+          const {html,search,...metadata}=built;
+          stage.chapters[key]={...metadata,hash,key:objectKey,...(search?{search:await putJson(bucket,search)}:{})};
         } else delete stage.chapters[key];
         delete stage.pendingChapters[key];
         await this.ctx.storage.put('stage',stage);
@@ -102,7 +95,7 @@ export class ViewerSnapshotPublisher {
           const [list,kind] = JSON.parse(id);
           if (kind !== 'catalog' && !stage.files[indexKey(list,'viewer-index')]) delete stage.files[id];
         }
-        for (const list of Object.keys(stage.search)) if (!stage.files[indexKey(list,'viewer-index')]) delete stage.search[list];
+        delete stage.search; // Retire the initial legacy aggregate; search is chapter-scoped.
         stage.revision = crypto.randomUUID(); stage.generatedAt = new Date().toISOString();
         await bucket.put(`manifests/${stage.revision}.json`, JSON.stringify(stage));
         await bucket.put('current.json', JSON.stringify(stage), { httpMetadata:{contentType:'application/json'} });
@@ -236,9 +229,9 @@ export async function serveViewerSnapshot(request,env) {
       else if(tail.startsWith('idioms/sections/'))data=await readFile(env,manifest,idiomSection(list,decodeURIComponent(tail.slice(16))));
       else if(tail==='viewer/search') {
         const q=(url.searchParams.get('q')||'').trim().replace(/[A-Z]/g,c=>c.toLowerCase());
-        const search=manifest.search[list]&&await env.VIEWER_SNAPSHOTS.get(manifest.search[list].key);
-        const sections=search?await search.json():{};
-        data={matches:q?Object.values(sections).flat().filter(w=>w.text.includes(q)).map(({wordId,sectionKey})=>({wordId,sectionKey})):[]};
+        const chapters=q?Object.values(manifest.chapters||{}).filter(c=>c.list===list&&c.kind==='viewer'&&c.search):[];
+        const corpus=await Promise.all(chapters.map(async c=>(await env.VIEWER_SNAPSHOTS.get(c.search.key)).json()));
+        data={matches:corpus.flat().filter(w=>w.text.includes(q)).map(({wordId,sectionKey})=>({wordId,sectionKey}))};
       } else if(tail==='words/full'||tail==='idioms') {
         const words=tail==='words/full', index=await readFile(env,manifest,indexKey(list,words?'viewer-index':'idiom-index'));
         if(index) {
