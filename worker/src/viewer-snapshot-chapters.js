@@ -65,7 +65,7 @@ export async function buildHomePage(env,stage) {
  const object=await env.VIEWER_SNAPSHOTS.get(first.key),html=await object.text();
  const chapters=Object.fromEntries(Object.entries(stage.chapters).filter(([,c])=>c.list===list).map(([key,c])=>[key,{hash:c.hash,kind:c.kind,chapter:c.chapter,sections:c.sections}]));
  const bootstrap={index,idioms,chapters,firstChapter:index.chapters[0].key};
- const template=await env.ASSETS.fetch(new Request('https://assets/index.html'));
+ const template=await env.ASSETS.fetch(new Request('https://assets/'));
  if(!template.ok)throw new Error('Viewer HTML template unavailable');
  return (await template.text()).replace(/<link rel="preload" as="fetch"[^>]+>/,'')
   .replace(/(src|href)="\.\/(viewer|shared)\/([^"]+)"/g,'$1="/mcp-viewer-assets/$2/$3"')
