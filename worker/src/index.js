@@ -14,18 +14,16 @@ import target1900Data from "./data/target1900.json";
 import target1400Data from "./data/target1400.json";
 import {
   generateWordAudio,
-  generatePronunciationReviewSamples,
   generatedAudioUrl,
   loadGeneratedAudio,
   serveWordAudio,
 } from "./word-audio.js";
 import {
-  automaticAudioEnabled,
   automaticAudioStatus,
-  processAutomaticAudio,
+  generateAudioAfterSpellingChange,
 } from "./audio-auto-generation.js";
 import { normalizeSenseMeaning } from "./sense-normalization.js";
-import { handleIllustrationRoute, illustrationUrl, processIllustrationQueue } from "./word-illustrations.js";
+import { handleIllustrationRoute, illustrationUrl } from "./word-illustrations.js";
 
 /** 仮想の親リスト（全単語マスター）の ID */
 const MASTER_LIST_ID = "__master__";
@@ -1542,10 +1540,11 @@ async function createWord(db, body) {
   return json(await loadWordDetail(db, id), { status: 201 });
 }
 
-async function updateWord(db, id, body) {
+async function updateWord(env, id, body) {
+  const db = env.DB;
   const provisionalCefrError = validateProvisionalCefr(body.tags);
   if (provisionalCefrError) return badRequest(provisionalCefrError);
-  const existing = await db.prepare("SELECT id FROM words WHERE id = ?").bind(id).first();
+  const existing = await db.prepare("SELECT id, spelling FROM words WHERE id = ?").bind(id).first();
   if (!existing) return notFound("word not found");
   const derivedFromResolved = await resolveDerivedFrom(db, body);
   if (!derivedFromResolved.ok) return badRequest(`derivedFrom word "${body.derivedFrom}" not found`);
@@ -1589,6 +1588,13 @@ async function updateWord(db, id, body) {
       .run();
   }
   await saveWordChildren(db, id, body);
+  if (existing.spelling !== body.spelling) {
+    try {
+      await generateAudioAfterSpellingChange(env, id, existing.spelling, body.spelling);
+    } catch (error) {
+      console.error("Spelling-triggered audio generation failed", id, error);
+    }
+  }
   return json(await loadWordDetail(db, id));
 }
 
@@ -2773,7 +2779,7 @@ async function handleApi(request, env, parts, method) {
   if (parts.length === 3 && parts[1] === "words") {
     const id = parts[2];
     if (method === "GET") return await getWord(db, id);
-    if (method === "PUT") return await updateWord(db, id, await request.json());
+    if (method === "PUT") return await updateWord(env, id, await request.json());
     if (method === "DELETE") return await deleteWord(env, id);
   }
 
@@ -2979,24 +2985,5 @@ export default {
         allowedOrigin
       );
     }
-  },
-  async scheduled(_controller, env, ctx) {
-    ctx.waitUntil(processIllustrationQueue(env).catch(() => console.error("Illustration queue processing failed")));
-    const reviewSamples = generatePronunciationReviewSamples(env)
-      .then((samples) => console.log("Pronunciation review samples", samples.length))
-      .catch((error) => console.error("Pronunciation review sample generation failed", error));
-    if (!automaticAudioEnabled(env)) {
-      console.log("Automatic pronunciation generation is paused");
-      ctx.waitUntil(reviewSamples);
-      return;
-    }
-    ctx.waitUntil(
-      Promise.all([
-        reviewSamples,
-        processAutomaticAudio(env)
-          .then((summary) => console.log("Automatic pronunciation generation", summary))
-          .catch((error) => console.error("Automatic pronunciation generation failed", error)),
-      ])
-    );
   },
 };
