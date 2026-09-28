@@ -1,3 +1,5 @@
+import {hasEmbeddedChapter,staticBootstrap,staticChapterHtml,staticChapterDescriptor,applyStaticWordChapter,clearStaticChapterCache} from './static-client.js';
+import { renderWordEntry } from './word-entry.js';
 import { createIdiomReferenceResolver } from "../shared/idiom-references.js";
 import {
   addDerivativeCrossReferenceAliases,
@@ -80,6 +82,7 @@ const BLANK_RE = /(＿{2,}|_{3,})/;
 // 永続的な鮮度確認はAPIのETagに任せ、プル更新時は明示的に破棄する。
 const viewerIndexCache = new Map();
 const sectionResponseCache = new Map();
+const staticIdiomSections = new Map();
 let listLoadGeneration = 0;
 let searchGeneration = 0;
 let navigationGeneration = 0;
@@ -354,6 +357,7 @@ function revealPageLoading() {
 }
 
 function beginPageLoading() {
+  if (hasEmbeddedChapter() && !state.currentListId) return;
   pageLoadingDepth += 1;
   el.wordList.setAttribute("aria-busy", "true");
   if (pageLoadingDepth > 1) return;
@@ -370,7 +374,7 @@ function endPageLoading() {
   el.wordList.setAttribute("aria-busy", "false");
 }
 
-renderLoadingSkeleton();
+if (!hasEmbeddedChapter()) renderLoadingSkeleton();
 setupIllustrationLoading(document.body);
 
 async function api(path, options = {}) {
@@ -420,7 +424,8 @@ function renderRef(spelling) {
 
 async function loadLists() {
   // The viewer is dedicated to crossover; its index already contains list metadata.
-  const data = await api(`/lists/${encodeURIComponent(CROSSOVER_LIST_ID)}/viewer/index?initial=1`);
+  const bootstrap = !PRINT_UI_MODE && await staticBootstrap(CROSSOVER_LIST_ID);
+  const data = bootstrap?.index || await api(`/lists/${encodeURIComponent(CROSSOVER_LIST_ID)}/viewer/index?initial=1`);
   viewerIndexCache.set(CROSSOVER_LIST_ID, data);
   const allLists = data.list ? [data.list] : [];
   // 「単語マスター（全語）」は単語帳を組み立てるための管理用リストなので、閲覧ページの対象からは除外する。
@@ -467,6 +472,10 @@ async function selectList(listId, { forceRefresh = false } = {}) {
   if (lazySectionObserver) lazySectionObserver.disconnect();
   if (forceRefresh) clearListCaches(listId);
   try {
+    if (!PRINT_UI_MODE && forceRefresh) {
+      const bootstrap = await staticBootstrap(listId, {force:true});
+      if(bootstrap) viewerIndexCache.set(listId,bootstrap.index);
+    }
     let data = viewerIndexCache.get(listId);
     if (!data) {
       data = await api(`/lists/${encodeURIComponent(listId)}/viewer/index?initial=1`, { forceRefresh });
@@ -482,6 +491,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     state.searchMatches = null;
     state.indexRendered = false;
     state.idiomResolver = null;
+    staticIdiomSections.clear();
     state.idiomEntries = null;
     state.idiomGroups = [];
     state.idiomPromise = null;
@@ -634,170 +644,7 @@ function sectionMatchesEikenLevel(sectionKey) {
 }
 
 function renderEntry(w) {
-  const isBranch = w.branch > 0;
-  const haystack = wordHaystack(w);
-
-  const familyLine =
-    isBranch && w.derivedFromSpelling
-      ? `<div class="family-block">▸ ${renderRef(w.derivedFromSpelling)} の派生語</div>`
-      : "";
-
-  // 見出しの意味(is_primary)が1つもない単語では、最初の意味を仮の見出しとして扱い
-  // 一覧が全て同じ薄さになってしまわないようにする。
-  const hasPrimarySense = (w.senses || []).some((s) => s.isPrimary);
-  const sensesWithFlags = (w.senses || []).map((s, i) => ({
-    ...s,
-    _isPrimary: s.isPrimary || (!hasPrimarySense && i === 0),
-  }));
-
-  // 同じ品詞の意味は1行にまとめ、①②…の丸数字で並べる(初出の品詞順を維持)。
-  const posGroups = [];
-  const posGroupIndex = new Map();
-  for (const s of sensesWithFlags) {
-    const key = s.pos || "";
-    if (!posGroupIndex.has(key)) {
-      posGroupIndex.set(key, posGroups.length);
-      posGroups.push({ pos: s.pos, items: [] });
-    }
-    posGroups[posGroupIndex.get(key)].items.push(s);
-  }
-
-  const sensesHtml = posGroups
-    .map((group) => {
-      // 見出しの意味は常に①として先頭に来るよう並べ替える
-      const items = [...group.items].sort((a, b) => (a._isPrimary ? 0 : 1) - (b._isPrimary ? 0 : 1));
-      const isPrimaryGroup = items.some((s) => s._isPrimary);
-      const pron = items.find((s) => s.pronunciation)?.pronunciation;
-      const meaningsHtml =
-        items.length > 1
-          ? `<span class="sense-items">${items
-              .map(
-                (s, index) =>
-                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-number">${formatSenseNumber(index + 1)}</span><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
-              )
-              .join("")}</span>`
-          : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;
-      return `
-    <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}">
-      ${group.pos ? `<span class="pos-badge">${escapeHtml(group.pos)}</span>` : ""}
-      ${pron ? `<span class="pron sense-pron">${escapeHtml(formatPronunciationWithAccents(pron))}</span>` : ""}
-      ${meaningsHtml}
-    </div>`;
-    })
-    .join("");
-
-  const examplesHtml = (w.examples || []).length
-    ? `<div class="example-list">${(w.examples || [])
-        .map(
-          (ex) => `
-        <div class="example-line">
-          <span class="bullet${ex.type === "phrase" ? " hollow" : ""}">${ex.type === "phrase" ? "◇" : "◆"}</span>
-          <span class="example-phrase">${renderExampleHtml(ex)}</span>
-          ${ex.translation ? `<span class="example-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : ""}
-        </div>`
-        )
-        .join("")}</div>`
-    : "";
-
-  const derivativeGroups = groupDerivativeSenses(w.derivatives || []);
-  const derivativesHtml = derivativeGroups.length
-    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge"><span class="notes-label-text">派生語</span></span><span class="notes-content derivative-items">${derivativeGroups
-        .map((group) => {
-          const senses = group.senses
-            .map(
-              (sense) => `<span class="derivative-sense">${sense.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(sense.pos)}</span>` : ""}${sense.meaning ? `<span class="derivative-meaning">${renderMarkup(sense.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
-            )
-            .join("");
-          return `<span class="derivative-item"><span class="derivative-word">${renderDerivativeWordMarkup(group.word, { resolve: resolveHeadwordRef })}</span>${senses}</span>`;
-        })
-        .join("")}</span></div>`
-    : "";
-
-  const irregularFormsHtml = w.irregularForms
-    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge"><span class="notes-label-text">不規則</span></span><span class="notes-content">${renderMarkup(w.irregularForms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const etymologyHtml = w.etymology
-    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge"><span class="notes-label-text">語源</span></span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
-    : "";
-  const synonymsHtml = w.synonyms
-    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge"><span class="notes-label-text">類義語</span></span><span class="notes-content">${renderWordListMarkup(w.synonyms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const antonymsHtml = w.antonyms
-    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge"><span class="notes-label-text">対義語</span></span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const relatedWordsHtml = w.relatedWords
-    ? `<div class="notes-block notes-related"><span class="notes-label related-badge"><span class="notes-label-text">関連語</span></span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
-    : "";
-  const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge"><span class="notes-label-text">メモ</span></span><span class="notes-content">${state.renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: (w.examples || []).filter(ex => ex.type === "phrase").map(ex => ex.sentence) })}</span></div>`
-    : "";
-
-  const cautionHtml = [
-    w.ergative
-      ? '<span class="caution-badge caution-ergative" title="自動詞の主語と他動詞の目的語が対応する能格動詞"><i class="fa-solid fa-right-left" aria-hidden="true"></i>能格</span>'
-      : "",
-    w.spellingCaution
-      ? '<span class="caution-badge caution-spelling" title="スペルに注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>スペル</span>'
-      : "",
-    w.pronunciationCaution
-      ? '<span class="caution-badge caution-pronunciation" title="発音に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>発音</span>'
-      : "",
-    w.accentCaution
-      ? '<span class="caution-badge caution-accent" title="アクセント位置に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>アクセント</span>'
-      : "",
-    w.polysemousCaution
-      ? '<span class="caution-badge caution-polysemous" title="複数の意味に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>多義</span>'
-      : "",
-    w.conjugationCaution
-      ? '<span class="caution-badge caution-conjugation" title="活用に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>活用</span>'
-      : "",
-    w.usageCaution
-      ? '<span class="caution-badge caution-usage" title="語法に注意"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>語法</span>'
-      : "",
-  ].join("");
-
-  const cefrLevel = effectiveCefrLevel(w.tags);
-  const cefrBadge = cefrLevel
-    ? `<span class="learning-badge badge-cefr ${cefrLevelClass(cefrLevel)}" title="CEFR ${escapeHtml(cefrLevel)}">${escapeHtml(cefrLevel)}</span>`
-    : "";
-  const hasAwlTag = Object.prototype.hasOwnProperty.call(w.tags || {}, "awl");
-  const awlSublist = String(w.tags?.awl || "").trim();
-  const awlBadge = hasAwlTag
-    ? `<span class="learning-badge badge-awl" title="Academic Word List${awlSublist ? ` Sublist ${escapeHtml(awlSublist)}` : ""}">AWL${awlSublist ? ` ${escapeHtml(awlSublist)}` : ""}</span>`
-    : "";
-  const generatedAudioUrl = w.generatedAudio?.url || "";
-  const illustrationHtml = renderWordIllustration(w, VIEWER_API_BASE || location.origin);
-
-  return `
-  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}" data-cefr="${escapeHtml(cefrLevel)}">
-    <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
-    <div class="entry-body">
-      <div class="entry-head">
-        <span class="headword">${renderStressedSpelling(w.spelling, w.pronunciation, escapeHtml)}</span>
-        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(generatedAudioUrl)}" title="${generatedAudioUrl ? "登録済み音声で発音を聞く" : "端末の英語音声で発音を聞く"}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
-        ${cefrBadge}
-        ${awlBadge}
-        ${cautionHtml}
-      </div>
-      ${familyLine}
-      <div class="entry-content${illustrationHtml ? " has-illustration" : ""}">
-      <div class="entry-card">
-        ${illustrationHtml}
-        ${sensesHtml}
-        ${examplesHtml}
-        <div class="entry-notes">
-        ${derivativesHtml}
-        ${irregularFormsHtml}
-        ${synonymsHtml}
-        ${antonymsHtml}
-        ${relatedWordsHtml}
-        ${etymologyHtml}
-        ${notesHtml}
-        </div>
-      </div>
-      </div>
-    </div>
-  </article>`;
+  return renderWordEntry(w, {resolveRef,resolveHeadwordRef,renderNotesMarkup:state.renderNotesMarkup,origin:VIEWER_API_BASE || location.origin});
 }
 
 function hasAnySection() {
@@ -913,6 +760,16 @@ function renderSectionLoadError(sectionKey, message) {
 }
 
 async function loadSection(sectionKey, { forceRefresh = false } = {}) {
+  if (!forceRefresh && state.loadedSectionKeys.has(String(sectionKey))) return;
+  if (!PRINT_UI_MODE && staticChapterDescriptor('viewer',sectionKey)) {
+    const generation=listLoadGeneration,list=state.currentListId;
+    const html=await staticChapterHtml(list,'viewer',sectionKey,{force:forceRefresh});
+    if(html && generation===listLoadGeneration && list===state.currentListId) {
+      if(!forceRefresh && state.loadedSectionKeys.has(String(sectionKey)))return;
+      applyStaticWordChapter(el.wordList,html,key=>state.loadedSectionKeys.add(String(key)));
+      applyFilters();return;
+    }
+  }
   const key = String(sectionKey);
   if (!forceRefresh && state.loadedSectionKeys.has(key)) return;
   if (!forceRefresh && state.sectionPromises.has(key)) return state.sectionPromises.get(key);
@@ -1081,7 +938,7 @@ async function ensureIdioms() {
     try {
       const base = `/lists/${encodeURIComponent(listId)}`;
       let data;
-      try { data = await api(`${base}/idioms/index?initial=1`, { forceRefresh: state.forceChapterRefresh }); }
+      try { data = (!PRINT_UI_MODE && (await staticBootstrap(listId))?.idioms) || await api(`${base}/idioms/index?initial=1`, { forceRefresh: state.forceChapterRefresh }); }
       catch (error) { if (error.status !== 404) throw error; }
       if (!data?.managed) data = await api(`${base}/words/full`);
       if (generation !== listLoadGeneration || listId !== state.currentListId) return;
@@ -1139,6 +996,7 @@ async function ensureIdioms() {
 }
 
 function hydratedIdiomItems(section) {
+  if(staticIdiomSections.has(String(section.key)) && !state.search && state.eikenLevel==='all')return section.items.map(item=>({...item,meanings:[{meaning:'',refs:[]}]}));
   if (!state.idiomSectionEntries) return section.items;
   const loaded = state.idiomSectionEntries.get(String(section.key));
   if (!loaded) return null;
@@ -1170,6 +1028,7 @@ function idiomSectionSkeleton(section) {
 }
 
 function renderLabeledIdiomEntries(section) {
+  if(!PRINT_UI_MODE && !state.search && state.eikenLevel==='all' && staticIdiomSections.has(String(section.key)))return staticIdiomSections.get(String(section.key));
   let previous = null;
   return section.items.map(item => {
     const label = (section.labels || []).find(label => label.key === item.labelKey);
@@ -1202,8 +1061,20 @@ function renderIdioms({ deferNavigation = false } = {}) {
 }
 
 async function loadIdiomSection(sectionKey, {forceRefresh=false, rerender=true}={}) {
+  if(!PRINT_UI_MODE && !state.search && state.eikenLevel==='all' && staticChapterDescriptor('idioms',sectionKey)) {
+    if(!forceRefresh && state.idiomLoadedSectionKeys.has(String(sectionKey)))return;
+    const generation=listLoadGeneration,list=state.currentListId;
+    const html=await staticChapterHtml(list,'idioms',sectionKey,{force:forceRefresh});
+    if(html && generation===listLoadGeneration && list===state.currentListId) {
+      const template=document.createElement('template');template.innerHTML=html;
+      for(const element of template.content.querySelectorAll('[data-idiom-section-entries]')) {
+        const key=element.dataset.idiomSectionEntries;staticIdiomSections.set(key,element.innerHTML);state.idiomLoadedSectionKeys.add(key);
+      }
+      if(rerender && !idiomNavigationPending)renderIdioms();return;
+    }
+  }
   const key=String(sectionKey);
-  if(!forceRefresh&&state.idiomLoadedSectionKeys.has(key))return;
+  if(!forceRefresh&&state.idiomLoadedSectionKeys.has(key)&&(!staticIdiomSections.has(key)||state.idiomSectionEntries.has(key)))return;
   if(!forceRefresh&&state.idiomSectionPromises.has(key))return state.idiomSectionPromises.get(key);
   const listId=state.currentListId,generation=listLoadGeneration;
   const promise=(async()=>{try{
@@ -2638,12 +2509,13 @@ if (cacheToggle) {
   cacheToggle.addEventListener("change", async () => {
     cacheEnabled = cacheToggle.checked;
     try { localStorage.setItem(CACHE_ENABLED_KEY, cacheEnabled ? "1" : "0"); } catch {}
-    if (!cacheEnabled) await chapterCache.clear();
+    if (!cacheEnabled) {await chapterCache.clear();await clearStaticChapterCache();}
     showToast(cacheEnabled ? "次回の読み込みからキャッシュを保存します" : "キャッシュ保存をオフにしました");
   });
 }
 document.getElementById("clearViewerCache")?.addEventListener("click", async () => {
   await chapterCache.clear();
+  await clearStaticChapterCache();
   viewerIndexCache.clear();
   sectionResponseCache.clear();
   showToast("保存したキャッシュを削除しました");
@@ -2662,6 +2534,7 @@ async function refreshCurrentList() {
   const notice = document.getElementById("cacheUpdateNotice");
   if (notice) notice.hidden = true;
   await chapterCache.clear();
+  await clearStaticChapterCache();
   await selectList(state.currentListId, { forceRefresh: true });
 }
 
