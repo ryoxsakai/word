@@ -763,7 +763,10 @@ async function loadSection(sectionKey, { forceRefresh = false } = {}) {
   if (!forceRefresh && state.loadedSectionKeys.has(String(sectionKey))) return;
   if (!PRINT_UI_MODE && staticChapterDescriptor('viewer',sectionKey)) {
     const generation=listLoadGeneration,list=state.currentListId;
-    const html=await staticChapterHtml(list,'viewer',sectionKey,{force:forceRefresh});
+    let html;
+    try {html=await staticChapterHtml(list,'viewer',sectionKey,{force:forceRefresh});}
+    catch(error){if(generation===listLoadGeneration)renderSectionLoadError(sectionKey,error.message);throw error;}
+    if(generation!==listLoadGeneration || list!==state.currentListId)return;
     if(html && generation===listLoadGeneration && list===state.currentListId) {
       if(!forceRefresh && state.loadedSectionKeys.has(String(sectionKey)))return;
       applyStaticWordChapter(el.wordList,html,key=>state.loadedSectionKeys.add(String(key)));
@@ -1064,7 +1067,10 @@ async function loadIdiomSection(sectionKey, {forceRefresh=false, rerender=true}=
   if(!PRINT_UI_MODE && !state.search && state.eikenLevel==='all' && staticChapterDescriptor('idioms',sectionKey)) {
     if(!forceRefresh && state.idiomLoadedSectionKeys.has(String(sectionKey)))return;
     const generation=listLoadGeneration,list=state.currentListId;
-    const html=await staticChapterHtml(list,'idioms',sectionKey,{force:forceRefresh});
+    let html;
+    try {html=await staticChapterHtml(list,'idioms',sectionKey,{force:forceRefresh});}
+    catch(error){if(generation===listLoadGeneration){const target=el.idiomList.querySelector(`[data-idiom-section-entries="${CSS.escape(String(sectionKey))}"]`);if(target)target.innerHTML=`<div class="section-load-error">読み込みに失敗しました: ${escapeHtml(error.message)} <button type="button" data-action="retry-idiom-section" data-section-key="${escapeHtml(String(sectionKey))}">再試行</button></div>`;}throw error;}
+    if(generation!==listLoadGeneration || list!==state.currentListId)return;
     if(html && generation===listLoadGeneration && list===state.currentListId) {
       const template=document.createElement('template');template.innerHTML=html;
       for(const element of template.content.querySelectorAll('[data-idiom-section-entries]')) {
