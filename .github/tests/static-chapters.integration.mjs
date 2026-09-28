@@ -23,3 +23,12 @@ await new Promise(r=>setTimeout(r,0));
 current=bootstrap('newer');await run("staticBootstrap('book',{force:true})");release();await old;calls=[];
 await run("staticChapterHtml('book','viewer','b')");assert.equal(calls.length,1,'in-flight old response cannot repopulate refreshed memory');
 console.log('Static chapters: embedded content, device cache, revision changes and refresh races passed');
+
+// Reducing the regex dictionary must preserve visible cross-reference markup.
+const {chapterContext}=await import('../../public/viewer/static-chapter.js');
+const index={words:[{id:'a',spelling:'alpha',branch:0,seqNo:'1',phrases:['alpha beta']},{id:'b',spelling:'beta',branch:0,seqNo:'2',derivatives:[{word:'betas'}]},...Array.from({length:300},(_,n)=>({id:`unused-${n}`,spelling:`unused${n}`,branch:0,seqNo:String(n+3)}))]};
+for(const note of ['betaも参照。','alpha beta is related to betas.','##beta## and ##beta|別表記##','**beta** and /beta/','unrelated text']) {
+ const full=chapterContext(index,null),scoped=chapterContext(index,null,{spelling:'alpha',notes:note});
+ assert.equal(scoped.renderNotesMarkup(note,{currentHeadword:'alpha'}),full.renderNotesMarkup(note,{currentHeadword:'alpha'}));
+}
+console.log('Scoped cross-reference dictionary preserves complete-renderer output');
