@@ -1,6 +1,7 @@
 import { IDIOM_WRITE_TOOLS, callIdiomWrite } from './idiom-mcp.js';
 import { MCP_READ_SCOPE, MCP_WRITE_SCOPE } from "./mcp-oauth.js";
 import { normalizeSenseMeaning } from "./sense-normalization.js";
+import { generateAudioAfterSpellingChange } from "./audio-auto-generation.js";
 
 const MASTER_LIST_ID = "__master__";
 const LEGACY_PRESET_LIST_PREFIXES = ["awl-sublist-", "oxford5000-"];
@@ -1367,7 +1368,8 @@ async function resolveWord(db, args) {
   return row;
 }
 
-async function updateWord(db, args, auth) {
+async function updateWord(env, args, auth) {
+  const db = env.DB;
   validateWordInput(args, 0, false);
   const word = await resolveWord(db, args);
   const sets = [];
@@ -1400,6 +1402,13 @@ async function updateWord(db, args, auth) {
   }
   const statements = childStatements(db, word.id, args, true);
   if (statements.length) await db.batch(statements);
+  if (args.spelling !== undefined && word.spelling !== args.spelling) {
+    try {
+      await generateAudioAfterSpellingChange(env, word.id, word.spelling, args.spelling);
+    } catch (error) {
+      console.error("Spelling-triggered audio generation failed", word.id, error);
+    }
+  }
   await audit(db, auth, "update_word", "word", word.id, {
     spelling: word.spelling,
     fields: [
@@ -1565,7 +1574,7 @@ export async function callProtectedTool(name, args, env, auth) {
   if (name === "create_label") return createLabel(env.DB, args, auth);
   if (name === "update_label") return updateLabel(env.DB, args, auth);
   if (name === "create_words") return createWords(env.DB, args, auth);
-  if (name === "update_word") return updateWord(env.DB, args, auth);
+  if (name === "update_word") return updateWord(env, args, auth);
   if (name === "add_words_to_notebook") return addWordsToNotebook(env.DB, args, auth);
   if (name === "move_words") return moveWords(env.DB, args, auth);
   if (name === "remove_words_from_notebook") return removeWordsFromNotebook(env.DB, args, auth);
