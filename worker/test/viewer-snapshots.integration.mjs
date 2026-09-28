@@ -5,7 +5,8 @@ import { Miniflare } from 'miniflare';
 
 const bundle = await build({stdin:{contents:`
 import app from './src/coverage-entry.js';
-import { buildHomePage, chapterKey } from './src/viewer-snapshot-chapters.js';
+import { renderWordChapter } from '../public/viewer/static-chapter.js';
+import { buildHomePage, buildChapter, chapterKey } from './src/viewer-snapshot-chapters.js';
 import { serveViewerSnapshot } from './src/viewer-snapshots.js';
 import { ViewerSnapshotPublisher as Publisher } from './src/viewer-snapshots.js';
 export class ViewerSnapshotPublisher extends Publisher {
@@ -16,6 +17,22 @@ export class ViewerSnapshotPublisher extends Publisher {
 }
 export default { async fetch(request,env,ctx) {
  const url=new URL(request.url);
+ if(url.pathname==='/__chunk_test') {
+  const current=await(await env.VIEWER_SNAPSHOTS.get('current.json')).json();
+  const key=(kind,section='')=>JSON.stringify(['snapshot-test',kind,section]);
+  const index=await(await env.VIEWER_SNAPSHOTS.get(current.files[key('viewer-index')].key)).json();
+  index.sections[1].chapterKey=index.chapters[0].key;
+  index.sections.push({...index.sections[1],key:'99903',id:99903,name:'third'});
+  await env.VIEWER_SNAPSHOTS.put('chunk-index.json',JSON.stringify(index));
+  current.files[key('viewer-index')]={key:'chunk-index.json'};
+  const job={list:'snapshot-test',kind:'viewer',chapter:String(index.chapters[0].key)};
+  const first=await buildChapter(env,current,job);
+  const second=await buildChapter(env,current,job);
+  const shards={};for(const section of ['99901','99902'])shards[section]=await(await env.VIEWER_SNAPSHOTS.get(current.files[key('word-section',section)].key)).json();
+  const idioms=await(await env.VIEWER_SNAPSHOTS.get(current.files[key('idiom-index')].key)).json();
+  const expected=renderWordChapter(index,idioms,job.chapter,shards).html;
+  return Response.json({resumed:first.pending===true,identical:second.html===expected});
+ }
  if(url.pathname==='/__home_test') {
    const stage=await(await env.VIEWER_SNAPSHOTS.get('current.json')).json();
    const indexKey=list=>JSON.stringify([list,'viewer-index','']);
@@ -58,6 +75,7 @@ try {
  const html=await staticGet('/lists/snapshot-test/viewer/chapters/99901');
  assert.equal(html.headers.get('x-viewer-source'),'r2-html');
  assert.match(await html.text(),/word-snap-a/);
+ assert.deepEqual(await(await api('/__chunk_test')).json(),{resumed:true,identical:true},'resumed HTML generation matches a complete chapter without duplicate headings');
  const home=await(await api('/__home_test')).text();
  assert.match(home,/<main[^>]+id="wordList"[^>]*>[\s\S]*word-snap-a/,'first chapter is complete before JavaScript');
  assert.match(home,/id="static-viewer-bootstrap"/);
