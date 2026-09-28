@@ -52,8 +52,8 @@ export async function buildChapter(env,stage,job) {
  if(!index)return null;
  const sections=job.kind==='viewer'?index.sections.filter(s=>String(s.chapterKey)===job.chapter).map(s=>s.key):idioms?.chapters.find(c=>String(c.key)===job.chapter)?.sections.map(s=>s.key)||[];
  if(!sections.length)return null;
- const shards={};
- for(const key of sections)shards[key]=await read(env,stage.files[job.kind==='viewer'?wordSection(job.list,key):idiomSection(job.list,key)])||{words:[],entries:[]};
+ const loaded=await Promise.all(sections.map(key=>read(env,stage.files[job.kind==='viewer'?wordSection(job.list,key):idiomSection(job.list,key)])));
+ const shards=Object.fromEntries(sections.map((key,i)=>[key,loaded[i]||{words:[],entries:[]}]));
  const rendered=job.kind==='viewer'?renderWordChapter(index,idioms,job.chapter,shards):renderIdiomChapter(index,idioms,job.chapter,shards);
  return {...rendered,...job,sections,search:job.kind==='viewer'?searchWords(Object.values(shards).flatMap(s=>s.words)):null};
 }
