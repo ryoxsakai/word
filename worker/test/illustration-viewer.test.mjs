@@ -12,7 +12,7 @@ await prepareIllustrationsForPrint({querySelectorAll:()=>[img]});
 assert.equal(img.loading,'eager');assert.equal(decoded,1);
 await assert.rejects(()=>prepareIllustrationsForPrint({querySelectorAll:()=>[{decode:async()=>{throw new Error('missing image')}}]}),/missing image/);
 const viewerCss=readFileSync(new URL('../../public/viewer/style.css',import.meta.url),'utf8');
-const viewerJs=readFileSync(new URL('../../public/viewer/app.js',import.meta.url),'utf8');
+const viewerJs=readFileSync(new URL('../../public/viewer/word-entry.js',import.meta.url),'utf8');
 assert.match(viewerCss,/\.entry-illustration\s*\{[^}]*float:\s*right/s);
 assert.match(viewerCss,/\.entry-notes\s*\{[^}]*clear:\s*both/s);
 assert.match(viewerCss,/@media \(max-width: 600px\) \{\n  \.example-list \{ grid-template-columns: minmax\(0, 1fr\); \}\n\}/);
