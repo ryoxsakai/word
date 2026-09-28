@@ -68,6 +68,7 @@ export class ViewerSnapshotPublisher {
       const chapterJobs = Object.entries(stage.pendingChapters || {}).slice(0, 2);
       for (const [key, job] of chapterJobs) {
         const built = await buildChapter(this.env, stage, job);
+        if(built?.pending){await this.ctx.storage.put('stage',stage);break;}
         if (built) {
           const hash = await digest(built.html), objectKey = `objects/${hash}.html`;
           if(stage.chapters[key]?.hash !== hash) await bucket.put(objectKey, built.html, {httpMetadata:{contentType:'text/html; charset=utf-8'}});
