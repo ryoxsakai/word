@@ -14,7 +14,7 @@ function hierarchyIcon(kind) {
   return HIERARCHY_ICONS[kind] || "";
 }
 
-export function chapterContext(index, idiomIndex) {
+export function chapterContext(index, idiomIndex, content=null) {
  const state={indexWords:index.words,headwordIndex:new Map(),wordIndex:new Map()};
  const dependencies=new Set();
  const resolveRef=headword=>{dependencies.add(headword.toLowerCase());const hit=state.wordIndex.get(headword.toLowerCase());return hit?{found:true,id:hit.id,no:hit.no}:state.idiomResolver?.(headword)||{found:false};};
@@ -24,11 +24,19 @@ export function chapterContext(index, idiomIndex) {
  const derivatives=collectDerivativeCrossReferences(index.words);
  state.wordIndex=addDerivativeCrossReferenceAliases(state.headwordIndex,derivatives);
  if(idiomIndex)state.idiomResolver=createIdiomReferenceResolver(groupIdiomEntries(resolveIdiomReferences(idiomIndex.entries,index.words),idiomIndex.chapters),resolveHeadwordRef);
- const renderNotesMarkup=createAutoCrossRefRenderer([...state.headwordIndex.keys(),...(state.idiomResolver?.phrases||[])],{resolve:resolveRef,derivativeReferences:derivatives,idiomReferences:state.idiomResolver?.phrases||[],phraseReferences:collectPhraseCrossReferences(index.words)});
+ // Only phrases occurring in these bodies can match. Keep the complete
+ // resolver, but avoid compiling a whole-book alternation for every fragment.
+ const texts=[];
+ const collect=value=>{if(typeof value==='string')texts.push(value);else if(Array.isArray(value))value.forEach(collect);else if(value&&typeof value==='object')Object.values(value).forEach(collect);};
+ if(content)collect(content);
+ const haystack=texts.join('\n').toLowerCase().replace(/ſ/g,'s');
+ const relevant=term=>!content||/[^\x00-\x7f]/.test(term)||haystack.includes(term.toLowerCase());
+ const idiomPhrases=(state.idiomResolver?.phrases||[]).filter(relevant);
+ const renderNotesMarkup=createAutoCrossRefRenderer([...state.headwordIndex.keys(),...idiomPhrases].filter(relevant),{resolve:resolveRef,derivativeReferences:derivatives.filter(r=>relevant(r.derivative)),idiomReferences:idiomPhrases,phraseReferences:collectPhraseCrossReferences(index.words).filter(r=>relevant(r.phrase))});
  return {resolveRef,resolveHeadwordRef,renderNotesMarkup,origin:'https://vocab.lrnr.jp',dependencies};
 }
 export function renderWordChapter(index,idiomIndex,chapterId,shards,onlySections=null) {
- const context=chapterContext(index,idiomIndex);
+ const context=chapterContext(index,idiomIndex,shards);
  const state={...index,indexWords:index.words};
  const numbers=new Map(index.words.map(w=>[w.id,w.seqNo]));
  const renderEntry=w=>renderWordEntry({...w,seqNo:numbers.get(w.id)||''},context);
@@ -120,7 +128,7 @@ function renderSectionShells() {
  return {html,dependencies:[...context.dependencies]};
 }
 export function renderIdiomChapter(index,idiomIndex,chapterId,shards,onlySections=null) {
- const context=chapterContext(index,idiomIndex);
+ const context=chapterContext(index,idiomIndex,shards);
  const full=new Map(Object.values(shards).flatMap(s=>s.entries||[]).map(e=>[e.key,e]));
  const entries=idiomIndex.entries.map(e=>full.get(e.key)||e);
  const groups=groupIdiomEntries(resolveIdiomReferences(entries,index.words),idiomIndex.chapters);
