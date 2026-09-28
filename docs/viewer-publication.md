@@ -1,6 +1,6 @@
 # Incremental viewer publication
 
-The editing database remains D1. Public viewing reads separately stored R2 snapshots. Data shards are scoped by notebook and Section; completed HTML is scoped by Chapter. The home page embeds Crossover Chapter 1. Subsequent chapters use completed HTML and a content-hash keyed device cache. Search and print consume the same R2 JSON snapshots.
+The editing database remains D1. Public viewing reads separately stored R2 snapshots. Data shards are scoped by notebook and Section; completed HTML is scoped by Chapter. The home page embeds Crossover Chapter 1. Subsequent chapters use completed HTML and a content-hash keyed device cache. Search uses separate chapter indexes; print consumes the Section JSON snapshots. Updating one chapter does not rewrite a whole-book search corpus.
 
 ## Updates
 
