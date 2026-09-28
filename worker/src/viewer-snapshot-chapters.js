@@ -1,4 +1,4 @@
-import { indexKey, wordSection, idiomSection, scopeKey } from './viewer-snapshot-build.js';
+import { indexKey, wordSection, idiomSection, scopeKey, searchWords } from './viewer-snapshot-build.js';
 import { renderWordChapter, renderIdiomChapter } from '../../public/viewer/static-chapter.js';
 export const chapterKey=(list,kind,chapter)=>scopeKey({list_id:list,kind:`${kind}-chapter`,section_key:String(chapter)});
 const read=async(env,entry)=>entry?(await env.VIEWER_SNAPSHOTS.get(entry.key))?.json():null;
@@ -39,11 +39,12 @@ export async function markChapters(env,stage,job,old,result) {
  }
  for(const c of Object.values(stage.chapters))if(c.list===list&&c.dependencies.some(t=>changedTerms.has(t)))mark(c.kind,c.chapter);
  // Newly added headwords/phrases may become automatic links in existing notes.
- if(changedTerms.size&&stage.search[list]) {
-  const search=await read(env,stage.search[list]);
-  const wordsIndex=type==='viewer'?after:await read(env,stage.files[indexKey(list,'viewer-index')]);
-  for(const [key,words]of Object.entries(search||{}))if(words.some(w=>[...changedTerms].some(term=>w.text.includes(term))))mark('viewer',chapterFor(wordsIndex,'viewer',key));
+ if(changedTerms.size)for(const chapter of Object.values(stage.chapters)) {
+  if(chapter.list!==list||chapter.kind!=='viewer'||!chapter.search)continue;
+  const words=await read(env,chapter.search);
+  if(words?.some(w=>[...changedTerms].some(term=>w.text.includes(term))))mark('viewer',chapter.chapter);
  }
+
 }
 export async function buildChapter(env,stage,job) {
  const index=await read(env,stage.files[indexKey(job.list,'viewer-index')]);
@@ -54,7 +55,7 @@ export async function buildChapter(env,stage,job) {
  const shards={};
  for(const key of sections)shards[key]=await read(env,stage.files[job.kind==='viewer'?wordSection(job.list,key):idiomSection(job.list,key)])||{words:[],entries:[]};
  const rendered=job.kind==='viewer'?renderWordChapter(index,idioms,job.chapter,shards):renderIdiomChapter(index,idioms,job.chapter,shards);
- return {...rendered,...job,sections};
+ return {...rendered,...job,sections,search:job.kind==='viewer'?searchWords(Object.values(shards).flatMap(s=>s.words)):null};
 }
 export async function buildHomePage(env,stage) {
  const list='crossover-v3',index=await read(env,stage.files[indexKey(list,'viewer-index')]);
