@@ -27,7 +27,7 @@ export function chapterContext(index, idiomIndex) {
  const renderNotesMarkup=createAutoCrossRefRenderer([...state.headwordIndex.keys(),...(state.idiomResolver?.phrases||[])],{resolve:resolveRef,derivativeReferences:derivatives,idiomReferences:state.idiomResolver?.phrases||[],phraseReferences:collectPhraseCrossReferences(index.words)});
  return {resolveRef,resolveHeadwordRef,renderNotesMarkup,origin:'https://vocab.lrnr.jp',dependencies};
 }
-export function renderWordChapter(index,idiomIndex,chapterId,shards) {
+export function renderWordChapter(index,idiomIndex,chapterId,shards,onlySections=null) {
  const context=chapterContext(index,idiomIndex);
  const state={...index,indexWords:index.words};
  const numbers=new Map(index.words.map(w=>[w.id,w.seqNo]));
@@ -108,7 +108,7 @@ function renderSectionShells() {
     const chapterFrameId = chapterMarkup ? ` id="chapter-frame-${escapeHtml(chapterKey)}"` : "";
     const labelledBy = withSections ? ` aria-labelledby="section-${escapeHtml(key)}"` : "";
     const placeholderHeight = Math.min(900, Math.max(160, section.count * 44));
-    parts.push(
+    if(!onlySections||onlySections.has(key))parts.push(
       `<section class="section-group${sectionTone}${chapterTone}${chapterClass}${groupClass}"${chapterFrameId} data-section-key="${escapeHtml(key)}" data-chapter-key="${escapeHtml(chapterKey)}" data-group-key="${escapeHtml(groupKey || "none")}"${labelledBy}>${chapterMarkup}${groupMarkup}${divider}<div class="section-entries" data-section-entries="${escapeHtml(key)}" aria-busy="false">${renderSectionEntriesHtml(shards[key]?.words||[],key)}</div></section>`
     );
   }
@@ -119,7 +119,7 @@ function renderSectionShells() {
  const html=renderSectionShells();
  return {html,dependencies:[...context.dependencies]};
 }
-export function renderIdiomChapter(index,idiomIndex,chapterId,shards) {
+export function renderIdiomChapter(index,idiomIndex,chapterId,shards,onlySections=null) {
  const context=chapterContext(index,idiomIndex);
  const full=new Map(Object.values(shards).flatMap(s=>s.entries||[]).map(e=>[e.key,e]));
  const entries=idiomIndex.entries.map(e=>full.get(e.key)||e);
@@ -127,6 +127,7 @@ export function renderIdiomChapter(index,idiomIndex,chapterId,shards) {
  const chapter=groups.find(c=>String(c.key)===String(chapterId));
  if(!chapter)return {html:'',dependencies:[]};
  const html=chapter.sections.map((section,n)=>{
+ if(onlySections&&!onlySections.has(section.key))return '';
  let label=null;
  const body=section.items.map(item=>{const next=(section.labels||[]).find(l=>l.key===item.labelKey);const heading=next&&next.key!==label?`<div class="label-divider" role="heading" aria-level="5">${hierarchyIcon('label')}<span class="label-title">${escapeHtml(next.name)}</span></div>`:'';label=next?.key;return heading+renderIdiomEntry(item,context.origin,{resolve:context.resolveRef,renderNotes:context.renderNotesMarkup});}).join('');
  const group=section.groupKey&&section.groupKey!==chapter.sections[n-1]?.groupKey?`<div class="group-divider" id="idiom-group-${escapeHtml(section.groupKey)}" role="heading" aria-level="3">${hierarchyIcon('group')}<div class="group-title-row"><span class="group-title">${escapeHtml(section.groupName)}</span><span class="group-subtitle">${escapeHtml(section.groupSubtitle)}</span></div></div>`:'';
