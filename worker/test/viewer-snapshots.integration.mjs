@@ -54,6 +54,7 @@ try {
  const sectionA=scope('snapshot-test','word-section','99901'), sectionB=scope('snapshot-test','word-section','99902');
  const originalA=manifest.files[sectionA].key, originalB=manifest.files[sectionB].key;
  const chapterB=manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].key;
+ const searchB=manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].search.key;
  const html=await staticGet('/lists/snapshot-test/viewer/chapters/99901');
  assert.equal(html.headers.get('x-viewer-source'),'r2-html');
  assert.match(await html.text(),/word-snap-a/);
@@ -82,6 +83,7 @@ try {
  assert.notEqual(manifest.files[sectionA].key,originalA);
  assert.equal(manifest.files[sectionB].key,originalB);
  assert.equal(manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].key,chapterB,'unchanged chapter HTML is reused');
+ assert.equal(manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].search.key,searchB,'unchanged chapter search data is reused');
  assert.equal((await(await staticGet('/lists/snapshot-test/viewer/search?q=changed')).json()).matches[0].wordId,'snap-a');
  assert.deepEqual((await(await staticGet('/lists/snapshot-test/viewer/search?q=original')).json()).matches,[]);
  // Failed publication preserves the previous complete revision, then retries.
