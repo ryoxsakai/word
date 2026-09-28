@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import {
   automaticAudioStatus,
+  generateAudioAfterSpellingChange,
   processAutomaticAudio,
   reconcileAutomaticAudioJobs,
 } from "../src/audio-auto-generation.js";
@@ -173,6 +174,17 @@ const changedWordRun = await processAutomaticAudio(
 assert.equal(changedWordRun.generated, 1);
 assert.deepEqual(calls, ["alpha", "broken", "alpha"]);
 assert.ok(!scheduledSql.some((sql) => /\b(?:FROM|UPDATE)\s+(?:words|list_items|word_audio)\b/i.test(sql)));
+
+const eventCalls = [];
+const onChange = (env, id, before, after) => generateAudioAfterSpellingChange(
+  env, id, before, after,
+  { generate: async (_env, wordId) => eventCalls.push(wordId) }
+);
+assert.equal(await onChange({ DB: db }, "alpha", "alpha changed", "alpha changed"), false);
+assert.equal(await onChange({ DB: db }, "outside", "outside", "outside changed"), false);
+assert.equal(await onChange({ DB: db, AUDIO_AUTO_ENABLED: "false" }, "alpha", "alpha", "alpha changed"), false);
+assert.equal(await onChange({ DB: db }, "alpha", "alpha", "alpha changed"), true);
+assert.deepEqual(eventCalls, ["alpha"]);
 
 await db.prepare(
   `INSERT INTO word_audio (word_id, variant_key, provider, voice_id, model_id)

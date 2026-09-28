@@ -15,6 +15,30 @@ export function automaticAudioEnabled(env) {
   return String(env?.AUDIO_AUTO_ENABLED ?? "true").trim().toLowerCase() !== "false";
 }
 
+// Only an actual spelling edit starts automatic generation. The database
+// triggers may retain jobs for other changes, but there is no scheduled
+// consumer for those jobs.
+export async function generateAudioAfterSpellingChange(
+  env,
+  wordId,
+  previousSpelling,
+  currentSpelling,
+  { generate = generateWordAudio } = {}
+) {
+  if (!automaticAudioEnabled(env) || previousSpelling === currentSpelling) return false;
+  const eligible = await env.DB.prepare(
+    `SELECT 1 FROM words w
+     JOIN list_items li ON li.word_id = w.id
+     WHERE w.id = ? AND w.spelling = ?
+       AND li.list_id = '${AUTOMATIC_AUDIO_LIST_ID}'
+       AND TRIM(COALESCE(w.pronunciation, '')) <> ''
+     LIMIT 1`
+  ).bind(wordId, currentSpelling).first();
+  if (!eligible) return false;
+  await generate(env, wordId, { variantKey: "primary" });
+  return true;
+}
+
 function batchSize(raw) {
   const parsed = Number.parseInt(String(raw ?? ""), 10);
   if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_BATCH_SIZE;

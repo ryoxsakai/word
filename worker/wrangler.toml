@@ -29,9 +29,6 @@ ILLUSTRATIONS_ENABLED = "false"
 ILLUSTRATION_MODEL = "gpt-image-2"
 ILLUSTRATION_QUALITY = "medium"
 
-[triggers]
-crons = ["* * * * *"]
-
 [[d1_databases]]
 binding = "DB"
 database_name = "vocab-db"
