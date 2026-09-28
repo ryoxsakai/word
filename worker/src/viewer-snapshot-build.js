@@ -8,7 +8,7 @@ export const wordSection = (list, section) => scopeKey({ list_id: list, kind: 'w
 export const idiomSection = (list, section) => scopeKey({ list_id: list, kind: 'idiom-section', section_key: String(section) });
 export const indexKey = (list, kind) => scopeKey({ list_id: list, kind });
 
-function searchWords(words) {
+export function searchWords(words) {
   return words.map(w => ({ wordId: w.id, sectionKey: String(w.sectionId ?? 'none'),
     text: [w.spelling,w.pronunciation,w.irregularForms,w.etymology,w.synonyms,w.antonyms,w.relatedWords,w.notes,
       ...w.senses.map(s=>s.meaning),...w.derivatives.flatMap(d=>[d.word,d.meaning]),
@@ -19,14 +19,14 @@ export async function buildSnapshotScope(env, scope) {
   const db = env.DB;
   if (kind === 'catalog') return { data: await (await listLists(db)).json(), media: {} };
   if (!await db.prepare('SELECT id FROM lists WHERE id=?').bind(list).first()) return null;
-  let response, data, media = {}, search;
+  let response, data, media = {};
   if (kind === 'viewer-index') response = await getViewerIndex(db, list, new Request('https://snapshot.local/'));
   else if (kind === 'idiom-index') data = await readIdiomIndex(db, list);
   else if (kind === 'word-section') {
     response = await listWordsInListFull(db, list, { sectionKey: section });
     if (response.status === 404) return null;
     data = await response.json(); response = null;
-    search = searchWords(data.words);
+
     const filter = section === 'none' ? 'li.section_id IS NULL' : 'li.section_id=?';
     const bind = section === 'none' ? [list] : [list, Number(section)];
     const audio = await db.prepare(`SELECT a.word_id,a.variant_key,a.object_key,a.content_type FROM word_audio a JOIN list_items li ON li.word_id=a.word_id WHERE li.list_id=? AND ${filter} AND a.is_stale=0`).bind(...bind).all();
@@ -45,5 +45,5 @@ export async function buildSnapshotScope(env, scope) {
     if (!response.ok) throw new Error(`Snapshot build failed: ${response.status}`);
     data = await response.json();
   }
-  return { data, media, ...(search ? { search } : {}) };
+  return { data, media };
 }
