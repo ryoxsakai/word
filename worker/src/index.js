@@ -182,7 +182,7 @@ async function loadListWordIndex(db, listId) {
 
 // ---- lists ----
 
-async function listLists(db) {
+export async function listLists(db) {
   const { results } = await db
     .prepare("SELECT id, name, description, sort_order, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists ORDER BY sort_order, name")
     .all();
@@ -526,7 +526,7 @@ function groupByWordId(rows) {
 
 // 閲覧ページ用: リスト内の全単語、または指定した1セクションを、意味・派生語・例文・タグまで含めて返す。
 // (単語詳細を1件ずつ取得すると N+1 になってしまうため、子テーブルは word_id IN (...) でまとめて取得する)
-async function listWordsInListFull(db, listId, options = {}) {
+export async function listWordsInListFull(db, listId, options = {}) {
   const { sectionKey, request } = options;
   const list = await db
     .prepare("SELECT id, name, description, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists WHERE id = ?")
@@ -706,7 +706,7 @@ async function listWordsInListFull(db, listId, options = {}) {
 }
 
 // 閲覧ページの初期表示用。詳細本文を含めず、目次・番号・リンク・abc索引に必要な情報だけ返す。
-async function getViewerIndex(db, listId, request) {
+export async function getViewerIndex(db, listId, request) {
   const list = await db
     .prepare("SELECT id, name, description, section_label AS sectionLabel, chapter_label AS chapterLabel FROM lists WHERE id = ?")
     .bind(listId)
