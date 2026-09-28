@@ -43,9 +43,10 @@ export class ViewerSnapshotPublisher {
       }
       const { results: jobs } = await this.env.DB.prepare('SELECT * FROM viewer_snapshot_dirty ORDER BY list_id,kind,section_key LIMIT 8').all();
       if(!jobs.length && !await this.ctx.storage.get('stage')) return;
-      for (const job of jobs) {
+      const builtScopes = await Promise.all(jobs.map(job => buildSnapshotScope(this.env, job)));
+      for (const [jobIndex, job] of jobs.entries()) {
         const id = scopeKey(job), old = stage.files[id];
-        const result = await buildSnapshotScope(this.env, job);
+        const result = builtScopes[jobIndex];
         await markChapters(this.env, stage, job, old, result);
         if (result) {
           const hash = await digest(JSON.stringify(result.data));
