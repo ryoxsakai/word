@@ -1510,16 +1510,52 @@ el.sectionNav.addEventListener("click", async (e) => {
 
 // ---- 検索・進捗フィルタ ----
 
+const NOTE_BADGE_LABELS = {派生語:'派',不規則:'不',語源:'源',類義語:'類',対義語:'対',関連語:'関',メモ:'メ'};
+function badgeSvg(label, {square=false, outline=false} = {}) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  const width = square ? 24 : Math.max(24, [...label].length * 16 + 10);
+  svg.setAttribute('viewBox', `0 0 ${width} 24`);
+  svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+  svg.style.width = `${width / 16}em`; svg.style.height = '1.5em';
+  const rect = document.createElementNS(ns, 'rect');
+  for (const [key,value] of Object.entries({x:1,y:1,width:width-2,height:22,rx:outline?0:3,fill:outline?'none':'currentColor',stroke:'currentColor','stroke-width':1.2})) rect.setAttribute(key,String(value));
+  if (!outline) rect.setAttribute('fill-opacity', '.1');
+  svg.append(rect);
+  if (!outline) {
+    const text = document.createElementNS(ns,'text');
+    text.setAttribute('x',String(width/2)); text.setAttribute('y','12');
+    text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','central');
+    text.setAttribute('font-size','15'); text.setAttribute('font-weight','600'); text.setAttribute('fill','currentColor');
+    text.textContent=label; svg.append(text);
+  }
+  return svg;
+}
+function vectorizeBadges(root) {
+  root?.querySelectorAll('.pos-badge, .notes-label, .learning-badge, .caution-badge').forEach(badge => {
+    if (badge.classList.contains('vector-badge')) return;
+    const full = badge.textContent.trim();
+    const note = badge.classList.contains('notes-label');
+    const label = note ? (NOTE_BADGE_LABELS[full] || full) : full;
+    if (!label) return;
+    badge.setAttribute('aria-label',full); if (!badge.title) badge.title=full;
+    badge.classList.add('vector-badge');
+    if (note) badge.classList.add('vector-note-badge');
+    badge.replaceChildren(badgeSvg(label,{square:note || [...label].length===1}));
+  });
+}
 function applyFilters() {
   if (state.activeView === "idioms") renderIdioms();
+  vectorizeBadges(el.wordList);
+  vectorizeBadges(el.idiomList);
   const q = state.search.trim().toLowerCase();
   const selectedLevelIndex = CEFR_LEVELS.indexOf(state.eikenLevel);
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
     // Normalize previously generated or cached chapter HTML as well.
     entry.querySelectorAll(".example-line > .bullet.hollow").forEach((bullet, index) => {
-      bullet.textContent = "□";
       bullet.classList.toggle("phrase-first", index === 0);
+      if (!bullet.querySelector("svg")) bullet.replaceChildren(badgeSvg("", {square:true,outline:true}));
     });
     const haystack = entry.dataset.haystack || "";
     const matchesSearch = !q || (state.searchMatches ? state.searchMatches.has(entry.dataset.wordId) : haystack.includes(q));
