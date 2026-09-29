@@ -1516,6 +1516,11 @@ function applyFilters() {
   const selectedLevelIndex = CEFR_LEVELS.indexOf(state.eikenLevel);
   const entries = el.wordList.querySelectorAll(".entry");
   entries.forEach((entry) => {
+    // Normalize previously generated or cached chapter HTML as well.
+    entry.querySelectorAll(".example-line > .bullet.hollow").forEach((bullet, index) => {
+      bullet.textContent = "□";
+      bullet.classList.toggle("phrase-first", index === 0);
+    });
     const haystack = entry.dataset.haystack || "";
     const matchesSearch = !q || (state.searchMatches ? state.searchMatches.has(entry.dataset.wordId) : haystack.includes(q));
     const wordLevelIndex = CEFR_LEVELS.indexOf(entry.dataset.cefr || "");
