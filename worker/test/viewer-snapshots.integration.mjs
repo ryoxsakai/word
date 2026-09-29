@@ -53,6 +53,20 @@ export default { async fetch(request,env,ctx) {
    const recovered=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
    return Response.json({failed,scheduled,recovered,status:state.get('status'),failures:state.get('failures')});
  }
+ if(url.pathname==='/__publisher_stale_alarm_test') {
+   let alarm=Date.now()-120000;
+   const state=new Map([
+     ['status',{state:'building',files:400,remainingChapters:2}],
+     ['stage',{files:{},pendingChapters:{stalled:{chapter:'17'}}}],
+   ]);
+   const storage={
+     get:async key=>state.get(key), put:async(key,value)=>state.set(key,value),
+     getAlarm:async()=>alarm, setAlarm:async value=>{alarm=value;},
+   };
+   const publisher=new Publisher({storage},{});
+   const result=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
+   return Response.json({result,alarm});
+ }
  if(url.pathname==='/__bounded_read_test') {
    let active=0,peak=0;
    const sections=Array.from({length:14},(_,i)=>({key:String(i+1)}));
@@ -128,6 +142,9 @@ try {
  assert.equal(recovery.recovered.pending,false,'a committed manifest must clear a stale failed status');
  assert.equal(recovery.status.state,'ready');
  assert.equal(recovery.failures,undefined);
+ const staleAlarm=await(await api('/__publisher_stale_alarm_test')).json();
+ assert.equal(staleAlarm.result.pending,true,'an incomplete staged publication remains a freshness barrier');
+ assert.ok(staleAlarm.alarm>Date.now(),'a persisted alarm timestamp in the past must be replaced');
  const db=await mf.getD1Database('DB'), bucket=await mf.getR2Bucket('VIEWER_SNAPSHOTS');
  const bounded=await(await api('/__bounded_read_test')).json();
  assert.ok(bounded.peak>1 && bounded.peak<=6,'whole-notebook R2 reads run concurrently with a fixed bound');

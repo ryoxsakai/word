@@ -26,7 +26,11 @@ export class ViewerSnapshotPublisher {
       ]);
       // A caught alarm error does not receive Cloudflare's automatic alarm
       // retries. Wake an older publisher that exhausted its own retry budget.
-      if (status?.state === 'failed' && !alarm && !this.publishing) {
+      // A deployment can also leave a persisted alarm timestamp in the past;
+      // replace that stale alarm so a partially built snapshot resumes.
+      const staleAlarm = alarm && alarm < Date.now() - 60_000;
+      if (!this.publishing && ((status?.state === 'failed' && !alarm) ||
+          (staleAlarm && (stage || status?.state === 'building' || status?.state === 'failed')))) {
         await this.ctx.storage.setAlarm(Date.now() + 1000);
       }
       return json({ pending: this.publishing || !!stage || !!alarm ||
