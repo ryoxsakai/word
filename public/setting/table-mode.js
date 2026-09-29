@@ -8,6 +8,23 @@ import { createAutoCrossRefRenderer, renderWordListMarkup } from '../shared/mark
 
 const MODE_KEY = 'vocab-setting-edit-mode';
 const PENDING_KEY = 'vocab-editor-pending-publication';
+const PENDING_CARDS_KEY = 'vocab-editor-pending-cards';
+let pendingCards = new Set();
+try {
+  const saved = JSON.parse(localStorage.getItem(PENDING_CARDS_KEY) || '[]');
+  if (Array.isArray(saved) && localStorage.getItem(PENDING_KEY)) pendingCards = new Set(saved.filter(key => typeof key === 'string'));
+} catch {}
+const pendingCardKey = id => JSON.stringify([listId, idiom ? 'idiom' : 'word', id]);
+function persistPendingCards() {
+  localStorage.setItem(PENDING_CARDS_KEY, JSON.stringify([...pendingCards]));
+}
+function refreshCardStatus(row) {
+  if (!row.badgeElement) return;
+  const pending = pendingCards.has(pendingCardKey(row.id));
+  row.badgeElement.textContent = dirty(row) ? (pending ? '未保存・反映待ち' : '未保存') : (pending ? '反映待ち' : '保存済み');
+  row.badgeElement.classList.toggle('is-pending', pending);
+  row.badgeElement.title = pending ? '保存した変更を閲覧ページへ反映しています' : '';
+}
 const idiom = location.pathname.endsWith('idioms.html');
 const toggle = document.getElementById('editModeToggle');
 // Keep the saved mode value compatible with the former table editor.
@@ -50,6 +67,8 @@ function button(text, action, attrs = {}) {
 function clearPendingPublication(pending) {
   if (pending && localStorage.getItem(PENDING_KEY) === pending) {
     localStorage.removeItem(PENDING_KEY);
+    pendingCards.clear(); persistPendingCards();
+    rows.forEach(refreshCardStatus);
     if (publicationNotice) publicationNotice.hidden = true;
     clearTimeout(publicationCheckTimer); publicationCheckTimer = null;
     if (!saving && !loading && status) { updateStatus(); toast('閲覧ページへの反映を確認しました'); }
@@ -186,7 +205,7 @@ function mark(row) {
     cell.classList.toggle('is-dirty', row.isNew || cell.dataset.fields.split(',').some(k => !same(row.base[k], row.draft[k])));
   });
   if(row.titleElement)row.titleElement.textContent=row.draft.spelling||row.draft.phrase||'新規';
-  if(row.badgeElement)row.badgeElement.textContent=dirty(row)?'未保存':'保存済み';
+  refreshCardStatus(row);
   if(row.saveElement)row.saveElement.disabled=!dirty(row);
   updateStatus();
 }
@@ -442,7 +461,7 @@ async function saveRows(targets) {
   targets=targets.filter(dirty);if(!targets.length)return;
   saving=true;saveProgress={phase:'送信',completed:0,total:targets.length};controls.disabled=true;toggle.disabled=true;const oldToast=document.getElementById('tableToast');if(oldToast)oldToast.hidden=true;updateStatus('保存中…');let successes=0,failed=0,unconfirmed=0;const savedRows=[];
   for(const row of targets){
-    try{const keys=row.isNew?Object.keys(row.draft):changedKeys(row.base,row.draft);const saved=await saveRecord(row);const next=record(saved);Object.assign(row,next);savedRows.push({row,keys});if(!index.some(x=>(x.id||x.key)===row.id))index.push(saved);else index=index.map(x=>(x.id||x.key)===row.id?saved:x);if(idiom)index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));successes++;}
+    try{const keys=row.isNew?Object.keys(row.draft):changedKeys(row.base,row.draft);const saved=await saveRecord(row);const next=record(saved);Object.assign(row,next);pendingCards.add(pendingCardKey(row.id));persistPendingCards();refreshCardStatus(row);savedRows.push({row,keys});if(!index.some(x=>(x.id||x.key)===row.id))index.push(saved);else index=index.map(x=>(x.id||x.key)===row.id?saved:x);if(idiom)index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));successes++;}
     catch(error){if(error.saved){row.raw=error.saved;row.base=draftOf(error.saved);}row.error=`保存できませんでした：${error.message}`;failed++;}
     saveProgress={phase:'送信',completed:successes+failed,total:targets.length};updateStatus('保存中…');
   }
