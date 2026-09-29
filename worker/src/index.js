@@ -2655,8 +2655,16 @@ async function handleApi(request, env, parts, method) {
     return await getEditorReferences(db, parts[2], request);
   }
 
+  if (parts.length === 6 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "idiom-sections" && method === "GET") {
+    const section = await readIdiomSection(db, parts[2], parts[5]);
+    return section ? json(section) : notFound("section not found");
+  }
+
   // /api/lists/:listId/editor/sections/:sectionId （編集表のセクション単位の表示データ）
   if (parts.length === 6 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "sections" && method === "GET") {
+    if (new URL(request.url).searchParams.get('full') === '1') {
+      return await listWordsInListFull(db, parts[2], { sectionKey: parts[5], request });
+    }
     return await listWordsInList(db, parts[2], { sectionKey: parts[5], request });
   }
 

@@ -132,6 +132,13 @@ try {
  const editorIndex = await editorGet('/lists/snapshot-test/editor/index');
  assert.equal((await editorGet('/lists/snapshot-test/editor/index',{'if-none-match':editorIndex.headers.get('etag')})).status,304);
  assert.deepEqual(await(await editorGet('/lists')).json(),await(await api('/api/lists')).json());
+ const tableWords = await(await editorGet('/lists/snapshot-test/editor/sections/99901?full=1')).json();
+ assert.equal(tableWords.words[0].notes,'original note');
+ assert.equal(tableWords.words[0].senses[0].meaning,'甲');
+ assert.equal(tableWords.words[0].examples[0].type,'phrase');
+ const tableIdioms = await(await editorGet('/lists/snapshot-test/editor/idiom-sections/one')).json();
+ assert.equal(tableIdioms.entries[0].meanings[0].refs[0].wordId,'snap-a');
+ assert.deepEqual(await(await editorGet('/lists/snapshot-test/editor/sections/99903?full=1')).json(),{words:[]});
  const editorIdioms = await(await editorGet('/lists/snapshot-test/editor/idioms')).json();
  assert.deepEqual(editorIdioms,await(await api('/api/lists/snapshot-test/idioms/index')).json(),'editor links use only the lightweight idiom index');
  assert.equal((await editorGet('/lists/snapshot-test/editor/sections/99999')).status,404);

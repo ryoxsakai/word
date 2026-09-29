@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="../shared/fonts/charis-sil.css" />
 <link rel="stylesheet" href="./style.css" />
+<link rel="stylesheet" href="./table-mode.css">
 </head>
 <body>
 <div id="loadingProgress" class="loading-progress" role="progressbar" aria-label="読み込み中" aria-valuetext="読み込み中" hidden></div>
@@ -30,6 +31,7 @@
         <span class="menu-toggle-bar"></span>
         <span class="menu-toggle-bar"></span>
       </button>
+      <button type="button" class="btn-compact edit-mode-toggle" id="editModeToggle" aria-pressed="false">表形式に切替</button>
     </div>
     <div class="topbar-row topbar-row--secondary" id="topbarMenu">
       <div class="master-toolbar" id="masterToolbar" hidden>
@@ -506,5 +508,6 @@
 </template>
 
 <script type="module" src="./app.js"></script>
+<script type="module" src="./table-mode.js"></script>
 </body>
 </html>

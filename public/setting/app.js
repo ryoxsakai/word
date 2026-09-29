@@ -3088,7 +3088,7 @@ document.querySelectorAll(".add-row-btn").forEach((btn) => {
   btn.addEventListener("click", () => addRow(btn.dataset.add));
 });
 
-loadLists().catch((err) => {
+if (localStorage.getItem("vocab-setting-edit-mode") !== "table") loadLists().catch((err) => {
   state.listLoading = false;
   state.listLoadError = err.message;
   renderWordTable();

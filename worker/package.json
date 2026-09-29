@@ -10,7 +10,7 @@
     "test:elevenlabs": "node test/elevenlabs.test.mjs",
     "test:audio": "node test/word-audio.integration.mjs && node test/automatic-word-audio.integration.mjs",
     "test:mcp-write": "node test/mcp-write.integration.mjs && npm run test:idiom-mcp",
-    "test:editor-cache": "node test/editor-section-cache.integration.mjs && node test/editor-lazy-ui.integration.mjs && node test/editor-save-cache.test.mjs",
+    "test:editor-cache": "node test/editor-section-cache.integration.mjs && node test/editor-lazy-ui.integration.mjs && node test/editor-save-cache.test.mjs && npm run test:editor-table",
     "test:derivatives": "node test/derivative-grouping.test.mjs",
     "test:sense-normalization": "node test/sense-normalization.test.mjs && node test/migration-0034.smoke.mjs",
     "test:coverage": "node test/coverage.test.mjs && node test/coverage-mcp.test.mjs",
@@ -20,9 +20,11 @@
     "deploy": "wrangler deploy",
     "test:illustrations": "node test/word-illustrations.integration.mjs && node test/idiom-illustrations.integration.mjs && node test/illustration-viewer.test.mjs && node test/illustration-upload-ui.test.mjs",
     "test:idiom-mcp": "node test/idiom-mcp.integration.mjs && node test/idiom-labels.integration.mjs",
-    "test:idiom-theme": "node test/idiom-theme.integration.mjs"
+    "test:idiom-theme": "node test/idiom-theme.integration.mjs",
+    "test:editor-table": "node test/editor-table.integration.mjs"
   },
   "devDependencies": {
+    "jsdom": "^26.1.0",
     "miniflare": "^4.20260701.0",
     "wrangler": "^4.0.0"
   }
