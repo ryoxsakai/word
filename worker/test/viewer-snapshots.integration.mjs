@@ -18,6 +18,22 @@ export class ViewerSnapshotPublisher extends Publisher {
 }
 export default { async fetch(request,env,ctx) {
  const url=new URL(request.url);
+ if(url.pathname==='/__bounded_read_test') {
+   let active=0,peak=0;
+   const sections=Array.from({length:14},(_,i)=>({key:String(i+1)}));
+   const files={};
+   files[JSON.stringify(['load','viewer-index',''])]={key:'index'};
+   for(const section of sections)files[JSON.stringify(['load','word-section',section.key])]={key:'section-'+section.key};
+   const bucket={async get(key){
+     if(key==='current.json')return {json:async()=>({files})};
+     if(key==='index')return {json:async()=>({list:{id:'load'},sections})};
+     active++;peak=Math.max(peak,active);
+     await new Promise(resolve=>setTimeout(resolve,10));active--;
+     return {json:async()=>({words:[{id:key}]})};
+   }};
+   const response=await serveViewerSnapshot(new Request('https://test/mcp-viewer/api/lists/load/words/full'),{...env,VIEWER_SNAPSHOTS:bucket});
+   return Response.json({peak,ids:(await response.json()).words.map(word=>word.id)});
+ }
  if(url.pathname==='/__chunk_test') {
   const current=await(await env.VIEWER_SNAPSHOTS.get('current.json')).json();
   const key=(kind,section='')=>JSON.stringify(['snapshot-test',kind,section]);
@@ -69,6 +85,9 @@ async function waitPublished(previous,allowFailure=false) {
 function migrationSql(sql){const triggers=[];return sql.replace(/^\s*--.*$/gm,'').replace(/CREATE\s+TRIGGER[\s\S]*?END\s*;/gi,t=>{triggers.push(t.replace(/;\s*$/,'').replace(/\s+/g,' '));return `__TRIGGER_${triggers.length-1}__;`;}).split(';').map(s=>s.trim().replace(/\s+/g,' ')).filter(Boolean).map(s=>s.replace(/__TRIGGER_(\d+)__/g,(_,i)=>triggers[i])+';').join('\n');}
 try {
  const db=await mf.getD1Database('DB'), bucket=await mf.getR2Bucket('VIEWER_SNAPSHOTS');
+ const bounded=await(await api('/__bounded_read_test')).json();
+ assert.ok(bounded.peak>1 && bounded.peak<=6,'whole-notebook R2 reads run concurrently with a fixed bound');
+ assert.deepEqual(bounded.ids,Array.from({length:14},(_,i)=>'section-'+(i+1)),'concurrent reads preserve section order');
  for(const file of readdirSync(new URL('../migrations/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())await db.exec(migrationSql(readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8')));
  await db.exec("INSERT INTO lists(id,name) VALUES('snapshot-test','Test'); INSERT INTO chapters(id,list_id,subtitle,sort_order) VALUES(99901,'snapshot-test','first',1),(99902,'snapshot-test','second',2); INSERT INTO sections(id,list_id,name,sort_order,chapter_id) VALUES(99901,'snapshot-test','one',1,99901),(99902,'snapshot-test','two',2,99902); INSERT INTO words(id,spelling,notes) VALUES('snap-a','alpha','original note'),('snap-b','beta','second note'); INSERT INTO list_items(list_id,word_id,no,section_id) VALUES('snapshot-test','snap-a',1,99901),('snapshot-test','snap-b',2,99902); INSERT INTO senses(word_id,pos,meaning) VALUES('snap-a','名','甲'); INSERT INTO idiom_sections(list_id,section_key,subtitle,chapter_key,chapter_subtitle,chapter_order,sort_order) VALUES('snapshot-test','one','One','c','C',1,1); INSERT INTO idioms(id,list_id,phrase,section_key,sort_order) VALUES('snap-i','snapshot-test','alpha beta','one',1); INSERT INTO idiom_senses(id,idiom_id,meaning) VALUES('snap-s','snap-i','meaning'); INSERT INTO idiom_word_refs(sense_id,word_id) VALUES('snap-s','snap-a');");
  await db.exec("INSERT INTO chapters(id,list_id,subtitle,sort_order) VALUES(99903,'snapshot-test','Empty chapter',3); INSERT INTO sections(id,list_id,name,sort_order,chapter_id) VALUES(99903,'snapshot-test','Empty section',3,99903); INSERT INTO section_labels(id,list_id,section_id,name,sort_order) VALUES(99901,'snapshot-test',99901,'Unused label',1); INSERT INTO examples(word_id,sentence,type,sort_order) VALUES('snap-a','alpha phrase','phrase',1); INSERT INTO derivatives(word_id,word,sort_order) VALUES('snap-a','alphabet',1);");
@@ -114,7 +133,7 @@ try {
  assert.equal((await editorGet('/lists/snapshot-test/editor/index',{'if-none-match':editorIndex.headers.get('etag')})).status,304);
  assert.deepEqual(await(await editorGet('/lists')).json(),await(await api('/api/lists')).json());
  const editorIdioms = await(await editorGet('/lists/snapshot-test/editor/idioms')).json();
- assert.equal(editorIdioms.entries[0].meanings[0].refs[0].wordId,'snap-a');
+ assert.deepEqual(editorIdioms,await(await api('/api/lists/snapshot-test/idioms/index')).json(),'editor links use only the lightweight idiom index');
  assert.equal((await editorGet('/lists/snapshot-test/editor/sections/99999')).status,404);
 
  const chapterB=manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].key;

@@ -1,6 +1,6 @@
 // Authenticated notebook reads project the already-published viewer JSON.
 // This module must never query D1, even on a missing or damaged snapshot.
-import { indexKey, wordSection, idiomSection } from './viewer-snapshot-build.js';
+import { indexKey, wordSection } from './viewer-snapshot-build.js';
 
 export const editorSnapshotsEnabled = env => env.VIEWER_STATIC_ENABLED === 'true' &&
   !!env.VIEWER_SNAPSHOTS && !!env.VIEWER_PUBLISHER;
@@ -81,15 +81,9 @@ export async function serveEditorSnapshot(request, env) {
           .map(({ id, spelling, phrases, derivatives }) => ({ id, spelling, phrases, derivatives }))
           .filter(w => w.phrases.length || w.derivatives.length) };
       } else if (tail === 'editor/idioms') {
-        const idioms = await read(env, manifest, indexKey(list, 'idiom-index'));
-        if (!idioms) throw new Error('Published idiom index missing');
-        const entries = [];
-        for (const section of idioms.chapters.flatMap(c => c.sections)) {
-          const shard = await read(env, manifest, idiomSection(list, section.key));
-          if (!shard) throw new Error('Published idiom section missing');
-          entries.push(...shard.entries);
-        }
-        data = { managed: idioms.managed, chapters: idioms.chapters, entries };
+        // Link resolution needs phrases, aliases and numbering, not every meaning.
+        data = await read(env, manifest, indexKey(list, 'idiom-index'));
+        if (!data) throw new Error('Published idiom index missing');
       } else if (tail.startsWith('editor/sections/')) {
         const section = decodeURIComponent(tail.slice('editor/sections/'.length));
         if (section !== 'none' && !index.editorStructure.sections.some(s => String(s.id) === section)) {

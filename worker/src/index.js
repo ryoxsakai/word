@@ -2647,7 +2647,7 @@ async function handleApi(request, env, parts, method) {
 
   // Notebook editor reference resolver (the static editor serves this from R2).
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "idioms" && method === "GET") {
-    return json(await readIdioms(db, parts[2]));
+    return json(await readIdiomIndex(db, parts[2]));
   }
 
   // /api/lists/:listId/editor/references （編集プレビュー用の熟語・派生語参照索引）
