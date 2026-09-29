@@ -102,8 +102,11 @@ try {
  await bucket.put('legacy-editor-index.json',JSON.stringify(oldIndex));
  manifest.files[scope('snapshot-test','viewer-index')]={key:'legacy-editor-index.json'};
  await bucket.put('current.json',JSON.stringify(manifest));
- await db.prepare("INSERT INTO viewer_snapshot_dirty(list_id,kind,section_key,revision) VALUES('snapshot-test','viewer-index','','editor-upgrade')").run();
- assert.equal((await editorGet('/lists/snapshot-test/editor/index')).status,503,'old snapshot wakes the queued structure upgrade');
+ assert.equal(await db.prepare("SELECT 1 FROM viewer_snapshot_dirty LIMIT 1").first(),null,'simulate the old publisher having consumed the migration journal');
+ assert.equal((await editorGet('/lists/snapshot-test/editor/index')).status,503,'old snapshot recovers even with no queued migration entry');
+ const queuedUpgrade = await db.prepare("SELECT revision FROM viewer_snapshot_dirty WHERE list_id='snapshot-test' AND kind='viewer-index'").first();
+ assert.equal((await editorGet('/lists/snapshot-test/editor/index')).status,503);
+ assert.deepEqual(await db.prepare("SELECT revision FROM viewer_snapshot_dirty WHERE list_id='snapshot-test' AND kind='viewer-index'").first(),queuedUpgrade,'repeated reads do not enqueue repeated D1 updates');
  status=await waitPublished(status.revision);
  manifest=await(await bucket.get('current.json')).json();
  assert.equal(manifest.files[sectionA].key,originalA,'structure upgrade reuses existing section JSON');

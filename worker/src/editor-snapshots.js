@@ -66,8 +66,10 @@ export async function serveEditorSnapshot(request, env) {
       const index = await read(env, manifest, indexKey(list, 'viewer-index'));
       if (!index) return json({ error: 'list not found' }, 404);
       if (!index.editorStructure) {
-        // Migration 0058 queued the one-time upgrade. Wake without querying D1.
-        await publisher(env).fetch('https://publisher/wake', { method: 'POST' });
+        // The publisher deduplicates the one-time index upgrade, including when
+        // an older deployment already consumed the migration's journal entry.
+        const upgrade = await publisher(env).fetch(`https://publisher/editor-upgrade?list=${encodeURIComponent(list)}`, { method: 'POST' });
+        if (!upgrade.ok) throw new Error('Editor index upgrade unavailable');
         return pending();
       }
       const tail = match[2];

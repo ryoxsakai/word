@@ -10,7 +10,9 @@ and the global word master. The separate idiom editing application is unchanged.
 
 `viewer-index` snapshots now include `editorStructure` so empty chapters/sections and
 unused labels remain editable. Migration 0058 queues a one-time index upgrade; an
-editor request encountering an old index wakes the existing publisher. Section JSON
+editor request encountering an old index asks the existing publisher to queue that
+index once. This also recovers if the previous deployment already consumed the migration
+journal. Normal reads do not enqueue work. Section JSON
 is reused. Future saves use the existing transactional journal and rebuild only affected
 sections and indexes (plus dependent viewer HTML), without a periodic full rebuild.
 
