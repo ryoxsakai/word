@@ -2459,3 +2459,16 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   print-color-adjust: exact;
 }
 .example-line > .bullet.hollow.phrase-first { border-color: #c62828; }
+
+/* Shared SVG badges retain crisp geometry on screen and in print. */
+.vector-badge.vector-badge { background: transparent !important; border: 0; padding: 0; width: auto; min-width: 0; height: auto; line-height: 1; }
+.vector-badge > svg { display: block; flex: none; overflow: visible; font-family: var(--font); }
+.word-list .notes-label.vector-note-badge, .notes-label.vector-note-badge { width: 1.5em; text-align: center; text-align-last: auto; }
+.example-line > .bullet.hollow:has(svg) {
+  width: .65em; height: .65em; top: .42em;
+  font-size: inherit; border: 0; text-indent: 0; overflow: visible;
+  color: var(--text-muted);
+}
+.example-line > .bullet.hollow.phrase-first:has(svg) { color: #c62828; }
+.example-line > .bullet.hollow > svg { width: 100% !important; height: 100% !important; display: block; }
+.example-line:has(> .bullet.hollow) { padding-left: 1em; }
