@@ -28,6 +28,19 @@ export class ViewerSnapshotPublisher {
         Object.values(leases || {}).some(expiry => expiry > Date.now()) || status?.state === 'failed' });
     }
     return this.ctx.blockConcurrencyWhile(async () => {
+      if (path === '/editor-upgrade') {
+        const list = new URL(request.url).searchParams.get('list');
+        if (!list) return json({error:'Notebook is required'},400);
+        const queued = await this.ctx.storage.get('editorUpgrades') || [];
+        if (!queued.includes(list)) {
+          // A previous Worker version may consume migration 0058's journal before
+          // this deployment. Requeue only the missing notebook index, once.
+          await this.env.DB.prepare(`INSERT INTO viewer_snapshot_dirty(list_id,kind,section_key,revision)
+            VALUES(?,'viewer-index','',?) ON CONFLICT(list_id,kind,section_key)
+            DO UPDATE SET revision=excluded.revision`).bind(list,crypto.randomUUID()).run();
+          await this.ctx.storage.put('editorUpgrades',[...queued,list]);
+        }
+      }
       const leases = await this.ctx.storage.get('leases') || {};
       const id = request.headers.get('x-edit-id');
       if (path === '/begin') leases[id] = Date.now() + 120000;
@@ -110,6 +123,7 @@ export class ViewerSnapshotPublisher {
         await bucket.put(`manifests/${stage.revision}.json`, JSON.stringify(stage));
         await bucket.put('current.json', JSON.stringify(stage), { httpMetadata:{contentType:'application/json'} });
         await this.ctx.storage.delete('stage');
+        await this.ctx.storage.delete('editorUpgrades');
         await this.ctx.storage.put('status', {state:'ready',revision:stage.revision,generatedAt:stage.generatedAt,files:Object.keys(stage.files).length});
         await this.ctx.storage.delete('failures');
       });

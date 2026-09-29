@@ -19,7 +19,9 @@ assert.match(editorJs,/entry-up/,'editor keeps button-based reordering available
 assert.match(editorJs,/touchstart/,'touch devices use long-press reordering');
 assert.match(editorJs,/beginIdiomEditorLoading/,'idiom editor starts progress feedback for network work');
 assert.match(editorJs,/endIdiomEditorLoading/,'idiom editor always finishes progress feedback');
-assert.match(editorJs,/event\.target===el\.editModalOverlay/,'clicking the backdrop closes the idiom editor');
+assert.doesNotMatch(editorJs,/editModalOverlay\.addEventListener\(['"]click/,'backdrop clicks preserve unsaved idiom edits');
+assert.match(editorJs,/el\.closeDialog\.addEventListener\('click',\(\)=>setEditorOpen\(false\)\)/,'the explicit close button dismisses the editor');
+assert.match(editorJs,/event\.key==='Escape'&&!el\.editModalOverlay\.hidden\)setEditorOpen\(false\)/,'Escape dismisses the open editor');
 assert.match(editorJs,/section\.visibleCount>0/,'normal mode excludes sections containing only hidden idioms');
 assert.match(editorJs,/section\.totalCount>0/,'hidden-item mode can inspect archived sections without showing truly empty sections');
 assert.match(editorJs,/number==null\?'非表示'/,'archived sections never reuse a visible Section number');
