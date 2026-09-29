@@ -2443,3 +2443,19 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 
 .idiom-entries > .label-divider { grid-column: 1 / -1; }
 .section-divider + .idiom-entries > .label-divider:first-child { margin-top: .1rem; }
+
+/* Phrase squares share the same outline in the viewer and printed pages. */
+.example-line > .bullet.hollow {
+  width: .7em;
+  height: .7em;
+  top: .4em;
+  border: 1px solid var(--text-muted);
+  font-size: .75rem;
+  overflow: hidden;
+  color: transparent;
+  text-indent: -9999px;
+  box-sizing: border-box;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.example-line > .bullet.hollow.phrase-first { border-color: #c62828; }
