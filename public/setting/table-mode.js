@@ -14,6 +14,7 @@ const toggle = document.getElementById('editModeToggle');
 const tableMode = localStorage.getItem(MODE_KEY) === 'table';
 let rows = [], sections = [], labels = [], index = [], books = [], page = 0, loading = false, saving = false;
 let listId = '', sectionKey = '', query = '', sequence = 0;
+let publicationCheckTimer;
 let wordNames = new Map();
 let resolveReference = () => ({found:false}), renderReferenceNotes;
 let referenceGeneration = 0;
@@ -50,7 +51,16 @@ function clearPendingPublication(pending) {
   if (pending && localStorage.getItem(PENDING_KEY) === pending) {
     localStorage.removeItem(PENDING_KEY);
     if (publicationNotice) publicationNotice.hidden = true;
+    clearTimeout(publicationCheckTimer); publicationCheckTimer = null;
   }
+}
+function schedulePublicationCheck() {
+  if (publicationCheckTimer || !localStorage.getItem(PENDING_KEY)) return;
+  publicationCheckTimer = setTimeout(async () => {
+    publicationCheckTimer = null;
+    try { await api('/lists'); } catch {}
+    if (localStorage.getItem(PENDING_KEY)) schedulePublicationCheck();
+  }, 3000);
 }
 async function api(path, options = {}, { confirm = false, publishedOnly = false } = {}) {
   const read = !options.method || options.method === 'GET';
@@ -72,7 +82,10 @@ async function api(path, options = {}, { confirm = false, publishedOnly = false 
       // A previous save must not make opening cards wait for the global publisher.
       // Keep the marker until a strict read succeeds; save confirmation never falls back.
       if (fresh && !confirm && data?.code === 'editor_snapshot_pending') {
-        if (localStorage.getItem(PENDING_KEY) === pending) publicationNotice.hidden = false;
+        if (localStorage.getItem(PENDING_KEY) === pending) {
+          publicationNotice.hidden = false;
+          schedulePublicationCheck();
+        }
         return api(originalPath, options, {publishedOnly:true});
       }
       if (read && !confirm && data?.code === 'editor_snapshot_pending' && attempt < 60) {

@@ -154,6 +154,7 @@ async function pendingStartup(idiom) {
  const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
  const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
+ const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===3000?10:ms,...args);
  const marker='previous-save';
  w.localStorage.setItem('vocab-setting-edit-mode','table');
  w.localStorage.setItem('vocab-editor-pending-publication',marker);
@@ -188,9 +189,8 @@ async function pendingStartup(idiom) {
   assert.deepEqual(calls.filter(c=>c.path==='/api/lists').map(c=>c.fresh),[true,false],'fall back immediately, without repeated strict polling');
   assert.ok(calls.every(c=>c.path!=='/api/words/alpha'),'startup must use JSON endpoints only');
   pending=false;
-  [...d.querySelectorAll('button')].find(b=>b.textContent==='再読み込み').click();
-  await waitFor(()=>d.querySelector('.sheet-card')&&w.localStorage.getItem('vocab-editor-pending-publication')===null,'a successful fresh reload must clear the pending marker');
-  assert.equal(notice.hidden,true,'hide the publication notice after confirmation');
+  await waitFor(()=>w.localStorage.getItem('vocab-editor-pending-publication')===null,'the background freshness check must clear the pending marker');
+  assert.equal(notice.hidden,true,'hide the publication notice automatically after confirmation');
  } finally {dom.window.close();}
 }
 await pendingStartup(false);await pendingStartup(true);

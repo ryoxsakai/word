@@ -35,6 +35,24 @@ export default { async fetch(request,env,ctx) {
    const after=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
    return Response.json({during,after});
  }
+ if(url.pathname==='/__publisher_recovery_test') {
+   let alarm=null;
+   const state=new Map([['status',{state:'failed',error:'old transient failure',failures:6}]]);
+   const storage={
+     get:async key=>state.get(key), put:async(key,value)=>state.set(key,value), delete:async key=>state.delete(key),
+     getAlarm:async()=>alarm, setAlarm:async value=>{alarm=value;},
+   };
+   const publisher=new Publisher({storage,blockConcurrencyWhile:fn=>fn()},{
+     VIEWER_SNAPSHOTS:{async get(key){return key==='current.json'?{json:async()=>({revision:'published-revision',generatedAt:'2026-09-30T00:00:00.000Z',files:{}})}:null;}},
+     DB:{prepare(){return {all:async()=>({results:[]})};}},
+   });
+   const failed=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
+   const scheduled=alarm;
+   alarm=null; // Cloudflare clears the scheduled alarm as its handler starts.
+   await publisher.alarm();
+   const recovered=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
+   return Response.json({failed,scheduled,recovered,status:state.get('status'),failures:state.get('failures')});
+ }
  if(url.pathname==='/__bounded_read_test') {
    let active=0,peak=0;
    const sections=Array.from({length:14},(_,i)=>({key:String(i+1)}));
@@ -104,6 +122,12 @@ try {
  const inflight=await(await api('/__publisher_inflight_test')).json();
  assert.equal(inflight.during.pending,true,'an executing alarm must block editor reads before the first stage is stored');
  assert.equal(inflight.after.pending,false,'an empty publication must clear its active state');
+ const recovery=await(await api('/__publisher_recovery_test')).json();
+ assert.equal(recovery.failed.pending,true,'a terminal failed status must remain a freshness barrier while recovery starts');
+ assert.ok(recovery.scheduled>Date.now(),'checking a terminal failure must restart its publisher alarm');
+ assert.equal(recovery.recovered.pending,false,'a committed manifest must clear a stale failed status');
+ assert.equal(recovery.status.state,'ready');
+ assert.equal(recovery.failures,undefined);
  const db=await mf.getD1Database('DB'), bucket=await mf.getR2Bucket('VIEWER_SNAPSHOTS');
  const bounded=await(await api('/__bounded_read_test')).json();
  assert.ok(bounded.peak>1 && bounded.peak<=6,'whole-notebook R2 reads run concurrently with a fixed bound');
