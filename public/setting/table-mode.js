@@ -52,6 +52,7 @@ function clearPendingPublication(pending) {
     localStorage.removeItem(PENDING_KEY);
     if (publicationNotice) publicationNotice.hidden = true;
     clearTimeout(publicationCheckTimer); publicationCheckTimer = null;
+    if (!saving && !loading && status) { updateStatus(); toast('閲覧ページへの反映を確認しました'); }
   }
 }
 function schedulePublicationCheck() {
@@ -400,6 +401,37 @@ async function confirmPublication(savedRows) {
       clearPendingPublication(pending);
       return;
     }
+    // These existing authenticated endpoints read D1, bypassing notebook snapshots.
+    // Verify only successfully saved items, and never repeat their POST/PUT requests.
+    let d1Completed = 0;
+    const d1Sections = new Map();
+    updateStatus('保存先の内容を確認しています…');
+    for (const {row, keys} of savedRows) {
+      try {
+        let raw;
+        if (idiom) {
+          const section = row.base.sectionKey;
+          if (!d1Sections.has(section)) {
+            d1Sections.set(section, await api(`/lists/${encodeURIComponent(listId)}/idioms/sections/${encodeURIComponent(section)}`, {}, {publishedOnly:true}));
+          }
+          raw = d1Sections.get(section).entries.find(item => (item.key || item.id) === row.id);
+        } else {
+          raw = await api(`/words/${encodeURIComponent(row.id)}`, {}, {publishedOnly:true});
+        }
+        const draft = raw && draftOf(raw);
+        if (draft && keys.every(key => same(row.base[key], draft[key]))) d1Completed++;
+      } catch (error) {
+        if ([400,401,403,404,422].includes(error.status)) throw error;
+      }
+      saveProgress = {phase:'保存先確認',completed:d1Completed,total:savedRows.length};
+      updateStatus('保存先の内容を確認しています…');
+    }
+    if (d1Completed === savedRows.length) {
+      // Keep the publication marker: D1 success does not imply viewer JSON is ready.
+      publicationNotice.hidden = false;
+      publicationNotice.textContent = '保存済み・閲覧ページへ反映中です。2分ごとに自動確認します。編集を続けられます。';
+      return;
+    }
     updateStatus('保存内容を確認しています…（2分ごとに自動再確認）');
     await new Promise(resolve => setTimeout(resolve, 120000));
   }
@@ -421,7 +453,8 @@ async function saveRows(targets) {
     catch(error){unconfirmed=savedRows.length;for(const {row} of savedRows)row.error=`保存済みですが、一覧への反映を確認できませんでした：${error.message}`;}
   }
   saving=false;saveProgress=null;toggle.disabled=false;controls.disabled=false;sectionSelect.disabled=false;await render();
-  if(!failed&&!unconfirmed)toast('保存しました');
+  if (localStorage.getItem(PENDING_KEY)) schedulePublicationCheck();
+  if(!failed&&!unconfirmed)toast(localStorage.getItem(PENDING_KEY) ? '保存しました。閲覧ページへ反映中です' : '保存しました');
   else if(unconfirmed)updateStatus(`${unconfirmed}件は保存済みですが、一覧への反映確認ができませんでした。${failed?failed+'件は保存に失敗しました。':''}内容はカードに残しています。`);
   else updateStatus(`${successes}件保存しました。${failed}件は保存できませんでした。入力内容を残しています。`);
 }
@@ -474,7 +507,7 @@ async function start() {
   extras.append(search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void (listId?loadBook():loadCatalog());}));
   header.insertBefore(sectionSelect,menuToggle);
   menu.append(extras);
-  publicationNotice=node('div',{class:'sheet-publication-notice',role:'status','aria-live':'polite'},'前回保存した変更の反映をまだ確認できていません。公開済みの内容を表示しています。メニューの「再読み込み」で確認できます。');
+  publicationNotice=node('div',{class:'sheet-publication-notice',role:'status','aria-live':'polite'},'閲覧ページへの反映を待っています。2分ごとに自動確認します。現在の一覧は公開済みの内容です。');
   publicationNotice.hidden=true;
   pane.append(status,publicationNotice);
   const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton);menu.append(nav);
