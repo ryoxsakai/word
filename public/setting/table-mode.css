@@ -141,3 +141,5 @@
   .sheet-save-progress::after { display: none; }
   .sheet-save-progress-fill { transition: none; }
 }
+
+.sheet-card-badge.is-pending { color: var(--text); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 4px; padding: .1rem .35rem; }
