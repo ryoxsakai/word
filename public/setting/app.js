@@ -35,6 +35,8 @@ const EDITOR_PENDING_KEY = "vocab-editor-pending-publication";
 
 const state = {
   lists: [],
+  listLoading: true,
+  listLoadError: null,
   currentListId: null,
   listWordIndex: new Map(),
   masterWordIndex: null,
@@ -632,6 +634,9 @@ async function draftFromDictionary() {
 // ---- リスト読み込み ----
 
 async function loadLists() {
+  state.listLoading = true;
+  state.listLoadError = null;
+  renderWordTable();
   state.lists = await api("/lists");
   el.listSelect.innerHTML = "";
 
@@ -670,13 +675,18 @@ async function loadLists() {
     await selectList(state.currentListId);
   } else {
     state.currentListId = null;
+    state.listLoading = false;
     el.newWordBtn.disabled = true;
+    renderWordTable();
   }
 }
 
 async function selectList(listId) {
   const generation = ++listLoadGeneration;
   state.currentListId = listId;
+  state.listLoading = true;
+  state.listLoadError = null;
+  renderWordTable();
   state.idiomResolver = null;
   const idiomEditorLink = document.getElementById("idiomEditorLink");
   if (idiomEditorLink) idiomEditorLink.href = `./idioms.html?list=${encodeURIComponent(listId)}`;
@@ -691,11 +701,20 @@ async function selectList(listId) {
   state.masterFilter.q = "";
   state.notebookSearchQuery = "";
   el.tableSearchInput.value = "";
-  await Promise.all([
-    loadWordsForList(listId, { render: false }),
-    loadSectionsForList(listId, { render: false }),
-  ]);
+  try {
+    await Promise.all([
+      loadWordsForList(listId, { render: false }),
+      loadSectionsForList(listId, { render: false }),
+    ]);
+  } catch (err) {
+    if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+    state.listLoading = false;
+    state.listLoadError = err.message;
+    renderWordTable();
+    throw err;
+  }
   if (generation !== listLoadGeneration || listId !== state.currentListId) return;
+  state.listLoading = false;
   if (isNotebookView()) initializeNotebookExpansion();
   renderWordTableHead();
   renderWordTable();
@@ -1945,6 +1964,14 @@ function buildWordRow(w) {
 function renderWordTable() {
   el.wordTableBody.innerHTML = "";
 
+  if (state.listLoading || state.listLoadError) {
+    el.wordTableEmpty.hidden = false;
+    el.wordTableEmpty.textContent = state.listLoading
+      ? "単語帳を読み込んでいます。更新の反映に時間がかかる場合があります。"
+      : `単語帳を読み込めませんでした。${state.listLoadError} 再読み込みしてください。`;
+    return;
+  }
+
   if (isMasterView()) {
     el.wordTableEmpty.hidden = state.words.length > 0;
     el.wordTableEmpty.textContent = "条件に一致する単語がありません。";
@@ -2970,7 +2997,7 @@ el.usageCautionBtn.addEventListener("click", () =>
 );
 
 el.listSelect.addEventListener("change", (e) => {
-  selectList(e.target.value);
+  selectList(e.target.value).catch((err) => console.error(err));
   closeTopbarMenu();
 });
 el.listManageBtn.addEventListener("click", openListManageModal);
@@ -3062,6 +3089,9 @@ document.querySelectorAll(".add-row-btn").forEach((btn) => {
 });
 
 loadLists().catch((err) => {
+  state.listLoading = false;
+  state.listLoadError = err.message;
+  renderWordTable();
   console.error(err);
   el.listTitle.textContent = `読み込みエラー: ${err.message}`;
 });
