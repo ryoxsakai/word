@@ -18,6 +18,23 @@ export class ViewerSnapshotPublisher extends Publisher {
 }
 export default { async fetch(request,env,ctx) {
  const url=new URL(request.url);
+ if(url.pathname==='/__publisher_inflight_test') {
+   let release, entered;
+   const gate=new Promise(resolve=>{release=resolve;});
+   const started=new Promise(resolve=>{entered=resolve;});
+   const state=new Map([['status',{state:'ready'}]]);
+   const storage={get:async key=>state.get(key),getAlarm:async()=>null};
+   const publisher=new Publisher({storage},{
+     VIEWER_SNAPSHOTS:{async get(){entered();await gate;return null;}},
+     DB:{prepare(){return {all:async()=>({results:[]})};}},
+   });
+   const running=publisher.alarm();
+   await started;
+   const during=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
+   release();await running;
+   const after=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
+   return Response.json({during,after});
+ }
  if(url.pathname==='/__bounded_read_test') {
    let active=0,peak=0;
    const sections=Array.from({length:14},(_,i)=>({key:String(i+1)}));
@@ -84,6 +101,9 @@ async function waitPublished(previous,allowFailure=false) {
 }
 function migrationSql(sql){const triggers=[];return sql.replace(/^\s*--.*$/gm,'').replace(/CREATE\s+TRIGGER[\s\S]*?END\s*;/gi,t=>{triggers.push(t.replace(/;\s*$/,'').replace(/\s+/g,' '));return `__TRIGGER_${triggers.length-1}__;`;}).split(';').map(s=>s.trim().replace(/\s+/g,' ')).filter(Boolean).map(s=>s.replace(/__TRIGGER_(\d+)__/g,(_,i)=>triggers[i])+';').join('\n');}
 try {
+ const inflight=await(await api('/__publisher_inflight_test')).json();
+ assert.equal(inflight.during.pending,true,'an executing alarm must block editor reads before the first stage is stored');
+ assert.equal(inflight.after.pending,false,'an empty publication must clear its active state');
  const db=await mf.getD1Database('DB'), bucket=await mf.getR2Bucket('VIEWER_SNAPSHOTS');
  const bounded=await(await api('/__bounded_read_test')).json();
  assert.ok(bounded.peak>1 && bounded.peak<=6,'whole-notebook R2 reads run concurrently with a fixed bound');
@@ -167,12 +187,14 @@ try {
  assert.equal((await(await staticGet('/lists/snapshot-test/words/full')).json()).words.length,2);
  assert.equal((await staticGet('/lists/snapshot-test/viewer/sections/99999')).status,404);
  // A real REST write wakes publishing. Unaffected sections retain exact object keys.
- const saved=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:'alpha',notes:'changed note',senses:[{pos:'名',meaning:'甲',is_primary:1,sort_order:0}]})});
+ const saved=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:'alpha',notes:'changed note',synonyms:'serve; perform; carry A out',senses:[{pos:'名',meaning:'甲',is_primary:1,sort_order:0}]})});
  assert.equal(saved.status,200,await saved.clone().text());
  assert.equal((await editorGet('/lists/snapshot-test/editor/index?editorFresh=1')).status,503,'read-after-write waits for publication without D1');
  status=await waitPublished(status.revision);
  manifest=await(await bucket.get('current.json')).json();
  assert.equal((await editorGet('/lists/snapshot-test/editor/index?editorFresh=1')).status,200);
+ const reopened=await(await editorGet('/lists/snapshot-test/editor/sections/99901?full=1&editorFresh=1')).json();
+ assert.equal(reopened.words.find(word=>word.id==='snap-a').synonyms,'serve; perform; carry A out','the editor reload must read the saved synonym from R2 without D1');
  assert.notEqual(manifest.files[sectionA].key,originalA);
  assert.equal(manifest.files[sectionB].key,originalB);
  assert.equal(manifest.chapters[scope('snapshot-test','viewer-chapter','99902')].key,chapterB,'unchanged chapter HTML is reused');

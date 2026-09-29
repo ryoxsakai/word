@@ -20,9 +20,16 @@ async function run(idiom){
  w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','wrong-book');
  const extraWords=Array.from({length:20},(_,i)=>({...clone(word),id:`extra-${i}`,spelling:`extra ${i}`}));
  const extraIdioms=Array.from({length:20},(_,i)=>({...clone(entry),key:`extra-${i}`,phrase:`extra ${i}`}));
- const calls=[];let storedWord=detail(),storedIdiom=clone(entry),fail=false;
+ const calls=[];let storedWord=detail(),storedIdiom=clone(entry),publishedWord=detail(),publishedIdiom=clone(entry),fail=false,failConfirmation=false,confirmationReads=0;
+ // Speed up only publication polling, leaving UI debounce/toast timing intact.
+ const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===1000?10:ms,...args);
  w.fetch=async(input,opts={})=>{
-  const path=new URL(String(input),'http://localhost').pathname;calls.push({path,method:opts.method||'GET',body:opts.body&&JSON.parse(opts.body)});let data;
+  const url=new URL(String(input),'http://localhost'),path=url.pathname;calls.push({path,method:opts.method||'GET',body:opts.body&&JSON.parse(opts.body)});let data;
+  if(url.searchParams.get('editorFresh')==='1'&&/\/editor\/(?:sections|idiom-sections)\//.test(path)){
+   confirmationReads++;
+   if(failConfirmation)return new Response(JSON.stringify({error:'confirmation unavailable'}),{status:503});
+   if(confirmationReads===1)return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
+  }
   if(opts.method){
    if(fail)return new Response(JSON.stringify({error:'injected failure'}),{status:503});
    const body=JSON.parse(opts.body);
@@ -34,10 +41,11 @@ async function run(idiom){
   else if(path==='/api/lists/book/sections')data=[{id:1,subtitle:'First'}];
   else if(path==='/api/lists/book/labels')data=[{id:2,sectionId:1,name:'Label'}];
   else if(path==='/api/lists/book/chapters')data=[];
-  else if(path==='/api/lists/book/editor/sections/1')data={words:[word,...extraWords]};
+  else if(path==='/api/lists/book/editor/sections/1')data={words:[publishedWord,...extraWords]};
   else if(path==='/api/words/alpha')data=storedWord;
   else if(path==='/api/lists/book/editor/idioms')data={chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry,...extraIdioms]};
-  else if(path==='/api/lists/book/editor/idiom-sections/s1'||path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom,...extraIdioms]};
+  else if(path==='/api/lists/book/editor/idiom-sections/s1')data={entries:[publishedIdiom,...extraIdioms]};
+  else if(path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom,...extraIdioms]};
   else throw new Error(`Unexpected read ${path}`);
   return new Response(JSON.stringify(data),{headers:{'content-type':'application/json','x-editor-source':'r2'}});
  };
@@ -51,7 +59,7 @@ async function run(idiom){
  const edit=(el,value)=>{el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
  const meanings=d.querySelector('.sheet-card').querySelectorAll('[aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
  edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
- if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');storedWord.etymology='concurrent unrelated update';}
+ if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');edit(get('類義語'),'serve; perform; carry A out');storedWord.etymology='concurrent unrelated update';}
  if(!idiom){
   assert.equal(get('種類'),null);assert.equal(get('品詞ごとの発音'),null);assert.equal(get('Oxford 5000'),null);
   const badge=get('能格');assert.equal(badge.tagName,'BUTTON');badge.click();assert.equal(badge.getAttribute('aria-pressed'),'true');
@@ -72,10 +80,25 @@ async function run(idiom){
  assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical scroll lost across batches');
  rail.scrollLeft=234;
  const saveAll=[...d.querySelectorAll('button')].find(b=>b.textContent==='変更を保存');saveAll.click();
+ await waitFor(()=>calls.some(c=>c.method!=='GET'),'write not made');
+ await tick();
+ assert.notEqual(d.getElementById('tableToast')?.textContent,'保存しました','a write response alone must not produce a success toast');
+ await waitFor(()=>confirmationReads>1,'publication not checked after pending response');
+ assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'),'stale JSON must not clear the pending marker');
+ publishedWord=clone(storedWord);publishedIdiom=clone(storedIdiom);
  await waitFor(()=>d.getElementById('tableToast')?.textContent==='保存しました','success toast missing');
  assert.equal(rail.scrollLeft,234,'horizontal position lost on save');
  assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical position lost on save');
  assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み');
+ assert.equal(w.localStorage.getItem('vocab-editor-pending-publication'),null);
+ if(!idiom)assert.equal(get('類義語').value,'serve; perform; carry A out');
+ const reopened=new JSDOM(html,{url:w.location.href,runScripts:'outside-only'});
+ Object.assign(reopened.window,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true,fetch:w.fetch});
+ reopened.window.localStorage.setItem('vocab-setting-edit-mode','table');
+ reopened.window.eval(bundle);
+ await waitFor(()=>reopened.window.document.querySelector('.sheet-card [aria-label="メモ"]')?.value==='edited note','a newly opened page lost the saved edit');
+ if(!idiom)assert.equal(reopened.window.document.querySelector('.sheet-card [aria-label="類義語"]').value,'serve; perform; carry A out');
+ reopened.window.close();
  const writes=calls.filter(c=>c.method!=='GET');assert.equal(writes.length,1);const saved=writes[0].body;
  if(idiom){assert.equal(saved.meanings[1].meaning,'edited meaning');assert.equal(saved.meanings[1].id,'s-b');assert.deepEqual(saved.meanings[0].wordIds,['alpha']);assert.equal(saved.hidden,true);}
  else{assert.equal(saved.derivedFrom,'parent');assert.equal(saved.ergative,true);assert.equal(saved.tags.awl,'2');assert.equal(saved.tags['custom:medical'],true);assert.equal(saved.senses[1].pronunciation,'/a/');assert.equal(saved.examples[1].type,'example');assert.equal(saved.examples[2].type,'phrase');assert.equal(saved.senses[1].meaning,'edited meaning');assert.equal(saved.examples[0].answer,'retained answer');assert.equal(saved.examples[1].sentence,'Second edited sentence');assert.equal(saved.etymology,'concurrent unrelated update');assert.equal(saved.audioUrl,'legacy.mp3');}
@@ -83,6 +106,17 @@ async function run(idiom){
  await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('injected failure'),'save failure missing');
  assert.equal(get('メモ').value,'unsaved after failure');assert.equal(calls.filter(c=>c.method!=='GET').length,2);assert.equal(d.getElementById('tableToast').textContent,'');
  await tick();assert.equal(calls.filter(c=>c.method!=='GET').length,2);
+ // Reload from the JSON used by a new page, not the in-memory saved row.
+ [...d.querySelectorAll('button')].find(b=>b.textContent==='再読み込み').click();
+ await waitFor(()=>get('メモ')?.value==='edited note','reload lost the saved edit');
+ if(!idiom)assert.equal(get('類義語').value,'serve; perform; carry A out');
+ fail=false;failConfirmation=true;edit(get('メモ'),'saved but awaiting publication');saveAll.click();
+ await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('保存済みですが'),'publication failure must be distinguished from a failed write');
+ assert.equal(get('メモ').value,'saved but awaiting publication');
+ assert.equal(d.getElementById('tableToast').textContent,'');
+ assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'));
+ assert.equal(calls.filter(c=>c.method!=='GET').length,3);
+ await tick();assert.equal(calls.filter(c=>c.method!=='GET').length,3,'a confirmation failure must not replay the write');
  const meanCell=get('意味').closest('fieldset');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  dom.window.close();
 }
