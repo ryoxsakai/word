@@ -150,5 +150,49 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  const meanCell=get('意味').closest('fieldset');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  dom.window.close();
 }
+async function pendingStartup(idiom) {
+ const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
+ const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
+ const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
+ const marker='previous-save';
+ w.localStorage.setItem('vocab-setting-edit-mode','table');
+ w.localStorage.setItem('vocab-editor-pending-publication',marker);
+ let pending=true;
+ const calls=[];
+ w.fetch=async(input,opts={})=>{
+  assert.ok(!opts.method||opts.method==='GET','startup must never write');
+  const url=new URL(String(input),'http://localhost'),path=url.pathname,fresh=url.searchParams.has('editorFresh');
+  calls.push({path,fresh});
+  if(pending&&fresh)return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
+  const fixtures={
+   '/api/lists':[{id:'book',name:'crossover',isNotebook:true}],
+   '/api/lists/book/editor/index':{words:[word]},
+   '/api/lists/book/sections':[{id:1,subtitle:'First'}],
+   '/api/lists/book/labels':[{id:2,sectionId:1,name:'Label'}],
+   '/api/lists/book/chapters':[],
+   '/api/lists/book/editor/sections/1':{words:[detail()]},
+   '/api/lists/book/editor/idioms':{chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry]},
+   '/api/lists/book/editor/idiom-sections/s1':{entries:[entry]}
+  };
+  assert.ok(path in fixtures,`unexpected endpoint ${path}`);
+  return new Response(JSON.stringify(fixtures[path]),{headers:{'x-editor-source':'r2'}});
+ };
+ try {
+  w.eval(bundle);
+  const d=w.document;
+  await waitFor(()=>d.querySelector('.sheet-card'),'pending publication must not block startup cards');
+  assert.equal(w.localStorage.getItem('vocab-editor-pending-publication'),marker,'published fallback must retain the unconfirmed save marker');
+  const notice=d.querySelector('.sheet-publication-notice');
+  assert.ok(notice&&!notice.hidden,'unconfirmed publication must remain visible after cards render');
+  assert.match(notice.textContent,/公開済み/);
+  assert.deepEqual(calls.filter(c=>c.path==='/api/lists').map(c=>c.fresh),[true,false],'fall back immediately, without repeated strict polling');
+  assert.ok(calls.every(c=>c.path!=='/api/words/alpha'),'startup must use JSON endpoints only');
+  pending=false;
+  [...d.querySelectorAll('button')].find(b=>b.textContent==='再読み込み').click();
+  await waitFor(()=>d.querySelector('.sheet-card')&&w.localStorage.getItem('vocab-editor-pending-publication')===null,'a successful fresh reload must clear the pending marker');
+  assert.equal(notice.hidden,true,'hide the publication notice after confirmation');
+ } finally {dom.window.close();}
+}
+await pendingStartup(false);await pendingStartup(true);
 await run(false);await run(true);await run(false,true);await run(false,false,true);
 console.log('Card editor passed: draft/scroll preservation, JSON reads, repeated fields, scoped saves, conflict merge, retained hidden data, failures and toast');

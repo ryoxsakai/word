@@ -46,10 +46,18 @@ function button(text, action, attrs = {}) {
   el.addEventListener('click', action);
   return el;
 }
-async function api(path, options = {}, { confirm = false } = {}) {
+function clearPendingPublication(pending) {
+  if (pending && localStorage.getItem(PENDING_KEY) === pending) {
+    localStorage.removeItem(PENDING_KEY);
+    if (publicationNotice) publicationNotice.hidden = true;
+  }
+}
+async function api(path, options = {}, { confirm = false, publishedOnly = false } = {}) {
   const read = !options.method || options.method === 'GET';
   const pending = localStorage.getItem(PENDING_KEY);
-  if (read && (pending || confirm)) path += `${path.includes('?') ? '&' : '?'}editorFresh=1`;
+  const originalPath = path;
+  const fresh = read && !publishedOnly && (pending || confirm);
+  if (fresh) path += `${path.includes('?') ? '&' : '?'}editorFresh=1`;
   for (let attempt = 0; ; attempt++) {
     const controller = read ? new AbortController() : null;
     let timer;
@@ -61,6 +69,12 @@ async function api(path, options = {}, { confirm = false } = {}) {
       timer = setTimeout(() => { reject(new Error('通信に時間がかかっています。再読み込みしてください。')); controller.abort(); }, 15000);
     })]) : request).finally(() => clearTimeout(timer));
     if (!response.ok) {
+      // A previous save must not make opening cards wait for the global publisher.
+      // Keep the marker until a strict read succeeds; save confirmation never falls back.
+      if (fresh && !confirm && data?.code === 'editor_snapshot_pending') {
+        if (localStorage.getItem(PENDING_KEY) === pending) publicationNotice.hidden = false;
+        return api(originalPath, options, {publishedOnly:true});
+      }
       if (read && !confirm && data?.code === 'editor_snapshot_pending' && attempt < 60) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
@@ -68,7 +82,7 @@ async function api(path, options = {}, { confirm = false } = {}) {
       throw Object.assign(new Error(data?.error || `HTTP ${response.status}`), {code:data?.code});
     }
     if (!read) localStorage.setItem(PENDING_KEY, crypto.randomUUID());
-    else if (!confirm && pending && response.headers.get('x-editor-source') === 'r2' && localStorage.getItem(PENDING_KEY) === pending) localStorage.removeItem(PENDING_KEY);
+    else if (fresh && !confirm && response.headers.get('x-editor-source') === 'r2') clearPendingPublication(pending);
     return data;
   }
 }
@@ -92,7 +106,7 @@ window.addEventListener('beforeunload', event => {
   if (hasChanges() || saving) { event.preventDefault(); event.returnValue = ''; }
 });
 
-let pane, controls, menuControls, sectionSelect, search, status, body, saveButton, prevButton, nextButton, pageLabel;
+let pane, controls, menuControls, sectionSelect, search, status, publicationNotice, body, saveButton, prevButton, nextButton, pageLabel;
 function updateStatus(message) {
   sectionSelect.disabled=loading||saving;
   menuControls?.querySelectorAll('input,button').forEach(el=>{el.disabled=loading||saving;});
@@ -357,7 +371,7 @@ async function confirmPublication(savedRows) {
       }
     }
     if (confirmed) {
-      if (pending && localStorage.getItem(PENDING_KEY) === pending) localStorage.removeItem(PENDING_KEY);
+      clearPendingPublication(pending);
       return;
     }
     if (attempt < 60) await new Promise(resolve => setTimeout(resolve, 1000));
@@ -418,7 +432,9 @@ async function start() {
   extras.append(search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void (listId?loadBook():loadCatalog());}));
   header.insertBefore(sectionSelect,menuToggle);
   menu.append(extras);
-  pane.append(status);
+  publicationNotice=node('div',{class:'sheet-publication-notice',role:'status','aria-live':'polite'},'前回保存した変更の反映をまだ確認できていません。公開済みの内容を表示しています。メニューの「再読み込み」で確認できます。');
+  publicationNotice.hidden=true;
+  pane.append(status,publicationNotice);
   const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton);menu.append(nav);
   body=node('div',{class:'sheet-card-rail','aria-label':idiom?'熟語カード一覧':'単語カード一覧'});
   body.addEventListener('scroll',updateNavigation,{passive:true});window.addEventListener('resize',()=>{fitTextFields();updateNavigation();});
