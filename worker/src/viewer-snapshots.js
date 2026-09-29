@@ -261,7 +261,13 @@ export async function serveViewerSnapshot(request,env) {
         if(index) {
           const keys=words?index.sections.map(s=>s.key):index.chapters.flatMap(c=>c.sections.map(s=>s.key));
           const entries=[];
-          for(const key of keys){const shard=await readFile(env,manifest,words?wordSection(list,key):idiomSection(list,key));entries.push(...(shard?.[words?'words':'entries']||[]));}
+          // Bound concurrent R2 reads while preserving section order. Serial reads
+          // across a whole notebook can exceed the production request timeout.
+          for(let offset=0;offset<keys.length;offset+=6) {
+            const shards=await Promise.all(keys.slice(offset,offset+6).map(key=>
+              readFile(env,manifest,words?wordSection(list,key):idiomSection(list,key))));
+            for(const shard of shards)entries.push(...(shard?.[words?'words':'entries']||[]));
+          }
           data=words?{list:index.list,words:entries}:{managed:index.managed,chapters:index.chapters,entries};
         }
       }

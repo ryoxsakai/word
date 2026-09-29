@@ -1,3 +1,5 @@
+import { groupIdiomEntries } from '../../public/shared/idioms.js';
+import { createIdiomReferenceResolver } from '../../public/shared/idiom-references.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
@@ -74,3 +76,15 @@ context.editorFetch = async () => { attempts += 1; return new Response(JSON.stri
 await assert.rejects(context.api('/words/a', {method:'PUT',body:'{}'}), /failure/);
 assert.equal(attempts, 1, 'failed writes are never retried');
 console.log('Editor save tests passed: scoped caches, moves, references, read-after-write barrier, no write retries');
+
+const idiomChapters=[{key:'c',sections:[{key:'s'}]}];
+const richIdioms=[
+ {key:'one',sectionKey:'s',phrase:'look after',aliases:['care for'],alternateForms:['look after O'],meanings:[{meaning:'世話をする'}]},
+ {key:'hidden',sectionKey:'s',phrase:'hidden phrase',hidden:true,meanings:[{meaning:'非表示'}]},
+ {key:'two',sectionKey:'s',phrase:'look up',meanings:[{meaning:'調べる'}]},
+];
+const richResolver=createIdiomReferenceResolver(groupIdiomEntries(richIdioms,idiomChapters));
+const lightResolver=createIdiomReferenceResolver(groupIdiomEntries(richIdioms.map(e=>({...e,meanings:[]})),idiomChapters));
+for(const phrase of ['look after','care for','look after O','look up','hidden phrase']) {
+ assert.deepEqual(lightResolver(phrase),richResolver(phrase),'lightweight index preserves references and numbering: '+phrase);
+}
