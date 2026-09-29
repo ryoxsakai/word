@@ -16,10 +16,17 @@ let rows = [], sections = [], labels = [], index = [], books = [], page = 0, loa
 let listId = '', sectionKey = '', query = '', sequence = 0;
 let wordNames = new Map();
 let resolveReference = () => ({found:false}), renderReferenceNotes;
+let referenceGeneration = 0;
+const referencePreviews = new Set();
 function prepareReferences(words, idioms = {entries:[],chapters:[]}) {
   const wordIndex = new Map(words.map(w => [w.spelling.toLowerCase(), {found:true,id:w.id,no:w.displayNo ?? w.seqNo ?? w.no}]));
   resolveReference = createIdiomReferenceResolver(groupIdiomEntries(idioms.entries,idioms.chapters), name => wordIndex.get(name.toLowerCase()) || {found:false});
-  renderReferenceNotes = createAutoCrossRefRenderer([...wordIndex.keys(),...resolveReference.phrases], {resolve:resolveReference,idiomReferences:resolveReference.phrases});
+  const names = [...wordIndex.keys(),...resolveReference.phrases];
+  renderReferenceNotes = (text, context) => {
+    const haystack = String(text || '').toLowerCase().replace(/\s+/g,' ');
+    const relevant = name => haystack.includes(name.toLowerCase());
+    return createAutoCrossRefRenderer(names.filter(relevant), {resolve:resolveReference,idiomReferences:resolveReference.phrases.filter(relevant)})(text, context);
+  };
 }
 const pageSize = 20;
 const draftOf = raw => idiom ? idiomDraft(raw) : wordDraft(raw, listId);
@@ -44,8 +51,15 @@ async function api(path, options = {}, { confirm = false } = {}) {
   const pending = localStorage.getItem(PENDING_KEY);
   if (read && (pending || confirm)) path += `${path.includes('?') ? '&' : '?'}editorFresh=1`;
   for (let attempt = 0; ; attempt++) {
-    const response = await editorFetch(`${EDITOR_API_BASE}/api${path}`, { ...options, headers: {'content-type':'application/json'}, cache:'no-store' });
-    const data = response.status === 204 ? null : await response.json();
+    const controller = read ? new AbortController() : null;
+    let timer;
+    const request = (async () => {
+      const response = await editorFetch(`${EDITOR_API_BASE}/api${path}`, { ...options, ...(controller ? {signal:controller.signal} : {}), headers: {'content-type':'application/json'}, cache:'no-store' });
+      return {response, data:response.status === 204 ? null : await response.json()};
+    })();
+    const {response,data} = await (read ? Promise.race([request, new Promise((_, reject) => {
+      timer = setTimeout(() => { reject(new Error('通信に時間がかかっています。再読み込みしてください。')); controller.abort(); }, 15000);
+    })]) : request).finally(() => clearTimeout(timer));
     if (!response.ok) {
       if (read && !confirm && data?.code === 'editor_snapshot_pending' && attempt < 60) {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -123,7 +137,7 @@ function textField(container, row, key, title, {type='text', choices, multiline=
         link.target = '_blank'; link.rel = 'noopener';
       }
     };
-    input.addEventListener('input', update); update(); container.append(preview);
+    input.addEventListener('input', update); referencePreviews.add(update); update(); container.append(preview);
   }
   return input;
 }
@@ -211,6 +225,7 @@ function moveCard(direction) {
   body.scrollBy({left:direction*(width+16),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
 async function render({resetPosition=false,end=false}={}) {
+  referencePreviews.clear();
   rememberScroll();
   const scrollLeft=resetPosition?0:body.scrollLeft;
   const token=++sequence;
@@ -265,16 +280,27 @@ async function loadRows() {
   }catch(error){updateStatus(`読み込みに失敗しました：${error.message}`);}finally{loading=false;controls.disabled=false;sectionSelect.disabled=false;saveButton.disabled=!hasChanges();menuControls.querySelectorAll('input,button').forEach(el=>{if(el!==saveButton)el.disabled=false;});}
 }
 async function loadBook() {
+  const referenceToken = ++referenceGeneration;
   loading=true;controls.disabled=true;rows=[];body.replaceChildren();updateStatus('単語帳を読み込んでいます…');
   localStorage.setItem('vocab-setting-last-list',listId);
   try {
     const path=`/lists/${encodeURIComponent(listId)}`;
     if(listId==='__master__'){index=(await api('/master/index')).words;sections=[{key:'none',name:'親リスト'}];labels=[];prepareReferences(index);}
     else if(idiom){const [data,wordIndex]=await Promise.all([api(`${path}/editor/idioms`),api(`${path}/editor/index`)]);wordNames=new Map(wordIndex.words.map(w=>[w.id,w.spelling]));prepareReferences(wordIndex.words,data);index=data.entries;sections=data.chapters.flatMap((c,ci)=>c.sections.map((s,si)=>({...s,name:`Chapter ${ci+1} / Section ${si+1} ${s.subtitle||''}`})));index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));labels=[];}
-    else {const [data,ss,ll,chapters,idioms]=await Promise.all([api(`${path}/editor/index`),api(`${path}/sections`),api(`${path}/labels`),api(`${path}/chapters`),api(`${path}/editor/idioms`)]);index=data.words;prepareReferences(index,idioms);labels=ll;sections=[{key:'none',name:'Sectionなし'},...ss.map((s,i)=>({...s,key:String(s.id),name:`${s.chapterId?'Chapter '+(chapters.findIndex(c=>c.id===s.chapterId)+1)+' / ':''}Section ${i+1} ${s.subtitle||''}`}))];}
+    else {const [data,ss,ll,chapters]=await Promise.all([api(`${path}/editor/index`),api(`${path}/sections`),api(`${path}/labels`),api(`${path}/chapters`)]);index=data.words;prepareReferences(index);labels=ll;sections=[{key:'none',name:'Sectionなし'},...ss.map((s,i)=>({...s,key:String(s.id),name:`${s.chapterId?'Chapter '+(chapters.findIndex(c=>c.id===s.chapterId)+1)+' / ':''}Section ${i+1} ${s.subtitle||''}`}))];}
     sectionKey=sections.find(s=>index.some(w=>String(w.sectionKey??w.sectionId??'none')===s.key))?.key || sections[0]?.key || '';
     options(sectionSelect,sections.map(s=>[s.key,s.name]),sectionKey);
     if(sectionKey)await loadRows();else updateStatus('編集できるSectionがありません。通常編集でSectionを作成してください。');
+    if (!idiom && listId !== '__master__') {
+      // References are optional; never block cards or recreate unsaved drafts.
+      void api(`${path}/editor/idioms`).then(data => {
+        if (referenceToken !== referenceGeneration) return;
+        prepareReferences(index,data);
+        for (const update of referencePreviews) update();
+      }).catch(() => {
+        if (referenceToken === referenceGeneration) toast('熟語の参照を読み込めませんでした。カードの編集は続けられます。');
+      });
+    }
   }catch(error){updateStatus(`読み込みに失敗しました：${error.message}`);}finally{loading=false;controls.disabled=false;sectionSelect.disabled=false;saveButton.disabled=!hasChanges();menuControls.querySelectorAll('input,button').forEach(el=>{if(el!==saveButton)el.disabled=false;});}
 }
 async function saveRecord(row) {
@@ -361,6 +387,17 @@ function addRow() {
   const raw=idiom?{sectionKey,phrase:'',meanings:[{meaning:'',refs:[]}]}:{sectionId:sectionKey==='none'?null:Number(sectionKey),spelling:'',senses:[{pos:'',meaning:'',isPrimary:true}],examples:[],derivatives:[],tags:{}};
   rows.unshift(record(raw,true));page=0;query='';search.value='';void render({resetPosition:true});
 }
+async function loadCatalog() {
+  loading=true;options(sectionSelect,[['','読み込み中…']]);updateStatus('単語帳を読み込んでいます…');
+  try {
+    books=(await api('/lists')).filter(b=>b.isNotebook);
+    const crossover=books.find(b=>b.id==='crossover-v3')||books.find(b=>b.name?.trim().toLowerCase()==='crossover');
+    if(crossover){listId=crossover.id;await loadBook();}
+    else {loading=false;updateStatus('crossoverの単語帳が見つかりません。');}
+  } catch(error) {
+    loading=false;options(sectionSelect,[['','読み込みできませんでした']]);updateStatus(`読み込みに失敗しました：${error.message}`);
+  }
+}
 async function start() {
   document.body.classList.add('card-edit-mode');
   document.querySelector('.word-table-pane').hidden=true;
@@ -378,7 +415,7 @@ async function start() {
   saveButton=button('変更を保存',()=>saveRows(rows),{class:'primary'});saveButton.disabled=true;
   status=node('span',{class:'sheet-status',role:'status','aria-live':'polite'});
   const extras=node('div',{id:'cardEditorTools',class:'sheet-extra-tools'});menuControls=extras;
-  extras.append(search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void loadBook();}));
+  extras.append(search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void (listId?loadBook():loadCatalog());}));
   header.insertBefore(sectionSelect,menuToggle);
   menu.append(extras);
   pane.append(status);
@@ -389,8 +426,6 @@ async function start() {
   controls.append(body);pane.append(controls);document.querySelector('main').append(pane);
   sectionSelect.addEventListener('change',()=>{if(loading||saving){sectionSelect.value=sectionKey;return;}if(guardNavigation()){sectionKey=sectionSelect.value;void loadRows();}else sectionSelect.value=sectionKey;});
   let timer;search.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{query=search.value.trim().toLowerCase();page=0;void render({resetPosition:true});},200);});
-  books=(await api('/lists')).filter(b=>b.isNotebook);
-  const crossover=books.find(b=>b.id==='crossover-v3')||books.find(b=>b.name?.trim().toLowerCase()==='crossover');
-  if(crossover){listId=crossover.id;await loadBook();}else updateStatus('crossoverの単語帳が見つかりません。');
+  await loadCatalog();
 }
-if(tableMode)void start().catch(error=>{if(status)updateStatus(`読み込みに失敗しました：${error.message}`);else console.error(error);});
+if(tableMode)void start().catch(error=>{loading=false;if(status){options(sectionSelect,[['','読み込みできませんでした']]);updateStatus(`読み込みに失敗しました：${error.message}`);}else console.error(error);});
