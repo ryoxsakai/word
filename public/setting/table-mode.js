@@ -79,14 +79,21 @@ function options(select, items, selected) {
   select.replaceChildren(...items.map(([value, name]) => node('option', {value}, name)));
   select.value = selected ?? items[0]?.[0] ?? '';
 }
+function fitText(input) {
+  if(!input.isConnected || !input.clientWidth)return;
+  input.style.height='auto';
+  input.style.height=`${input.scrollHeight+2}px`;
+}
+function fitTextFields(root=body) { root?.querySelectorAll('textarea').forEach(fitText); }
 function textField(container, row, key, title, {type='text', choices, multiline=false, onChange} = {}) {
   const label = node('label', {}, title);
   const input = node(choices ? 'select' : multiline ? 'textarea' : 'input', {'aria-label':title});
   if (choices) options(input, choices, String(row.draft[key] ?? ''));
   else if (type === 'checkbox') { input.type = 'checkbox'; input.checked = !!row.draft[key]; label.className = 'sheet-check'; }
-  else { if (!multiline) input.type = type; input.value = row.draft[key] ?? ''; if (multiline) input.rows = 3; }
+  else { if (!multiline) input.type = type; input.value = row.draft[key] ?? ''; if (multiline) input.rows = 1; }
   input.addEventListener(choices || type === 'checkbox' ? 'change' : 'input', () => {
     row.draft[key] = type === 'checkbox' ? input.checked : input.value;
+    if(multiline)fitText(input);
     if (onChange) onChange();
     mark(row);
   });
@@ -107,55 +114,52 @@ function repeat(container, row, key, fields, empty, max = Infinity) {
   function render() {
     list.replaceChildren();
     row.draft[key].forEach((item, i) => {
-      const box = node('div', {class:'repeat-row sheet-repeat'});
+      const box = node('div', {class:`sheet-repeat sheet-repeat--${key}`});
+      const fieldsBox=node('div',{class:'sheet-repeat-fields'});box.append(fieldsBox);
+      const actions=node('div',{class:'sheet-repeat-actions'});actions.append(node('span',{},String(i+1)));
+      let primaryField;
       for (const [field, title, config = {}] of fields) {
         const proxy = {draft:item};
         const fieldConfig = {...config, onChange:() => {
-          if (field === 'is_primary' && item.is_primary) { row.draft[key].forEach((s,n)=>{if(n!==i)s.is_primary=false;}); render(); }
+          if (field === 'is_primary' && item.is_primary) { row.draft[key].forEach((s,n)=>{if(n!==i)s.is_primary=false;}); render();fitTextFields(list); }
           mark(row);
         }};
         // Retain uncommon existing part-of-speech values instead of silently blanking them.
         if (fieldConfig.choices && item[field] && !fieldConfig.choices.some(([v])=>v===item[field])) fieldConfig.choices = [...fieldConfig.choices,[item[field],item[field]]];
-        textField(box, proxy, field, title, fieldConfig);
+        const input=textField(field==='is_primary'?actions:fieldsBox, proxy, field, title, fieldConfig);
+        if(field==='is_primary'){primaryField=input.parentElement;input.parentElement.firstChild.textContent='見出し';}
       }
       if (key === 'meanings' && item.wordIds.length) box.append(node('p', {class:'sheet-readonly'}, '単語参照：' + item.wordIds.map(id => wordNames.get(id) || '登録済みの参照').join('、')));
-      const actions = node('div', {class:'sheet-repeat-actions'}); actions.append(node('span',{},String(i+1)));
-      const move = offset => { const to=i+offset; if(to<0||to>=row.draft[key].length)return; [row.draft[key][i],row.draft[key][to]]=[row.draft[key][to],row.draft[key][i]];render();mark(row); };
+      const move = offset => { const to=i+offset; if(to<0||to>=row.draft[key].length)return; [row.draft[key][i],row.draft[key][to]]=[row.draft[key][to],row.draft[key][i]];render();fitTextFields(list);mark(row); };
       const up=button('↑',()=>move(-1),{'aria-label':`${i+1}番目を上へ`}); up.disabled=i===0;
       const down=button('↓',()=>move(1),{'aria-label':`${i+1}番目を下へ`});down.disabled=i===row.draft[key].length-1;
-      actions.append(up,down,button('削除',()=>{row.draft[key].splice(i,1);render();mark(row);}));box.append(actions);list.append(box);
+      actions.append(up,down);if(primaryField)actions.append(primaryField);actions.append(button('削除',()=>{row.draft[key].splice(i,1);render();fitTextFields(list);mark(row);}));box.append(actions);list.append(box);
     });
   }
-  render();container.append(list,button('＋追加',()=>{if(row.draft[key].length>=max)return;row.draft[key].push(clone(empty));render();mark(row);}));
+  render();container.append(list,button('＋追加',()=>{if(row.draft[key].length>=max)return;row.draft[key].push(clone(empty));render();fitTextFields(list);mark(row);}));
 }
 function columns() {
-  const sectionChoices = idiom ? sections.map(s=>[s.key,s.name]) : [['','Sectionなし'],...sections.filter(s=>s.key!=='none').map(s=>[s.key,s.name])];
   const fieldCol = (name,key,config={}) => ({name,fields:[key],draw:(td,row)=>textField(td,row,key,name,config)});
-  const placement = {name:'Section・Label',fields:idiom?['sectionKey','labelKey']:['sectionId','labelId'],draw(td,row){
-    const sectionField=idiom?'sectionKey':'sectionId', labelField=idiom?'labelKey':'labelId';
-    const labelBox=node('div');
-    const drawLabels=()=>{labelBox.replaceChildren();const choices=idiom?(sections.find(s=>s.key===row.draft[sectionField])?.labels||[]).map(l=>[l.key,l.name]):labels.filter(l=>String(l.sectionId)===row.draft.sectionId).map(l=>[String(l.id),l.name]);textField(labelBox,row,labelField,'Label',{choices:[['','なし'],...choices]});};
-    textField(td,row,sectionField,'Section',{choices:sectionChoices,onChange:()=>{row.draft[labelField]='';drawLabels();}});td.append(labelBox);drawLabels();
-  }};
-  if(idiom)return [fieldCol('熟語','phrase'),placement,fieldCol('別形（1行に1つ）','alternateForms',{multiline:true}),
+  if(idiom)return [fieldCol('熟語','phrase'),fieldCol('別形（1行に1つ）','alternateForms',{multiline:true}),
     {name:'意味・単語参照',wide:true,fields:['meanings'],draw:(td,row)=>repeat(td,row,'meanings',[['meaning','意味',{multiline:true}]],{meaning:'',wordIds:[]},30)},
     ...['synonyms','antonyms','notes'].map((k,i)=>fieldCol(['同義語','対義語','メモ'][i],k,{multiline:true})),fieldCol('閲覧から非表示','hidden',{type:'checkbox'})];
-  const wordColumns = [fieldCol('単語','spelling'),fieldCol('発音記号','pronunciation'),...(listId==='__master__'?[]:[placement]),fieldCol('派生元','derivedFrom'),
-    {name:'品詞・意味',wide:true,fields:['senses'],draw:(td,row)=>repeat(td,row,'senses',[['pos','品詞',{choices:pos}],['meaning','意味',{multiline:true}],['pronunciation','品詞ごとの発音'],['is_primary','見出しの意味',{type:'checkbox'}]],{pos:'',meaning:'',pronunciation:'',is_primary:row.draft.senses.length===0})},
-    {name:'例文・フレーズ',wide:true,fields:['examples'],draw:(td,row)=>repeat(td,row,'examples',[['type','種類',{choices:[['example','例文'],['phrase','フレーズ']]}],['sentence','英文',{multiline:true}],['translation','日本語訳',{multiline:true}]],{type:'phrase',sentence:'',translation:'',answer:''})},
+  const wordColumns = [fieldCol('単語','spelling'),fieldCol('発音記号','pronunciation'),
+    {name:'品詞・意味',wide:true,fields:['senses'],draw:(td,row)=>repeat(td,row,'senses',[['pos','品詞',{choices:pos}],['meaning','意味',{multiline:true}],['is_primary','見出しの意味',{type:'checkbox'}]],{pos:'',meaning:'',pronunciation:'',is_primary:row.draft.senses.length===0})},
+    {name:'例文・フレーズ',wide:true,fields:['examples'],draw:(td,row)=>repeat(td,row,'examples',[['sentence','英文',{multiline:true}],['translation','日本語訳',{multiline:true}]],{type:'phrase',sentence:'',translation:'',answer:''})},
     {name:'派生語',wide:true,fields:['derivatives'],draw:(td,row)=>repeat(td,row,'derivatives',[['word','派生語'],['pos','品詞',{choices:pos}],['meaning','意味',{multiline:true}]],{word:'',pos:'',meaning:''})},
     ...['irregularForms','synonyms','antonyms','relatedWords','etymology','notes'].map((k,i)=>fieldCol(['不規則活用','類義語','対義語','関連語','語源','メモ'][i],k,{multiline:true})),
-    {name:'レベル・タグ',fields:['oxford5000','cefr_provisional','awl','eiken','custom'],draw(td,row){
-      textField(td,row,'oxford5000','Oxford 5000',{choices:[['','—'],...['A1','A2','B1','B2','C1'].map(s=>[s,s])]});
-      textField(td,row,'cefr_provisional','暫定CEFR',{choices:[['','—'],...['A1','A2','B1','B2','C1','C2'].map(s=>[s,s])]});
-      textField(td,row,'awl','AWL',{choices:[['','—'],...Array.from({length:10},(_,i)=>[String(i+1),String(i+1)])]});
-      textField(td,row,'eiken','英検',{choices:[['','—'],...['5級','4級','3級','準2級','2級','準1級','1級'].map(s=>[s,s])]});
-      textField(td,row,'custom','カスタムタグ（カンマ区切り）');
-      for(const key of ['target1900','target1400'])if(row.raw.tags?.[key])td.append(node('p',{class:'sheet-readonly'},`${key}: ${row.raw.tags[key]}`));
+    {name:'注意事項',fields:cautions,draw(td,row){
+      td.classList.add('sheet-cautions');
+      const names=['能格','スペル注意','発音注意','アクセント注意','多義語','活用注意','語法注意'];
+      const short=['能','ス','発','ア','多','活','法'];
+      const variants=['ergative','spelling','','','polysemous','conjugation','usage'];
+      cautions.forEach((key,i)=>{
+        const badge=button(short[i],()=>{row.draft[key]=!row.draft[key];badge.classList.toggle('is-active',row.draft[key]);badge.setAttribute('aria-pressed',String(row.draft[key]));mark(row);},{class:`caution-toggle-btn ${variants[i]?'caution-toggle-btn--'+variants[i]:''}${row.draft[key]?' is-active':''}`,'aria-label':names[i],title:names[i],'aria-pressed':String(!!row.draft[key])});
+        td.append(badge);
+      });
     }},
-    {name:'注意事項',fields:cautions,draw(td,row){cautions.forEach((key,i)=>textField(td,row,key,['能格','スペル注意','発音注意','アクセント注意','多義語','活用注意','語法注意'][i],{type:'checkbox'}));}},
   ];
-  const first = ['単語','発音記号','注意事項','Section・Label','派生元','品詞・意味','例文・フレーズ','派生語'];
+  const first = ['単語','発音記号','注意事項','品詞・意味','例文・フレーズ','派生語'];
   return wordColumns.sort((a,b)=>(first.includes(a.name)?first.indexOf(a.name):100)-(first.includes(b.name)?first.indexOf(b.name):100));
 }
 function record(raw, isNew=false) {const draft=draftOf(raw);return {id:raw.id||raw.key||crypto.randomUUID(),raw,base:clone(draft),draft,isNew,error:''};}
@@ -198,8 +202,7 @@ async function render({resetPosition=false,end=false}={}) {
       const card=node('article',{class:'edit-pane sheet-card'});row.element=card;
       const header=node('header',{class:'pane-header sheet-card-header'});
       const heading=node('div',{class:'sheet-card-heading'});
-      const number=idiom?(row.draft.hidden?'非表示':String(index.filter(x=>!x.hidden).findIndex(x=>x.key===row.id)+1)):(row.draft.no||'');
-      heading.append(node('span',{class:'sheet-card-number'},row.isNew?'新規':idiom&&row.draft.hidden?'非表示':number?`No. ${number}`:''));
+      if(row.isNew||(idiom&&row.draft.hidden))heading.append(node('span',{class:'sheet-card-number'},row.isNew?'新規':'非表示'));
       row.titleElement=node('h2',{},row.draft.spelling||row.draft.phrase||'新規');
       row.badgeElement=node('span',{class:'sheet-card-badge'});heading.append(row.titleElement,row.badgeElement);
       row.saveElement=button('保存',()=>saveRows([row]),{class:'primary'});
@@ -208,17 +211,14 @@ async function render({resetPosition=false,end=false}={}) {
       form.addEventListener('submit',event=>event.preventDefault());
       row.errorElement=node('p',{class:'sheet-error',role:'status'},row.error);form.append(row.errorElement);
       const basics=node('div',{class:'sheet-card-basics'});form.append(basics);
-      const basicNames=idiom?['熟語','Section・Label']:['単語','発音記号','注意事項','Section・Label','派生元'];
+      const basicNames=idiom?['熟語']:['単語','発音記号','注意事項'];
       for(const col of cols){
         const basic=basicNames.includes(col.name);
-        const field=node(basic?'div':'fieldset',{'data-fields':col.fields.join(','),class:basic&&['熟語','注意事項','Section・Label'].includes(col.name)?'sheet-basic-wide':''});
+        const field=node(basic?'div':'fieldset',{'data-fields':col.fields.join(','),class:basic&&['熟語','注意事項'].includes(col.name)?'sheet-basic-wide':''});
         if(!basic)field.append(node('legend',{},col.name));
         col.draw(field,row);(basic?basics:form).append(field);
       }
-      if(!idiom&&listId!=='__master__'){
-        const numberField=node('div',{'data-fields':'no'});textField(numberField,row,'no','No.');basics.append(numberField);
-      }
-      card.append(header,form);body.append(card);form.scrollTop=row.scrollTop||0;mark(row);
+      card.append(header,form);body.append(card);fitTextFields(form);form.scrollTop=row.scrollTop||0;mark(row);
     }
     if(!visible.length)body.append(node('p',{class:'sheet-empty'},'該当する項目はありません。'));
     pageLabel.textContent=`${filtered.length?page*pageSize+1:0}–${Math.min((page+1)*pageSize,filtered.length)} / ${filtered.length}件`;
@@ -303,7 +303,8 @@ async function start() {
   toolbar.append(bookSelect,sectionSelect,search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void loadBook();}),status);
   const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton,node('span',{class:'sheet-readonly'},'横スクロールで次のカードへ。カード内は縦にスクロールできます。'));
   body=node('div',{class:'sheet-card-rail','aria-label':idiom?'熟語カード一覧':'単語カード一覧'});
-  body.addEventListener('scroll',updateNavigation,{passive:true});window.addEventListener('resize',updateNavigation);
+  body.addEventListener('scroll',updateNavigation,{passive:true});window.addEventListener('resize',()=>{fitTextFields();updateNavigation();});
+  document.fonts?.ready.then(()=>fitTextFields());
   controls.append(toolbar,nav,body);pane.append(controls);document.querySelector('main').append(pane);
   bookSelect.addEventListener('change',()=>{if(guardNavigation())void loadBook();else bookSelect.value=listId;});
   sectionSelect.addEventListener('change',()=>{if(guardNavigation()){sectionKey=sectionSelect.value;void loadRows();}else sectionSelect.value=sectionKey;});
