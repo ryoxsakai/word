@@ -71,6 +71,7 @@ window.addEventListener('beforeunload', event => {
 
 let pane, controls, bookSelect, sectionSelect, search, status, body, saveButton, prevButton, nextButton, pageLabel;
 function updateStatus(message) {
+  status.classList.toggle('has-message',!!message);
   status.textContent = message || `${rows.length}件 · 未保存 ${rows.filter(dirty).length}件`;
   saveButton.disabled = loading || saving || !hasChanges();
 }
@@ -294,14 +295,26 @@ function addRow() {
 async function start() {
   document.body.classList.add('card-edit-mode');
   document.querySelector('.word-table-pane').hidden=true;
+  const header=document.querySelector('.topbar-row--primary');
+  const menu=node('div',{id:'cardHeaderMenu',class:'sheet-header-menu'});
+  const menuToggle=button('メニュー',()=>{const open=menuToggle.getAttribute('aria-expanded')!=='true';menuToggle.setAttribute('aria-expanded',String(open));menu.classList.toggle('is-open',open);},{class:'sheet-mobile-menu-toggle','aria-expanded':'false','aria-controls':'cardHeaderMenu'});
+  for(const item of [...header.querySelectorAll('.viewer-link,#themeToggleBtn,#editModeToggle')])menu.append(item);
+  header.append(menuToggle,menu);
+  const closeMenu=()=>{menu.classList.remove('is-open');menuToggle.setAttribute('aria-expanded','false');};
+  document.addEventListener('click',event=>{if(!header.contains(event.target))closeMenu();});
+  header.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();menuToggle.focus();}});
   pane=node('section',{class:'sheet-pane','aria-label':idiom?'熟語のカード編集':'単語のカード編集'});
   controls=node('fieldset',{style:'border:0;padding:0;margin:0;min-width:0;display:contents'});
   const toolbar=node('div',{class:'sheet-toolbar'});
   bookSelect=node('select',{'aria-label':'カードで編集する単語帳'});sectionSelect=node('select',{'aria-label':'カードで編集するSection'});search=node('input',{type:'search',placeholder:idiom?'このSectionの熟語を検索':'このSectionの単語を検索','aria-label':'カードを検索'});
   saveButton=button('変更を保存',()=>saveRows(rows),{class:'primary'});saveButton.disabled=true;
   status=node('span',{class:'sheet-status',role:'status','aria-live':'polite'});
-  toolbar.append(bookSelect,sectionSelect,search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void loadBook();}),status);
-  const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton,node('span',{class:'sheet-readonly'},'横スクロールで次のカードへ。カード内は縦にスクロールできます。'));
+  const extras=node('div',{id:'cardEditorTools',class:'sheet-extra-tools'});
+  extras.append(search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void loadBook();}));
+  toolbar.append(bookSelect,sectionSelect,extras);
+  toolbar.append(status);
+  const toolsToggle=button('検索・操作',()=>{const open=toolsToggle.getAttribute('aria-expanded')!=='true';toolsToggle.setAttribute('aria-expanded',String(open));extras.classList.toggle('is-open',open);},{class:'sheet-tools-toggle','aria-expanded':'false','aria-controls':'cardEditorTools'});
+  const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton,toolsToggle);
   body=node('div',{class:'sheet-card-rail','aria-label':idiom?'熟語カード一覧':'単語カード一覧'});
   body.addEventListener('scroll',updateNavigation,{passive:true});window.addEventListener('resize',()=>{fitTextFields();updateNavigation();});
   document.fonts?.ready.then(()=>fitTextFields());
