@@ -122,6 +122,9 @@ function storage() {
 }
 
 const requests = [];
+let releaseIndex;
+const indexReady = new Promise(resolve => { releaseIndex = resolve; });
+let failSections = false;
 const sectionWord = (id, spelling, sectionId, displayNo) => ({
   id,
   spelling,
@@ -149,11 +152,13 @@ async function mockFetch(input) {
   if (url.pathname === "/api/lists") {
     data = [{ id: "book", name: "Book", isNotebook: true, isMaster: false, sectionLabel: "Section", chapterLabel: "Chapter" }];
   } else if (url.pathname === "/api/lists/book/editor/index") {
+    await indexReady;
     data = { words: [
       { id: "alpha", spelling: "alpha", no: 1, branch: 0, displayNo: "1", sectionId: 1, labelId: null },
       { id: "beta", spelling: "beta", no: 2, branch: 0, displayNo: "2", sectionId: 2, labelId: null },
     ] };
   } else if (url.pathname === "/api/lists/book/sections") {
+    if (failSections) return new Response(JSON.stringify({ error: "一覧データを取得できません" }), { status: 503 });
     data = [
       { id: 1, subtitle: "First", chapterId: null },
       { id: 2, subtitle: "Second", chapterId: null },
@@ -219,6 +224,12 @@ async function waitFor(predicate, message) {
   throw new Error(message);
 }
 
+await waitFor(() => requests.includes("/api/lists/book/editor/index"), "index was not requested");
+const empty = document.getElementById("wordTableEmpty");
+assert.equal(empty.hidden, false);
+assert.match(empty.textContent, /読み込んでいます/);
+assert.doesNotMatch(empty.textContent, /まだ単語がありません/);
+releaseIndex();
 await waitFor(() => requests.includes("/api/lists/book/editor/sections/1"), "first section was not loaded");
 assert.ok(requests.includes("/api/lists/book/editor/index"));
 assert.equal(requests.includes("/api/lists/book/words"), false);
@@ -240,4 +251,14 @@ secondSection.querySelector('[data-action="toggle-collapse"]').dispatch("click")
 await new Promise((resolve) => setTimeout(resolve, 20));
 assert.equal(sectionTwoRequests(), 1, "re-expanding should use the in-memory section cache");
 
+failSections = true;
+const listSelect = document.getElementById("listSelect");
+listSelect.value = "book";
+listSelect.dispatch("change");
+await waitFor(() => empty.textContent.includes("読み込めませんでした"), "read failure should be visible");
+assert.equal(empty.hidden, false);
+assert.doesNotMatch(empty.textContent, /まだ単語がありません/);
+failSections = false;
+listSelect.dispatch("change");
+await waitFor(() => empty.hidden, "retry should restore the word list");
 console.log("editor lazy UI integration test passed");
