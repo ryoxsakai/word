@@ -3,7 +3,7 @@
 .sheet-pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; width: 100%; flex: 1; overflow: hidden; }
 .sheet-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; padding: .7rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg-elevated); }
 .sheet-toolbar > select { width: auto; flex: 0 1 22rem; min-width: 10rem; }
-.sheet-toolbar > input[type="search"] { width: 15rem; flex: 0 1 15rem; }
+.sheet-extra-tools > input[type="search"] { width: 15rem; flex: 0 1 15rem; }
 .sheet-toolbar button { white-space: nowrap; }
 .sheet-status { font-size: .8rem; flex: 1; min-width: 8rem; white-space: pre-wrap; }
 .sheet-navigation { font-size: .8rem; }
@@ -43,7 +43,7 @@
   .topbar-row--primary .edit-mode-toggle { margin-left: auto; }
   .sheet-toolbar { padding: .5rem .75rem; gap: .45rem; }
   .sheet-toolbar > select { flex: 1 1 calc(50% - .5rem); min-width: 0; max-width: calc(50% - .25rem); }
-  .sheet-toolbar > input[type="search"] { flex: 1 1 12rem; min-width: 0; }
+  .sheet-extra-tools > input[type="search"] { flex: 1 1 12rem; min-width: 0; }
   .sheet-navigation { justify-content: space-between; }
   .sheet-navigation button { padding: .45rem; }
   .sheet-card .sheet-card-header { flex-wrap: nowrap; padding: .65rem .75rem; }
@@ -72,3 +72,35 @@
 }
 
 .sheet-toolbar input, .sheet-toolbar select { font-size: .875rem; }
+
+.sheet-header-menu, .sheet-extra-tools { display: contents; }
+.sheet-mobile-menu-toggle, .sheet-tools-toggle { display: none; }
+@media (max-width: 600px) {
+  .card-edit-mode .topbar-row--primary { flex-wrap: nowrap; padding: .35rem .65rem; min-height: 44px; }
+  .card-edit-mode .topbar-row--primary .app-title { font-size: .95rem; }
+  .sheet-mobile-menu-toggle { display: inline-flex; margin-left: auto; min-height: 34px; padding: .3rem .6rem; }
+  .sheet-header-menu { display: none; }
+  .sheet-header-menu.is-open { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; position: absolute; top: 100%; right: .5rem; left: .5rem; padding: .65rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+  .sheet-toolbar { padding: .35rem .65rem; gap: .35rem; }
+  .sheet-toolbar > select { min-height: 34px; padding: .3rem .4rem; }
+  .sheet-extra-tools { display: none; }
+  .sheet-extra-tools.is-open { display: flex; flex-wrap: wrap; gap: .35rem; width: 100%; padding-top: .2rem; }
+  .sheet-extra-tools > input[type="search"] { width: 100%; flex-basis: 100%; min-height: 34px; }
+  .sheet-status { display: none; }
+  .sheet-status.has-message, .sheet-toolbar:has(.sheet-extra-tools.is-open) .sheet-status { display: block; flex-basis: 100%; font-size: .72rem; }
+  .sheet-navigation { justify-content: flex-start; gap: .3rem; font-size: .72rem; }
+  .sheet-navigation > button:not(.sheet-tools-toggle) { font-size: 0; min-width: 34px; min-height: 34px; padding: .3rem; }
+  .sheet-navigation > button:first-child::before { content: '←'; font-size: 1rem; }
+  .sheet-navigation > button:nth-child(3)::before { content: '→'; font-size: 1rem; }
+  .sheet-tools-toggle { display: inline-flex; margin-left: auto; min-height: 34px; padding: .3rem .5rem; }
+  .sheet-card-rail { padding-top: 8px; }
+}
+.card-edit-mode .topbar-row--primary .app-title { font-size: .875rem; }
+.card-edit-mode .topbar-row--primary .viewer-link,
+.card-edit-mode .topbar-row--primary button,
+.sheet-tools-toggle { font-size: .75rem; }
+.sheet-toolbar input, .sheet-toolbar select { font-size: .8125rem; }
+@media (max-width: 600px) {
+  .sheet-navigation > button:first-child::before,
+  .sheet-navigation > button:nth-child(3)::before { font-size: .875rem; }
+}
