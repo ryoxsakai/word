@@ -32,3 +32,25 @@ for(const note of ['betaも参照。','alpha beta is related to betas.','##beta#
  assert.equal(scoped.renderNotesMarkup(note,{currentHeadword:'alpha'}),full.renderNotesMarkup(note,{currentHeadword:'alpha'}));
 }
 console.log('Scoped cross-reference dictionary preserves complete-renderer output');
+
+const idiomIndex={entries:[{key:'carry',phrase:'carry O out',sectionKey:'carry-section',meanings:[{meaning:'実行する',refs:[]}]}],chapters:[{key:'verbs',sections:[{key:'carry-section'}]}]};
+const spacedNote='carry   out Aも参照。';
+const scopedObject=chapterContext(index,idiomIndex,{notes:spacedNote});
+assert.match(scopedObject.renderNotesMarkup(spacedNote),/<strong>carry O out<\/strong>/);
+assert.match(scopedObject.renderNotesMarkup(spacedNote),/data-idiom-id="carry"/);
+
+// An idiom rename must rebuild chapters that mention its inferred spellings.
+const {idiomReferenceNames}=await import('../../public/shared/idiom-forms.js');
+const publicationSource=readFileSync(new URL('../../worker/src/viewer-snapshot-chapters.js',import.meta.url),'utf8').split('export async function buildChapter')[0].replace(/^import .*;$/gm,'').replaceAll('export ','');
+const scopeKey=({list_id,kind,section_key=''})=>JSON.stringify([list_id,kind,section_key]);
+const publication=vm.createContext({idiomReferenceNames,scopeKey});
+vm.runInContext(publicationSource+'\nthis.markChapters=markChapters;this.chapterKey=chapterKey;',publication);
+const {markChapters,chapterKey}=publication;
+const oldIdioms={...idiomIndex,entries:idiomIndex.entries.map(e=>({...e,sectionKey:'carry-section'}))};
+const newIdioms={...oldIdioms,entries:oldIdioms.entries.map(e=>({...e,phrase:'carry O off'}))};
+const chapterId=chapterKey('book','viewer','1');
+const stage={chapters:{[chapterId]:{list:'book',kind:'viewer',chapter:'1',sections:['a'],dependencies:['idiom:carry out a'],search:{key:'search'}}}};
+const objects=new Map([['old',oldIdioms],['search',[{text:'carry   out A'.toLowerCase()}]]]);
+await markChapters({VIEWER_SNAPSHOTS:{get:async key=>({json:async()=>objects.get(key)})}},stage,{list_id:'book',kind:'idiom-index'},{key:'old'},{data:newIdioms});
+assert.ok(stage.pendingChapters[chapterId], 'inferred references must be rebuilt after a heading changes');
+console.log('Static chapters: inferred idiom links and targeted reference invalidation passed');

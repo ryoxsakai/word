@@ -1,7 +1,10 @@
 import { EDITOR_API_BASE } from '../shared/config.js';
 import { editorFetch } from './auth.js';
-import { orderIdiomLabels } from '../shared/idioms.js';
+import { orderIdiomLabels, groupIdiomEntries } from '../shared/idioms.js';
 import { clone, same, changedKeys, mergeDraft, wordDraft, idiomDraft, wordPayload, idiomPayload, membershipPayload, cautions } from './table-data.js';
+
+import { createIdiomReferenceResolver } from '../shared/idiom-references.js';
+import { createAutoCrossRefRenderer, renderWordListMarkup } from '../shared/markup.js';
 
 const MODE_KEY = 'vocab-setting-edit-mode';
 const PENDING_KEY = 'vocab-editor-pending-publication';
@@ -12,6 +15,12 @@ const tableMode = localStorage.getItem(MODE_KEY) === 'table';
 let rows = [], sections = [], labels = [], index = [], books = [], page = 0, loading = false, saving = false;
 let listId = '', sectionKey = '', query = '', sequence = 0;
 let wordNames = new Map();
+let resolveReference = () => ({found:false}), renderReferenceNotes;
+function prepareReferences(words, idioms = {entries:[],chapters:[]}) {
+  const wordIndex = new Map(words.map(w => [w.spelling.toLowerCase(), {found:true,id:w.id,no:w.displayNo ?? w.seqNo ?? w.no}]));
+  resolveReference = createIdiomReferenceResolver(groupIdiomEntries(idioms.entries,idioms.chapters), name => wordIndex.get(name.toLowerCase()) || {found:false});
+  renderReferenceNotes = createAutoCrossRefRenderer([...wordIndex.keys(),...resolveReference.phrases], {resolve:resolveReference,idiomReferences:resolveReference.phrases});
+}
 const pageSize = 20;
 const draftOf = raw => idiom ? idiomDraft(raw) : wordDraft(raw, listId);
 const dirty = row => row.isNew || (row.draft && !same(row.base, row.draft));
@@ -100,7 +109,23 @@ function textField(container, row, key, title, {type='text', choices, multiline=
     if (onChange) onChange();
     mark(row);
   });
-  label.append(input); container.append(label); return input;
+  label.append(input); container.append(label);
+  if (['synonyms','antonyms','relatedWords','notes'].includes(key)) {
+    const preview = node('div', {class:'preview sheet-reference-preview','aria-label':`${title}の表示`});
+    const update = () => {
+      const html = key === 'notes'
+        ? renderReferenceNotes(input.value, {currentHeadword:row.draft.spelling || row.draft.phrase,autoReferences:!idiom})
+        : renderWordListMarkup(input.value, {resolve:resolveReference});
+      preview.innerHTML = html;
+      preview.hidden = !input.value.trim();
+      for (const link of preview.querySelectorAll('a.ref')) {
+        link.href = `../index.html?list=${encodeURIComponent(listId)}${link.getAttribute('href')}`;
+        link.target = '_blank'; link.rel = 'noopener';
+      }
+    };
+    input.addEventListener('input', update); update(); container.append(preview);
+  }
+  return input;
 }
 function mark(row) {
   row.element?.querySelectorAll('[data-fields]').forEach(cell => {
@@ -244,9 +269,9 @@ async function loadBook() {
   localStorage.setItem('vocab-setting-last-list',listId);
   try {
     const path=`/lists/${encodeURIComponent(listId)}`;
-    if(listId==='__master__'){index=(await api('/master/index')).words;sections=[{key:'none',name:'親リスト'}];labels=[];}
-    else if(idiom){const [data,wordIndex]=await Promise.all([api(`${path}/editor/idioms`),api(`${path}/editor/index`)]);wordNames=new Map(wordIndex.words.map(w=>[w.id,w.spelling]));index=data.entries;sections=data.chapters.flatMap((c,ci)=>c.sections.map((s,si)=>({...s,name:`Chapter ${ci+1} / Section ${si+1} ${s.subtitle||''}`})));index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));labels=[];}
-    else {const [data,ss,ll,chapters]=await Promise.all([api(`${path}/editor/index`),api(`${path}/sections`),api(`${path}/labels`),api(`${path}/chapters`)]);index=data.words;labels=ll;sections=[{key:'none',name:'Sectionなし'},...ss.map((s,i)=>({...s,key:String(s.id),name:`${s.chapterId?'Chapter '+(chapters.findIndex(c=>c.id===s.chapterId)+1)+' / ':''}Section ${i+1} ${s.subtitle||''}`}))];}
+    if(listId==='__master__'){index=(await api('/master/index')).words;sections=[{key:'none',name:'親リスト'}];labels=[];prepareReferences(index);}
+    else if(idiom){const [data,wordIndex]=await Promise.all([api(`${path}/editor/idioms`),api(`${path}/editor/index`)]);wordNames=new Map(wordIndex.words.map(w=>[w.id,w.spelling]));prepareReferences(wordIndex.words,data);index=data.entries;sections=data.chapters.flatMap((c,ci)=>c.sections.map((s,si)=>({...s,name:`Chapter ${ci+1} / Section ${si+1} ${s.subtitle||''}`})));index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));labels=[];}
+    else {const [data,ss,ll,chapters,idioms]=await Promise.all([api(`${path}/editor/index`),api(`${path}/sections`),api(`${path}/labels`),api(`${path}/chapters`),api(`${path}/editor/idioms`)]);index=data.words;prepareReferences(index,idioms);labels=ll;sections=[{key:'none',name:'Sectionなし'},...ss.map((s,i)=>({...s,key:String(s.id),name:`${s.chapterId?'Chapter '+(chapters.findIndex(c=>c.id===s.chapterId)+1)+' / ':''}Section ${i+1} ${s.subtitle||''}`}))];}
     sectionKey=sections.find(s=>index.some(w=>String(w.sectionKey??w.sectionId??'none')===s.key))?.key || sections[0]?.key || '';
     options(sectionSelect,sections.map(s=>[s.key,s.name]),sectionKey);
     if(sectionKey)await loadRows();else updateStatus('編集できるSectionがありません。通常編集でSectionを作成してください。');

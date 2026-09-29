@@ -53,8 +53,8 @@ export function renderMarkup(raw, opts = {}) {
   const renderedRefs = [];
   const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
-    const label = (displayRaw ? displayRaw.trim() : headword.replace(/^(?:word|idiom):/i, ""));
     const result = resolve ? resolve(headword) : null;
+    const label = displayRaw ? displayRaw.trim() : result?.canonicalLabel || headword.replace(/^(?:word|idiom):/i, "");
 
     const labelHtml = escapeHtml(label);
     const emphasizedLabel = boldRefs && /\p{Script=Latin}/u.test(label)
@@ -396,7 +396,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
   const alternatives = [...referenceByLower.values()]
     .map((reference) => reference.label)
     .sort((a, b) => b.length - a.length)
-    .map(escapeRegExp);
+    .map(label => escapeRegExp(label).replace(/\s+/g, "\\s+"));
 
   // 日本語の助詞が直後に続く「importも参照」のような文でも一致させつつ、
   // enacted 内の act のようなラテン文字列の途中には一致させない。
@@ -490,7 +490,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
         ...currentLabels,
       ]
         .sort((a, b) => b.length - a.length)
-        .map(escapeRegExp);
+        .map(label => escapeRegExp(label).replace(/\s+/g, "\\s+"));
       autoHeadwordRe = new RegExp(boundaryPattern(draftAlternatives.join("|")), "giu");
     }
 
@@ -499,7 +499,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       ? markCurrentHeadword(protectedText)
       : autoHeadwordRe
       ? replaceOutsideProtectedTokens(protectedText, autoHeadwordRe, (_match, prefix, matched) => {
-          const reference = referenceByLower.get(matched.toLowerCase());
+          const reference = referenceByLower.get(matched.toLowerCase().replace(/\s+/g, " "));
           if (currentHeadwordLower && currentLabelsLower.has(matched.toLowerCase())) {
             return `${prefix}${currentHeadwordToken(matched)}`;
           }
@@ -507,7 +507,8 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
           if (currentHeadwordLower && reference.target.toLowerCase() === currentHeadwordLower) {
             return `${prefix}${markSelfReference(matched)}`;
           }
-          const marker = reference.target === matched
+          const canonicalLabel = opts.resolve?.(reference.target)?.canonicalLabel;
+          const marker = canonicalLabel || reference.target === matched
             ? `##${reference.target}##`
             : `##${reference.target}|${matched}##`;
           const token = `\uE400${autoRefs.length}\uE401`;

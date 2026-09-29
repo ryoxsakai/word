@@ -29,7 +29,7 @@ export function chapterContext(index, idiomIndex, content=null) {
  const texts=[];
  const collect=value=>{if(typeof value==='string')texts.push(value);else if(Array.isArray(value))value.forEach(collect);else if(value&&typeof value==='object')Object.values(value).forEach(collect);};
  if(content)collect(content);
- const haystack=texts.join('\n').toLowerCase().replace(/ſ/g,'s');
+ const haystack=texts.join('\n').toLowerCase().replace(/ſ/g,'s').replace(/\s+/g,' ');
  const relevant=term=>!content||/[^\x00-\x7f]/.test(term)||haystack.includes(term.toLowerCase());
  const idiomPhrases=(state.idiomResolver?.phrases||[]).filter(relevant);
  const renderNotesMarkup=createAutoCrossRefRenderer([...state.headwordIndex.keys(),...idiomPhrases].filter(relevant),{resolve:resolveRef,derivativeReferences:derivatives.filter(r=>relevant(r.derivative)),idiomReferences:idiomPhrases,phraseReferences:collectPhraseCrossReferences(index.words).filter(r=>relevant(r.phrase))});
