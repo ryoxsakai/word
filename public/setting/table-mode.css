@@ -121,13 +121,3 @@
 .sheet-card-rail { padding-top: 8px; }
 
 .sheet-publication-notice { flex: none; padding: .45rem .65rem; font-size: .8rem; border-bottom: 1px solid currentColor; }
-
-/* Keep mobile card fields at 16px to prevent iOS focus zoom. */
-@media (max-width: 768px), (hover: none) and (pointer: coarse) {
-  .sheet-card input:not([type="checkbox"]),
-  .sheet-card select,
-  .sheet-card textarea,
-  .sheet-card [data-fields] > label:has(textarea) textarea {
-    font-size: 16px;
-  }
-}
