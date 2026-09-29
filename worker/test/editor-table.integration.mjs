@@ -13,16 +13,19 @@ const iDraft=idiomDraft(entry);iDraft.meanings.reverse();iDraft.meanings[0].mean
 const bundle=(await build({entryPoints:[new URL('../../public/setting/table-mode.js',import.meta.url).pathname],bundle:true,format:'iife',write:false})).outputFiles[0].text;
 const tick=()=>new Promise(r=>setTimeout(r,5));
 async function waitFor(fn,message){for(let i=0;i<200;i++){if(fn())return;await tick();}throw new Error(message);}
-async function run(idiom){
+async function run(idiom, referenceFailure=false, catalogTimeout=false){
  const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
  const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
  w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','wrong-book');
  const extraWords=Array.from({length:20},(_,i)=>({...clone(word),id:`extra-${i}`,spelling:`extra ${i}`}));
  const extraIdioms=Array.from({length:20},(_,i)=>({...clone(entry),key:`extra-${i}`,phrase:`extra ${i}`}));
+ let releaseCatalog,releaseReferences;
+ const catalogReady=new Promise(resolve=>{releaseCatalog=resolve;});
+ const referencesReady=new Promise(resolve=>{releaseReferences=resolve;});
  const calls=[];let storedWord=detail(),storedIdiom=clone(entry),publishedWord=detail(),publishedIdiom=clone(entry),fail=false,failConfirmation=false,confirmationReads=0;
  // Speed up only publication polling, leaving UI debounce/toast timing intact.
- const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===1000?10:ms,...args);
+ const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===1000?10:catalogTimeout&&ms===15000?30:ms,...args);
  w.fetch=async(input,opts={})=>{
   const url=new URL(String(input),'http://localhost'),path=url.pathname;calls.push({path,method:opts.method||'GET',body:opts.body&&JSON.parse(opts.body)});let data;
   if(url.searchParams.get('editorFresh')==='1'&&/\/editor\/(?:sections|idiom-sections)\//.test(path)){
@@ -30,6 +33,8 @@ async function run(idiom){
    if(failConfirmation)return new Response(JSON.stringify({error:'confirmation unavailable'}),{status:503});
    if(confirmationReads===1)return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
   }
+  if(path==='/api/lists'){await catalogReady;if(catalogTimeout&&calls.filter(c=>c.path===path).length===1)await new Promise(()=>{});}
+  if(!idiom&&path==='/api/lists/book/editor/idioms'){await referencesReady;if(referenceFailure)return new Response(JSON.stringify({error:'reference unavailable'}),{status:503});}
   if(opts.method){
    if(fail)return new Response(JSON.stringify({error:'injected failure'}),{status:503});
    const body=JSON.parse(opts.body);
@@ -50,8 +55,20 @@ async function run(idiom){
   return new Response(JSON.stringify(data),{headers:{'content-type':'application/json','x-editor-source':'r2'}});
  };
  w.eval(bundle);
- const d=w.document, get=label=>d.querySelector(`.sheet-card [aria-label="${label}"]`);
- await waitFor(()=>get(idiom?'熟語':'単語'),'cards not loaded');
+ const d=w.document;
+ assert.match(d.querySelector('.sheet-status').textContent,/読み込んでいます/);
+ assert.equal(d.querySelector('[aria-label="カードで編集するSection"]').disabled,true);
+ releaseCatalog();if(idiom)releaseReferences();
+ if(catalogTimeout){
+  await waitFor(()=>d.querySelector('.sheet-status').textContent.includes('通信に時間'),'stalled request must show an error');
+  const retry=[...d.querySelectorAll('button')].find(b=>b.textContent==='再読み込み');
+  assert.equal(retry.disabled,false);retry.click();
+ }
+ const get=label=>d.querySelector(`.sheet-card [aria-label="${label}"]`);
+ await waitFor(()=>get(idiom?'熟語':'単語'),'cards must load before optional idiom references');
+ releaseReferences();
+ if(!idiom)await waitFor(()=>referenceFailure?d.getElementById('tableToast')?.textContent.includes('参照'):calls.some(c=>c.path==='/api/lists/book/editor/idioms'),'reference request missing');
+ await tick();
  assert.equal(d.querySelector('[aria-label="カードで編集する単語帳"]'),null);assert.ok(d.querySelector('.topbar-row--primary > select'));
  assert.equal(d.querySelector('.word-table-pane').hidden,true);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  for(const label of ['Section','Label','派生元','No.'])assert.equal(get(label),null);
@@ -62,6 +79,7 @@ async function run(idiom){
   for(const label of ['類義語','対義語','関連語','メモ']) {
     const input=get(label); edit(input,'carry out A');
     const preview=d.querySelector(`.sheet-card [aria-label="${label}の表示"]`);
+    if(referenceFailure){assert.equal(preview.querySelector('a[data-idiom-id]'),null);continue;}
     assert.match(preview.textContent,/carry O out/);
     assert.match(preview.textContent,/熟 /);
     assert.equal(preview.querySelector('a').hash,'#idiom-carry');
@@ -125,12 +143,12 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  fail=false;failConfirmation=true;edit(get('メモ'),'saved but awaiting publication');saveAll.click();
  await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('保存済みですが'),'publication failure must be distinguished from a failed write');
  assert.equal(get('メモ').value,'saved but awaiting publication');
- assert.equal(d.getElementById('tableToast').textContent,'');
+ assert.notEqual(d.getElementById('tableToast').textContent,'保存しました');
  assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'));
  assert.equal(calls.filter(c=>c.method!=='GET').length,3);
  await tick();assert.equal(calls.filter(c=>c.method!=='GET').length,3,'a confirmation failure must not replay the write');
  const meanCell=get('意味').closest('fieldset');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  dom.window.close();
 }
-await run(false);await run(true);
+await run(false);await run(true);await run(false,true);await run(false,false,true);
 console.log('Card editor passed: draft/scroll preservation, JSON reads, repeated fields, scoped saves, conflict merge, retained hidden data, failures and toast');
