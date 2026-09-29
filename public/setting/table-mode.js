@@ -55,12 +55,12 @@ function clearPendingPublication(pending) {
   }
 }
 function schedulePublicationCheck() {
-  if (publicationCheckTimer || !localStorage.getItem(PENDING_KEY)) return;
+  if (saving || publicationCheckTimer || !localStorage.getItem(PENDING_KEY)) return;
   publicationCheckTimer = setTimeout(async () => {
     publicationCheckTimer = null;
     try { await api('/lists'); } catch {}
     if (localStorage.getItem(PENDING_KEY)) schedulePublicationCheck();
-  }, 3000);
+  }, 120000);
 }
 async function api(path, options = {}, { confirm = false, publishedOnly = false } = {}) {
   const read = !options.method || options.method === 'GET';
@@ -92,7 +92,7 @@ async function api(path, options = {}, { confirm = false, publishedOnly = false 
         await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
-      throw Object.assign(new Error(data?.error || `HTTP ${response.status}`), {code:data?.code});
+      throw Object.assign(new Error(data?.error || `HTTP ${response.status}`), {code:data?.code,status:response.status});
     }
     if (!read) localStorage.setItem(PENDING_KEY, crypto.randomUUID());
     else if (fresh && !confirm && response.headers.get('x-editor-source') === 'r2') clearPendingPublication(pending);
@@ -119,12 +119,24 @@ window.addEventListener('beforeunload', event => {
   if (hasChanges() || saving) { event.preventDefault(); event.returnValue = ''; }
 });
 
+let saveProgress = null;
 let pane, controls, menuControls, sectionSelect, search, status, publicationNotice, body, saveButton, prevButton, nextButton, pageLabel;
 function updateStatus(message) {
   sectionSelect.disabled=loading||saving;
   menuControls?.querySelectorAll('input,button').forEach(el=>{el.disabled=loading||saving;});
   status.classList.toggle('has-message',!!message);
   status.textContent = message || `${rows.length}件 · 未保存 ${rows.filter(dirty).length}件`;
+  status.classList.toggle('is-saving', saving);
+  status.setAttribute('aria-busy', String(saving));
+  if (saving && saveProgress) {
+    const {completed,total,phase} = saveProgress;
+    const percent = total ? Math.floor(completed / total * 100) : 0;
+    status.append(node('span', {class:'sheet-save-count'}, ` ${phase} ${percent}%（${completed}/${total}件）`));
+    const track = node('span', {class:'sheet-save-progress',role:'progressbar','aria-label':phase,'aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(percent)});
+    const fill = node('span', {class:'sheet-save-progress-fill'});
+    fill.style.width = `${percent}%`;
+    track.append(fill); status.append(track);
+  }
   saveButton.disabled = loading || saving || !hasChanges();
 }
 function guardNavigation() { return !saving && (!hasChanges() || confirm('未保存の変更を破棄して移動しますか？')); }
@@ -365,46 +377,50 @@ async function confirmPublication(savedRows) {
     if (!groups.has(path)) groups.set(path, []);
     groups.get(path).push(item);
   }
-  // Read each affected JSON section once per attempt, including bulk saves.
-  // Retry only reads; successful writes must never be replayed.
-  for (let attempt = 0; attempt <= 60; attempt++) {
-    let confirmed = true;
+  // Repeat reads only. A timed-out confirmation must never replay saved writes.
+  clearTimeout(publicationCheckTimer); publicationCheckTimer = null;
+  for (let attempt = 0; ; attempt++) {
+    let completed = 0;
     for (const [path, items] of groups) {
       try {
         const data = await api(path, {}, {confirm:true});
         const published = new Map((idiom ? data.entries : data.words).map(raw => [raw.id || raw.key, raw]));
         for (const {row, keys} of items) {
           const raw = published.get(row.id), draft = raw && draftOf(raw);
-          if (!draft || keys.some(key => !same(row.base[key], draft[key]))) confirmed = false;
+          if (draft && keys.every(key => same(row.base[key], draft[key]))) completed++;
         }
       } catch (error) {
-        if (error.code !== 'editor_snapshot_pending') throw error;
-        confirmed = false;
-        break;
+        // Authentication or invalid requests require action; temporary read failures can wait.
+        if ([400,401,403,404,422].includes(error.status)) throw error;
       }
+      saveProgress = {phase:'反映確認',completed,total:savedRows.length};
+      updateStatus('保存内容を確認しています…');
     }
-    if (confirmed) {
+    if (completed === savedRows.length) {
       clearPendingPublication(pending);
       return;
     }
-    if (attempt < 60) await new Promise(resolve => setTimeout(resolve, 1000));
+    updateStatus('保存内容を確認しています…（2分ごとに自動再確認）');
+    await new Promise(resolve => setTimeout(resolve, 120000));
   }
-  throw new Error('一覧への反映に時間がかかっています。時間をおいて再読み込みしてください。');
 }
+
 async function saveRows(targets) {
   if(saving||loading)return;
   targets=targets.filter(dirty);if(!targets.length)return;
-  saving=true;controls.disabled=true;toggle.disabled=true;const oldToast=document.getElementById('tableToast');if(oldToast)oldToast.hidden=true;updateStatus('保存中…');let successes=0,failed=0,unconfirmed=0;const savedRows=[];
+  saving=true;saveProgress={phase:'送信',completed:0,total:targets.length};controls.disabled=true;toggle.disabled=true;const oldToast=document.getElementById('tableToast');if(oldToast)oldToast.hidden=true;updateStatus('保存中…');let successes=0,failed=0,unconfirmed=0;const savedRows=[];
   for(const row of targets){
     try{const keys=row.isNew?Object.keys(row.draft):changedKeys(row.base,row.draft);const saved=await saveRecord(row);const next=record(saved);Object.assign(row,next);savedRows.push({row,keys});if(!index.some(x=>(x.id||x.key)===row.id))index.push(saved);else index=index.map(x=>(x.id||x.key)===row.id?saved:x);if(idiom)index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));successes++;}
     catch(error){if(error.saved){row.raw=error.saved;row.base=draftOf(error.saved);}row.error=`保存できませんでした：${error.message}`;failed++;}
+    saveProgress={phase:'送信',completed:successes+failed,total:targets.length};updateStatus('保存中…');
   }
   if(savedRows.length){
+    saveProgress={phase:'反映確認',completed:0,total:savedRows.length};
     updateStatus('保存内容を確認しています…');
     try{await confirmPublication(savedRows);}
     catch(error){unconfirmed=savedRows.length;for(const {row} of savedRows)row.error=`保存済みですが、一覧への反映を確認できませんでした：${error.message}`;}
   }
-  saving=false;toggle.disabled=false;controls.disabled=false;sectionSelect.disabled=false;await render();
+  saving=false;saveProgress=null;toggle.disabled=false;controls.disabled=false;sectionSelect.disabled=false;await render();
   if(!failed&&!unconfirmed)toast('保存しました');
   else if(unconfirmed)updateStatus(`${unconfirmed}件は保存済みですが、一覧への反映確認ができませんでした。${failed?failed+'件は保存に失敗しました。':''}内容はカードに残しています。`);
   else updateStatus(`${successes}件保存しました。${failed}件は保存できませんでした。入力内容を残しています。`);
