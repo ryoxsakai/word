@@ -30,22 +30,22 @@ function button(text, action, attrs = {}) {
   el.addEventListener('click', action);
   return el;
 }
-async function api(path, options = {}) {
+async function api(path, options = {}, { confirm = false } = {}) {
   const read = !options.method || options.method === 'GET';
   const pending = localStorage.getItem(PENDING_KEY);
-  if (read && pending) path += `${path.includes('?') ? '&' : '?'}editorFresh=1`;
+  if (read && (pending || confirm)) path += `${path.includes('?') ? '&' : '?'}editorFresh=1`;
   for (let attempt = 0; ; attempt++) {
     const response = await editorFetch(`${EDITOR_API_BASE}/api${path}`, { ...options, headers: {'content-type':'application/json'}, cache:'no-store' });
     const data = response.status === 204 ? null : await response.json();
     if (!response.ok) {
-      if (read && data?.code === 'editor_snapshot_pending' && attempt < 60) {
+      if (read && !confirm && data?.code === 'editor_snapshot_pending' && attempt < 60) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         continue;
       }
-      throw new Error(data?.error || `HTTP ${response.status}`);
+      throw Object.assign(new Error(data?.error || `HTTP ${response.status}`), {code:data?.code});
     }
     if (!read) localStorage.setItem(PENDING_KEY, crypto.randomUUID());
-    else if (pending && response.headers.get('x-editor-source') === 'r2' && localStorage.getItem(PENDING_KEY) === pending) localStorage.removeItem(PENDING_KEY);
+    else if (!confirm && pending && response.headers.get('x-editor-source') === 'r2' && localStorage.getItem(PENDING_KEY) === pending) localStorage.removeItem(PENDING_KEY);
     return data;
   }
 }
@@ -278,16 +278,58 @@ async function saveRecord(row) {
   }
   return saved;
 }
+async function confirmPublication(savedRows) {
+  const pending = localStorage.getItem(PENDING_KEY);
+  const groups = new Map();
+  for (const item of savedRows) {
+    const section = idiom ? item.row.base.sectionKey : item.row.base.sectionId || 'none';
+    const path = `/lists/${encodeURIComponent(listId)}/editor/${idiom ? 'idiom-sections' : 'sections'}/${encodeURIComponent(section)}${idiom ? '' : '?full=1'}`;
+    if (!groups.has(path)) groups.set(path, []);
+    groups.get(path).push(item);
+  }
+  // Read each affected JSON section once per attempt, including bulk saves.
+  // Retry only reads; successful writes must never be replayed.
+  for (let attempt = 0; attempt <= 60; attempt++) {
+    let confirmed = true;
+    for (const [path, items] of groups) {
+      try {
+        const data = await api(path, {}, {confirm:true});
+        const published = new Map((idiom ? data.entries : data.words).map(raw => [raw.id || raw.key, raw]));
+        for (const {row, keys} of items) {
+          const raw = published.get(row.id), draft = raw && draftOf(raw);
+          if (!draft || keys.some(key => !same(row.base[key], draft[key]))) confirmed = false;
+        }
+      } catch (error) {
+        if (error.code !== 'editor_snapshot_pending') throw error;
+        confirmed = false;
+        break;
+      }
+    }
+    if (confirmed) {
+      if (pending && localStorage.getItem(PENDING_KEY) === pending) localStorage.removeItem(PENDING_KEY);
+      return;
+    }
+    if (attempt < 60) await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  throw new Error('一覧への反映に時間がかかっています。時間をおいて再読み込みしてください。');
+}
 async function saveRows(targets) {
   if(saving||loading)return;
   targets=targets.filter(dirty);if(!targets.length)return;
-  saving=true;controls.disabled=true;toggle.disabled=true;const oldToast=document.getElementById('tableToast');if(oldToast)oldToast.hidden=true;updateStatus('保存中…');let successes=0,failed=0;
+  saving=true;controls.disabled=true;toggle.disabled=true;const oldToast=document.getElementById('tableToast');if(oldToast)oldToast.hidden=true;updateStatus('保存中…');let successes=0,failed=0,unconfirmed=0;const savedRows=[];
   for(const row of targets){
-    try{const saved=await saveRecord(row);const next=record(saved);Object.assign(row,next);if(!index.some(x=>(x.id||x.key)===row.id))index.push(saved);else index=index.map(x=>(x.id||x.key)===row.id?saved:x);if(idiom)index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));successes++;}
+    try{const keys=row.isNew?Object.keys(row.draft):changedKeys(row.base,row.draft);const saved=await saveRecord(row);const next=record(saved);Object.assign(row,next);savedRows.push({row,keys});if(!index.some(x=>(x.id||x.key)===row.id))index.push(saved);else index=index.map(x=>(x.id||x.key)===row.id?saved:x);if(idiom)index=sections.flatMap(s=>orderIdiomLabels(index.filter(e=>e.sectionKey===s.key),s.labels));successes++;}
     catch(error){if(error.saved){row.raw=error.saved;row.base=draftOf(error.saved);}row.error=`保存できませんでした：${error.message}`;failed++;}
   }
+  if(savedRows.length){
+    updateStatus('保存内容を確認しています…');
+    try{await confirmPublication(savedRows);}
+    catch(error){unconfirmed=savedRows.length;for(const {row} of savedRows)row.error=`保存済みですが、一覧への反映を確認できませんでした：${error.message}`;}
+  }
   saving=false;toggle.disabled=false;controls.disabled=false;sectionSelect.disabled=false;await render();
-  if(!failed)toast('保存しました');else updateStatus(`${successes}件保存しました。${failed}件は保存できませんでした。入力内容を残しています。`);
+  if(!failed&&!unconfirmed)toast('保存しました');
+  else if(unconfirmed)updateStatus(`${unconfirmed}件は保存済みですが、一覧への反映確認ができませんでした。${failed?failed+'件は保存に失敗しました。':''}内容はカードに残しています。`);
+  else updateStatus(`${successes}件保存しました。${failed}件は保存できませんでした。入力内容を残しています。`);
 }
 function addRow() {
   if(loading||saving)return;

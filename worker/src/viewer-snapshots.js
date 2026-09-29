@@ -15,7 +15,7 @@ async function putJson(bucket, data) {
 // Durable Objects serialize publication; the D1 journal is committed together
 // with each data edit. No alarm is scheduled while there is no pending work.
 export class ViewerSnapshotPublisher {
-  constructor(ctx, env) { this.ctx = ctx; this.env = env; }
+  constructor(ctx, env) { this.ctx = ctx; this.env = env; this.publishing = false; }
   async fetch(request) {
     const path = new URL(request.url).pathname;
     if (path === '/status') return json({...await this.ctx.storage.get('status') || {state:'uninitialized'},scheduledAt:await this.ctx.storage.getAlarm()});
@@ -24,7 +24,7 @@ export class ViewerSnapshotPublisher {
         this.ctx.storage.get('leases'), this.ctx.storage.get('stage'),
         this.ctx.storage.getAlarm(), this.ctx.storage.get('status'),
       ]);
-      return json({ pending: !!stage || !!alarm ||
+      return json({ pending: this.publishing || !!stage || !!alarm ||
         Object.values(leases || {}).some(expiry => expiry > Date.now()) || status?.state === 'failed' });
     }
     return this.ctx.blockConcurrencyWhile(async () => {
@@ -52,6 +52,9 @@ export class ViewerSnapshotPublisher {
     });
   }
   async alarm() {
+    // getAlarm() can be null while this handler is running, before a stage
+    // exists. Cover that in-flight interval without adding editor D1 reads.
+    this.publishing = true;
     try {
       const leases = await this.ctx.storage.get('leases') || {};
       if (Object.values(leases).some(expiry => expiry > Date.now())) {
@@ -133,6 +136,8 @@ export class ViewerSnapshotPublisher {
       await this.ctx.storage.put('status', {state:'failed',error:String(error.message || error).slice(0,500),failures});
       console.error('Viewer snapshot publication failed', error);
       if (failures < 6) await this.ctx.storage.setAlarm(Date.now()+Math.min(60000,2000*2**failures));
+    } finally {
+      this.publishing = false;
     }
   }
 }
