@@ -119,3 +119,5 @@
 .sheet-pane > .sheet-status { display: none; flex: none; }
 .sheet-pane > .sheet-status.has-message { display: block; padding: .3rem .65rem; }
 .sheet-card-rail { padding-top: 8px; }
+
+.sheet-publication-notice { flex: none; padding: .45rem .65rem; font-size: .8rem; border-bottom: 1px solid currentColor; }
