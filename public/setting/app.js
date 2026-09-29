@@ -31,6 +31,7 @@ const editorSectionCache = new Map();
 const editorReferenceCache = new Map();
 let listLoadGeneration = 0;
 let editorCacheGeneration = 0;
+const EDITOR_PENDING_KEY = "vocab-editor-pending-publication";
 
 const state = {
   lists: [],
@@ -290,19 +291,37 @@ function clearEditorCaches(listId = null) {
 }
 
 async function api(path, opts = {}) {
-  const { forceRefresh = false, ...fetchOptions } = opts;
-  const res = await editorFetch(`${API}${path}`, {
-    headers: { "content-type": "application/json" },
-    cache: forceRefresh ? "reload" : "default",
-    ...fetchOptions,
-  });
-  if (!res.ok) {
+  const { forceRefresh = false, preserveEditorCache = false, ...fetchOptions } = opts;
+  const method = String(fetchOptions.method || "GET").toUpperCase();
+  const pendingWrite = localStorage.getItem(EDITOR_PENDING_KEY);
+  const readPath = method === "GET" && pendingWrite
+    ? `${path}${path.includes("?") ? "&" : "?"}editorFresh=1` : path;
+  let res;
+  // Only reads may be retried. Never replay a save when publication is delayed.
+  for (let attempt = 0; ; attempt += 1) {
+    res = await editorFetch(`${API}${readPath}`, {
+      headers: { "content-type": "application/json" },
+      cache: forceRefresh ? "reload" : "default",
+      ...fetchOptions,
+    });
+    if (res.ok) break;
     const body = await res.json().catch(() => ({}));
+    if (method === "GET" && body.code === "editor_snapshot_pending" && attempt < 60) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      continue;
+    }
     throw new Error(body.error || `HTTP ${res.status}`);
   }
   const data = res.status === 204 ? null : await res.json();
-  const method = String(fetchOptions.method || "GET").toUpperCase();
-  if (method !== "GET" && method !== "HEAD") clearEditorCaches();
+  if (method !== "GET" && method !== "HEAD") {
+    if (res.headers.get("x-editor-snapshots") === "r2") {
+      localStorage.setItem(EDITOR_PENDING_KEY, crypto.randomUUID());
+    }
+    if (!preserveEditorCache) clearEditorCaches();
+  } else if (res.headers.get("x-editor-source") === "r2" && pendingWrite &&
+      localStorage.getItem(EDITOR_PENDING_KEY) === pendingWrite) {
+    localStorage.removeItem(EDITOR_PENDING_KEY);
+  }
   return data;
 }
 
@@ -683,7 +702,7 @@ async function selectList(listId) {
   await loadExpandedNotebookSections();
   if (isNotebookView()) {
     try {
-      const data = await api(`/lists/${encodeURIComponent(listId)}/idioms`);
+      const data = await api(`/lists/${encodeURIComponent(listId)}/editor/idioms`);
       if (generation !== listLoadGeneration) return;
       state.idiomResolver = createIdiomReferenceResolver(groupIdiomEntries(data.entries, data.chapters), name => {
         const hit = state.listWordIndex.get(name.toLowerCase());
@@ -2436,43 +2455,77 @@ function editorRowFromSavedWord(word, previous) {
   const membership = isNotebookView()
     ? word.lists?.find((item) => item.listId === state.currentListId)
     : null;
-  const primary = word.senses?.find((sense) => sense.is_primary) || word.senses?.[0] || {};
+  const primary = word.senses?.find((sense) => sense.is_primary) || {};
+  const sectionId = membership ? membership.sectionId : previous?.sectionId ?? null;
+  const section = state.sections.find(item => item.id === sectionId);
+  const chapter = state.chapters.find(item => item.id === section?.chapterId);
+  const labelId = membership ? membership.labelId : previous?.labelId ?? null;
+  const label = state.labels.find(item => item.id === labelId);
   return {
-    ...previous,
-    ...word,
-    primaryPos: primary.pos || "",
-    primaryMeaning: primary.meaning || "",
-    awl: word.tags?.awl || "",
-    cefr: word.tags?.cefr_provisional || "",
-    eiken: word.tags?.eiken || "",
-    target1900: previous?.target1900 || "",
-    target1400: previous?.target1400 || "",
+    ...previous, ...word,
+    primaryPos: primary.pos || "", primaryMeaning: primary.meaning || "",
+    awlSublist: word.tags?.awl ?? null, oxfordLevel: word.tags?.oxford5000 ?? null,
+    provisionalCefr: word.tags?.cefr_provisional ?? null, eiken: word.tags?.eiken ?? null,
+    target1900No: word.tags?.target1900 ?? null, target1400No: word.tags?.target1400 ?? null,
+    phrases: (word.examples || []).filter(item => item.type === "phrase").map(item => item.sentence),
     no: membership?.no ?? previous?.no,
     branch: membership?.branch ?? previous?.branch ?? 0,
     displayNo: membership?.displayNo ?? previous?.displayNo ?? "",
-    sectionId: membership?.sectionId ?? previous?.sectionId ?? null,
-    labelId: membership?.labelId ?? previous?.labelId ?? null,
-    labelName: membership?.labelName ?? previous?.labelName ?? null,
+    sectionId, sectionName: section?.name ?? null, sectionSubtitle: section?.subtitle ?? null,
+    sectionSortOrder: section?.sortOrder ?? null, chapterId: section?.chapterId ?? null,
+    chapterSortOrder: chapter?.sortOrder ?? null, groupId: section?.groupId ?? null,
+    labelId, labelName: label?.name ?? null, labelSortOrder: label?.sortOrder ?? null,
   };
 }
 
 function replaceSavedWordInEditor(word) {
-  const previous = state.words.find((item) => item.id === word.id);
+  const listId = state.currentListId;
+  // Only notebooks containing this word lose cached data; unrelated notebooks survive.
+  for (const [id, index] of editorIndexCache) {
+    if (id !== listId && (index.words.some(item => item.id === word.id) || word.lists?.some(item => item.listId === id))) {
+      clearEditorCaches(id);
+    }
+  }
+  editorCacheGeneration += 1;
+  state.sectionDataGeneration += 1;
+  state.sectionPromises = new Map();
+  state.referencePromise = null;
+  const previous = state.words.find(item => item.id === word.id);
   const row = editorRowFromSavedWord(word, previous);
-  state.words = previous
-    ? state.words.map((item) => item.id === word.id ? row : item)
-    : [...state.words, row];
-  state.listWordIndex = new Map(state.words.map((item) => [item.spelling.toLowerCase(), { id: item.id, no: item.displayNo }]));
+  const position = item => {
+    const section = state.sections.find(s => s.id === item.sectionId);
+    const chapter = state.chapters.find(c => c.id === section?.chapterId);
+    const label = state.labels.find(l => l.id === item.labelId);
+    return [chapter?.sortOrder ?? -1, section?.sortOrder ?? -1, label?.sortOrder ?? -1, item.no ?? 0, item.branch ?? 0];
+  };
+  const compare = (a, b) => {
+    const left = position(a), right = position(b);
+    for (let i = 0; i < left.length; i += 1) if (left[i] !== right[i]) return left[i] - right[i];
+    return 0;
+  };
+  state.words = [...state.words.filter(item => item.id !== word.id), row].sort(compare);
+  editorIndexCache.set(listId, { words: state.words });
+  const patch = (key, rows) => {
+    const withoutSaved = rows.filter(item => item.id !== word.id);
+    return (editorSectionKey(row.sectionId) === key ? [...withoutSaved, row] : withoutSaved).sort(compare);
+  };
+  for (const [key, rows] of editorSectionCache) {
+    if (key.startsWith(`${listId}:`)) editorSectionCache.set(key, patch(key.slice(listId.length + 1), rows));
+  }
   for (const [key, rows] of state.sectionWords) {
-    const withoutSaved = rows.filter((item) => item.id !== word.id);
-    const belongsHere = editorSectionKey(row.sectionId) === key;
-    state.sectionWords.set(key, belongsHere ? [...withoutSaved, row] : withoutSaved);
+    const updated = patch(key, rows);
+    state.sectionWords.set(key, updated);
+    editorSectionCache.set(editorSectionCacheKey(listId, key), updated);
   }
-  const targetKey = editorSectionKey(row.sectionId);
-  if (state.sectionWords.has(targetKey)) {
-    const rows = state.sectionWords.get(targetKey).filter((item) => item.id !== word.id);
-    state.sectionWords.set(targetKey, [...rows, row]);
+  const references = editorReferenceCache.get(listId);
+  if (references) {
+    const reference = { id: word.id, spelling: word.spelling, phrases: row.phrases,
+      derivatives: (word.derivatives || []).map(({ word }) => ({ word })) };
+    references.words = references.words.filter(item => item.id !== word.id);
+    if (reference.phrases.length || reference.derivatives.length) references.words.push(reference);
+    state.referenceWords = references.words;
   }
+  state.listWordIndex = new Map(state.words.map(item => [item.spelling.toLowerCase(), { id: item.id, no: item.displayNo }]));
   rebuildAutoCrossRefRenderer();
   renderWordTableHead();
   renderWordTable();
@@ -2518,19 +2571,19 @@ async function saveWord() {
         body.sectionId = sectionId;
         body.labelId = labelId;
       }
-      word = await api("/words", { method: "POST", body: JSON.stringify(body) });
+      word = await api("/words", { method: "POST", preserveEditorCache: isNotebookView(), body: JSON.stringify(body) });
     } else {
       const wordId = state.currentWord.id;
       // 単語本体とリスト内no/セクションの更新は別テーブルを触る独立した処理なので並行実行する。
       const listItemUpdate =
         isNotebookView() && el.fieldNo.value.trim()
           ? api(`/lists/${encodeURIComponent(state.currentListId)}/items/${encodeURIComponent(wordId)}`, {
-              method: "PUT",
+              method: "PUT", preserveEditorCache: isNotebookView(),
               body: JSON.stringify({ no: el.fieldNo.value.trim(), sectionId, labelId }),
             })
           : null;
       [word] = await Promise.all([
-        api(`/words/${encodeURIComponent(wordId)}`, { method: "PUT", body: JSON.stringify(body) }),
+        api(`/words/${encodeURIComponent(wordId)}`, { method: "PUT", preserveEditorCache: isNotebookView(), body: JSON.stringify(body) }),
         listItemUpdate,
       ]);
       // The membership update runs in parallel above; read back only this word so
@@ -2548,6 +2601,7 @@ async function saveWord() {
     }
     closeEditor();
     showToast("保存しました");
+    if (isNotebookView()) void loadExpandedNotebookSections().catch(() => showToast("保存済みです。一覧の更新は再読み込みで確認してください。"));
   } catch (err) {
     alert(`保存に失敗しました: ${err.message}`);
   }

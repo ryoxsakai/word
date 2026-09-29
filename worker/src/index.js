@@ -1,3 +1,4 @@
+import { serveEditorSnapshot, editorSnapshotsEnabled } from './editor-snapshots.js';
 import { handleIdiomIllustrationRoute } from './idiom-illustrations.js';
 import { renderMarkup } from "../../public/shared/markup.js";
 import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, renameIdiomSection, saveIdiom } from "./idioms.js";
@@ -929,7 +930,7 @@ async function searchViewerWords(db, listId, request) {
 // セクションと同様、名前は持たずsort_orderの並び順から番号を自動計算し、
 // 呼び方(Chapter/Module/Volume)は単語帳(lists.chapter_label)の設定に従う。
 
-async function listChapters(db, listId) {
+export async function listChapters(db, listId) {
   if (listId === MASTER_LIST_ID) return json([]);
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
@@ -1076,7 +1077,7 @@ async function deleteGroup(db, listId, groupId) {
 
 // ---- sections ----
 
-async function listSections(db, listId) {
+export async function listSections(db, listId) {
   if (listId === MASTER_LIST_ID) return json([]);
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
@@ -1146,7 +1147,7 @@ async function deleteSection(db, listId, sectionId) {
 
 // ---- labels ----
 // ラベルはセクション内だけで有効な小分類。語に付くlabel_idは必ず同じ単語帳・セクションのものとする。
-async function listLabels(db, listId) {
+export async function listLabels(db, listId) {
   if (listId === MASTER_LIST_ID) return json([]);
   const list = await db.prepare("SELECT 1 FROM lists WHERE id = ?").bind(listId).first();
   if (!list) return notFound("list not found");
@@ -2527,13 +2528,17 @@ function corsHeaders(allowedOrigin) {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Access-Control-Expose-Headers": "x-editor-source, x-editor-snapshots, x-editor-revision",
     Vary: "Origin",
   };
 }
 
 function withCors(response, allowedOrigin) {
   const headers = new Headers(response.headers);
-  for (const [k, v] of Object.entries(corsHeaders(allowedOrigin))) headers.set(k, v);
+  for (const [k, v] of Object.entries(corsHeaders(allowedOrigin))) {
+    if (k.toLowerCase() === "vary" && headers.has(k)) headers.append(k, v);
+    else headers.set(k, v);
+  }
   return new Response(response.body, { status: response.status, headers });
 }
 
@@ -2638,6 +2643,11 @@ async function handleApi(request, env, parts, method) {
   // /api/lists/:listId/editor/index （編集一覧の並び順・検索・参照に必要な軽量索引）
   if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "index" && method === "GET") {
     return await getEditorIndex(db, parts[2], request);
+  }
+
+  // Notebook editor reference resolver (the static editor serves this from R2).
+  if (parts.length === 5 && parts[1] === "lists" && parts[3] === "editor" && parts[4] === "idioms" && method === "GET") {
+    return json(await readIdioms(db, parts[2]));
   }
 
   // /api/lists/:listId/editor/references （編集プレビュー用の熟語・派生語参照索引）
@@ -2929,6 +2939,8 @@ export default {
       const apiPath = pathname.slice("/mcp-editor".length);
       const parts = apiPath.split("/").filter(Boolean).map(decodeURIComponent);
       try {
+        const snapshot = await serveEditorSnapshot(request, env);
+        if (snapshot) return withCors(snapshot, allowedOrigin);
         if (pathname === "/mcp-editor/api/audio-generation/status") {
           if (request.method !== "GET") {
             return withCors(json({ error: "method not allowed" }, { status: 405 }), allowedOrigin);
@@ -2952,6 +2964,7 @@ export default {
         }
 
         const response = await handleApi(request, env, parts, request.method);
+        if (editorSnapshotsEnabled(env)) response.headers.set("x-editor-snapshots", "r2");
         return withCors(response, allowedOrigin);
       } catch (err) {
         return withCors(

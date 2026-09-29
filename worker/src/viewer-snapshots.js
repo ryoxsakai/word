@@ -19,6 +19,14 @@ export class ViewerSnapshotPublisher {
   async fetch(request) {
     const path = new URL(request.url).pathname;
     if (path === '/status') return json({...await this.ctx.storage.get('status') || {state:'uninitialized'},scheduledAt:await this.ctx.storage.getAlarm()});
+    if (path === '/editor-status') {
+      const [leases, stage, alarm, status] = await Promise.all([
+        this.ctx.storage.get('leases'), this.ctx.storage.get('stage'),
+        this.ctx.storage.getAlarm(), this.ctx.storage.get('status'),
+      ]);
+      return json({ pending: !!stage || !!alarm ||
+        Object.values(leases || {}).some(expiry => expiry > Date.now()) || status?.state === 'failed' });
+    }
     return this.ctx.blockConcurrencyWhile(async () => {
       const leases = await this.ctx.storage.get('leases') || {};
       const id = request.headers.get('x-edit-id');
