@@ -1,6 +1,6 @@
 // Authenticated notebook reads project the already-published viewer JSON.
 // This module must never query D1, even on a missing or damaged snapshot.
-import { indexKey, wordSection } from './viewer-snapshot-build.js';
+import { indexKey, wordSection, idiomSection } from './viewer-snapshot-build.js';
 
 export const editorSnapshotsEnabled = env => env.VIEWER_STATIC_ENABLED === 'true' &&
   !!env.VIEWER_SNAPSHOTS && !!env.VIEWER_PUBLISHER;
@@ -45,7 +45,7 @@ export async function serveEditorSnapshot(request, env) {
   if (request.method !== 'GET' || !editorSnapshotsEnabled(env)) return null;
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/mcp-editor\/api/, '').replace(/\/$/, '');
-  const match = path.match(/^\/lists\/([^/]+)\/(editor\/(?:index|references|idioms|sections\/[^/]+)|sections|chapters|labels)$/);
+  const match = path.match(/^\/lists\/([^/]+)\/(editor\/(?:index|references|idioms|idiom-sections\/[^/]+|sections\/[^/]+)|sections|chapters|labels)$/);
   if (path !== '/lists' && !match) return null;
   const list = match && decodeURIComponent(match[1]);
   if (list === '__master__') return null;
@@ -84,6 +84,10 @@ export async function serveEditorSnapshot(request, env) {
         // Link resolution needs phrases, aliases and numbering, not every meaning.
         data = await read(env, manifest, indexKey(list, 'idiom-index'));
         if (!data) throw new Error('Published idiom index missing');
+      } else if (tail.startsWith('editor/idiom-sections/')) {
+        const section = decodeURIComponent(tail.slice('editor/idiom-sections/'.length));
+        data = await read(env, manifest, idiomSection(list, section));
+        if (!data) return json({ error: 'section not found' }, 404);
       } else if (tail.startsWith('editor/sections/')) {
         const section = decodeURIComponent(tail.slice('editor/sections/'.length));
         if (section !== 'none' && !index.editorStructure.sections.some(s => String(s.id) === section)) {
@@ -91,7 +95,9 @@ export async function serveEditorSnapshot(request, env) {
         }
         const shard = await read(env, manifest, wordSection(list, section));
         if (!shard && index.words.some(w => w.sectionKey === section)) throw new Error('Published word section missing');
-        data = (shard?.words || []).map(w => editorRow(w, index));
+        data = url.searchParams.get('full') === '1'
+          ? { words: shard?.words || [] }
+          : (shard?.words || []).map(w => editorRow(w, index));
       } else data = index.editorStructure[tail];
     }
     if (data == null) throw new Error('Published editor data missing');
