@@ -46,3 +46,40 @@ assert.equal(fixedNumbers[0].sections[0].name,'Section 1');
 assert.equal(fixedNumbers[0].sections[0].number,1);
 assert.equal(fixedNumbers[0].sections[0].key,'later');
 console.log('Idiom rich fields: shared markup, word/idiom targets, aliases, hidden sections, stable sense numbers and HTML safety passed');
+
+// Object placeholders, separable word order, omission and spacing resolve to
+// one canonical heading without changing the stored input or explicit labels.
+const objectItems = [
+  {key:'carry', phrase:'carry O out', no:'42'},
+  {key:'look', phrase:'look after O', no:'43'},
+  {key:'hidden', phrase:'hide O away', no:'44', hidden:true},
+  {key:'two-slots', phrase:'compare A with B', no:'45'},
+];
+const objectResolve = createIdiomReferenceResolver([{sections:[{items:objectItems}]}]);
+const objectMemo = createAutoCrossRefRenderer(objectResolve.phrases, {resolve:objectResolve, idiomReferences:objectResolve.phrases});
+for (const input of ['carry out', 'carry A out', 'carry out A', 'carry out O', 'carry O out', 'CARRY   out\tA']) {
+  assert.equal(objectResolve(input).id, 'carry', input);
+  for (const html of [renderWordListMarkup(input,{resolve:objectResolve}), objectMemo(`${input}も参照。`)]) {
+    assert.match(html, /data-idiom-id="carry"/);
+    assert.match(html, /<strong>carry O out<\/strong>/);
+    assert.match(html, /熟 42/);
+  }
+}
+assert.match(renderMarkup('##carry out A##',{resolve:objectResolve}), />carry O out</);
+assert.match(renderMarkup('##carry out A|実行する##',{resolve:objectResolve}), />実行する</);
+assert.equal(objectResolve('look after A').id, 'look');
+assert.equal(objectResolve('look A after').found, false, 'do not move an object before a preposition');
+assert.equal(objectResolve('hide away').found, false);
+assert.equal(objectResolve('compare with').found, false, 'do not collapse multiple distinct slots');
+assert.doesNotMatch(objectMemo('scarry out / carry outsider'), /data-idiom-id="carry"/);
+assert.doesNotMatch(objectMemo('https://example.test/carry-out'), /data-idiom-id="carry"/);
+const ambiguousObjects = createIdiomReferenceResolver([{sections:[{items:[
+  {key:'see-inside', phrase:'see O through', no:'1'},
+  {key:'see-after', phrase:'see through O', no:'2'},
+]}]}]);
+assert.equal(ambiguousObjects('see through').found, false);
+assert.equal(ambiguousObjects('see through A').found, false);
+assert.equal(ambiguousObjects('see through O').id, 'see-after', 'registered exact headwords win');
+const explicitObjects = createIdiomReferenceResolver([{sections:[{items:[...objectItems,{key:'exact',phrase:'carry out',no:'46'}]}]}]);
+assert.equal(explicitObjects('carry out').id, 'exact');
+console.log('Idiom object variants: canonical labels, ordering, whitespace, explicit labels and ambiguity passed');

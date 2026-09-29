@@ -43,7 +43,7 @@ async function run(idiom){
   else if(path==='/api/lists/book/chapters')data=[];
   else if(path==='/api/lists/book/editor/sections/1')data={words:[publishedWord,...extraWords]};
   else if(path==='/api/words/alpha')data=storedWord;
-  else if(path==='/api/lists/book/editor/idioms')data={chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry,...extraIdioms]};
+  else if(path==='/api/lists/book/editor/idioms')data={chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry,...extraIdioms,{key:'carry',phrase:'carry O out',sectionKey:'s1',meanings:[{meaning:'実行する',refs:[]}]}]};
   else if(path==='/api/lists/book/editor/idiom-sections/s1')data={entries:[publishedIdiom,...extraIdioms]};
   else if(path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom,...extraIdioms]};
   else throw new Error(`Unexpected read ${path}`);
@@ -58,7 +58,19 @@ async function run(idiom){
  assert.equal(calls.some(c=>c.path==='/api/words/alpha'),false,'display must not fetch individual D1 records');
  const edit=(el,value)=>{el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
  const meanings=d.querySelector('.sheet-card').querySelectorAll('[aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
- edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
+ if(!idiom){
+  for(const label of ['類義語','対義語','関連語','メモ']) {
+    const input=get(label); edit(input,'carry out A');
+    const preview=d.querySelector(`.sheet-card [aria-label="${label}の表示"]`);
+    assert.match(preview.textContent,/carry O out/);
+    assert.match(preview.textContent,/熟 /);
+    assert.equal(preview.querySelector('a').hash,'#idiom-carry');
+    assert.equal(preview.querySelector('a').pathname,'/index.html');
+    assert.equal(input.value,'carry out A','display normalization must preserve the editable source');
+  }
+  assert.equal(calls.filter(c=>c.path==='/api/lists/book/editor/idioms').length,1,'read the JSON reference index only once per notebook');
+}
+edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
  if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');edit(get('類義語'),'serve; perform; carry A out');storedWord.etymology='concurrent unrelated update';}
  if(!idiom){
   assert.equal(get('種類'),null);assert.equal(get('品詞ごとの発音'),null);assert.equal(get('Oxford 5000'),null);

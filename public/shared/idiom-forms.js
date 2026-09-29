@@ -22,3 +22,25 @@ export function validateIdiomAlternateForms(forms, phrase) {
 export function idiomAliasNames(aliases = []) {
   return aliases.flatMap(alias => typeof alias === 'string' ? [alias] : [alias?.phrase, alias?.key].filter(Boolean));
 }
+
+// Infer only a single object slot. Multiple slots (A ... B), subjects and
+// complements retain their distinct roles. An internal slot before a particle
+// is evidence that the phrasal verb permits a trailing object as well.
+const OBJECT_PARTICLES = new Set('about along apart around aside away back down forward in off on out over through together up'.split(' '));
+export function idiomObjectVariants(phrase) {
+  const tokens = String(phrase || '').trim().split(/\s+/);
+  const slots = tokens.map((token, index) => /^[OABCSV]$/.test(token) ? index : -1).filter(index => index >= 0);
+  if (slots.length !== 1 || !/^[OA]$/.test(tokens[slots[0]])) return [];
+  const slot = slots[0], variants = new Set();
+  for (const object of ['O', 'A']) variants.add(tokens.map((token, i) => i === slot ? object : token).join(' '));
+  if (tokens.length >= 3) variants.add(tokens.filter((_, i) => i !== slot).join(' '));
+  if (tokens.length === 3 && slot === 1 && OBJECT_PARTICLES.has(tokens[2].toLowerCase())) {
+    for (const object of ['O', 'A']) variants.add(`${tokens[0]} ${tokens[2]} ${object}`);
+  }
+  return [...variants];
+}
+
+export function idiomReferenceNames(entry) {
+  const names = [entry.phrase, ...idiomAlternateForms(entry), ...idiomAliasNames(entry.aliases)];
+  return [...new Set([...names, ...names.flatMap(idiomObjectVariants)].filter(Boolean))];
+}

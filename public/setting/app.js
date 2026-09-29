@@ -335,7 +335,7 @@ function resolveRef(headword) {
 
 function updatePreview(textarea, previewEl) {
   let html;
-  if (textarea === el.fieldSynonyms || textarea === el.fieldAntonyms) {
+  if (textarea === el.fieldSynonyms || textarea === el.fieldAntonyms || textarea === el.fieldRelatedWords) {
     html = renderWordListMarkup(textarea.value, { resolve: resolveRef });
   } else if (textarea === el.fieldNotes && state.renderNotesMarkup) {
     html = state.renderNotesMarkup(textarea.value, { currentHeadword: el.fieldSpelling.value });
@@ -343,6 +343,11 @@ function updatePreview(textarea, previewEl) {
     html = renderMarkup(textarea.value, { resolve: resolveRef });
   }
   previewEl.innerHTML = html || '<span style="color:#999">（プレビュー）</span>';
+  for (const link of previewEl.querySelectorAll('a.ref')) {
+    link.href = `../index.html?list=${encodeURIComponent(state.currentListId)}${link.getAttribute('href')}`;
+    link.target = '_blank';
+    link.rel = 'noopener';
+  }
 }
 
 function rebuildAutoCrossRefRenderer() {

@@ -1,3 +1,4 @@
+import { idiomReferenceNames } from '../../public/shared/idiom-forms.js';
 import { indexKey, wordSection, idiomSection, scopeKey, searchWords } from './viewer-snapshot-build.js';
 import { renderWordChapter, renderIdiomChapter } from '../../public/viewer/static-chapter.js';
 export const chapterKey=(list,kind,chapter)=>scopeKey({list_id:list,kind:`${kind}-chapter`,section_key:String(chapter)});
@@ -28,7 +29,7 @@ export async function markChapters(env,stage,job,old,result) {
  for(const id of new Set([...previousItems.keys(),...nextItems.keys()])) {
   const a=previousItems.get(id),b=nextItems.get(id);
   if(JSON.stringify(a)===JSON.stringify(b))continue;
-  for(const [item,index]of [[a,before],[b,after]])if(item){mark(type,chapterFor(index,type,item.sectionKey));for(const t of [item.spelling,item.phrase,...(item.aliases||[])])if(typeof t==='string'&&t)changedTerms.add(t.toLowerCase());}
+  for(const [item,index]of [[a,before],[b,after]])if(item){mark(type,chapterFor(index,type,item.sectionKey));for(const t of [item.spelling,...(type==='idioms'?idiomReferenceNames(item):[])])if(typeof t==='string'&&t)changedTerms.add(t.toLowerCase());}
  }
  const oldChapters=new Map((before?.chapters||[]).map(c=>[String(c.key),c]));
  for(const c of after.chapters)if(JSON.stringify(oldChapters.get(String(c.key)))!==JSON.stringify(c))mark(type,c.key);
@@ -42,7 +43,7 @@ export async function markChapters(env,stage,job,old,result) {
  if(changedTerms.size)for(const chapter of Object.values(stage.chapters)) {
   if(chapter.list!==list||chapter.kind!=='viewer'||!chapter.search)continue;
   const words=await read(env,chapter.search);
-  if(words?.some(w=>[...changedTerms].some(term=>w.text.includes(term))))mark('viewer',chapter.chapter);
+  if(words?.some(w=>[...changedTerms].some(term=>w.text.replace(/\s+/g,' ').includes(term))))mark('viewer',chapter.chapter);
  }
 
 }
