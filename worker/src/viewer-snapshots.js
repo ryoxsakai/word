@@ -24,6 +24,11 @@ export class ViewerSnapshotPublisher {
         this.ctx.storage.get('leases'), this.ctx.storage.get('stage'),
         this.ctx.storage.getAlarm(), this.ctx.storage.get('status'),
       ]);
+      // A caught alarm error does not receive Cloudflare's automatic alarm
+      // retries. Wake an older publisher that exhausted its own retry budget.
+      if (status?.state === 'failed' && !alarm && !this.publishing) {
+        await this.ctx.storage.setAlarm(Date.now() + 1000);
+      }
       return json({ pending: this.publishing || !!stage || !!alarm ||
         Object.values(leases || {}).some(expiry => expiry > Date.now()) || status?.state === 'failed' });
     }
@@ -62,12 +67,22 @@ export class ViewerSnapshotPublisher {
       }
       const bucket = this.env.VIEWER_SNAPSHOTS;
       let stage = await this.ctx.storage.get('stage');
+      let current;
       if (!stage) {
-        const current = await bucket.get('current.json');
+        current = await bucket.get('current.json');
         stage = current ? await current.json() : { files: {}, search: {} };
       }
       const { results: jobs } = await this.env.DB.prepare('SELECT * FROM viewer_snapshot_dirty ORDER BY list_id,kind,section_key LIMIT 8').all();
-      if(!jobs.length && !await this.ctx.storage.get('stage')) return;
+      if(!jobs.length && !await this.ctx.storage.get('stage')) {
+        // A failure can happen after current.json is committed but before the
+        // ready status is stored. Recover that stale failed status without
+        // rebuilding the snapshot.
+        if (current) {
+          await this.ctx.storage.put('status', {state:'ready',revision:stage.revision,generatedAt:stage.generatedAt,files:Object.keys(stage.files).length});
+          await this.ctx.storage.delete('failures');
+        }
+        return;
+      }
       const builtScopes = await Promise.all(jobs.map(job => buildSnapshotScope(this.env, job)));
       for (const [jobIndex, job] of jobs.entries()) {
         const id = scopeKey(job), old = stage.files[id];
@@ -135,7 +150,10 @@ export class ViewerSnapshotPublisher {
       await this.ctx.storage.put('failures', failures);
       await this.ctx.storage.put('status', {state:'failed',error:String(error.message || error).slice(0,500),failures});
       console.error('Viewer snapshot publication failed', error);
-      if (failures < 6) await this.ctx.storage.setAlarm(Date.now()+Math.min(60000,2000*2**failures));
+      // We catch errors to preserve the last complete revision, so schedule
+      // the next alarm ourselves. Back off to at most fifteen minutes to keep
+      // a persistent data error from creating continuous D1 work.
+      await this.ctx.storage.setAlarm(Date.now()+Math.min(15*60*1000,2000*2**Math.min(failures,9)));
     } finally {
       this.publishing = false;
     }
