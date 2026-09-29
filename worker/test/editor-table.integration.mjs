@@ -45,11 +45,20 @@ async function run(idiom){
  const d=w.document, get=label=>d.querySelector(`.sheet-card [aria-label="${label}"]`);
  await waitFor(()=>get(idiom?'熟語':'単語'),'cards not loaded');
  assert.equal(d.querySelector('.word-table-pane').hidden,true);assert.equal(d.getElementById('editModalOverlay').hidden,true);
+ for(const label of ['Section','Label','派生元','No.'])assert.equal(get(label),null);
  assert.equal(calls.some(c=>c.path==='/api/words/alpha'),false,'display must not fetch individual D1 records');
  const edit=(el,value)=>{el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
  const meanings=d.querySelector('.sheet-card').querySelectorAll('[aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
  edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
  if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');storedWord.etymology='concurrent unrelated update';}
+ if(!idiom){
+  assert.equal(get('種類'),null);assert.equal(get('品詞ごとの発音'),null);assert.equal(get('Oxford 5000'),null);
+  const badge=get('能格');assert.equal(badge.tagName,'BUTTON');badge.click();assert.equal(badge.getAttribute('aria-pressed'),'true');
+  const primary=get('見出しの意味');assert.equal(primary.closest('.sheet-repeat-actions').children[2].textContent,'↓');
+  const examples=get('英文').closest('fieldset');[...examples.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();
+  const sentences=examples.querySelectorAll('[aria-label="英文"]');edit(sentences[2],'New phrase');
+  edit(examples.querySelectorAll('[aria-label="日本語訳"]')[2],'新しいフレーズ');
+ }
  const rail=d.querySelector('.sheet-card-rail'), firstBody=d.querySelector('.sheet-card-body');
  firstBody.scrollTop=321;rail.scrollLeft=234;
  assert.equal(d.querySelectorAll('.sheet-card').length,20);
@@ -68,7 +77,7 @@ async function run(idiom){
  assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み');
  const writes=calls.filter(c=>c.method!=='GET');assert.equal(writes.length,1);const saved=writes[0].body;
  if(idiom){assert.equal(saved.meanings[1].meaning,'edited meaning');assert.equal(saved.meanings[1].id,'s-b');assert.deepEqual(saved.meanings[0].wordIds,['alpha']);assert.equal(saved.hidden,true);}
- else{assert.equal(saved.senses[1].meaning,'edited meaning');assert.equal(saved.examples[0].answer,'retained answer');assert.equal(saved.examples[1].sentence,'Second edited sentence');assert.equal(saved.etymology,'concurrent unrelated update');assert.equal(saved.audioUrl,'legacy.mp3');}
+ else{assert.equal(saved.derivedFrom,'parent');assert.equal(saved.ergative,true);assert.equal(saved.tags.awl,'2');assert.equal(saved.tags['custom:medical'],true);assert.equal(saved.senses[1].pronunciation,'/a/');assert.equal(saved.examples[1].type,'example');assert.equal(saved.examples[2].type,'phrase');assert.equal(saved.senses[1].meaning,'edited meaning');assert.equal(saved.examples[0].answer,'retained answer');assert.equal(saved.examples[1].sentence,'Second edited sentence');assert.equal(saved.etymology,'concurrent unrelated update');assert.equal(saved.audioUrl,'legacy.mp3');}
  d.getElementById('tableToast').textContent='';fail=true;edit(get('メモ'),'unsaved after failure');saveAll.click();
  await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('injected failure'),'save failure missing');
  assert.equal(get('メモ').value,'unsaved after failure');assert.equal(calls.filter(c=>c.method!=='GET').length,2);assert.equal(d.getElementById('tableToast').textContent,'');
