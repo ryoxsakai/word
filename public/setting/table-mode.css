@@ -104,3 +104,17 @@
   .sheet-navigation > button:first-child::before,
   .sheet-navigation > button:nth-child(3)::before { font-size: .875rem; }
 }
+
+/* One header row for the fixed crossover card editor. */
+.card-edit-mode .topbar-row--primary { flex-wrap: nowrap; padding: .35rem .65rem; min-height: 44px; }
+.card-edit-mode .app-subtitle { display: none; }
+.card-edit-mode .topbar-row--primary > select { flex: 1; min-width: 0; max-width: 32rem; width: auto; margin-left: auto; min-height: 34px; padding: .3rem .4rem; font-size: .8125rem; }
+.card-edit-mode .sheet-mobile-menu-toggle { display: inline-flex; flex: none; margin-left: 0; min-height: 34px; padding: .3rem .6rem; }
+.card-edit-mode .sheet-header-menu { display: none; }
+.card-edit-mode .sheet-header-menu.is-open { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; position: absolute; top: 100%; right: .5rem; left: auto; width: min(30rem, calc(100vw - 1rem)); max-height: calc(100dvh - 60px); overflow-y: auto; padding: .65rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); }
+.sheet-header-menu .sheet-extra-tools { display: flex; flex-wrap: wrap; gap: .35rem; width: 100%; }
+.sheet-header-menu .sheet-extra-tools input { flex-basis: 100%; width: 100%; min-height: 34px; font-size: .8125rem; }
+.sheet-header-menu .sheet-navigation { width: 100%; padding: .35rem 0 0; border: 0; }
+.sheet-pane > .sheet-status { display: none; flex: none; }
+.sheet-pane > .sheet-status.has-message { display: block; padding: .3rem .65rem; }
+.sheet-card-rail { padding-top: 8px; }

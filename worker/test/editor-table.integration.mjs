@@ -17,7 +17,7 @@ async function run(idiom){
  const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
  const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
- w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','book');
+ w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','wrong-book');
  const extraWords=Array.from({length:20},(_,i)=>({...clone(word),id:`extra-${i}`,spelling:`extra ${i}`}));
  const extraIdioms=Array.from({length:20},(_,i)=>({...clone(entry),key:`extra-${i}`,phrase:`extra ${i}`}));
  const calls=[];let storedWord=detail(),storedIdiom=clone(entry),fail=false;
@@ -29,7 +29,7 @@ async function run(idiom){
    if(path==='/api/words/alpha'){storedWord={...storedWord,...body};data=storedWord;}
    else if(path==='/api/lists/book/idioms'){storedIdiom={...body,key:body.id||'idiom-new',meanings:body.meanings.map((s,i)=>({...s,id:s.id||`new-${i}`,refs:s.wordIds.map(wordId=>({wordId}))}))};data={id:storedIdiom.key};}
    else throw new Error(`Unexpected write ${path}`);
-  }else if(path==='/api/lists')data=[{id:'book',name:'Book',isNotebook:true}];
+  }else if(path==='/api/lists')data=[{id:'wrong-book',name:'Other',isNotebook:true},{id:'book',name:'crossover',isNotebook:true}];
   else if(path==='/api/lists/book/editor/index')data={words:[word,...extraWords]};
   else if(path==='/api/lists/book/sections')data=[{id:1,subtitle:'First'}];
   else if(path==='/api/lists/book/labels')data=[{id:2,sectionId:1,name:'Label'}];
@@ -44,6 +44,7 @@ async function run(idiom){
  w.eval(bundle);
  const d=w.document, get=label=>d.querySelector(`.sheet-card [aria-label="${label}"]`);
  await waitFor(()=>get(idiom?'熟語':'単語'),'cards not loaded');
+ assert.equal(d.querySelector('[aria-label="カードで編集する単語帳"]'),null);assert.ok(d.querySelector('.topbar-row--primary > select'));
  assert.equal(d.querySelector('.word-table-pane').hidden,true);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  for(const label of ['Section','Label','派生元','No.'])assert.equal(get(label),null);
  assert.equal(calls.some(c=>c.path==='/api/words/alpha'),false,'display must not fetch individual D1 records');
