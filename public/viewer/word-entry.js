@@ -102,12 +102,13 @@ function renderExampleHtml(ex) {
     })
     .join("");
 
+  const firstPhraseIndex = (w.examples || []).findIndex(ex => ex.type === "phrase");
   const examplesHtml = (w.examples || []).length
     ? `<div class="example-list">${(w.examples || [])
         .map(
-          (ex) => `
+          (ex, index) => `
         <div class="example-line">
-          <span class="bullet${ex.type === "phrase" ? " hollow" : ""}">${ex.type === "phrase" ? "◇" : "◆"}</span>
+          <span class="bullet${ex.type === "phrase" ? ` hollow${index === firstPhraseIndex ? " phrase-first" : ""}` : ""}">${ex.type === "phrase" ? "□" : "◆"}</span>
           <span class="example-phrase">${renderExampleHtml(ex)}</span>
           ${ex.translation ? `<span class="example-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : ""}
         </div>`
