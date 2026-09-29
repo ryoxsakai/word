@@ -426,6 +426,19 @@ async function loadCatalog() {
   }
 }
 async function start() {
+  // iOS Safari suppresses focus zoom at maximum-scale=1 while retaining pinch zoom.
+  // Limit this viewport adjustment to iOS card mode; other browsers keep their viewport.
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (ios) {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      const parts = (viewport.getAttribute('content') || '').split(',')
+        .map(part => part.trim()).filter(part => part && !/^maximum-scale\\s*=/i.test(part));
+      parts.push('maximum-scale=1');
+      viewport.setAttribute('content', parts.join(', '));
+    }
+  }
   document.body.classList.add('card-edit-mode');
   document.querySelector('.word-table-pane').hidden=true;
   const header=document.querySelector('.topbar-row--primary');
