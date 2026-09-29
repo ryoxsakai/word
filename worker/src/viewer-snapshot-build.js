@@ -1,4 +1,4 @@
-import { listLists, listWordsInListFull, getViewerIndex } from './index.js';
+import { listLists, listWordsInListFull, getViewerIndex, listSections, listChapters, listLabels } from './index.js';
 import { readIdiomIndex, readIdiomSection } from './idioms.js';
 import { illustrationUrl } from './word-illustrations.js';
 import { idiomIllustrationUrl } from './idiom-illustrations.js';
@@ -20,7 +20,14 @@ export async function buildSnapshotScope(env, scope) {
   if (kind === 'catalog') return { data: await (await listLists(db)).json(), media: {} };
   if (!await db.prepare('SELECT id FROM lists WHERE id=?').bind(list).first()) return null;
   let response, data, media = {};
-  if (kind === 'viewer-index') response = await getViewerIndex(db, list, new Request('https://snapshot.local/'));
+  if (kind === 'viewer-index') {
+    data = await (await getViewerIndex(db, list, new Request('https://snapshot.local/'))).json();
+    // Include empty sections/chapters and unused labels, which the viewer index omits.
+    const [sections, chapters, labels] = await Promise.all(
+      [listSections, listChapters, listLabels].map(async read => (await read(db, list)).json())
+    );
+    data.editorStructure = { sections, chapters, labels };
+  }
   else if (kind === 'idiom-index') data = await readIdiomIndex(db, list);
   else if (kind === 'word-section') {
     response = await listWordsInListFull(db, list, { sectionKey: section });

@@ -43,7 +43,7 @@ jobs:
         run: npm run test:migrations && npm run test:idioms && npm run test:idiom-theme
 
       - name: Test incremental viewer publication
-        run: npm run test:snapshots
+        run: npm run test:snapshots && npm run test:editor-cache
 
       - name: Test illustration generation and automatic publication
         run: npm run test:illustrations
