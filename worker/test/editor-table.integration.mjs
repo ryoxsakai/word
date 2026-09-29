@@ -18,6 +18,8 @@ async function run(idiom){
  const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
  w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','book');
+ const extraWords=Array.from({length:20},(_,i)=>({...clone(word),id:`extra-${i}`,spelling:`extra ${i}`}));
+ const extraIdioms=Array.from({length:20},(_,i)=>({...clone(entry),key:`extra-${i}`,phrase:`extra ${i}`}));
  const calls=[];let storedWord=detail(),storedIdiom=clone(entry),fail=false;
  w.fetch=async(input,opts={})=>{
   const path=new URL(String(input),'http://localhost').pathname;calls.push({path,method:opts.method||'GET',body:opts.body&&JSON.parse(opts.body)});let data;
@@ -28,28 +30,42 @@ async function run(idiom){
    else if(path==='/api/lists/book/idioms'){storedIdiom={...body,key:body.id||'idiom-new',meanings:body.meanings.map((s,i)=>({...s,id:s.id||`new-${i}`,refs:s.wordIds.map(wordId=>({wordId}))}))};data={id:storedIdiom.key};}
    else throw new Error(`Unexpected write ${path}`);
   }else if(path==='/api/lists')data=[{id:'book',name:'Book',isNotebook:true}];
-  else if(path==='/api/lists/book/editor/index')data={words:[word]};
+  else if(path==='/api/lists/book/editor/index')data={words:[word,...extraWords]};
   else if(path==='/api/lists/book/sections')data=[{id:1,subtitle:'First'}];
   else if(path==='/api/lists/book/labels')data=[{id:2,sectionId:1,name:'Label'}];
   else if(path==='/api/lists/book/chapters')data=[];
-  else if(path==='/api/lists/book/editor/sections/1')data={words:[word]};
+  else if(path==='/api/lists/book/editor/sections/1')data={words:[word,...extraWords]};
   else if(path==='/api/words/alpha')data=storedWord;
-  else if(path==='/api/lists/book/editor/idioms')data={chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry]};
-  else if(path==='/api/lists/book/editor/idiom-sections/s1'||path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom]};
+  else if(path==='/api/lists/book/editor/idioms')data={chapters:[{key:'c1',sections:[{key:'s1',subtitle:'First',labels:[]}]}],entries:[entry,...extraIdioms]};
+  else if(path==='/api/lists/book/editor/idiom-sections/s1'||path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom,...extraIdioms]};
   else throw new Error(`Unexpected read ${path}`);
   return new Response(JSON.stringify(data),{headers:{'content-type':'application/json','x-editor-source':'r2'}});
  };
  w.eval(bundle);
- const d=w.document, get=label=>d.querySelector(`.sheet-table [aria-label="${label}"]`);
- await waitFor(()=>get(idiom?'熟語':'単語'),'table not loaded');
+ const d=w.document, get=label=>d.querySelector(`.sheet-card [aria-label="${label}"]`);
+ await waitFor(()=>get(idiom?'熟語':'単語'),'cards not loaded');
  assert.equal(d.querySelector('.word-table-pane').hidden,true);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  assert.equal(calls.some(c=>c.path==='/api/words/alpha'),false,'display must not fetch individual D1 records');
  const edit=(el,value)=>{el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
- const meanings=d.querySelectorAll('.sheet-table [aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
+ const meanings=d.querySelector('.sheet-card').querySelectorAll('[aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
  edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
- if(!idiom){const phrases=d.querySelectorAll('.sheet-table [aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');storedWord.etymology='concurrent unrelated update';}
+ if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');storedWord.etymology='concurrent unrelated update';}
+ const rail=d.querySelector('.sheet-card-rail'), firstBody=d.querySelector('.sheet-card-body');
+ firstBody.scrollTop=321;rail.scrollLeft=234;
+ assert.equal(d.querySelectorAll('.sheet-card').length,20);
+ const next=[...d.querySelectorAll('button')].find(b=>b.textContent==='次のカード →');
+ const previous=[...d.querySelectorAll('button')].find(b=>b.textContent==='← 前のカード');
+ const reads=calls.length;next.click();await waitFor(()=>d.querySelectorAll('.sheet-card').length===1,'next batch missing');
+ assert.equal(calls.length,reads,'card navigation must not reload JSON');
+ previous.click();await waitFor(()=>d.querySelectorAll('.sheet-card').length===20,'previous batch missing');
+ assert.equal(get('メモ').value,'edited note','draft lost across batches');
+ assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical scroll lost across batches');
+ rail.scrollLeft=234;
  const saveAll=[...d.querySelectorAll('button')].find(b=>b.textContent==='変更を保存');saveAll.click();
  await waitFor(()=>d.getElementById('tableToast')?.textContent==='保存しました','success toast missing');
+ assert.equal(rail.scrollLeft,234,'horizontal position lost on save');
+ assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical position lost on save');
+ assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み');
  const writes=calls.filter(c=>c.method!=='GET');assert.equal(writes.length,1);const saved=writes[0].body;
  if(idiom){assert.equal(saved.meanings[1].meaning,'edited meaning');assert.equal(saved.meanings[1].id,'s-b');assert.deepEqual(saved.meanings[0].wordIds,['alpha']);assert.equal(saved.hidden,true);}
  else{assert.equal(saved.senses[1].meaning,'edited meaning');assert.equal(saved.examples[0].answer,'retained answer');assert.equal(saved.examples[1].sentence,'Second edited sentence');assert.equal(saved.etymology,'concurrent unrelated update');assert.equal(saved.audioUrl,'legacy.mp3');}
@@ -57,8 +73,8 @@ async function run(idiom){
  await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('injected failure'),'save failure missing');
  assert.equal(get('メモ').value,'unsaved after failure');assert.equal(calls.filter(c=>c.method!=='GET').length,2);assert.equal(d.getElementById('tableToast').textContent,'');
  await tick();assert.equal(calls.filter(c=>c.method!=='GET').length,2);
- const meanCell=get('意味').closest('td');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
+ const meanCell=get('意味').closest('fieldset');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  dom.window.close();
 }
 await run(false);await run(true);
-console.log('Table editor passed: JSON reads, repeated fields, scoped saves, conflict merge, retained hidden data, failures and toast');
+console.log('Card editor passed: draft/scroll preservation, JSON reads, repeated fields, scoped saves, conflict merge, retained hidden data, failures and toast');

@@ -7,6 +7,7 @@ const MODE_KEY = 'vocab-setting-edit-mode';
 const PENDING_KEY = 'vocab-editor-pending-publication';
 const idiom = location.pathname.endsWith('idioms.html');
 const toggle = document.getElementById('editModeToggle');
+// Keep the saved mode value compatible with the former table editor.
 const tableMode = localStorage.getItem(MODE_KEY) === 'table';
 let rows = [], sections = [], labels = [], index = [], books = [], page = 0, loading = false, saving = false;
 let listId = '', sectionKey = '', query = '', sequence = 0;
@@ -54,7 +55,7 @@ function toast(message) {
   el.textContent = message; el.hidden = false;
   clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2800);
 }
-toggle.textContent = tableMode ? '通常編集に切替' : '表形式に切替';
+toggle.textContent = tableMode ? '通常編集に切替' : 'カード編集に切替';
 toggle.setAttribute('aria-pressed', String(tableMode));
 toggle.addEventListener('click', () => {
   if (saving) return;
@@ -68,7 +69,7 @@ window.addEventListener('beforeunload', event => {
   if (hasChanges() || saving) { event.preventDefault(); event.returnValue = ''; }
 });
 
-let pane, controls, bookSelect, sectionSelect, search, status, body, head, saveButton, prevButton, nextButton, pageLabel;
+let pane, controls, bookSelect, sectionSelect, search, status, body, saveButton, prevButton, nextButton, pageLabel;
 function updateStatus(message) {
   status.textContent = message || `${rows.length}件 · 未保存 ${rows.filter(dirty).length}件`;
   saveButton.disabled = loading || saving || !hasChanges();
@@ -92,9 +93,12 @@ function textField(container, row, key, title, {type='text', choices, multiline=
   label.append(input); container.append(label); return input;
 }
 function mark(row) {
-  row.element?.querySelectorAll('td[data-fields]').forEach(cell => {
+  row.element?.querySelectorAll('[data-fields]').forEach(cell => {
     cell.classList.toggle('is-dirty', row.isNew || cell.dataset.fields.split(',').some(k => !same(row.base[k], row.draft[k])));
   });
+  if(row.titleElement)row.titleElement.textContent=row.draft.spelling||row.draft.phrase||'新規';
+  if(row.badgeElement)row.badgeElement.textContent=dirty(row)?'未保存':'保存済み';
+  if(row.saveElement)row.saveElement.disabled=!dirty(row);
   updateStatus();
 }
 const pos = [['','—'], ...['名','自','他','動','形','副','代','冠','前','接','間','助','熟','連'].map(s=>[s,s])];
@@ -103,7 +107,7 @@ function repeat(container, row, key, fields, empty, max = Infinity) {
   function render() {
     list.replaceChildren();
     row.draft[key].forEach((item, i) => {
-      const box = node('div', {class:'sheet-repeat'});
+      const box = node('div', {class:'repeat-row sheet-repeat'});
       for (const [field, title, config = {}] of fields) {
         const proxy = {draft:item};
         const fieldConfig = {...config, onChange:() => {
@@ -151,11 +155,32 @@ function columns() {
     }},
     {name:'注意事項',fields:cautions,draw(td,row){cautions.forEach((key,i)=>textField(td,row,key,['能格','スペル注意','発音注意','アクセント注意','多義語','活用注意','語法注意'][i],{type:'checkbox'}));}},
   ];
-  const first = ['単語','発音記号','品詞・意味','例文・フレーズ','派生語','Section・Label','派生元'];
+  const first = ['単語','発音記号','注意事項','Section・Label','派生元','品詞・意味','例文・フレーズ','派生語'];
   return wordColumns.sort((a,b)=>(first.includes(a.name)?first.indexOf(a.name):100)-(first.includes(b.name)?first.indexOf(b.name):100));
 }
 function record(raw, isNew=false) {const draft=draftOf(raw);return {id:raw.id||raw.key||crypto.randomUUID(),raw,base:clone(draft),draft,isNew,error:''};}
-async function render() {
+let filteredCount = 0;
+function rememberScroll() {
+  for(const row of rows)if(row.bodyElement?.isConnected)row.scrollTop=row.bodyElement.scrollTop;
+}
+function updateNavigation() {
+  const max=body.scrollWidth-body.clientWidth;
+  prevButton.disabled=loading||saving||(page===0&&body.scrollLeft<=2);
+  nextButton.disabled=loading||saving||((page+1)*pageSize>=filteredCount&&body.scrollLeft>=max-2);
+}
+function moveCard(direction) {
+  if(loading||saving)return;
+  const max=body.scrollWidth-body.clientWidth;
+  if((direction<0&&body.scrollLeft<=2)||(direction>0&&body.scrollLeft>=max-2)) {
+    if((direction<0&&page===0)||(direction>0&&(page+1)*pageSize>=filteredCount))return;
+    page+=direction;void render({resetPosition:true,end:direction<0});return;
+  }
+  const width=body.querySelector('.sheet-card')?.getBoundingClientRect().width||440;
+  body.scrollBy({left:direction*(width+16),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+}
+async function render({resetPosition=false,end=false}={}) {
+  rememberScroll();
+  const scrollLeft=resetPosition?0:body.scrollLeft;
   const token=++sequence;
   const filtered=rows.filter(r=>!query||[r.draft?.spelling||r.raw.spelling,r.draft?.phrase||r.raw.phrase].some(v=>String(v||'').toLowerCase().includes(query)));
   page=Math.max(0,Math.min(page,Math.ceil(filtered.length/pageSize)-1));
@@ -168,21 +193,39 @@ async function render() {
       const full=await api(`/words/${encodeURIComponent(row.id)}`);Object.assign(row,record(full));
     }));
     if(token!==sequence)return;
-    const cols=columns();head.replaceChildren();const header=node('tr');header.append(node('th',{},'No. / 保存'));for(const col of cols)header.append(node('th',{class:col.wide?'sheet-wide':''},col.name));head.append(header);
+    const cols=columns();filteredCount=filtered.length;
     for(const row of visible){
-      const tr=node('tr');row.element=tr;const number=node('td',{'data-fields':'no'});
-      if(!idiom&&listId!=='__master__')textField(number,row,'no','No.');else number.append(node('strong',{},row.isNew?'新規':(idiom&&row.draft.hidden?'—':String(index.filter(x=>!idiom||!x.hidden).findIndex(x=>(x.id||x.key)===row.id)+1))));
-      const actions=node('div',{class:'sheet-actions'});actions.append(button('保存',()=>saveRows([row])),button('戻す',()=>{if(!confirm('この行の変更を破棄しますか？'))return;if(row.isNew)rows=rows.filter(r=>r!==row);else row.draft=clone(row.base);void render();}));
-      row.errorElement=node('p',{class:'sheet-error',role:'status'},row.error);number.append(actions,row.errorElement);tr.append(number);
-      for(const col of cols){const td=node('td',{class:col.wide?'sheet-wide':'','data-fields':col.fields.join(',')});col.draw(td,row);tr.append(td);}
-      body.append(tr);mark(row);if(row.error)row.errorElement.textContent=row.error;
+      const card=node('article',{class:'edit-pane sheet-card'});row.element=card;
+      const header=node('header',{class:'pane-header sheet-card-header'});
+      const heading=node('div',{class:'sheet-card-heading'});
+      const number=idiom?(row.draft.hidden?'非表示':String(index.filter(x=>!x.hidden).findIndex(x=>x.key===row.id)+1)):(row.draft.no||'');
+      heading.append(node('span',{class:'sheet-card-number'},row.isNew?'新規':idiom&&row.draft.hidden?'非表示':number?`No. ${number}`:''));
+      row.titleElement=node('h2',{},row.draft.spelling||row.draft.phrase||'新規');
+      row.badgeElement=node('span',{class:'sheet-card-badge'});heading.append(row.titleElement,row.badgeElement);
+      row.saveElement=button('保存',()=>saveRows([row]),{class:'primary'});
+      header.append(heading,row.saveElement,button('戻す',()=>{if(!confirm('このカードの変更を破棄しますか？'))return;if(row.isNew)rows=rows.filter(r=>r!==row);else row.draft=clone(row.base);row.error='';void render();}));
+      const form=node('form',{class:'word-form sheet-card-body','aria-label':`${row.draft.spelling||row.draft.phrase||'新規'}の編集`});row.bodyElement=form;
+      form.addEventListener('submit',event=>event.preventDefault());
+      row.errorElement=node('p',{class:'sheet-error',role:'status'},row.error);form.append(row.errorElement);
+      const basics=node('div',{class:'sheet-card-basics'});form.append(basics);
+      const basicNames=idiom?['熟語','Section・Label']:['単語','発音記号','注意事項','Section・Label','派生元'];
+      for(const col of cols){
+        const basic=basicNames.includes(col.name);
+        const field=node(basic?'div':'fieldset',{'data-fields':col.fields.join(','),class:basic&&['熟語','注意事項','Section・Label'].includes(col.name)?'sheet-basic-wide':''});
+        if(!basic)field.append(node('legend',{},col.name));
+        col.draw(field,row);(basic?basics:form).append(field);
+      }
+      if(!idiom&&listId!=='__master__'){
+        const numberField=node('div',{'data-fields':'no'});textField(numberField,row,'no','No.');basics.append(numberField);
+      }
+      card.append(header,form);body.append(card);form.scrollTop=row.scrollTop||0;mark(row);
     }
-    if(!visible.length){const tr=node('tr'),td=node('td',{colspan:String(cols.length+1)},'該当する項目はありません。');tr.append(td);body.append(tr);}
-    pageLabel.textContent=`${filtered.length? page+1:0} / ${Math.ceil(filtered.length/pageSize)}ページ（${filtered.length}件）`;
-    prevButton.disabled=page===0;nextButton.disabled=(page+1)*pageSize>=filtered.length;
+    if(!visible.length)body.append(node('p',{class:'sheet-empty'},'該当する項目はありません。'));
+    pageLabel.textContent=`${filtered.length?page*pageSize+1:0}–${Math.min((page+1)*pageSize,filtered.length)} / ${filtered.length}件`;
+    body.scrollLeft=end?body.scrollWidth:scrollLeft;
   } catch(error){if(token===sequence)updateStatus(`読み込みに失敗しました：${error.message}`);return;}
   finally{if(token===sequence){loading=false;controls.disabled=false;}}
-  updateStatus();
+  updateStatus();updateNavigation();
 }
 async function loadRows() {
   rows=[];page=0;query='';search.value='';loading=true;controls.disabled=true;body.replaceChildren();updateStatus('保存済みの一覧を読み込んでいます…');
@@ -190,7 +233,7 @@ async function loadRows() {
     if(listId==='__master__')rows=index.map(raw=>record(raw));
     else if(idiom){const data=await api(`/lists/${encodeURIComponent(listId)}/editor/idiom-sections/${encodeURIComponent(sectionKey)}`);rows=data.entries.map(raw=>record(raw));}
     else {const data=await api(`/lists/${encodeURIComponent(listId)}/editor/sections/${encodeURIComponent(sectionKey)}?full=1`);rows=data.words.map(raw=>record(raw));}
-    await render();
+    await render({resetPosition:true});
   }catch(error){updateStatus(`読み込みに失敗しました：${error.message}`);}finally{loading=false;controls.disabled=false;saveButton.disabled=!hasChanges();}
 }
 async function loadBook() {
@@ -246,22 +289,25 @@ async function saveRows(targets) {
 function addRow() {
   if(loading||saving)return;
   const raw=idiom?{sectionKey,phrase:'',meanings:[{meaning:'',refs:[]}]}:{sectionId:sectionKey==='none'?null:Number(sectionKey),spelling:'',senses:[{pos:'',meaning:'',isPrimary:true}],examples:[],derivatives:[],tags:{}};
-  rows.unshift(record(raw,true));page=0;query='';search.value='';void render();
+  rows.unshift(record(raw,true));page=0;query='';search.value='';void render({resetPosition:true});
 }
 async function start() {
+  document.body.classList.add('card-edit-mode');
   document.querySelector('.word-table-pane').hidden=true;
-  pane=node('section',{class:'sheet-pane','aria-label':idiom?'熟語の表形式編集':'単語の表形式編集'});
+  pane=node('section',{class:'sheet-pane','aria-label':idiom?'熟語のカード編集':'単語のカード編集'});
   controls=node('fieldset',{style:'border:0;padding:0;margin:0;min-width:0;display:contents'});
   const toolbar=node('div',{class:'sheet-toolbar'});
-  bookSelect=node('select',{'aria-label':'表で編集する単語帳'});sectionSelect=node('select',{'aria-label':'表で編集するSection'});search=node('input',{type:'search',placeholder:idiom?'このSectionの熟語を検索':'このSectionの単語を検索','aria-label':'表を検索'});
+  bookSelect=node('select',{'aria-label':'カードで編集する単語帳'});sectionSelect=node('select',{'aria-label':'カードで編集するSection'});search=node('input',{type:'search',placeholder:idiom?'このSectionの熟語を検索':'このSectionの単語を検索','aria-label':'カードを検索'});
   saveButton=button('変更を保存',()=>saveRows(rows),{class:'primary'});saveButton.disabled=true;
   status=node('span',{class:'sheet-status',role:'status','aria-live':'polite'});
   toolbar.append(bookSelect,sectionSelect,search,button(idiom?'＋熟語':'＋単語',addRow),saveButton,button('再読み込み',()=>{if(guardNavigation())void loadBook();}),status);
-  const nav=node('div',{class:'sheet-toolbar'});prevButton=button('前へ',()=>{page--;void render();});nextButton=button('次へ',()=>{page++;void render();});pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton,node('span',{class:'sheet-readonly'},'横にスクロールして全項目を編集できます。黄色のセルは未保存です。'));
-  const scroll=node('div',{class:'sheet-scroll'}),table=node('table',{class:'sheet-table'});head=node('thead');body=node('tbody');table.append(head,body);scroll.append(table);controls.append(toolbar,nav,scroll);pane.append(controls);document.querySelector('main').append(pane);
+  const nav=node('div',{class:'sheet-toolbar sheet-navigation'});prevButton=button('← 前のカード',()=>moveCard(-1));nextButton=button('次のカード →',()=>moveCard(1));pageLabel=node('span');nav.append(prevButton,pageLabel,nextButton,node('span',{class:'sheet-readonly'},'横スクロールで次のカードへ。カード内は縦にスクロールできます。'));
+  body=node('div',{class:'sheet-card-rail','aria-label':idiom?'熟語カード一覧':'単語カード一覧'});
+  body.addEventListener('scroll',updateNavigation,{passive:true});window.addEventListener('resize',updateNavigation);
+  controls.append(toolbar,nav,body);pane.append(controls);document.querySelector('main').append(pane);
   bookSelect.addEventListener('change',()=>{if(guardNavigation())void loadBook();else bookSelect.value=listId;});
   sectionSelect.addEventListener('change',()=>{if(guardNavigation()){sectionKey=sectionSelect.value;void loadRows();}else sectionSelect.value=sectionKey;});
-  let timer;search.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{query=search.value.trim().toLowerCase();page=0;void render();},200);});
+  let timer;search.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(()=>{query=search.value.trim().toLowerCase();page=0;void render({resetPosition:true});},200);});
   books=(await api('/lists')).filter(b=>b.isNotebook||(!idiom&&b.isMaster));
   const preferred=new URLSearchParams(location.search).get('list')||localStorage.getItem('vocab-setting-last-list')||'crossover-v3';
   options(bookSelect,books.map(b=>[b.id,b.name]),books.find(b=>b.id===preferred)?.id||books.find(b=>b.isNotebook)?.id||books[0]?.id);
