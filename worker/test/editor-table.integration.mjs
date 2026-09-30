@@ -25,7 +25,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
  const referencesReady=new Promise(resolve=>{releaseReferences=resolve;});
  const calls=[];let storedWord=detail(),storedIdiom=clone(entry),publishedWord=detail(),publishedIdiom=clone(entry),fail=false,failConfirmation=false,confirmationReads=0;
  // Speed up only publication polling, leaving UI debounce/toast timing intact.
- const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===1000?10:catalogTimeout&&ms===15000?30:ms,...args);
+ const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===120000?50:ms===1000?10:catalogTimeout&&ms===15000?30:ms,...args);
  w.fetch=async(input,opts={})=>{
   const url=new URL(String(input),'http://localhost'),path=url.pathname;calls.push({path,method:opts.method||'GET',body:opts.body&&JSON.parse(opts.body)});let data;
   if(url.searchParams.get('editorFresh')==='1'&&/\/editor\/(?:sections|idiom-sections)\//.test(path)){
@@ -33,6 +33,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
    if(failConfirmation)return new Response(JSON.stringify({error:'confirmation unavailable'}),{status:503});
    if(confirmationReads===1)return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
   }
+  if(path==='/api/lists' && url.searchParams.get('editorFresh')==='1' && (failConfirmation || JSON.stringify(idiom?storedIdiom:storedWord)!==JSON.stringify(idiom?publishedIdiom:publishedWord))) return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
   if(path==='/api/lists'){await catalogReady;if(catalogTimeout&&calls.filter(c=>c.path===path).length===1)await new Promise(()=>{});}
   if(!idiom&&path==='/api/lists/book/editor/idioms'){await referencesReady;if(referenceFailure)return new Response(JSON.stringify({error:'reference unavailable'}),{status:503});}
   if(opts.method){
@@ -113,10 +114,12 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  await waitFor(()=>calls.some(c=>c.method!=='GET'),'write not made');
  await tick();
  assert.notEqual(d.getElementById('tableToast')?.textContent,'保存しました','a write response alone must not produce a success toast');
- await waitFor(()=>confirmationReads>1,'publication not checked after pending response');
+ await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='反映待ち','D1 confirmation must unlock the card while JSON publication is pending');
+ assert.equal(saveAll.disabled,true,'unchanged saved cards must not be resubmitted');
+ assert.ok(!d.querySelector('.sheet-publication-notice').hidden);
  assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'),'stale JSON must not clear the pending marker');
  publishedWord=clone(storedWord);publishedIdiom=clone(storedIdiom);
- await waitFor(()=>d.getElementById('tableToast')?.textContent==='保存しました','success toast missing');
+ await waitFor(()=>w.localStorage.getItem('vocab-editor-pending-publication')===null,'background publication confirmation missing');
  assert.equal(rail.scrollLeft,234,'horizontal position lost on save');
  assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical position lost on save');
  assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み');
@@ -141,7 +144,8 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  await waitFor(()=>get('メモ')?.value==='edited note','reload lost the saved edit');
  if(!idiom)assert.equal(get('類義語').value,'serve; perform; carry A out');
  fail=false;failConfirmation=true;edit(get('メモ'),'saved but awaiting publication');saveAll.click();
- await waitFor(()=>d.querySelector('.sheet-error')?.textContent.includes('保存済みですが'),'publication failure must be distinguished from a failed write');
+ await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='反映待ち','temporary JSON failure must fall back to D1 and display pending status');
+ assert.equal(d.querySelector('.sheet-error').textContent,'');
  assert.equal(get('メモ').value,'saved but awaiting publication');
  assert.notEqual(d.getElementById('tableToast').textContent,'保存しました');
  assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'));
@@ -154,7 +158,7 @@ async function pendingStartup(idiom) {
  const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
  const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
- const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===3000?10:ms,...args);
+ const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===120000?50:ms===3000?10:ms,...args);
  const marker='previous-save';
  w.localStorage.setItem('vocab-setting-edit-mode','table');
  w.localStorage.setItem('vocab-editor-pending-publication',marker);
