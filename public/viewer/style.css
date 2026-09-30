@@ -2465,10 +2465,12 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .vector-badge > svg { display: block; flex: none; overflow: visible; font-family: var(--font); }
 .word-list .notes-label.vector-note-badge, .notes-label.vector-note-badge { width: 1.5em; text-align: center; text-align-last: auto; }
 .example-line > .bullet.hollow:has(svg) {
-  width: .65em; height: .65em; top: .42em;
+  width: .72em; height: .72em; top: .32em;
   font-size: inherit; border: 0; text-indent: 0; overflow: visible;
   color: var(--text-muted);
 }
 .example-line > .bullet.hollow.phrase-first:has(svg) { color: #c62828; }
 .example-line > .bullet.hollow > svg { width: 100% !important; height: 100% !important; display: block; }
 .example-line:has(> .bullet.hollow) { padding-left: 1em; }
+
+.example-line > .bullet.hollow > svg > rect { stroke-width: 1.6; }
