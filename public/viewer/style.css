@@ -2474,3 +2474,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
 .example-line:has(> .bullet.hollow) { padding-left: 1em; }
 
 .example-line > .bullet.hollow > svg > rect { stroke-width: 1.6; }
+
+/* SVG has no text baseline: align note badges to the first line explicitly. */
+.notes-block:has(> .vector-note-badge) { align-items: flex-start; line-height: 1.5; }
+.notes-block > .vector-note-badge { margin-top: .1em; }
+.derivative-sense .pos-badge.vector-badge { vertical-align: -.2em; transform: none; }
