@@ -1541,7 +1541,14 @@ function vectorizeBadges(root) {
     badge.setAttribute('aria-label',full); if (!badge.title) badge.title=full;
     badge.classList.add('vector-badge');
     if (note) badge.classList.add('vector-note-badge');
-    badge.replaceChildren(badgeSvg(label,{square:note || [...label].length===1}));
+    if (note && full === 'メモ') {
+      const svg = badgeSvg('', {square:true,outline:true});
+      const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      triangle.setAttribute('d', 'M6 4 L19 12 L6 20 Z');
+      triangle.setAttribute('fill', 'currentColor');
+      svg.replaceChildren(triangle);
+      badge.replaceChildren(svg);
+    } else badge.replaceChildren(badgeSvg(label,{square:note || [...label].length===1}));
   });
 }
 function applyFilters() {
