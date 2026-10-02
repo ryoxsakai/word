@@ -34,7 +34,7 @@ jobs:
       - run: npm ci
 
       - name: Test MCP OAuth and temporary anonymous write mode
-        run: npm run test:mcp-write
+        run: npm run test:oauth && npm run test:mcp-write
 
       - name: Test ElevenLabs pronunciation generation
         run: npm run test:elevenlabs && npm run test:audio && npm run test:speech

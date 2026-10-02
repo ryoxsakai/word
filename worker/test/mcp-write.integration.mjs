@@ -148,21 +148,25 @@ try {
     /form-action 'self' https:\/\/chatgpt\.com/
   );
 
+  const csrfToken = (document) => document.match(/name="csrf_token" value="([^"]+)"/)[1];
+  const browserCookie = authorizationPage.headers.get("Set-Cookie").split(";")[0];
+  const browserHeaders = { "Content-Type": "application/x-www-form-urlencoded", Origin: "http://127.0.0.1", Cookie: browserCookie };
   const wrongKey = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/authorize", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ ...Object.fromEntries(authorizationParams), api_key: "wrong" }),
+      headers: browserHeaders,
+      body: new URLSearchParams({ ...Object.fromEntries(authorizationParams), csrf_token: csrfToken(authorizationHtml), api_key: "wrong" }),
     }),
     env
   );
   assert.equal(wrongKey.status, 401);
+  const retryCsrfToken = csrfToken(await wrongKey.text());
 
   const authorization = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/authorize?" + authorizationParams, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ api_key: env.VOCAB_MCP_API_KEY }),
+      headers: browserHeaders,
+      body: new URLSearchParams({ csrf_token: retryCsrfToken, api_key: env.VOCAB_MCP_API_KEY }),
     }),
     env
   );
@@ -371,12 +375,16 @@ try {
     code_challenge_method: "S256",
     scope: "vocab:read",
     state: "read-only-state",
-    api_key: env.VOCAB_MCP_API_KEY,
   });
+  const readForm = await handleMcpRoute(new Request("http://127.0.0.1/oauth/authorize?" + readAuthorizationParams, {
+    headers: { Cookie: browserCookie },
+  }), env);
+  readAuthorizationParams.set("csrf_token", csrfToken(await readForm.text()));
+  readAuthorizationParams.set("api_key", env.VOCAB_MCP_API_KEY);
   const readAuthorization = await handleMcpRoute(
     new Request("http://127.0.0.1/oauth/authorize", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: browserHeaders,
       body: readAuthorizationParams,
     }),
     env
