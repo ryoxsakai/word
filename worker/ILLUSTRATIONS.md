@@ -91,7 +91,7 @@ MCPの `/mcp`・`/mcp-write` には以下を追加します。`vocab.` 付きの
 - `generate_word_illustration` — `word_id, request_id, pos, meaning, scene, avoid` で生成・差し替えを依頼。
 - `restore_word_illustration` — `word_id, job_id` で以前の画像へ復元。
 
-これらは既存の匿名編集モードが有効でもOAuthが必須です。公開閲覧からのアクセスで有料生成を開始することはできません。
+これらはOAuthが必須です。旧匿名編集フラグで認証を省略することはできません。公開閲覧からのアクセスで有料生成を開始することはできません。
 
 ## 失敗・中断
 

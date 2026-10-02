@@ -88,7 +88,8 @@ try {
     VOCAB_MCP_SESSION_SECRET: "integration-session-secret-that-is-long-and-random",
     MCP_ALLOW_ANONYMOUS_WRITES: "false",
   };
-  const anonymousEnv = { ...env, MCP_ALLOW_ANONYMOUS_WRITES: "true" };
+  // Even a stale dashboard flag must never bypass OAuth.
+  const legacyFlagEnv = { ...env, MCP_ALLOW_ANONYMOUS_WRITES: "true" };
 
   const protectedMetadata = await handleMcpRoute(
     new Request("http://127.0.0.1/.well-known/oauth-protected-resource/mcp-write"),
@@ -247,7 +248,7 @@ try {
   );
   assert.equal(replay.status, 400);
 
-  const combinedTools = await rpc(anonymousEnv, accessToken, "/mcp", 1, "tools/list");
+  const combinedTools = await rpc(legacyFlagEnv, accessToken, "/mcp", 1, "tools/list");
   assert.equal(combinedTools.status, 200);
   assert.equal(combinedTools.body.result.tools.length, 74);
   assert.equal(
@@ -256,7 +257,7 @@ try {
   );
   assert.equal(
     combinedTools.body.result.tools.find((tool) => tool.name === "update_word").securitySchemes[0].type,
-    "noauth"
+    "oauth2"
   );
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "vocab.create_notebook"));
   assert.ok(combinedTools.body.result.tools.some((tool) => tool.name === "create_label"));
@@ -281,7 +282,7 @@ try {
   );
 
   const anonymousRead = await rpc(
-    anonymousEnv,
+    legacyFlagEnv,
     accessToken,
     "/mcp",
     33,
@@ -293,7 +294,7 @@ try {
   assert.equal(anonymousRead.body.result.isError, false);
 
   const combinedAnonymousWrite = await rpc(
-    anonymousEnv,
+    legacyFlagEnv,
     accessToken,
     "/mcp",
     34,
@@ -301,12 +302,15 @@ try {
     { name: "create_notebook", arguments: { name: "Anonymous combined write" } },
     false
   );
-  assert.equal(combinedAnonymousWrite.status, 200);
-  assert.equal(combinedAnonymousWrite.body.result.isError, false);
-  const anonymousListId = JSON.parse(combinedAnonymousWrite.body.result.content[0].text).notebook.id;
+  assert.equal(combinedAnonymousWrite.status, 401);
+  assert.equal(combinedAnonymousWrite.body.error, "invalid_token");
+  // The same operation works with a valid OAuth token, including on /mcp.
+  const secondListId = toolResult(await rpc(legacyFlagEnv, accessToken, "/mcp", 341, "tools/call", {
+    name: "vocab.create_notebook", arguments: { name: "Authenticated combined write" },
+  }, true)).notebook.id;
 
   const anonymousWriteTools = await rpc(
-    anonymousEnv,
+    legacyFlagEnv,
     accessToken,
     "/mcp-write",
     35,
@@ -316,10 +320,10 @@ try {
   );
   assert.equal(anonymousWriteTools.status, 200);
   assert.equal(anonymousWriteTools.body.result.tools.length, 74);
-  assert.ok(anonymousWriteTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "noauth"));
+  assert.ok(anonymousWriteTools.body.result.tools.every((tool) => tool.securitySchemes[0].type === "oauth2"));
 
   const anonymousWriteEndpoint = await rpc(
-    anonymousEnv,
+    legacyFlagEnv,
     accessToken,
     "/mcp-write",
     36,
@@ -327,9 +331,8 @@ try {
     { name: "update_word", arguments: { lookup_spelling: "must-not-exist" } },
     false
   );
-  assert.equal(anonymousWriteEndpoint.status, 200);
-  assert.equal(anonymousWriteEndpoint.body.result.isError, true);
-  assert.match(anonymousWriteEndpoint.body.result.content[0].text, /Word not found/);
+  assert.equal(anonymousWriteEndpoint.status, 401);
+  assert.equal(anonymousWriteEndpoint.body.error, "invalid_token");
 
   const editableTools = await rpc(env, accessToken, "/mcp-write", 2, "tools/list");
   assert.equal(editableTools.status, 200);
@@ -647,11 +650,11 @@ try {
       "/mcp-write",
       48,
       "tools/call",
-      { name: "reorder_notebooks", arguments: { list_ids: [anonymousListId, listId] } },
+      { name: "reorder_notebooks", arguments: { list_ids: [secondListId, listId] } },
       true
     )
   );
-  assert.deepEqual(reorderedNotebooks.listIds, [anonymousListId, listId]);
+  assert.deepEqual(reorderedNotebooks.listIds, [secondListId, listId]);
 
   const structure = toolResult(
     await rpc(env, accessToken, "/mcp-write", 49, "tools/call", {
@@ -911,7 +914,7 @@ try {
     )
   );
   assert.ok(auditLog.changes.length >= 15);
-  assert.ok(auditLog.changes.some((change) => change.actor === "anonymous:mcp"));
+  assert.ok(auditLog.changes.every((change) => change.actor !== "anonymous:mcp"));
   assert.ok(auditLog.changes.some((change) => change.actor === "oauth:" + clientId));
 
   // Exercise the new transaction/revision protocol against actual D1, with OAuth.
