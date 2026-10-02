@@ -31,30 +31,49 @@ try {
   const authUrl=ROOT+'/oauth/authorize?'+params;
   browser=await chromium.launch({headless:true,
     ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{})});
-  context=await browser.newContext();
+  context=await browser.newContext({viewport:{width:390,height:844}});
   let callbackCount=0;
-  const formPosts=[];
-  await context.route('**/*',async route=>{
-    const incoming=route.request(), url=new URL(incoming.url());
-    const headers=await incoming.allHeaders();
-    if(url.origin==='https://client.test') {
-      assert.equal(url.pathname,'/callback');assert.ok(url.searchParams.get('code'));
-      assert.equal(headers.referer,undefined,'no cross-origin Referer on OAuth redirect');
-      callbackCount++;
-      await route.fulfill({status:200,contentType:'text/html',body:'<h1>Synthetic OAuth callback received</h1>'});return;
-    }
-    if(url.origin!==ROOT){await route.abort();return;}
-    if(incoming.method()==='POST')formPosts.push({origin:headers.origin,fetchSite:headers['sec-fetch-site'],path:url.pathname});
-    const request=new Request(incoming.url(),{method:incoming.method(),headers,
-      ...(!['GET','HEAD'].includes(incoming.method())?{body:incoming.postDataBuffer()}: {})});
-    const response=await handleOAuthRoute(request,env);
-    if(!response){await route.abort();return;}
-    const responseHeaders=Object.fromEntries(response.headers);
-    const cookies=response.headers.getSetCookie();
-    if(cookies.length)responseHeaders['set-cookie']=cookies.join('\n');
-    await route.fulfill({status:response.status,headers:responseHeaders,body:await response.text()});
-  });
-  const page=await context.newPage();
+  const formPosts=[], interceptionErrors=[];
+  // Route interception omits redirected hops. CDP Fetch intercepts every hop,
+  // retaining actual Chromium HTTPS, cookie, Origin, CSP and redirect behavior.
+  const newPage=async()=>{
+    const page=await context.newPage();
+    const session=await context.newCDPSession(page);
+    session.on('Fetch.requestPaused',async({requestId,request:incoming})=>{
+      try {
+        const url=new URL(incoming.url), headers=new Headers(incoming.headers);
+        let response;
+        if(url.pathname==='/favicon.ico' && [ROOT,'https://client.test'].includes(url.origin)) {
+          response=new Response(null,{status:204});
+        } else if(url.origin==='https://client.test' && url.pathname==='/callback') {
+          assert.ok(url.searchParams.get('code'));
+          assert.equal(headers.get('Referer'),null,'no cross-origin Referer on OAuth redirect');
+          assert.equal(headers.get('Cookie'),null,'host-only cookies must not reach the OAuth client');
+          callbackCount++;
+          response=new Response('<h1>Synthetic OAuth callback received</h1>',{headers:{'Content-Type':'text/html; charset=utf-8'}});
+        } else if(url.origin===ROOT) {
+          if(incoming.method==='POST')formPosts.push({origin:headers.get('Origin'),fetchSite:headers.get('Sec-Fetch-Site'),path:url.pathname});
+          const request=new Request(incoming.url,{method:incoming.method,headers,
+            ...(!['GET','HEAD'].includes(incoming.method)?{body:incoming.postData || ''}: {})});
+          response=await handleOAuthRoute(request,env);
+        } else {
+          await session.send('Fetch.failRequest',{requestId,errorReason:'BlockedByClient'});return;
+        }
+        assert.ok(response,'Synthetic requests must be handled without live network access');
+        const responseHeaders=[...response.headers].filter(([name])=>name.toLowerCase()!=='set-cookie')
+          .map(([name,value])=>({name,value}));
+        for(const value of response.headers.getSetCookie())responseHeaders.push({name:'Set-Cookie',value});
+        await session.send('Fetch.fulfillRequest',{requestId,responseCode:response.status,responseHeaders,
+          body:Buffer.from(await response.text()).toString('base64')});
+      } catch(error) {
+        interceptionErrors.push(error);console.error('Synthetic interception failed:',error);
+        await session.send('Fetch.failRequest',{requestId,errorReason:'Failed'});
+      }
+    });
+    await session.send('Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'}]});
+    return page;
+  };
+  const page=await newPage();
   const checkbox=()=>page.getByRole('checkbox',{name:'このブラウザーでログイン状態を保持する（30日間）'});
   const keyInput=()=>page.getByLabel('Vocab MCP APIキー');
   const authorizeButton=()=>page.getByRole('button',{name:'接続を許可',exact:true});
@@ -69,6 +88,7 @@ try {
   assert.equal(await checkbox().isChecked(),false,'initial opt-in must be unchecked');
   assert.equal(await keyInput().isVisible(),true);
   await assertNoStorage();
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'mobile form must not overflow');
   await page.screenshot({path:join(artifactDir,'initial.png'),fullPage:true});
   await checkbox().check();await keyInput().fill('incorrect-dummy-key');await authorizeButton().click();
   await page.getByRole('alert').waitFor();
@@ -99,7 +119,7 @@ try {
 
   // A checked login works across a new tab. Expiry and key rotation require reauthentication.
   await page.goto(authUrl);await checkbox().check();await keyInput().fill(env.VOCAB_MCP_API_KEY);await submit();
-  const reopened=await context.newPage();await reopened.goto(authUrl);
+  const reopened=await newPage();await reopened.goto(authUrl);
   assert.equal(await reopened.getByLabel('Vocab MCP APIキー').count(),0);await reopened.close();
   await DB.prepare('UPDATE mcp_oauth_browser_sessions SET expires_at = ?').bind(Math.floor(Date.now()/1000)-1).run();
   await page.goto(authUrl);assert.equal(await keyInput().isVisible(),true);
@@ -109,7 +129,7 @@ try {
   await checkbox().check();await keyInput().fill(env.VOCAB_MCP_API_KEY);await submit();
 
   // Logout is a visible confirmation POST, not a GET mutation; stale tabs cannot grant afterward.
-  const stale=await context.newPage();await stale.goto(authUrl);
+  const stale=await newPage();await stale.goto(authUrl);
   await page.goto(ROOT+'/oauth/logout');assert.ok(await sessionCookie());
   await page.screenshot({path:join(artifactDir,'forget-confirmation.png'),fullPage:true});
   await page.getByRole('button',{name:'ログイン保持を解除する',exact:true}).click();
@@ -122,6 +142,7 @@ try {
   assert.ok(formPosts.length>=8);
   assert.ok(formPosts.every(post=>post.origin===ROOT && post.fetchSite==='same-origin'),
     'real browser submissions carry the exact Origin under Referrer-Policy:same-origin');
+  assert.deepEqual(interceptionErrors,[]);
   console.log('Synthetic HTTPS Chromium QA passed: checkbox off/on, failed retry, redirect CSP, Secure/HttpOnly cookie, explicit repeat consent, fixed expiry, new tab, key rotation, uncheck, logout and stale-form rejection');
   console.log('Screenshots: '+artifactDir);
 } finally {
