@@ -4,16 +4,16 @@
 
 | 接続先 | 用途 | 認証 |
 | --- | --- | --- |
-| `https://vocab.lrnr.jp/mcp` | 単語帳の検索・閲覧・編集・監査 | 現在は一時的にすべて認証なし |
-| `https://vocab.lrnr.jp/mcp-write` | 単語帳の閲覧・編集・監査 | 現在は一時的にすべて認証なし |
+| `https://vocab.lrnr.jp/mcp` | 単語帳の検索・閲覧・編集・監査 | 公開閲覧は認証不要、編集・監査はOAuth必須 |
+| `https://vocab.lrnr.jp/mcp-write` | 単語帳の閲覧・編集・監査 | 全ツールの実行にOAuth必須 |
 
-通常は `/mcp` だけを接続します。現在は `MCP_ALLOW_ANONYMOUS_WRITES = "true"` により、`/mcp` と `/mcp-write` の両方で検索・閲覧・編集・監査ツールを認証なしで利用できます。各ツールには互換性のため `vocab.` 接頭辞付きの別名もあります。
+通常は `/mcp` だけを接続します。公開閲覧ツールは認証なしで利用でき、編集には `vocab:read` と `vocab:write`、監査には `vocab:read` のOAuth権限が必要です。`/mcp-write` は閲覧も含め、すべてのツール実行にOAuth認証が必要です。各ツールには互換性のため `vocab.` 接頭辞付きの別名もあります。接続初期化・ツール一覧は認証なしで取得でき、各ツールの必要権限を確認できます。
 
-この一時運用を終了するときは、`wrangler.toml` の `MCP_ALLOW_ANONYMOUS_WRITES` を `"false"` に変更してデプロイします。`/mcp` の編集・監査ツールと `/mcp-write` の全ツールが再びOAuth必須になります。OAuth実装とSecretは残してあるため、パスワード保護をすぐに復元できます。
+匿名編集の一時運用は終了しました。`MCP_ALLOW_ANONYMOUS_WRITES` はコードから撤去され、古い設定が `"true"` のままでも認証を省略できません。`wrangler.toml` には旧Dashboard設定を上書きするため `"false"` を明示しています。
 
 ## 編集接続の認証
 
-以下は一時公開を終了した後の `/mcp-write` と `/mcp` の編集・監査ツールに適用されます。認証方式は `works.lrnr.jp` と `exam.lrnr.jp` のMCPと同じです。Cloudflare Zero TrustやGitHub OAuthは使用しません。
+以下は `/mcp-write` の全ツールと `/mcp` の編集・監査ツールに適用されます。認証方式は `works.lrnr.jp` と `exam.lrnr.jp` のMCPと同じです。Cloudflare Zero TrustやGitHub OAuthは使用しません。
 
 1. `/mcp` または `/mcp-write` へ接続すると、ChatGPTが動的クライアント登録を行います。
 2. Workerの認可画面で `VOCAB_MCP_API_KEY` を入力します。
@@ -42,7 +42,7 @@ Cloudflare DashboardのWorker `vocab-app` に、次のSecretを設定します�
 - 送信フォームは10分間・1回限りです。ブラウザー、認可要求（接続先・PKCE・権限・state）、その時点の保持セッションに紐付けます。別タブのフォームはそれぞれ使えますが、送信済み・期限切れ・ログイン状態が変わったフォームは開き直してください
 - POSTは同一オリジンのフォームのみ受け付けます。認証ページのReferrer-Policyは `same-origin` とし、クロスオリジンの接続先にはRefererを送りません
 - このCookieはAPIやMCPのBearerトークンの代用になりません。MCPの12時間、編集ページの7日間の既存トークン有効期間・PKCE・権限は変更しません
-- 解除後も発行済みのChatGPT・編集ページのBearerトークンは各有効期限まで有効です。編集ページの既存のトークン保存方法や一時的な匿名編集設定も変更しません
+- 解除後も発行済みのChatGPT・編集ページのBearerトークンは各有効期限まで有効です。編集ページの既存のトークン保存方法は変更しません。ログイン保持CookieだけではMCPを編集できません
 
 ### 反映前の条件
 

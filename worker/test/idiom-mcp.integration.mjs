@@ -70,6 +70,6 @@ for(const t of [...IDIOM_READ_TOOLS,...IDIOM_WRITE_TOOLS]){assert(tools.some(x=>
 assert.equal((await rpc('tools/call',{name:'vocab.get_idiom',arguments:{list_id:'book',idiom_id:first.id}})).body.result.structuredContent.idiom.id,first.id);
 for(const t of IDIOM_WRITE_TOOLS)assert.equal((await rpc('tools/call',{name:t.name,arguments:{}})).status,401);
 assert.equal((await rpc('tools/call',{name:'get_idiom_structure',arguments:{list_id:'book'}},{DB:db},'/mcp-write')).status,401);
-const anon=await rpc('tools/call',{name:'update_idiom',arguments:{list_id:'book',expected_revision:rev(),idiom_id:first.id,notes:'temporary mode'}},{DB:db,MCP_ALLOW_ANONYMOUS_WRITES:'true'});assert.equal(anon.body.result.isError,false);
+const anon=await rpc('tools/call',{name:'update_idiom',arguments:{list_id:'book',expected_revision:rev(),idiom_id:first.id,notes:'must not change'}},{DB:db,MCP_ALLOW_ANONYMOUS_WRITES:'true'});assert.equal(anon.status,401);assert.equal(anon.body.error,'invalid_token');assert.equal((await get('get_idiom',{idiom_id:first.id})).idiom.notes,merged.notes);
 assert.equal((await rpc('tools/call',{name:'list_idioms',arguments:{list_id:'book',limit:-1}})).body.result.isError,true);
 console.log('Idiom MCP: reads, editing, structure, merge preservation, atomicity, concurrent editor guard, aliases and authorization passed');
