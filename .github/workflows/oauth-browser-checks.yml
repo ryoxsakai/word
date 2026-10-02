@@ -1,0 +1,40 @@
+name: OAuth browser authentication checks
+
+on:
+  pull_request:
+    paths:
+      - "worker/**"
+      - ".github/workflows/oauth-browser-checks.yml"
+      - ".github/workflows/worker-deploy.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  oauth-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run test:oauth && npm run test:mcp-write
+      - name: Install Chromium for synthetic HTTPS QA
+        run: npx playwright install --with-deps chromium
+      - name: Verify browser flows with dummy credentials and intercepted HTTPS
+        run: npm run test:oauth-browser
+      - name: Validate Worker bundle
+        run: npx wrangler deploy --dry-run --outdir /tmp/vocab-oauth-worker
+      - name: Preserve synthetic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vocab-oauth-browser-qa
+          path: /tmp/vocab-oauth-browser-qa/*.png
+          if-no-files-found: ignore

@@ -21,11 +21,14 @@
     "test:illustrations": "node test/word-illustrations.integration.mjs && node test/idiom-illustrations.integration.mjs && node test/illustration-viewer.test.mjs && node test/illustration-upload-ui.test.mjs",
     "test:idiom-mcp": "node test/idiom-mcp.integration.mjs && node test/idiom-labels.integration.mjs",
     "test:idiom-theme": "node test/idiom-theme.integration.mjs",
-    "test:editor-table": "node test/editor-table.integration.mjs"
+    "test:editor-table": "node test/editor-table.integration.mjs",
+    "test:oauth": "node test/oauth-browser-session.integration.mjs && node test/editor-auth.test.mjs",
+    "test:oauth-browser": "node test/oauth-browser-https.mjs"
   },
   "devDependencies": {
     "jsdom": "^26.1.0",
     "miniflare": "^4.20260701.0",
+    "playwright": "1.63.0",
     "wrangler": "^4.0.0"
   }
 }

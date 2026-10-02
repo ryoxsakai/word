@@ -1,3 +1,10 @@
+import {
+  rememberedSession, createBrowserForm, consumeBrowserForm, sameOriginFormPost,
+  rememberBrowser, revokeRememberedSession, clearRememberedCookie,
+} from "./oauth-browser-session.js";
+
+const AUTH_PAGE_STYLE = "body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7fb;color:#172033;margin:0;padding:32px 16px}.card{max-width:480px;margin:8vh auto;background:#fff;border:1px solid #dfe3ea;border-radius:16px;padding:28px;box-shadow:0 12px 36px #17203314}h1{font-size:1.45rem;margin:0 0 12px}p{line-height:1.65;color:#4a5568}.error{color:#b42318;background:#fef3f2;padding:10px 12px;border-radius:8px}label{display:block;font-weight:650;margin:22px 0 8px}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab2c0;border-radius:8px;font:inherit}button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:#2463eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}.note{font-size:.88rem}.remember{display:flex;align-items:flex-start;gap:8px;font-size:.95rem;font-weight:500}.remember input{margin-top:4px;flex-shrink:0}.destination{overflow-wrap:anywhere}";
+
 const TOKEN_AUDIENCE = "vocab-mcp";
 const AUTH_CODE_TTL_SECONDS = 5 * 60;
 const ACCESS_TOKEN_TTL_SECONDS = 12 * 60 * 60;
@@ -48,7 +55,8 @@ function html(document, status = 200, redirectOrigin = "") {
         "default-src 'none'; style-src 'unsafe-inline'; form-action " +
         formActions +
         "; base-uri 'none'; frame-ancestors 'none'",
-      "Referrer-Policy": "no-referrer",
+      // no-referrer serializes Origin as null for navigation POSTs.
+      "Referrer-Policy": "same-origin",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
     },
@@ -187,7 +195,7 @@ async function validateAuthorizationRequest(env, params) {
   return authorization;
 }
 
-function authorizationForm(authorization, error = "") {
+function authorizationForm(authorization, { error = "", csrfToken, remembered = false, remember = false } = {}) {
   const isEditorLogin = isEditorRedirect(authorization.redirectUri);
   const title = isEditorLogin ? "単語帳の編集ページにログイン" : "単語帳をChatGPTに接続";
   const actionLabel = isEditorLogin ? "編集ページにログイン" : "接続を許可";
@@ -199,6 +207,7 @@ function authorizationForm(authorization, error = "") {
     code_challenge_method: "S256",
     scope: authorization.scopes.join(" "),
     state: authorization.state,
+    csrf_token: csrfToken,
   })
     .map(([name, value]) => `<input type="hidden" name="${name}" value="${escapeHtml(value)}">`)
     .join("");
@@ -208,16 +217,22 @@ function authorizationForm(authorization, error = "") {
       ? "単語帳の閲覧・作成・更新・並べ替えを許可します。完全削除は提供しません。"
       : "単語帳の閲覧を許可します。";
   const errorMessage = error ? `<p class="error" role="alert">${escapeHtml(error)}</p>` : "";
+  const authentication = remembered
+    ? '<p class="remembered">このブラウザーで本人確認済みです。接続先と権限を確認して続行してください。</p>'
+    : '<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus>';
+  const rememberCheckbox = `<label class="remember"><input name="remember_login" type="checkbox" value="1"${remember ? " checked" : ""}> このブラウザーでログイン状態を保持する（30日間）</label>`;
   const note = isEditorLogin
-    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。ログイン後は同じブラウザーで7日間ログインを保持します。"
+    ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。編集ページの既存のログイン有効期間は7日間です。"
     : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間12時間のトークンが使用されます。";
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title>
-<style>body{font-family:system-ui,-apple-system,sans-serif;background:#f6f7fb;color:#172033;margin:0;padding:32px 16px}.card{max-width:480px;margin:8vh auto;background:#fff;border:1px solid #dfe3ea;border-radius:16px;padding:28px;box-shadow:0 12px 36px #17203314}h1{font-size:1.45rem;margin:0 0 12px}p{line-height:1.65;color:#4a5568}.error{color:#b42318;background:#fef3f2;padding:10px 12px;border-radius:8px}label{display:block;font-weight:650;margin:22px 0 8px}input[type=password]{box-sizing:border-box;width:100%;padding:12px;border:1px solid #aab2c0;border-radius:8px;font:inherit}button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:8px;background:#2463eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}.note{font-size:.88rem}</style>
+<style>${AUTH_PAGE_STYLE}</style>
 </head><body><main class="card"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(permission)}</p>${errorMessage}
-<form method="post">${hidden}<label for="api_key">Vocab MCP APIキー</label><input id="api_key" name="api_key" type="password" required autocomplete="current-password" autofocus><button type="submit">${escapeHtml(actionLabel)}</button></form>
-<p class="note">${escapeHtml(note)}</p></main></body></html>`;
+<p class="destination">接続先：${escapeHtml(authorization.redirectUri)}</p>
+<form method="post">${hidden}${authentication}${rememberCheckbox}<button type="submit">${escapeHtml(actionLabel)}</button></form>
+<p class="note">チェックした場合だけ、APIキーを保存せずに次回から入力を省略します。接続の許可は毎回必要です。共用の端末ではチェックしないでください。保持開始から30日後に再認証が必要です。</p>
+<p class="note">${escapeHtml(note)}</p><p><a href="/oauth/logout">このブラウザーのログイン保持を解除</a></p></main></body></html>`;
 }
 
 function redirectWithAuthorizationResult(redirectUri, values) {
@@ -255,13 +270,25 @@ async function registerClient(request, env) {
   );
 }
 
+async function authorizationPage(request, env, authorization, options = {}, status = 200) {
+  const form = await createBrowserForm(request, env, "authorize", authorization);
+  const response = html(authorizationForm(authorization, { ...options, csrfToken: form.token }),
+    status, new URL(authorization.redirectUri).origin);
+  response.headers.append("Set-Cookie", form.cookie);
+  return response;
+}
+
 async function authorize(request, env) {
   if (request.method !== "GET" && request.method !== "POST") {
     return json({ error: "method_not_allowed" }, 405, { Allow: "GET, POST" });
   }
+  if (request.method === "POST" && !sameOriginFormPost(request)) {
+    return json({ error: "invalid_request", error_description: "同じ認証ページから送信してください。" }, 403);
+  }
   const params = new URLSearchParams(new URL(request.url).searchParams);
+  let submitted = new URLSearchParams();
   if (request.method === "POST") {
-    const submitted = new URLSearchParams(await request.text());
+    submitted = new URLSearchParams(await request.text());
     for (const [name, value] of submitted) params.set(name, value);
   }
 
@@ -272,30 +299,66 @@ async function authorize(request, env) {
     if (error instanceof McpOAuthError) return json({ error: error.code, error_description: error.message }, error.status);
     throw error;
   }
-  const redirectOrigin = new URL(authorization.redirectUri).origin;
-  if (request.method === "GET") return html(authorizationForm(authorization), 200, redirectOrigin);
-
-  const suppliedKey = String(params.get("api_key") || "");
+  if (request.method === "GET") {
+    const session = await rememberedSession(request, env);
+    return authorizationPage(request, env, authorization, { remembered: Boolean(session), remember: Boolean(session) });
+  }
+  // Form fields that authenticate or opt into persistence must never come from the URL.
+  if (!(await consumeBrowserForm(request, env, submitted.get("csrf_token"), "authorize", authorization))) {
+    return json({ error: "invalid_request", error_description: "認証ページの有効期限が切れたか、すでに送信済みです。ページを開き直してください。" }, 403);
+  }
+  const session = await rememberedSession(request, env);
+  const suppliedKey = String(submitted.get("api_key") || "");
+  const remember = submitted.get("remember_login") === "1";
   const configuredKey = configuredSecret(env, "VOCAB_MCP_API_KEY");
-  if (!suppliedKey || !(await safeEqual(suppliedKey, configuredKey))) {
-    return html(authorizationForm(authorization, "APIキーが正しくありません。"), 401, redirectOrigin);
+  if ((!session || suppliedKey) && (!suppliedKey || !(await safeEqual(suppliedKey, configuredKey)))) {
+    return authorizationPage(request, env, authorization, {
+      error: "APIキーが正しくありません。", remember,
+    }, 401);
   }
 
   const code = randomToken(32);
   const expiresAt = Math.floor(Date.now() / 1000) + AUTH_CODE_TTL_SECONDS;
+  // Finish optional session writes before issuing a grant. A storage failure must
+  // not silently authorize or downgrade the requested persistence preference.
+  let sessionCookie;
+  if (!remember) {
+    await revokeRememberedSession(request, env);
+    sessionCookie = clearRememberedCookie();
+  } else if (!session || suppliedKey) {
+    sessionCookie = await rememberBrowser(request, env);
+  }
+  // Reusing a remembered browser never extends its original 30-day expiry.
   await env.DB.prepare(
     "INSERT INTO mcp_oauth_codes (code, client_id, redirect_uri, code_challenge, scope, expires_at) VALUES (?, ?, ?, ?, ?, ?)"
   )
-    .bind(
-      code,
-      authorization.clientId,
-      authorization.redirectUri,
-      authorization.codeChallenge,
-      authorization.scopes.join(" "),
-      expiresAt
-    )
+    .bind(code, authorization.clientId, authorization.redirectUri,
+      authorization.codeChallenge, authorization.scopes.join(" "), expiresAt)
     .run();
-  return redirectWithAuthorizationResult(authorization.redirectUri, { code, state: authorization.state });
+  const response = redirectWithAuthorizationResult(authorization.redirectUri, { code, state: authorization.state });
+  if (sessionCookie) response.headers.append("Set-Cookie", sessionCookie);
+  return response;
+}
+
+async function logoutBrowser(request, env) {
+  if (request.method !== "GET" && request.method !== "POST") {
+    return json({ error: "method_not_allowed" }, 405, { Allow: "GET, POST" });
+  }
+  if (request.method === "POST") {
+    if (!sameOriginFormPost(request)) return json({ error: "invalid_request" }, 403);
+    const params = new URLSearchParams(await request.text());
+    if (!(await consumeBrowserForm(request, env, params.get("csrf_token"), "logout"))) {
+      return json({ error: "invalid_request", error_description: "ページを開き直してください。" }, 403);
+    }
+    await revokeRememberedSession(request, env);
+    const response = html(`<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ログイン保持を解除しました</title><style>${AUTH_PAGE_STYLE}</style></head><body><main class="card"><h1>このブラウザーのログイン保持を解除しました</h1><p>次回の認証ではAPIキーが必要です。このタブを閉じてかまいません。</p><p class="note">発行済みのChatGPT・編集ページのトークンは各有効期限まで有効です。</p></main></body></html>`);
+    response.headers.append("Set-Cookie", clearRememberedCookie());
+    return response;
+  }
+  const form = await createBrowserForm(request, env, "logout");
+  const response = html(`<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ログイン保持を解除</title><style>${AUTH_PAGE_STYLE}</style></head><body><main class="card"><h1>このブラウザーのログイン保持を解除</h1><p>解除すると、次回の認証でAPIキーが必要になります。</p><p>発行済みのChatGPT・編集ページのトークンは各有効期限まで有効です。</p><form method="post"><input type="hidden" name="csrf_token" value="${escapeHtml(form.token)}"><button type="submit">ログイン保持を解除する</button></form></main></body></html>`);
+  response.headers.append("Set-Cookie", form.cookie);
+  return response;
 }
 
 async function issueAccessToken(request, env, origin) {
@@ -456,5 +519,6 @@ export async function handleOAuthRoute(request, env) {
   if (path === "/oauth/register") return registerClient(request, env);
   if (path === "/oauth/authorize") return authorize(request, env);
   if (path === "/oauth/token") return issueAccessToken(request, env, origin);
+  if (path === "/oauth/logout") return logoutBrowser(request, env);
   return null;
 }
