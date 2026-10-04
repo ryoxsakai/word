@@ -1,3 +1,4 @@
+import { createRefreshGrant, rotateRefreshGrant, readRefreshFamily, validRefreshFamily, revokeRefreshGrant } from "./oauth-refresh.js";
 import {
   rememberedSession, createBrowserForm, consumeBrowserForm, sameOriginFormPost,
   rememberBrowser, revokeRememberedSession, clearRememberedCookie,
@@ -223,7 +224,7 @@ function authorizationForm(authorization, { error = "", csrfToken, remembered = 
   const rememberCheckbox = `<label class="remember"><input name="remember_login" type="checkbox" value="1"${remember ? " checked" : ""}> このブラウザーでログイン状態を保持する（30日間）</label>`;
   const note = isEditorLogin
     ? "APIキーは認証確認にだけ使用し、編集ページには保存しません。編集ページの既存のログイン有効期間は7日間です。"
-    : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間12時間のトークンが使用されます。";
+    : "APIキーは認証確認にだけ使用し、ChatGPTには渡しません。接続後は有効期間12時間のトークンを自動更新し、接続開始から最大30日間利用できます。";
   return `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title>
@@ -263,7 +264,7 @@ async function registerClient(request, env) {
       client_id_issued_at: Math.floor(Date.now() / 1000),
       redirect_uris: redirectUris,
       token_endpoint_auth_method: "none",
-      grant_types: ["authorization_code"],
+      grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
     },
     201
@@ -364,6 +365,15 @@ async function logoutBrowser(request, env) {
 async function issueAccessToken(request, env, origin) {
   if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405, { Allow: "POST" });
   const params = new URLSearchParams(await request.text());
+  if (["grant_type","code","client_id","redirect_uri","code_verifier","refresh_token","scope","resource"].some(key => params.getAll(key).length > 1)) {
+    return json({error:"invalid_request"},400);
+  }
+  if (params.has("resource") && ![origin+"/mcp",origin+"/mcp-write"].includes(params.get("resource"))) return json({error:"invalid_target"},400);
+  if (params.get("grant_type") === "refresh_token") {
+    const grant = await rotateRefreshGrant(env, origin, params, Math.floor(Date.now()/1000));
+    if (!grant || grant.error) return json({error: grant?.error || "invalid_grant"}, 400);
+    return accessTokenResponse(env, origin, grant);
+  }
   if (params.get("grant_type") !== "authorization_code") {
     return json({ error: "unsupported_grant_type", error_description: "grant_type must be authorization_code" }, 400);
   }
@@ -400,25 +410,24 @@ async function issueAccessToken(request, env, origin) {
     return json({ error: "invalid_grant", error_description: "The authorization code was already used" }, 400);
   }
 
-  const tokenTtl = isEditorRedirect(record.redirectUri) ? EDITOR_TOKEN_TTL_SECONDS : ACCESS_TOKEN_TTL_SECONDS;
-  const header = encodeJson({ alg: "HS256", typ: "at+jwt" });
-  const payload = encodeJson({
-    iss: origin,
-    sub: clientId,
-    aud: TOKEN_AUDIENCE,
-    client_id: clientId,
-    scope: record.scope,
-    iat: now,
-    exp: now + tokenTtl,
-    jti: randomToken(16),
-  });
-  const signature = bytesToBase64Url(await hmac(secret, header + "." + payload));
-  return json({
-    access_token: header + "." + payload + "." + signature,
-    token_type: "Bearer",
-    expires_in: tokenTtl,
-    scope: record.scope,
-  });
+  if (!isEditorRedirect(record.redirectUri)) {
+    const grant = await createRefreshGrant(env, origin, clientId, record.scope, now);
+    return accessTokenResponse(env, origin, grant);
+  }
+  return accessTokenResponse(env, origin, {clientId,scope:record.scope}, EDITOR_TOKEN_TTL_SECONDS);
+}
+
+async function accessTokenResponse(env, origin, grant, ttl = ACCESS_TOKEN_TTL_SECONDS) {
+  const now = Math.floor(Date.now()/1000);
+  const tokenTtl = Math.min(ttl, grant.expiresAt ? grant.expiresAt-now : ttl);
+  if (tokenTtl <= 0) return json({error:"invalid_grant"},400);
+  const header = encodeJson({alg:"HS256",typ:"at+jwt"});
+  const payload = encodeJson({iss:origin, sub:grant.clientId, aud:TOKEN_AUDIENCE,
+    client_id:grant.clientId, scope:grant.scope, iat:now, exp:now+tokenTtl,
+    jti:randomToken(16), ...(grant.familyId ? {refresh_family:grant.familyId} : {})});
+  const signature = bytesToBase64Url(await hmac(configuredSecret(env,"VOCAB_MCP_SESSION_SECRET"),header+"."+payload));
+  return json({access_token:header+"."+payload+"."+signature,token_type:"Bearer",expires_in:tokenTtl,scope:grant.scope,
+    ...(grant.token ? {refresh_token:grant.token,refresh_token_expires_in:grant.expiresAt-now} : {})});
 }
 
 export async function verifyMcpAccess(request, env, requiredScopes = [MCP_READ_SCOPE]) {
@@ -450,6 +459,13 @@ export async function verifyMcpAccess(request, env, requiredScopes = [MCP_READ_S
     payload.exp <= now
   ) {
     throw new McpOAuthError("invalid_token", "The access token is invalid or expired");
+  }
+  if (payload.refresh_family) {
+    const family = await readRefreshFamily(env, payload.refresh_family);
+    if (!await validRefreshFamily(env, origin, family, now) || family.client_id !== payload.client_id ||
+        String(payload.scope).split(" ").some(scope => !family.scope.split(" ").includes(scope))) {
+      throw new McpOAuthError("invalid_token", "The connection was revoked or expired");
+    }
   }
   const scopes = parseScopes(payload.scope, "");
   const missing = requiredScopes.filter((scope) => !scopes.includes(scope));
@@ -507,11 +523,13 @@ export async function handleOAuthRoute(request, env) {
       issuer: origin,
       authorization_endpoint: origin + "/oauth/authorize",
       token_endpoint: origin + "/oauth/token",
+      revocation_endpoint: origin + "/oauth/revoke",
+      revocation_endpoint_auth_methods_supported: ["none"],
       registration_endpoint: origin + "/oauth/register",
       scopes_supported: MCP_SUPPORTED_SCOPES,
       response_types_supported: ["code"],
       response_modes_supported: ["query"],
-      grant_types_supported: ["authorization_code"],
+      grant_types_supported: ["authorization_code", "refresh_token"],
       token_endpoint_auth_methods_supported: ["none"],
       code_challenge_methods_supported: ["S256"],
     });
@@ -519,6 +537,11 @@ export async function handleOAuthRoute(request, env) {
   if (path === "/oauth/register") return registerClient(request, env);
   if (path === "/oauth/authorize") return authorize(request, env);
   if (path === "/oauth/token") return issueAccessToken(request, env, origin);
+  if (path === "/oauth/revoke") {
+    if (request.method !== "POST") return json({error:"method_not_allowed"},405,{Allow:"POST"});
+    await revokeRefreshGrant(env,new URLSearchParams(await request.text()),Math.floor(Date.now()/1000));
+    return new Response(null,{status:200,headers:{"Cache-Control":"no-store"}});
+  }
   if (path === "/oauth/logout") return logoutBrowser(request, env);
   return null;
 }

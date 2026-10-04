@@ -47,7 +47,7 @@ async function login(jar, params, remember=true) {
 async function count(table) {return (await env.DB.prepare(`SELECT COUNT(*) AS count FROM ${table}`).first()).count;}
 try {
   const DB=await mf.getD1Database('DB');
-  for(const file of ['0015_mcp_oauth.sql','0059_oauth_browser_sessions.sql']) {
+  for(const file of ['0015_mcp_oauth.sql','0059_oauth_browser_sessions.sql','0060_oauth_refresh_tokens.sql']) {
     const sql=readFileSync(new URL('../migrations/'+file,import.meta.url),'utf8').replace(/^\s*--.*$/gm,'');
     for(const statement of sql.split(';').map(v=>v.trim()).filter(Boolean)) await DB.prepare(statement).run();
   }
