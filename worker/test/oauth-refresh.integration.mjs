@@ -39,6 +39,12 @@ try {
  now+=4;assert.equal((await refresh(first.refresh_token)).status,200);
  now+=2;assert.equal((await refresh(first.refresh_token)).status,400);
  await assert.rejects(verify(second.access_token),/revoked/);assert.equal((await refresh(second.refresh_token)).status,400);
+ const delayed=await authorize();
+ const delayedDB={prepare:DB.prepare.bind(DB),batch:async statements=>{const results=await DB.batch(statements);now+=6;return results;}};
+ const delayedResponse=await post({grant_type:'refresh_token',client_id:client,refresh_token:delayed.refresh_token},'/oauth/token',{...env,DB:delayedDB});
+ assert.equal(delayedResponse.status,200,'slow CAS winner must not revoke itself');
+ const delayedGrant=await delayedResponse.json();await verify(delayedGrant.access_token);
+ const delayedFamily=await DB.prepare('SELECT revoked_at FROM mcp_oauth_refresh_families WHERE family_id = ?').bind(JSON.parse(Buffer.from(delayedGrant.access_token.split('.')[1],'base64url')).refresh_family).first();assert.equal(delayedFamily.revoked_at,null);
  const advanced=await authorize();
  const advanced2=await (await refresh(advanced.refresh_token)).json();
  const advanced3=await (await refresh(advanced2.refresh_token)).json();

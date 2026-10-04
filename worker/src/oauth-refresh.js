@@ -46,7 +46,7 @@ export async function rotateRefreshGrant(env, origin, params, now) {
   const nextHash=await digest(next);
   // All three statements are one D1 transaction. The CAS admits a single winner;
   // the fixed five-second duplicate window returns that same successor, never a fork.
-  await env.DB.batch([
+  const rotation = await env.DB.batch([
     env.DB.prepare('UPDATE mcp_oauth_refresh_families SET current_hash = ?, generation = generation + 1 WHERE family_id = ? AND current_hash = ? AND generation = ? AND revoked_at IS NULL AND expires_at > ?')
       .bind(nextHash,old.family_id,hash,old.generation,now),
     env.DB.prepare('INSERT OR IGNORE INTO mcp_oauth_refresh_tokens (token_hash, family_id, generation) SELECT ?, family_id, generation FROM mcp_oauth_refresh_families WHERE family_id = ? AND current_hash = ? AND generation = ? AND revoked_at IS NULL')
@@ -57,9 +57,18 @@ export async function rotateRefreshGrant(env, origin, params, now) {
   const used=await env.DB.prepare('SELECT used_at FROM mcp_oauth_refresh_tokens WHERE token_hash = ?').bind(hash).first();
   family=await readRefreshFamily(env,old.family_id);
   if (!await validRefreshFamily(env,origin,family,Math.floor(Date.now()/1000))) return null;
-  if (family.current_hash!==nextHash || family.generation!==old.generation+1 || used.used_at===null || Math.floor(Date.now()/1000)-used.used_at>RETRY_SECONDS || Math.floor(Date.now()/1000)<used.used_at) {
-    await env.DB.prepare('UPDATE mcp_oauth_refresh_families SET revoked_at = ? WHERE family_id = ? AND revoked_at IS NULL').bind(now,old.family_id).run();
-    return null;
+  const wonRotation = Number(rotation[0].meta?.changes || 0) === 1;
+  const currentSuccessor = family.current_hash===nextHash && family.generation===old.generation+1 && used.used_at!==null;
+  if (wonRotation) {
+    // A slow successful D1 transaction is not a credential replay. Never apply
+    // the duplicate window to its winner, and never emit an advanced successor.
+    if (!currentSuccessor) return null;
+  } else {
+    const age = Math.floor(Date.now()/1000)-used.used_at;
+    if (!currentSuccessor || age<0 || age>RETRY_SECONDS) {
+      await env.DB.prepare('UPDATE mcp_oauth_refresh_families SET revoked_at = ? WHERE family_id = ? AND revoked_at IS NULL').bind(Math.floor(Date.now()/1000),old.family_id).run();
+      return null;
+    }
   }
   return {familyId:old.family_id,token:next,expiresAt:family.expires_at,scope:[...new Set(requested)].join(' '),clientId};
 }
