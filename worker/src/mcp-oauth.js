@@ -401,19 +401,20 @@ async function issueAccessToken(request, env, origin) {
     return json({ error: "invalid_grant", error_description: "The authorization code is invalid or expired" }, 400);
   }
   const secret = configuredSecret(env, "VOCAB_MCP_SESSION_SECRET");
+  if (!isEditorRedirect(record.redirectUri)) {
+    const grant = await createRefreshGrant(env, origin, clientId, record.scope, now, code, redirectUri, record.codeChallenge);
+    if (!grant) return json({error:"invalid_grant",error_description:"The authorization code was already used or expired"},400);
+    return accessTokenResponse(env, origin, grant);
+  }
   const deletion = await env.DB.prepare(
-    "DELETE FROM mcp_oauth_codes WHERE code = ? AND client_id = ? AND redirect_uri = ? AND code_challenge = ?"
+    "DELETE FROM mcp_oauth_codes WHERE code = ? AND client_id = ? AND redirect_uri = ? AND code_challenge = ? AND expires_at > ?"
   )
-    .bind(code, clientId, redirectUri, record.codeChallenge)
+    .bind(code, clientId, redirectUri, record.codeChallenge, now)
     .run();
   if (Number(deletion.meta?.changes || 0) !== 1) {
     return json({ error: "invalid_grant", error_description: "The authorization code was already used" }, 400);
   }
 
-  if (!isEditorRedirect(record.redirectUri)) {
-    const grant = await createRefreshGrant(env, origin, clientId, record.scope, now);
-    return accessTokenResponse(env, origin, grant);
-  }
   return accessTokenResponse(env, origin, {clientId,scope:record.scope}, EDITOR_TOKEN_TTL_SECONDS);
 }
 

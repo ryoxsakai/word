@@ -25,6 +25,35 @@ try {
  const refresh=t=>post({grant_type:'refresh_token',client_id:client,refresh_token:t});
  const verify=(t,environment=env)=>verifyMcpAccess(new Request(origin+'/mcp',{headers:{Authorization:'Bearer '+t}}),environment);
  const first=await authorize();assert.equal(first.expires_in,43200);assert.equal(first.refresh_token_expires_in,2592000);
+ // A real SQLite abort at either insert must roll back code consumption and all new rows.
+ const count=async table=>(await DB.prepare('SELECT COUNT(*) AS n FROM '+table).first()).n;
+ const baselineFamilies=await count('mcp_oauth_refresh_families'),baselineTokens=await count('mcp_oauth_refresh_tokens');
+ for(const table of ['mcp_oauth_refresh_families','mcp_oauth_refresh_tokens']) {
+   const code=crypto.randomUUID();
+   await DB.prepare('INSERT INTO mcp_oauth_codes (code,client_id,redirect_uri,code_challenge,scope,expires_at) VALUES (?,?,?,?,?,?)').bind(code,client,redirect,challenge,'vocab:read',now+300).run();
+   const args={grant_type:'authorization_code',code,client_id:client,redirect_uri:redirect,code_verifier:verifier};
+   await DB.prepare(`CREATE TRIGGER synthetic_abort BEFORE INSERT ON ${table} BEGIN SELECT RAISE(ABORT, 'synthetic storage failure'); END`).run();
+   await assert.rejects(post(args),/synthetic storage failure/);
+   assert.ok(await DB.prepare('SELECT code FROM mcp_oauth_codes WHERE code = ?').bind(code).first());
+   assert.equal(await count('mcp_oauth_refresh_families'),baselineFamilies);
+   assert.equal(await count('mcp_oauth_refresh_tokens'),baselineTokens);
+   await DB.prepare('DROP TRIGGER synthetic_abort').run();
+   const retry=await post(args);assert.equal(retry.status,200);
+   const restored=await retry.json();await verify(restored.access_token);
+   assert.equal((await post(args)).status,400);
+   // Remove only invented successful retries to preserve baseline assertions.
+   const family=JSON.parse(Buffer.from(restored.access_token.split('.')[1],'base64url')).refresh_family;
+   await DB.prepare('DELETE FROM mcp_oauth_refresh_families WHERE family_id = ?').bind(family).run();
+   await verify(first.access_token);
+ }
+ const parallelCode=crypto.randomUUID();
+ await DB.prepare('INSERT INTO mcp_oauth_codes (code,client_id,redirect_uri,code_challenge,scope,expires_at) VALUES (?,?,?,?,?,?)').bind(parallelCode,client,redirect,challenge,'vocab:read',now+300).run();
+ const parallelArgs={grant_type:'authorization_code',code:parallelCode,client_id:client,redirect_uri:redirect,code_verifier:verifier};
+ const exchanges=await Promise.all([post(parallelArgs),post(parallelArgs)]);
+ assert.deepEqual(exchanges.map(r=>r.status).sort(),[200,400]);
+ assert.equal(await count('mcp_oauth_refresh_families'),baselineFamilies+1);
+ assert.equal(await count('mcp_oauth_refresh_tokens'),baselineTokens+1);
+ await verify(first.access_token);
  const originalFamily=await DB.prepare('SELECT * FROM mcp_oauth_refresh_families').first();
  assert.doesNotMatch(JSON.stringify(await DB.prepare('SELECT * FROM mcp_oauth_refresh_tokens').all()),new RegExp(first.refresh_token));
  assert.doesNotMatch(JSON.stringify(originalFamily),/synthetic-api|synthetic-session-secret/);

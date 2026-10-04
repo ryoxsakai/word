@@ -13,13 +13,19 @@ export async function credentialVersion(env, origin) {
   if (!env.VOCAB_MCP_API_KEY || !env.VOCAB_MCP_SESSION_SECRET) throw new Error('OAuth credentials are not configured');
   return mac(env.VOCAB_MCP_SESSION_SECRET, JSON.stringify(['vocab-refresh-v1',origin,env.VOCAB_MCP_API_KEY]));
 }
-export async function createRefreshGrant(env, origin, clientId, scope, now) {
+export async function createRefreshGrant(env, origin, clientId, scope, now, code, redirectUri, challenge) {
   const familyId=random(), token=random(), hash=await digest(token), expiresAt=now+TTL;
-  await env.DB.batch([
-    env.DB.prepare('INSERT INTO mcp_oauth_refresh_families (family_id, client_id, scope, issuer, credential_version, expires_at, current_hash) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .bind(familyId,clientId,scope,origin,await credentialVersion(env,origin),expiresAt,hash),
-    env.DB.prepare('INSERT INTO mcp_oauth_refresh_tokens (token_hash, family_id, generation) VALUES (?, ?, 0)').bind(hash,familyId),
+  const version=await credentialVersion(env,origin);
+  // Consuming the code and persisting both credentials are a single transaction.
+  // changes() gates each insert on the immediately preceding statement's winner.
+  const results=await env.DB.batch([
+    env.DB.prepare('DELETE FROM mcp_oauth_codes WHERE code = ? AND client_id = ? AND redirect_uri = ? AND code_challenge = ? AND scope = ? AND expires_at > ?')
+      .bind(code,clientId,redirectUri,challenge,scope,now),
+    env.DB.prepare('INSERT INTO mcp_oauth_refresh_families (family_id, client_id, scope, issuer, credential_version, expires_at, current_hash) SELECT ?, ?, ?, ?, ?, ?, ? WHERE changes() = 1')
+      .bind(familyId,clientId,scope,origin,version,expiresAt,hash),
+    env.DB.prepare('INSERT INTO mcp_oauth_refresh_tokens (token_hash, family_id, generation) SELECT ?, ?, 0 WHERE changes() = 1').bind(hash,familyId),
   ]);
+  if (Number(results[0].meta?.changes || 0)!==1) return null;
   return {familyId, token, expiresAt, scope, clientId};
 }
 export async function readRefreshFamily(env, familyId) {
