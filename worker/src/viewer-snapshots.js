@@ -76,7 +76,7 @@ export class ViewerSnapshotPublisher {
         current = await bucket.get('current.json');
         stage = current ? await current.json() : { files: {}, search: {} };
       }
-      const { results: jobs } = await this.env.DB.prepare('SELECT * FROM viewer_snapshot_dirty ORDER BY list_id,kind,section_key LIMIT 8').all();
+      const { results: jobs } = await this.env.DB.prepare('SELECT * FROM viewer_snapshot_dirty ORDER BY list_id,kind,section_key LIMIT 1').all();
       if(!jobs.length && !await this.ctx.storage.get('stage')) {
         // A failure can happen after current.json is committed but before the
         // ready status is stored. Recover that stale failed status without
@@ -109,7 +109,7 @@ export class ViewerSnapshotPublisher {
         await this.ctx.storage.setAlarm(Date.now() + 1000); return;
       }
       for(const [key,c]of Object.entries(stage.chapters||{}))if(c.kind==='viewer'&&!c.search){stage.pendingChapters ||= {};stage.pendingChapters[key]={list:c.list,kind:c.kind,chapter:c.chapter};}
-      const chapterJobs = Object.entries(stage.pendingChapters || {}).slice(0, 2);
+      const chapterJobs = Object.entries(stage.pendingChapters || {}).slice(0, 1);
       for (const [key, job] of chapterJobs) {
         const built = await buildChapter(this.env, stage, job);
         if(built?.pending){await this.ctx.storage.put('stage',stage);break;}
@@ -170,8 +170,17 @@ export function trackViewerEdits(env) {
   if (!enabled(env)) return { env, finish: async()=>{} };
   const id = crypto.randomUUID(); let began;
   const notify = async path => {
-    const response = await publisher(env).fetch(`https://publisher${path}`, {method:'POST',headers:{'x-edit-id':id}});
-    if (!response.ok) throw new Error('Viewer publisher unavailable');
+    // Retry only the idempotent lease notification, never the database write.
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await publisher(env).fetch(`https://publisher${path}`, {method:'POST',headers:{'x-edit-id':id}});
+        if (!response.ok) throw new Error('Viewer publisher unavailable');
+        return;
+      } catch (error) {
+        if (attempt >= 2 || !/CPU time limit|reset|temporarily|unavailable/i.test(String(error.message || error))) throw error;
+        await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+      }
+    }
   };
   const begin = () => began ||= notify('/begin');
   const relevant = sql => /\b(?:INSERT\s+(?:OR\s+\w+\s+)?INTO|REPLACE\s+INTO|UPDATE|DELETE\s+FROM)\s+["`\[]?(?:words|senses|derivatives|examples|tags|lists|list_items|chapters|sections|section_groups|section_labels|word_audio|word_illustrations|illustration_jobs|idioms|idiom_sections|idiom_senses|idiom_word_refs|idiom_illustrations|idiom_illustration_jobs)\b/i.test(sql);
