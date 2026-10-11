@@ -21,7 +21,7 @@ function persistPendingCards() {
 function refreshCardStatus(row) {
   if (!row.badgeElement) return;
   const pending = pendingCards.has(pendingCardKey(row.id));
-  row.badgeElement.textContent = dirty(row) ? (pending ? '未保存・反映待ち' : '未保存') : (pending ? '反映待ち' : '保存済み');
+  row.badgeElement.textContent = dirty(row) ? (pending ? '未保存・反映待ち' : '未保存') : (pending ? 'DB保存済み・反映待ち' : '保存済み・反映完了');
   row.badgeElement.classList.toggle('is-pending', pending);
   row.badgeElement.title = pending ? '保存した変更を閲覧ページへ反映しています' : '';
 }
@@ -103,7 +103,7 @@ async function api(path, options = {}, { confirm = false, publishedOnly = false 
       // Keep the marker until a strict read succeeds; save confirmation never falls back.
       if (fresh && !confirm && data?.code === 'editor_snapshot_pending') {
         if (localStorage.getItem(PENDING_KEY) === pending) {
-          publicationNotice.hidden = false;
+          publicationNotice.hidden = true;
           schedulePublicationCheck();
         }
         return api(originalPath, options, {publishedOnly:true});
@@ -151,8 +151,10 @@ function updateStatus(message) {
   if (saving && saveProgress) {
     const {completed,total,phase} = saveProgress;
     const percent = total ? Math.floor(completed / total * 100) : 0;
-    status.append(node('span', {class:'sheet-save-count'}, ` ${phase} ${percent}%（${completed}/${total}件）`));
-    const track = node('span', {class:'sheet-save-progress',role:'progressbar','aria-label':phase,'aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(percent)});
+    if (phase !== '送信') status.append(node('div', {class:'sheet-db-save-status'}, '① DBへの保存：完了（100%）'));
+    const progressLabel = phase === '送信' ? '① DBへの保存' : phase === '保存先確認' ? '① DB保存内容の確認' : '② 閲覧ページへの反映確認';
+    status.append(node('span', {class:'sheet-save-count'}, ` ${progressLabel} ${percent}%（${completed}/${total}件）`));
+    const track = node('span', {class:'sheet-save-progress',role:'progressbar','aria-label':progressLabel,'aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(percent)});
     const fill = node('span', {class:'sheet-save-progress-fill'});
     fill.style.width = `${percent}%`;
     track.append(fill); status.append(track);
@@ -379,7 +381,20 @@ async function saveRecord(row) {
   const changes=changedKeys(latestDraft,merged), membershipFields=['no','sectionId','labelId'];
   const member=listId!=='__master__'&&changes.some(k=>membershipFields.includes(k))?membershipPayload(merged):null;
   let saved=latest;
-  if(changes.some(k=>!membershipFields.includes(k)))saved=await api(`/words/${encodeURIComponent(row.id)}`,{method:'PUT',body:JSON.stringify(wordPayload(merged,latest))});
+  if(changes.some(k=>!membershipFields.includes(k))) {
+    try { saved=await api(`/words/${encodeURIComponent(row.id)}`,{method:'PUT',body:JSON.stringify(wordPayload(merged,latest))}); }
+    catch(error) {
+      if (!/Load failed|Failed to fetch|NetworkError|network/i.test(error.message)) throw error;
+      // A lost response can follow a committed write. Read back; never replay PUT.
+      try {
+        const confirmed=await api(`/words/${encodeURIComponent(row.id)}`,{}, {publishedOnly:true});
+        const confirmedDraft=wordDraft(confirmed,listId);
+        if(!changes.filter(k=>!membershipFields.includes(k)).every(k=>same(merged[k],confirmedDraft[k]))) throw error;
+        saved=confirmed;
+        localStorage.setItem(PENDING_KEY, crypto.randomUUID());
+      } catch { throw new Error('通信が途切れたためDBへの保存を確認できませんでした。入力内容は残しています。'); }
+    }
+  }
   if(member){
     try{await api(`${path}/items/${encodeURIComponent(row.id)}`,{method:'PUT',body:JSON.stringify(member)});}
     catch(error){error.saved=saved;throw error;}
@@ -447,8 +462,8 @@ async function confirmPublication(savedRows) {
     }
     if (d1Completed === savedRows.length) {
       // Keep the publication marker: D1 success does not imply viewer JSON is ready.
-      publicationNotice.hidden = false;
-      publicationNotice.textContent = '保存済み・閲覧ページへ反映中です。2分ごとに自動確認します。編集を続けられます。';
+      publicationNotice.hidden = true;
+      publicationNotice.textContent = '① DBへの保存：完了（100%）\n② 閲覧ページへの反映：待機中（2分ごとに自動確認）\n編集を続けられます。';
       return;
     }
     updateStatus('保存内容を確認しています…（2分ごとに自動再確認）');
@@ -467,7 +482,10 @@ async function saveRows(targets) {
   }
   if(savedRows.length){
     saveProgress={phase:'反映確認',completed:0,total:savedRows.length};
-    updateStatus('保存内容を確認しています…');
+    publicationNotice.hidden = true;
+    publicationNotice.style.whiteSpace = 'pre-line';
+    publicationNotice.textContent = `① DBへの保存：${successes}件完了${failed ? '・'+failed+'件失敗' : '（100%）'}\n② 閲覧ページへの反映：確認中`;
+    updateStatus('DBへの保存が完了しました。閲覧ページへの反映を確認しています…');
     try{await confirmPublication(savedRows);}
     catch(error){unconfirmed=savedRows.length;for(const {row} of savedRows)row.error=`保存済みですが、一覧への反映を確認できませんでした：${error.message}`;}
   }
