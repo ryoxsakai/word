@@ -2458,7 +2458,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
-.example-line > .bullet.hollow.phrase-first { border-color: #c62828; }
+.example-line > .bullet.hollow.phrase-first { border-color: #c62828; background: #fce4ec; }
 
 /* Shared SVG badges retain crisp geometry on screen and in print. */
 .vector-badge.vector-badge { background: transparent !important; border: 0; padding: 0; width: auto; min-width: 0; height: auto; line-height: 1; }
@@ -2469,7 +2469,8 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
   font-size: inherit; border: 0; text-indent: 0; overflow: visible;
   color: var(--text-muted);
 }
-.example-line > .bullet.hollow.phrase-first:has(svg) { color: #c62828; }
+.example-line > .bullet.hollow.phrase-first:has(svg) { color: #c62828; background: transparent; }
+.example-line > .bullet.hollow.phrase-first > svg > rect { fill: #fce4ec; }
 .example-line > .bullet.hollow > svg { width: 100% !important; height: 100% !important; display: block; }
 .example-line:has(> .bullet.hollow) { padding-left: 1em; }
 
