@@ -7,19 +7,21 @@ import { formatPronunciationWithAccents } from "./pronunciation.js";
 // 記法:
 //   ##headword##            他の見出し語への相互参照。今のリストでの no. を自動解決する。
 //   ##headword|表示文言##   参照先は headword だが、表示する文言を変えたい場合。
-//   ==text==                キーワード強調（ハイライト）。
+//   ==text==                非リンク表示。囲んだ内容の参照・自動リンクを無効にする。
+//   ::text::                キーワード強調（ハイライト）。
 //   **text**                任意の太字。
 //   *text*                  語根・接辞などの強調（イタリック）。
 //   //text//                /text/ としてIPA発音記号用フォントで表示（メモ欄）。
 
 const CROSSREF_RE = /##([^#|]+?)(?:\|([^#]+?))?##/g;
-const HIGHLIGHT_RE = /==(.+?)==/g;
+const HIGHLIGHT_RE = /::(.+?)::/g;
+const NOLINK_RE = /==(.+?)==/g;
 const BOLD_RE = /\*\*(.+?)\*\*/g;
 const ITALIC_RE = /\*(.+?)\*/g;
 const PRONUNCIATION_RE = /(^|[^:])\/\/([^/\n]+?)\/\//g;
 const URL_RE = /https?:\/\/[^\s<>"'、。））」』】]+/gi;
 const REFERENCE_NUMBER_RE = /[（(]\s*no[.．]\s*\d+(?:-\d+)*\s*[)）]/gi;
-const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701|\uE800\d+\uE801)/g;
+const PROTECTED_TOKEN_RE = /(?:\uE000\d+\uE001|\uE200\d+\uE201|\uE300\d+\uE301|\uE400\d+\uE401|\uE500\d+\uE501|\uE600\d+\uE601|\uE700\d+\uE701|\uE800\d+\uE801|\uE900\d+\uE901|\uEA00\d+\uEA01)/g;
 const JAPANESE_TEXT_RE = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
 
 const ENGLISH_WORD_RE =
@@ -51,7 +53,15 @@ export function renderMarkup(raw, opts = {}) {
   const { resolve, boldRefs = false, uniqueRefs = false } = opts;
   const seenRefs = new Set();
   const renderedRefs = [];
-  const protectedText = String(raw).replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
+  const highlights = [];
+  const source = String(raw).replace(NOLINK_RE, (_match, inner) => {
+    const token = `\uE900${highlights.length}\uE901`;
+    // Keep visible labels, but suppress explicit references inside highlights.
+    const plain = inner.replace(CROSSREF_RE, (_m, target, label) => label?.trim() || target.trim().replace(/^(?:word|idiom):/i, ""));
+    highlights.push(renderMarkup(plain));
+    return token;
+  });
+  const protectedText = source.replace(CROSSREF_RE, (_match, headwordRaw, displayRaw) => {
     const headword = headwordRaw.trim();
     const result = resolve ? resolve(headword) : null;
     const label = displayRaw ? displayRaw.trim() : result?.canonicalLabel || headword.replace(/^(?:word|idiom):/i, "");
@@ -88,7 +98,7 @@ export function renderMarkup(raw, opts = {}) {
   html = html.replace(ITALIC_RE, (_m, inner) => `<em>${inner}</em>`);
   html = html.replace(/\uE100(\d+)\uE101/g, (_match, index) => renderedRefs[Number(index)] || "");
 
-  return html;
+  return html.replace(/\uE900(\d+)\uE901/g, (_match, index) => highlights[Number(index)] || "");
 }
 
 function splitTrailingWordListGloss(source) {
@@ -447,7 +457,13 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
 
     // URLは先に退避し、英単語や見出し語の自動処理でパス・ドメインを変更しない。
     const urls = [];
-    const urlProtectedText = String(raw).replace(URL_RE, (url) => {
+    const highlights = [];
+    const highlightProtectedText = String(raw).replace(NOLINK_RE, (match) => {
+      const token = `\uEA00${highlights.length}\uEA01`;
+      highlights.push(match);
+      return token;
+    });
+    const urlProtectedText = highlightProtectedText.replace(URL_RE, (url) => {
       const token = `\uE500${urls.length}\uE501`;
       urls.push(url);
       return token;
@@ -562,6 +578,7 @@ export function createAutoCrossRefRenderer(headwords, opts = {}) {
       (_match, index) => '<span class="pronunciation-inline">/' + escapeHtml(pronunciations[Number(index)] || "") + "/</span>"
     );
     html = html.replace(/\uE500(\d+)\uE501/g, (_match, index) => escapeHtml(urls[Number(index)] || ""));
+    html = html.replace(/\uEA00(\d+)\uEA01/g, (_match, index) => renderMarkup(highlights[Number(index)] || ""));
     return html.replace(
       /\uE700(\d+)\uE701/g,
       (_match, index) => '<span class="ref-no">' + escapeHtml(referenceNumbers[Number(index)] || "") + "</span>"
@@ -581,6 +598,7 @@ export function stripMarkup(raw) {
     .replace(CROSSREF_RE, (_m, headwordRaw, displayRaw) => (displayRaw ? displayRaw.trim() : headwordRaw.trim()))
     .replace(BOLD_RE, (_m, inner) => inner)
     .replace(HIGHLIGHT_RE, (_m, inner) => inner)
+    .replace(NOLINK_RE, (_m, inner) => inner)
     .replace(ITALIC_RE, (_m, inner) => inner)
     .trim();
 }
@@ -595,7 +613,7 @@ export function extractCrossRefs(raw) {
   const out = [];
   let m;
   const re = new RegExp(CROSSREF_RE.source, "g");
-  while ((m = re.exec(raw)) !== null) {
+  while ((m = re.exec(String(raw).replace(NOLINK_RE, ''))) !== null) {
     out.push(m[1].trim());
   }
   return out;
