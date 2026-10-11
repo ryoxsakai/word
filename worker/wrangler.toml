@@ -7,6 +7,10 @@ workers_dev = false
 # Preserve dashboard-managed VOCAB_MCP_API_KEY and VOCAB_MCP_SESSION_SECRET.
 keep_vars = true
 
+[limits]
+# Snapshot rendering can exceed the default 30-second Durable Object CPU budget.
+cpu_ms = 300_000
+
 [assets]
 directory = "../public"
 binding = "ASSETS"
