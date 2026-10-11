@@ -272,3 +272,18 @@ const saveMemo = render("save A BではBにtimeを置く。saveも使う。saved
 assert.match(saveMemo, /^<strong class="memo-current-headword">save A B<\/strong>では/);
 assert.match(saveMemo, /<strong class="memo-current-headword">save<\/strong>も/);
 assert.doesNotMatch(saveMemo, /memo-current-headword">saved/);
+
+// Non-link regions must not consume outside reference numbering or create highlights.
+assert.equal(renderMarkup('==##genuine|label##==', {resolve}), 'label');
+assert.equal(renderMarkup('==<script>alert(1)</script>==', {resolve}), '&lt;script&gt;alert(1)&lt;/script&gt;');
+const noLinkMemo = render('==genuine== genuine ==take off==');
+assert.equal((noLinkMemo.match(/<a /g) || []).length, 1);
+assert.ok(noLinkMemo.startsWith('genuine '));
+assert.ok(noLinkMemo.endsWith(' take off'));
+assert.ok(!noLinkMemo.includes('<mark>'));
+assert.equal(render('==**genuine**=='), '<strong>genuine</strong>');
+console.log('Non-link region tests passed');
+
+assert.equal(renderMarkup('::重要::'), '<mark>重要</mark>');
+assert.ok(render('::genuine::').includes('<mark>'));
+assert.equal(stripMarkup('==plain== ::highlight::'), 'plain highlight');
