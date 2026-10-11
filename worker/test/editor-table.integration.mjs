@@ -23,7 +23,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
  let releaseCatalog,releaseReferences;
  const catalogReady=new Promise(resolve=>{releaseCatalog=resolve;});
  const referencesReady=new Promise(resolve=>{releaseReferences=resolve;});
- const calls=[];let storedWord=detail(),storedIdiom=clone(entry),publishedWord=detail(),publishedIdiom=clone(entry),fail=false,failConfirmation=false,confirmationReads=0;
+ const calls=[];let storedWord=detail(),storedIdiom=clone(entry),publishedWord=detail(),publishedIdiom=clone(entry),loseResponse=false,fail=false,failConfirmation=false,confirmationReads=0;
  // Speed up only publication polling, leaving UI debounce/toast timing intact.
  const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===120000?50:ms===1000?10:catalogTimeout&&ms===15000?30:ms,...args);
  w.fetch=async(input,opts={})=>{
@@ -53,6 +53,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
   else if(path==='/api/lists/book/editor/idiom-sections/s1')data={entries:[publishedIdiom,...extraIdioms]};
   else if(path==='/api/lists/book/idioms/sections/s1')data={entries:[storedIdiom,...extraIdioms]};
   else throw new Error(`Unexpected read ${path}`);
+  if(loseResponse && opts.method)throw new TypeError('Load failed');
   return new Response(JSON.stringify(data),{headers:{'content-type':'application/json','x-editor-source':'r2'}});
  };
  w.eval(bundle);
@@ -114,15 +115,15 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  await waitFor(()=>calls.some(c=>c.method!=='GET'),'write not made');
  await tick();
  assert.notEqual(d.getElementById('tableToast')?.textContent,'保存しました','a write response alone must not produce a success toast');
- await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='反映待ち','D1 confirmation must unlock the card while JSON publication is pending');
+ await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='DB保存済み・反映待ち','D1 confirmation must unlock the card while JSON publication is pending');
  assert.equal(saveAll.disabled,true,'unchanged saved cards must not be resubmitted');
- assert.ok(!d.querySelector('.sheet-publication-notice').hidden);
+ assert.ok(d.querySelector('.sheet-publication-notice').hidden);
  assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'),'stale JSON must not clear the pending marker');
  publishedWord=clone(storedWord);publishedIdiom=clone(storedIdiom);
  await waitFor(()=>w.localStorage.getItem('vocab-editor-pending-publication')===null,'background publication confirmation missing');
  assert.equal(rail.scrollLeft,234,'horizontal position lost on save');
  assert.equal(d.querySelector('.sheet-card-body').scrollTop,321,'vertical position lost on save');
- assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み');
+ assert.equal(d.querySelector('.sheet-card-badge').textContent,'保存済み・反映完了');
  assert.equal(w.localStorage.getItem('vocab-editor-pending-publication'),null);
  if(!idiom)assert.equal(get('類義語').value,'serve; perform; carry A out');
  const reopened=new JSDOM(html,{url:w.location.href,runScripts:'outside-only'});
@@ -144,13 +145,21 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  await waitFor(()=>get('メモ')?.value==='edited note','reload lost the saved edit');
  if(!idiom)assert.equal(get('類義語').value,'serve; perform; carry A out');
  fail=false;failConfirmation=true;edit(get('メモ'),'saved but awaiting publication');saveAll.click();
- await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='反映待ち','temporary JSON failure must fall back to D1 and display pending status');
+ await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='DB保存済み・反映待ち','temporary JSON failure must fall back to D1 and display pending status');
  assert.equal(d.querySelector('.sheet-error').textContent,'');
  assert.equal(get('メモ').value,'saved but awaiting publication');
  assert.notEqual(d.getElementById('tableToast').textContent,'保存しました');
  assert.ok(w.localStorage.getItem('vocab-editor-pending-publication'));
  assert.equal(calls.filter(c=>c.method!=='GET').length,3);
  await tick();assert.equal(calls.filter(c=>c.method!=='GET').length,3,'a confirmation failure must not replay the write');
+ if(!idiom){
+  loseResponse=true;edit(get('メモ'),'committed with lost response');saveAll.click();
+  await waitFor(()=>d.querySelector('.sheet-card-badge')?.textContent==='DB保存済み・反映待ち' && saveAll.disabled && !d.querySelector('.sheet-status').getAttribute('aria-busy').includes('true'),'lost response did not recover from DB');
+  assert.equal(storedWord.notes,'committed with lost response');
+  assert.equal(d.querySelector('.sheet-error').textContent,'');
+  assert.equal(calls.filter(c=>c.method!=='GET').length,4,'lost response must not replay PUT');
+  assert.match(d.querySelector('.sheet-publication-notice').textContent,/DBへの保存：完了/);
+ }
  const meanCell=get('意味').closest('fieldset');[...meanCell.querySelectorAll('button')].find(b=>b.textContent==='＋追加').click();assert.equal(meanCell.querySelectorAll('[aria-label="意味"]').length,3);assert.equal(d.getElementById('editModalOverlay').hidden,true);
  dom.window.close();
 }
@@ -188,7 +197,7 @@ async function pendingStartup(idiom) {
   await waitFor(()=>d.querySelector('.sheet-card'),'pending publication must not block startup cards');
   assert.equal(w.localStorage.getItem('vocab-editor-pending-publication'),marker,'published fallback must retain the unconfirmed save marker');
   const notice=d.querySelector('.sheet-publication-notice');
-  assert.ok(notice&&!notice.hidden,'unconfirmed publication must remain visible after cards render');
+  assert.ok(notice&&notice.hidden,'long publication notice must stay hidden; card badges show state');
   assert.match(notice.textContent,/公開済み/);
   assert.deepEqual(calls.filter(c=>c.path==='/api/lists').map(c=>c.fresh),[true,false],'fall back immediately, without repeated strict polling');
   assert.ok(calls.every(c=>c.path!=='/api/words/alpha'),'startup must use JSON endpoints only');
