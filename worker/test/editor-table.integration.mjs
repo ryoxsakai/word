@@ -36,6 +36,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
   if(path==='/api/lists' && url.searchParams.get('editorFresh')==='1' && (failConfirmation || JSON.stringify(idiom?storedIdiom:storedWord)!==JSON.stringify(idiom?publishedIdiom:publishedWord))) return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
   if(path==='/api/lists'){await catalogReady;if(catalogTimeout&&calls.filter(c=>c.path===path).length===1)await new Promise(()=>{});}
   if(!idiom&&path==='/api/lists/book/editor/idioms'){await referencesReady;if(referenceFailure)return new Response(JSON.stringify({error:'reference unavailable'}),{status:503});}
+  if(idiom&&referenceFailure&&path==='/api/lists/book/editor/idioms'&&calls.filter(c=>c.path===path).length===2)return new Response(JSON.stringify({error:'optional refresh unavailable'}),{status:503});
   if(opts.method){
    if(fail)return new Response(JSON.stringify({error:'injected failure'}),{status:503});
    const body=JSON.parse(opts.body);
@@ -43,6 +44,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
    else if(path==='/api/lists/book/idioms'){storedIdiom={...body,key:body.id||'idiom-new',meanings:body.meanings.map((s,i)=>({...s,id:s.id||`new-${i}`,refs:s.wordIds.map(wordId=>({wordId}))}))};data={id:storedIdiom.key};}
    else throw new Error(`Unexpected write ${path}`);
   }else if(path==='/api/lists')data=[{id:'wrong-book',name:'Other',isNotebook:true},{id:'book',name:'crossover',isNotebook:true}];
+  else if(path==='/api/lists/book/editor/references')data={words:[{spelling:'alpha',phrases:['alpha phrase','alpha other phrase']}]};
   else if(path==='/api/lists/book/editor/index')data={words:[word,...extraWords]};
   else if(path==='/api/lists/book/sections')data=[{id:1,subtitle:'First'}];
   else if(path==='/api/lists/book/labels')data=[{id:2,sectionId:1,name:'Label'}];
@@ -76,6 +78,14 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
  for(const label of ['Section','Label','派生元','No.'])assert.equal(get(label),null);
  assert.equal(calls.some(c=>c.path==='/api/words/alpha'),false,'display must not fetch individual D1 records');
  const edit=(el,value)=>{el.value=value;el.dispatchEvent(new w.Event('input',{bubbles:true}));};
+ if(idiom&&referenceFailure){
+  await waitFor(()=>d.getElementById('tableToast')?.textContent.includes('参照'),'optional reference refresh must fail');
+  edit(get('同義語'),'##carry out A##');
+  const preview=d.querySelector('.sheet-card [aria-label="同義語の表示"]');
+  assert.equal(preview.querySelector('a').hash,'#idiom-carry','keep required-load idioms after optional refresh failure');
+  assert.match(preview.textContent,/carry O out.*熟 /);
+ }
+
  const meanings=d.querySelector('.sheet-card').querySelectorAll('[aria-label="意味"]');assert.equal(meanings.length,idiom?2:3);
  if(!idiom){
   for(const label of ['類義語','対義語','関連語','メモ']) {
@@ -89,6 +99,14 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
     assert.equal(input.value,'carry out A','display normalization must preserve the editable source');
   }
   assert.equal(calls.filter(c=>c.path==='/api/lists/book/editor/idioms').length,1,'read the JSON reference index only once per notebook');
+  const synonym=get('類義語');edit(synonym,'alpha phrase');
+  const phrasePreview=d.querySelector('.sheet-card [aria-label="類義語の表示"]');
+  assert.equal(phrasePreview.querySelector('a').hash,'#word-alpha');
+  assert.match(phrasePreview.textContent,/alpha phrase.*no\.1/);
+  edit(synonym,'==alpha phrase==, ::alpha phrase::');
+  assert.equal(phrasePreview.querySelector('a'),null);
+  assert.equal(phrasePreview.querySelector('mark').textContent,'alpha phrase');
+
 }
 edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
  if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');edit(get('類義語'),'serve; perform; carry A out');storedWord.etymology='concurrent unrelated update';}
@@ -207,5 +225,5 @@ async function pendingStartup(idiom) {
  } finally {dom.window.close();}
 }
 await pendingStartup(false);await pendingStartup(true);
-await run(false);await run(true);await run(false,true);await run(false,false,true);
+await run(false);await run(true);await run(true,true);await run(false,true);await run(false,false,true);
 console.log('Card editor passed: draft/scroll preservation, JSON reads, repeated fields, scoped saves, conflict merge, retained hidden data, failures and toast');
