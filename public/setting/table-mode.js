@@ -36,9 +36,11 @@ let wordNames = new Map();
 let resolveReference = () => ({found:false}), renderReferenceNotes;
 let referenceGeneration = 0;
 let referenceIndex = [];
+let referenceIdioms = {entries:[],chapters:[]};
 const referencePreviews = new Set();
 function prepareReferences(words, idioms = {entries:[],chapters:[]}, referenceWords = words) {
   referenceIndex = words;
+  referenceIdioms = idioms;
   const wordIndex = new Map(words.map(w => [w.spelling.toLowerCase(), {found:true,id:w.id,no:w.displayNo ?? w.seqNo ?? w.no}]));
   resolveReference = createIdiomReferenceResolver(groupIdiomEntries(idioms.entries,idioms.chapters), name => wordIndex.get(name.toLowerCase()) || {found:false});
   const resolveExisting = resolveReference;
@@ -365,7 +367,7 @@ async function loadBook() {
       // References are optional; never block cards or recreate unsaved drafts.
       void Promise.allSettled([api(`${path}/editor/idioms`), api(`${path}/editor/references`)]).then(([idiomResult, phraseResult]) => {
         if (referenceToken !== referenceGeneration) return;
-        const data = idiomResult.status === 'fulfilled' ? idiomResult.value : {entries:[],chapters:[]};
+        const data = idiomResult.status === 'fulfilled' ? idiomResult.value : referenceIdioms;
         const referenceWords = phraseResult.status === 'fulfilled' ? phraseResult.value.words : [];
         prepareReferences(referenceIndex,data,referenceWords);
         for (const update of referencePreviews) update();
