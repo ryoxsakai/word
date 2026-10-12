@@ -4,7 +4,7 @@ import { orderIdiomLabels, groupIdiomEntries } from '../shared/idioms.js';
 import { clone, same, changedKeys, mergeDraft, wordDraft, idiomDraft, wordPayload, idiomPayload, membershipPayload, cautions } from './table-data.js';
 
 import { createIdiomReferenceResolver } from '../shared/idiom-references.js';
-import { createAutoCrossRefRenderer, renderWordListMarkup } from '../shared/markup.js';
+import { createAutoCrossRefRenderer, renderWordListMarkup, collectPhraseCrossReferences, createPhraseCrossReferenceResolver } from '../shared/markup.js';
 
 const MODE_KEY = 'vocab-setting-edit-mode';
 const PENDING_KEY = 'vocab-editor-pending-publication';
@@ -35,10 +35,19 @@ let publicationCheckTimer;
 let wordNames = new Map();
 let resolveReference = () => ({found:false}), renderReferenceNotes;
 let referenceGeneration = 0;
+let referenceIndex = [];
 const referencePreviews = new Set();
-function prepareReferences(words, idioms = {entries:[],chapters:[]}) {
+function prepareReferences(words, idioms = {entries:[],chapters:[]}, referenceWords = words) {
+  referenceIndex = words;
   const wordIndex = new Map(words.map(w => [w.spelling.toLowerCase(), {found:true,id:w.id,no:w.displayNo ?? w.seqNo ?? w.no}]));
   resolveReference = createIdiomReferenceResolver(groupIdiomEntries(idioms.entries,idioms.chapters), name => wordIndex.get(name.toLowerCase()) || {found:false});
+  const resolveExisting = resolveReference;
+  const resolvePhrase = createPhraseCrossReferenceResolver(wordIndex, collectPhraseCrossReferences(referenceWords));
+  resolveReference = name => {
+    const hit = resolveExisting(name);
+    return hit.found || /^(?:word|idiom):/i.test(name) ? hit : resolvePhrase(name);
+  };
+  resolveReference.phrases = resolveExisting.phrases;
   const names = [...wordIndex.keys(),...resolveReference.phrases];
   renderReferenceNotes = (text, context) => {
     const haystack = String(text || '').toLowerCase().replace(/\s+/g,' ');
@@ -352,14 +361,14 @@ async function loadBook() {
     sectionKey=sections.find(s=>index.some(w=>String(w.sectionKey??w.sectionId??'none')===s.key))?.key || sections[0]?.key || '';
     options(sectionSelect,sections.map(s=>[s.key,s.name]),sectionKey);
     if(sectionKey)await loadRows();else updateStatus('編集できるSectionがありません。通常編集でSectionを作成してください。');
-    if (!idiom && listId !== '__master__') {
+    if (listId !== '__master__') {
       // References are optional; never block cards or recreate unsaved drafts.
-      void api(`${path}/editor/idioms`).then(data => {
+      void Promise.all([api(`${path}/editor/idioms`), api(`${path}/editor/references`)]).then(([data, references]) => {
         if (referenceToken !== referenceGeneration) return;
-        prepareReferences(index,data);
+        prepareReferences(referenceIndex,data,references.words);
         for (const update of referencePreviews) update();
       }).catch(() => {
-        if (referenceToken === referenceGeneration) toast('熟語の参照を読み込めませんでした。カードの編集は続けられます。');
+        if (referenceToken === referenceGeneration) toast('参照を読み込めませんでした。カードの編集は続けられます。');
       });
     }
   }catch(error){updateStatus(`読み込みに失敗しました：${error.message}`);}finally{loading=false;controls.disabled=false;sectionSelect.disabled=false;saveButton.disabled=!hasChanges();menuControls.querySelectorAll('input,button').forEach(el=>{if(el!==saveButton)el.disabled=false;});}

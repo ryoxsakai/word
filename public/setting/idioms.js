@@ -1,6 +1,6 @@
 import {EDITOR_API_BASE} from '../shared/config.js';
 import {editorFetch} from './auth.js';
-import {escapeHtml, renderWordListMarkup, createAutoCrossRefRenderer} from '../shared/markup.js';
+import {escapeHtml, renderWordListMarkup, createAutoCrossRefRenderer, collectPhraseCrossReferences, createPhraseCrossReferenceResolver} from '../shared/markup.js';
 import {groupIdiomEntries, resolveIdiomReferences, orderIdiomLabels} from '../shared/idioms.js';
 import {createIdiomReferenceResolver} from '../shared/idiom-references.js';
 
@@ -28,7 +28,22 @@ function flatSections(){return data.chapters.flatMap((chapter,chapterIndex)=>cha
 function sectionLabels(){let no=0;return flatSections().map(section=>{const visibleCount=data.entries.filter(entry=>entry.sectionKey===section.key&&!entry.hidden).length,totalCount=data.entries.filter(entry=>entry.sectionKey===section.key).length;const number=visibleCount?++no:null;return {...section,number,visibleCount,totalCount,label:`Chapter ${section.chapterIndex+1} / ${number==null?'非表示':`Section ${number}`}　${section.subtitle}`};});}
 function refreshSectionOptions(){const previous=el.section.value,available=sectionLabels().filter(section=>el.showHidden.checked?section.totalCount>0:section.visibleCount>0);el.section.innerHTML='<option value="">すべてのSection</option>'+available.map(section=>`<option value="${escapeHtml(section.key)}">${escapeHtml(section.label)}</option>`).join('');el.section.value=available.some(section=>section.key===previous)?previous:'';}
 function entryNumbers(){const numbers=new Map();let no=0;for(const section of flatSections())for(const entry of orderIdiomLabels(data.entries.filter(item=>item.sectionKey===section.key&&!item.hidden),section.labels))numbers.set(entry.key,String(++no));return numbers;}
-function refreshReferences(){let no=0,branch=0;const index=new Map();for(const word of words){const number=word.branch?`${no}-${++branch}`:String(++no);if(!word.branch)branch=0;if(!index.has(word.spelling.toLowerCase()))index.set(word.spelling.toLowerCase(),{found:true,id:word.id,no:number});}resolve=createIdiomReferenceResolver(groupIdiomEntries(data.entries,data.chapters),name=>index.get(name.toLowerCase())||{found:false});renderNotes=createAutoCrossRefRenderer([...index.keys(),...resolve.phrases],{resolve});}
+function refreshReferences() {
+  let no=0,branch=0;
+  const index=new Map();
+  for(const word of words) {
+    const number=word.branch?`${no}-${++branch}`:String(++no);
+    if(!word.branch)branch=0;
+    if(!index.has(word.spelling.toLowerCase()))index.set(word.spelling.toLowerCase(),{found:true,id:word.id,no:number});
+  }
+  const existing=createIdiomReferenceResolver(groupIdiomEntries(data.entries,data.chapters),name=>index.get(name.toLowerCase())||{found:false});
+  const phraseResolver=createPhraseCrossReferenceResolver(index,collectPhraseCrossReferences(words));
+  resolve=name=>{
+    const hit=existing(name);
+    return hit.found||/^(?:word|idiom):/i.test(name)?hit:phraseResolver(name);
+  };
+  renderNotes=createAutoCrossRefRenderer([...index.keys(),...existing.phrases],{resolve});
+}
 function hydrateSection(sectionKey,entries){const resolved=orderIdiomLabels(resolveIdiomReferences(entries,words),flatSections().find(s=>s.key===sectionKey)?.labels);sectionEntries.set(String(sectionKey),resolved);const byId=new Map(resolved.map(entry=>[entry.key,entry]));data.entries=data.entries.map(entry=>byId.has(entry.key)?{...entry,...byId.get(entry.key)}:entry);}
 async function loadSection(sectionKey,{force=false,rerender=true}={}){const key=String(sectionKey);if(!force&&sectionEntries.has(key))return sectionEntries.get(key);if(!force&&sectionPromises.has(key))return sectionPromises.get(key);const activeList=listId,token=generation;beginIdiomEditorLoading();const promise=(async()=>{try{const result=await api(`/lists/${encodeURIComponent(activeList)}/idioms/sections/${encodeURIComponent(key)}`);if(token!==generation||activeList!==listId)return;hydrateSection(key,result.entries||[]);sectionErrors.delete(key);if(rerender)renderTable();return sectionEntries.get(key);}catch(error){if(token===generation&&activeList===listId){sectionErrors.set(key,error.message);if(rerender)renderTable();}throw error;}finally{endIdiomEditorLoading();}})();sectionPromises.set(key,promise);try{return await promise;}finally{if(sectionPromises.get(key)===promise)sectionPromises.delete(key);}}
 async function loadAllSections(){await Promise.allSettled(flatSections().filter(section=>!el.section.value||section.key===el.section.value).map(section=>loadSection(section.key,{rerender:false})));renderTable();}

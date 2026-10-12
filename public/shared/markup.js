@@ -186,7 +186,10 @@ export function renderWordListMarkup(raw, opts = {}) {
   const { resolve } = opts;
   return parseWordListItems(raw)
     .map(({ markup, target, gloss, index }) => {
-      const result = resolve ? resolve(target) : null;
+      // Protected regions retain their formatting and never become automatic links.
+      const protectedMarkup = /==.+?==|::.+?::/.test(markup) &&
+        !new RegExp(CROSSREF_RE.source).test(markup.replace(NOLINK_RE, "").replace(HIGHLIGHT_RE, ""));
+      const result = !protectedMarkup && resolve ? resolve(target) : null;
       const displayNo = result?.found && result.no != null ? String(result.no) : "";
       const sortKey = /^\d+(?:-\d+)*$/.test(displayNo) ? displayNo.split("-").map(Number) : null;
       let html;
@@ -302,6 +305,23 @@ export function collectPhraseCrossReferences(words) {
   return [...candidateByLower.values()]
     .filter((candidate) => !candidate.ambiguous)
     .map(({ phrase, target }) => ({ phrase, target }));
+}
+
+/**
+ * 一意なフレーズの完全一致を親見出し語へ解決する。
+ * 見出し語・派生語・登録熟語の既存解決が失敗した場合だけ使用する。
+ * 親が現在の索引にない場合はリンクを作らない。
+ */
+export function createPhraseCrossReferenceResolver(headwordIndex, phraseReferences) {
+  const index = new Map();
+  for (const { phrase, target } of phraseReferences || []) {
+    const parent = headwordIndex.get(target.toLowerCase());
+    if (parent) index.set(phrase.toLowerCase(), parent);
+  }
+  return raw => {
+    const hit = index.get(String(raw || "").trim().toLowerCase());
+    return hit ? { found: true, id: hit.id, no: hit.no } : { found: false };
+  };
 }
 
 /**

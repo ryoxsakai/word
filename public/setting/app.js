@@ -4,6 +4,7 @@ import {
   addDerivativeCrossReferenceAliases,
   collectDerivativeCrossReferences,
   collectPhraseCrossReferences,
+  createPhraseCrossReferenceResolver,
   createAutoCrossRefRenderer,
   renderMarkup,
   renderWordListMarkup,
@@ -329,7 +330,11 @@ async function api(path, opts = {}) {
 
 function resolveRef(headword) {
   const hit = state.listWordIndex.get(headword.toLowerCase());
-  if (!hit) return state.idiomResolver ? state.idiomResolver(headword) : { found: false };
+  if (!hit) {
+    const idiom = state.idiomResolver?.(headword);
+    if (idiom?.found || /^(?:word|idiom):/i.test(headword)) return idiom || { found: false };
+    return state.phraseResolver?.(headword) || { found: false };
+  }
   return { found: true, id: hit.id, no: hit.no };
 }
 
@@ -359,11 +364,13 @@ function rebuildAutoCrossRefRenderer() {
       ]));
   const derivativeReferences = collectDerivativeCrossReferences(state.referenceWords);
   state.listWordIndex = addDerivativeCrossReferenceAliases(headwordIndex, derivativeReferences);
+  const phraseReferences = collectPhraseCrossReferences(state.referenceWords);
+  state.phraseResolver = createPhraseCrossReferenceResolver(headwordIndex, phraseReferences);
   state.renderNotesMarkup = createAutoCrossRefRenderer([...headwordIndex.keys(), ...(state.idiomResolver?.phrases || [])], {
     resolve: resolveRef,
     derivativeReferences,
     idiomReferences: state.idiomResolver?.phrases || [],
-    phraseReferences: collectPhraseCrossReferences(state.referenceWords),
+    phraseReferences,
   });
 }
 
