@@ -1604,3 +1604,11 @@ legend .hint {
   .loading-progress::before { animation: none; }
   .loading-progress { transition: none; }
 }
+
+.viewer-regeneration-panel { margin:1rem; padding:1rem; border:1px solid var(--border); border-radius:12px; background:var(--bg-elevated); }
+.viewer-regeneration-panel[hidden] { display:none; }
+.viewer-regeneration-panel h2 { font-size:1.1rem; margin:0 0 .5rem; }
+.viewer-regeneration-panel p { line-height:1.6; }
+.viewer-regeneration-panel label { display:block; margin-bottom:.75rem; }
+.viewer-regeneration-panel select { max-width:100%; }
+.viewer-regeneration-panel button { margin:0 .5rem .5rem 0; }

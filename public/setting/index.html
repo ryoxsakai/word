@@ -25,6 +25,7 @@
       <a class="viewer-link" id="idiomEditorLink" href="./idioms.html">熟語</a>
       <a class="viewer-link" href="./illustrations.html">イラスト</a>
       <a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧 <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      <button type="button" class="viewer-link btn-compact" id="viewerRegenerateOpen">閲覧ページを再生成</button>
       <button type="button" class="btn-compact" id="themeToggleBtn" title="ダーク/ライト切り替え">ダーク</button>
       <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
         <span class="menu-toggle-bar"></span>
@@ -69,6 +70,15 @@
     </div>
   </header>
 
+  <section id="viewerRegeneratePanel" class="viewer-regeneration-panel" aria-label="閲覧ページの再生成" hidden>
+    <h2>閲覧ページを再生成</h2>
+    <p>単語帳の単語・熟語ページを作り直します。語彙内容は変更しません。</p>
+    <label>対象の単語帳 <select id="viewerRegenerateList"></select></label>
+    <button type="button" id="viewerRegenerateStart" disabled>閲覧ページを再生成</button>
+    <button type="button" id="viewerRegenerateClose">閉じる</button>
+    <p id="viewerRegenerateStatus" role="status" aria-live="polite"></p>
+    <a id="viewerRegenerateLink" href="../index.html" target="_blank" rel="noopener" hidden>閲覧画面を開く</a>
+  </section>
   <main class="main">
     <section class="word-table-pane" id="wordTablePane">
       <div class="pane-header">
@@ -509,5 +519,6 @@
 
 <script type="module" src="./app.js"></script>
 <script type="module" src="./table-mode.js"></script>
+<script type="module" src="./viewer-regeneration.js"></script>
 </body>
 </html>

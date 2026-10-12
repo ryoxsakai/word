@@ -1,3 +1,4 @@
+import { handleViewerRegeneration } from "./viewer-regeneration.js";
 import app from "./index.js";
 import { handleCoverageApi } from "./coverage.js";
 import { handleCoverageMcp } from "./coverage-mcp.js";
@@ -8,6 +9,8 @@ export { ViewerSnapshotPublisher } from "./viewer-snapshots.js";
 
 export default {
   async fetch(request, originalEnv, ctx) {
+    const regeneration = await handleViewerRegeneration(request, originalEnv);
+    if (regeneration) return regeneration;
     const admin = await handleSnapshotAdmin(request, originalEnv);
     if (admin) return admin;
     const snapshot = await serveViewerSnapshot(request, originalEnv);
