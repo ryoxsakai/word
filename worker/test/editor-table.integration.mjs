@@ -43,6 +43,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
    else if(path==='/api/lists/book/idioms'){storedIdiom={...body,key:body.id||'idiom-new',meanings:body.meanings.map((s,i)=>({...s,id:s.id||`new-${i}`,refs:s.wordIds.map(wordId=>({wordId}))}))};data={id:storedIdiom.key};}
    else throw new Error(`Unexpected write ${path}`);
   }else if(path==='/api/lists')data=[{id:'wrong-book',name:'Other',isNotebook:true},{id:'book',name:'crossover',isNotebook:true}];
+  else if(path==='/api/lists/book/editor/references')data={words:[{spelling:'alpha',phrases:['alpha phrase','alpha other phrase']}]};
   else if(path==='/api/lists/book/editor/index')data={words:[word,...extraWords]};
   else if(path==='/api/lists/book/sections')data=[{id:1,subtitle:'First'}];
   else if(path==='/api/lists/book/labels')data=[{id:2,sectionId:1,name:'Label'}];
@@ -89,6 +90,14 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
     assert.equal(input.value,'carry out A','display normalization must preserve the editable source');
   }
   assert.equal(calls.filter(c=>c.path==='/api/lists/book/editor/idioms').length,1,'read the JSON reference index only once per notebook');
+  const synonym=get('類義語');edit(synonym,'alpha phrase');
+  const phrasePreview=d.querySelector('.sheet-card [aria-label="類義語の表示"]');
+  assert.equal(phrasePreview.querySelector('a').hash,'#word-alpha');
+  assert.match(phrasePreview.textContent,/alpha phrase.*no\.1/);
+  edit(synonym,'==alpha phrase==, ::alpha phrase::');
+  assert.equal(phrasePreview.querySelector('a'),null);
+  assert.equal(phrasePreview.querySelector('mark').textContent,'alpha phrase');
+
 }
 edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equal(calls.filter(c=>c.method!=='GET').length,0);
  if(!idiom){const phrases=d.querySelector('.sheet-card').querySelectorAll('[aria-label="英文"]');assert.equal(phrases.length,2);edit(phrases[1],'Second edited sentence');edit(get('類義語'),'serve; perform; carry A out');storedWord.etymology='concurrent unrelated update';}

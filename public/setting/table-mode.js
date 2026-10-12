@@ -363,10 +363,13 @@ async function loadBook() {
     if(sectionKey)await loadRows();else updateStatus('編集できるSectionがありません。通常編集でSectionを作成してください。');
     if (listId !== '__master__') {
       // References are optional; never block cards or recreate unsaved drafts.
-      void Promise.all([api(`${path}/editor/idioms`), api(`${path}/editor/references`)]).then(([data, references]) => {
+      void Promise.allSettled([api(`${path}/editor/idioms`), api(`${path}/editor/references`)]).then(([idiomResult, phraseResult]) => {
         if (referenceToken !== referenceGeneration) return;
-        prepareReferences(referenceIndex,data,references.words);
+        const data = idiomResult.status === 'fulfilled' ? idiomResult.value : {entries:[],chapters:[]};
+        const referenceWords = phraseResult.status === 'fulfilled' ? phraseResult.value.words : [];
+        prepareReferences(referenceIndex,data,referenceWords);
         for (const update of referencePreviews) update();
+        if (idiomResult.status === 'rejected' || phraseResult.status === 'rejected') toast('一部の参照を読み込めませんでした。カードの編集は続けられます。');
       }).catch(() => {
         if (referenceToken === referenceGeneration) toast('参照を読み込めませんでした。カードの編集は続けられます。');
       });
