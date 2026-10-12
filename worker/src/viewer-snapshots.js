@@ -1,3 +1,4 @@
+import { requestRegeneration, queueRegeneration, updateRegeneration } from "./viewer-regeneration.js";
 import { markChapters, buildChapter, buildHomePage, chapterKey } from './viewer-snapshot-chapters.js';
 import { buildSnapshotScope, scopeKey, indexKey, wordSection, idiomSection } from './viewer-snapshot-build.js';
 import { verifyMcpAccess, MCP_WRITE_SCOPE } from './mcp-oauth.js';
@@ -18,6 +19,15 @@ export class ViewerSnapshotPublisher {
   constructor(ctx, env) { this.ctx = ctx; this.env = env; this.publishing = false; }
   async fetch(request) {
     const path = new URL(request.url).pathname;
+    if (path === '/regeneration-status') {
+      const job=await this.ctx.storage.get('regeneration') || null;
+      let scheduledAt=await this.ctx.storage.getAlarm();
+      if(job && ['queued','running'].includes(job.state) && !this.publishing && (!scheduledAt || scheduledAt<Date.now()-60000)) {
+        scheduledAt=Date.now()+1000;await this.ctx.storage.setAlarm(scheduledAt);
+      }
+      return json({job,scheduledAt});
+    }
+    if (path === '/regenerate') return this.ctx.blockConcurrencyWhile(async()=>requestRegeneration(this.ctx,this.env,await request.json()));
     if (path === '/status') return json({...await this.ctx.storage.get('status') || {state:'uninitialized'},scheduledAt:await this.ctx.storage.getAlarm()});
     if (path === '/editor-status') {
       const [leases, stage, alarm, status] = await Promise.all([
@@ -69,6 +79,11 @@ export class ViewerSnapshotPublisher {
       if (Object.values(leases).some(expiry => expiry > Date.now())) {
         await this.ctx.storage.setAlarm(Date.now() + 2000); return;
       }
+      const regeneration=await this.ctx.storage.get('regeneration');
+      if(regeneration && regeneration.state!=='completed') {
+        if(regeneration.phase==='enqueue') await queueRegeneration(this.ctx,this.env,regeneration);
+        else await updateRegeneration(this.ctx,{state:'running'});
+      }
       const bucket = this.env.VIEWER_SNAPSHOTS;
       let stage = await this.ctx.storage.get('stage');
       let current;
@@ -84,6 +99,7 @@ export class ViewerSnapshotPublisher {
         if (current) {
           await this.ctx.storage.put('status', {state:'ready',revision:stage.revision,generatedAt:stage.generatedAt,files:Object.keys(stage.files).length});
           await this.ctx.storage.delete('failures');
+          if(regeneration?.phase==='chapters') await updateRegeneration(this.ctx,{state:'completed',phase:'completed',revision:stage.revision,completedAt:stage.generatedAt,remainingChapters:0,error:null});
         }
         return;
       }
@@ -103,12 +119,14 @@ export class ViewerSnapshotPublisher {
         await this.env.DB.prepare('DELETE FROM viewer_snapshot_dirty WHERE list_id=? AND kind=? AND section_key=? AND revision=?')
           .bind(job.list_id,job.kind,job.section_key,job.revision).run();
       }
+      if(regeneration && jobs.some(job=>job.list_id===regeneration.listId)) await updateRegeneration(this.ctx,{processed:(regeneration.processed||0)+1,phase:'sections'});
       const more = await this.env.DB.prepare('SELECT 1 FROM viewer_snapshot_dirty LIMIT 1').first();
       if (more) {
         await this.ctx.storage.put('status', { state:'building', files:Object.keys(stage.files).length, updatedAt:new Date().toISOString() });
         await this.ctx.storage.setAlarm(Date.now() + 1000); return;
       }
       for(const [key,c]of Object.entries(stage.chapters||{}))if(c.kind==='viewer'&&!c.search){stage.pendingChapters ||= {};stage.pendingChapters[key]={list:c.list,kind:c.kind,chapter:c.chapter};}
+      await updateRegeneration(this.ctx,{phase:'chapters',remainingChapters:Object.keys(stage.pendingChapters||{}).length});
       const chapterJobs = Object.entries(stage.pendingChapters || {}).slice(0, 1);
       for (const [key, job] of chapterJobs) {
         const built = await buildChapter(this.env, stage, job);
@@ -148,11 +166,13 @@ export class ViewerSnapshotPublisher {
         await this.ctx.storage.delete('editorUpgrades');
         await this.ctx.storage.put('status', {state:'ready',revision:stage.revision,generatedAt:stage.generatedAt,files:Object.keys(stage.files).length});
         await this.ctx.storage.delete('failures');
+        await updateRegeneration(this.ctx,{state:'completed',phase:'completed',revision:stage.revision,completedAt:stage.generatedAt,remainingChapters:0,error:null});
       });
     } catch (error) {
       const failures = (await this.ctx.storage.get('failures') || 0) + 1;
       await this.ctx.storage.put('failures', failures);
       await this.ctx.storage.put('status', {state:'failed',error:String(error.message || error).slice(0,500),failures});
+      await updateRegeneration(this.ctx,{state:'failed',error:'公開処理に失敗しました。再試行で続きから再開できます。'});
       console.error('Viewer snapshot publication failed', error);
       // We catch errors to preserve the last complete revision, so schedule
       // the next alarm ourselves. Back off to at most fifteen minutes to keep

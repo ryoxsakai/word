@@ -21,3 +21,11 @@ Direct SQL writes are journaled but cannot wake a Worker. After direct SQL maint
 To roll back serving, set `VIEWER_STATIC_ENABLED=false`; the root passes through to Pages and API reads use the prior handler. Keep bindings and journal so edits are not lost. On template/renderer-only releases, explicitly enqueue the affected chapter/section scopes and wake publishing; deploying code alone does not regenerate existing content. Content-addressed objects currently remain in R2 for recovery; serving exposes only the current manifest.
 
 Tests: `npm --prefix worker run test:snapshots` and `node .github/tests/static-chapters.integration.mjs`.
+
+## Regenerate existing pages after renderer changes
+
+In `/setting/`, open **閲覧ページを再生成**, select a notebook (Crossover by default), then press **閲覧ページを再生成**. The operation requires the same existing `vocab:read vocab:write` OAuth administrator login as editing. No new credentials or scopes are used. It queues all word and idiom Sections, indexes and the unsectioned word scope for that notebook, without modifying vocabulary. Section jobs force dependent chapter HTML rebuilding even when source JSON hashes have not changed. The home shell is refreshed when the complete manifest is switched.
+
+Only one regeneration job runs at a time. Repeated starts attach to that job; another notebook receives a conflict. Jobs and enqueue intent are durable. A failed job can resume with **再試行**, and reopening the panel restores progress. Status reads recover a missing/stale alarm after an interrupted start. Existing publication handles one scope per alarm and two Sections per chapter fragment, preserving the previous complete publication on failure.
+
+After completion, use **閲覧画面を開く**, then the viewer gear menu's **最新版を読み込む**. This last action refreshes device caches; it does not regenerate HTML. Authenticated GET/POST `/mcp-editor/api/viewer-regeneration` exposes status/start; POST accepts `{listId, requestId}`. Do not use dummy vocabulary edits to trigger publication.

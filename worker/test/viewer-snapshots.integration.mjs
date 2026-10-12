@@ -37,7 +37,7 @@ export default { async fetch(request,env,ctx) {
  }
  if(url.pathname==='/__publisher_recovery_test') {
    let alarm=null;
-   const state=new Map([['status',{state:'failed',error:'old transient failure',failures:6}]]);
+   const state=new Map([['status',{state:'failed',error:'old transient failure',failures:6}],['regeneration',{state:'failed',phase:'chapters',listId:'book'}]]);
    const storage={
      get:async key=>state.get(key), put:async(key,value)=>state.set(key,value), delete:async key=>state.delete(key),
      getAlarm:async()=>alarm, setAlarm:async value=>{alarm=value;},
@@ -51,7 +51,7 @@ export default { async fetch(request,env,ctx) {
    alarm=null; // Cloudflare clears the scheduled alarm as its handler starts.
    await publisher.alarm();
    const recovered=await(await publisher.fetch(new Request('https://publisher/editor-status'))).json();
-   return Response.json({failed,scheduled,recovered,status:state.get('status'),failures:state.get('failures')});
+   return Response.json({failed,scheduled,recovered,status:state.get('status'),failures:state.get('failures'),regeneration:state.get('regeneration')});
  }
  if(url.pathname==='/__publisher_stale_alarm_test') {
    let alarm=Date.now()-120000;
@@ -142,6 +142,8 @@ try {
  assert.equal(recovery.recovered.pending,false,'a committed manifest must clear a stale failed status');
  assert.equal(recovery.status.state,'ready');
  assert.equal(recovery.failures,undefined);
+ assert.equal(recovery.regeneration.state,'completed','a crash after manifest commit recovers job completion');
+ assert.equal(recovery.regeneration.revision,'published-revision');
  const staleAlarm=await(await api('/__publisher_stale_alarm_test')).json();
  assert.equal(staleAlarm.result.pending,true,'an incomplete staged publication remains a freshness barrier');
  assert.ok(staleAlarm.alarm>Date.now(),'a persisted alarm timestamp in the past must be replaced');
@@ -264,6 +266,50 @@ try {
  await admin('POST');status=await waitPublished(status.revision);
  assert.equal((await(await staticGet('/lists/snapshot-test/viewer/sections/99901')).json()).words.length,0);
  assert.equal((await(await staticGet('/lists/snapshot-test/viewer/sections/99902')).json()).words.length,2);
+ // Regeneration uses existing administrator OAuth, leaves vocabulary untouched,
+ // and replaces stale prebuilt HTML even when Section JSON is unchanged.
+ const regenPath='/mcp-editor/api/viewer-regeneration';
+ const regen=(method='GET',body,token=editorToken)=>api(regenPath,{method,headers:{Authorization:'Bearer '+token,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+ assert.equal((await api(regenPath)).status,401);
+ const corsProbe=await api(regenPath,{headers:{Authorization:'Bearer '+editorToken,origin:'https://untrusted.example'}});assert.equal(corsProbe.headers.get('access-control-allow-origin'),null);assert.equal(corsProbe.headers.get('cache-control'),'no-store');
+ assert.equal((await regen('POST',null)).status,400);
+ assert.equal((await regen('POST',{listId:'missing',requestId:crypto.randomUUID()})).status,404);
+ assert.equal((await api(regenPath,{method:'POST',body:'{}'})).status,401);
+ const readParts=[tokenParts[0],Buffer.from(JSON.stringify({iss:'https://test',aud:'vocab-mcp',client_id:'reader',scope:'vocab:read',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')];
+ const readToken=readParts.join('.')+'.'+createHmac('sha256','editor-test-secret').update(readParts.join('.')).digest('base64url');
+ assert.equal((await regen('GET',null,readToken)).status,403);
+ assert.equal((await regen('POST',{listId:'snapshot-test',requestId:crypto.randomUUID()},readToken)).status,403);
+ const contentTables=['words','senses','examples','derivatives','idioms','idiom_senses','list_items'];
+ const readContent=async()=>Object.fromEntries(await Promise.all(contentTables.map(async table=>[table,(await db.prepare(`SELECT * FROM ${table}`).all()).results])));
+ const contentBefore=await readContent();
+ manifest=await(await bucket.get('current.json')).json();
+ const staleKey=scope('snapshot-test','viewer-chapter','99902');
+ manifest.chapters[staleKey]={...manifest.chapters[staleKey],hash:'old-renderer',key:'old-renderer.html'};
+ await bucket.put('old-renderer.html','old renderer');await bucket.put('current.json',JSON.stringify(manifest));
+ failWrites=true;
+ const regenBody={listId:'snapshot-test',requestId:crypto.randomUUID()};
+ const firstJob=await(await regen('POST',regenBody)).json();
+ assert.equal(firstJob.job.state,'running');
+ const duplicate=await(await regen('POST',{...regenBody,requestId:crypto.randomUUID()})).json();
+ assert.equal(duplicate.job.id,firstJob.job.id,'different double-click requests attach to the active job');
+ assert.equal((await regen('POST',{listId:'other',requestId:crypto.randomUUID()})).status,409);
+ const queued=(await db.prepare("SELECT kind,section_key FROM viewer_snapshot_dirty WHERE list_id='snapshot-test'").all()).results;
+ assert.ok(queued.some(j=>j.kind==='word-section'&&j.section_key==='none'));
+ assert.ok(queued.some(j=>j.kind==='word-section'&&j.section_key==='99903'),'empty sections are queued');
+ assert.ok(queued.some(j=>j.kind==='idiom-section'&&j.section_key==='one'));
+ for(let n=0;n<100;n++){if((await(await regen()).json()).job.state==='failed')break;await new Promise(r=>setTimeout(r,100));}
+ assert.equal((await(await regen()).json()).job.state,'failed');
+ assert.equal((await(await bucket.get('current.json')).json()).revision,manifest.revision,'failed regeneration keeps the old complete manifest');
+ failWrites=false;
+ const resumed=await(await regen('POST',regenBody)).json();assert.equal(resumed.job.id,firstJob.job.id);
+ status=await waitPublished(status.revision,true);
+ const finished=(await(await regen()).json()).job;assert.equal(finished.state,'completed');assert.equal(finished.revision,status.revision);
+ const afterManifest=await(await bucket.get('current.json')).json();
+ assert.notEqual(afterManifest.chapters[staleKey].key,'old-renderer.html');
+ assert.match(await(await bucket.get(afterManifest.chapters[staleKey].key)).text(),/word-snap-a/);
+ assert.deepEqual(await readContent(),contentBefore,'regeneration never changes vocabulary');
+ const replay=(await(await regen('POST',regenBody)).json()).job;assert.equal(replay.id,finished.id);assert.equal(replay.state,'completed','lost-response replay cannot start a new regeneration');
+ console.log('Regeneration: authenticated admin, duplicate start, all scopes, failed publish, resume, stale HTML and unchanged vocabulary passed');
  // Deletion cannot leave an accessible old snapshot.
  await db.exec("DELETE FROM list_items WHERE list_id='snapshot-test'; DELETE FROM idiom_sections WHERE list_id='snapshot-test'; DELETE FROM section_labels WHERE list_id='snapshot-test'; DELETE FROM sections WHERE list_id='snapshot-test'; DELETE FROM chapters WHERE list_id='snapshot-test'; DELETE FROM lists WHERE id='snapshot-test';");
  await admin('POST'); await waitPublished(status.revision);

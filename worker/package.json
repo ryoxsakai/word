@@ -23,7 +23,8 @@
     "test:idiom-theme": "node test/idiom-theme.integration.mjs",
     "test:editor-table": "node test/editor-table.integration.mjs",
     "test:oauth": "node test/oauth-browser-session.integration.mjs && node test/editor-auth.test.mjs && node test/oauth-refresh.integration.mjs",
-    "test:oauth-browser": "node test/oauth-browser-https.mjs"
+    "test:oauth-browser": "node test/oauth-browser-https.mjs",
+    "test:regeneration": "node test/viewer-regeneration.test.mjs && node test/viewer-regeneration-ui.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^26.1.0",
