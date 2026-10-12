@@ -75,3 +75,12 @@ assert.ok(mixed.indexOf('word-say')<mixed.indexOf('word-talk'));
 assert.doesNotMatch(mixed,/補助語義/);
 assert.match(mixed,/<mark>強調<\/mark>/);
 console.log('Table/idiom previews and mixed explicit-reference markup passed');
+
+const {chapterContext}=await import('../../public/viewer/static-chapter.js');
+const staticContext=chapterContext({words},null,words);
+assert.equal(staticContext.resolveRef('talk about').id,'talk');
+assert.ok(staticContext.dependencies.has('talk'),'static chapter records the parent dependency');
+assert.equal(staticContext.resolveRef('shared phrase').found,false);
+const staticCard=renderWordEntry({id:'discuss',spelling:'discuss',senses:[],synonyms:'talk about'},staticContext);
+assert.match(staticCard,/word-talk.*talk about.*no\.123-2/);
+console.log('Prebuilt chapter phrase links and parent dependencies passed');
