@@ -1465,11 +1465,10 @@ body.is-printing-book > .loading-msg { display: none !important; }
 .entry-card > .example-list,
 .entry-notes:not(:empty) { margin-top: 0.55rem; }
 .entry-notes {
-  clear: both;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
+  display: block;
 }
+.entry-notes > .notes-block + .notes-block { margin-top: 0.3rem; }
+.entry:not(.idiom-entry) .entry-notes:not(:empty) { margin-top: 0.3rem; }
 .entry-notes:empty { display: none; }
 /* Reserve image space while text is painted and the illustration is fetched. */
 .entry-illustration { position: relative; aspect-ratio: 1; }
@@ -1632,6 +1631,13 @@ body.is-printing-book > .loading-msg { display: none !important; }
 @media (max-width: 600px) {
   .example-list { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Each row avoids the float independently, then regains the full width below
+   it. A grid around the entire list would reserve the narrow width for every
+   phrase, and clearing the notes would leave a hole beside short examples. */
+.entry:not(.idiom-entry) .has-illustration .example-list { display: block; }
+.entry:not(.idiom-entry) .has-illustration .example-line { display: flow-root; }
+.entry:not(.idiom-entry) .has-illustration .example-line + .example-line { margin-top: 0.2rem; }
 
 .derivative-items { display: inline; }
 /* white-space:nowrapで1項目を1行にまとめていたが、項目自体が画面幅を超える場合に
@@ -2351,7 +2357,7 @@ body.is-printing-book[data-print-part="all-paged"][data-print-page-size="a5"] .p
     clear: none;
     display: block;
   }
-  .entry-notes > * + * { margin-top: 0.55rem; }
+  .entry-notes > * + * { margin-top: 0.3rem; }
   /* ページ内の通常間隔は保ち、継続ページの先頭に来たブロックだけ余白を取り除く。 */
   .entry.print-entry-fragment-continuation .print-fragment-first-block { margin-top: 0 !important; }
   .entry-head,
