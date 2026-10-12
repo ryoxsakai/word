@@ -36,7 +36,7 @@ async function run(idiom, referenceFailure=false, catalogTimeout=false){
   if(path==='/api/lists' && url.searchParams.get('editorFresh')==='1' && (failConfirmation || JSON.stringify(idiom?storedIdiom:storedWord)!==JSON.stringify(idiom?publishedIdiom:publishedWord))) return new Response(JSON.stringify({code:'editor_snapshot_pending',error:'publication pending'}),{status:503});
   if(path==='/api/lists'){await catalogReady;if(catalogTimeout&&calls.filter(c=>c.path===path).length===1)await new Promise(()=>{});}
   if(!idiom&&path==='/api/lists/book/editor/idioms'){await referencesReady;if(referenceFailure)return new Response(JSON.stringify({error:'reference unavailable'}),{status:503});}
-  if(idiom&&referenceFailure&&path==='/api/lists/book/editor/idioms'&&calls.filter(c=>c.path===path).length>1)return new Response(JSON.stringify({error:'optional refresh unavailable'}),{status:503});
+  if(idiom&&referenceFailure&&path==='/api/lists/book/editor/idioms'&&calls.filter(c=>c.path===path).length===2)return new Response(JSON.stringify({error:'optional refresh unavailable'}),{status:503});
   if(opts.method){
    if(fail)return new Response(JSON.stringify({error:'injected failure'}),{status:503});
    const body=JSON.parse(opts.body);
