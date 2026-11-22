@@ -92,7 +92,7 @@ onPublication(status => {
   if (status.state === "publishing") {
     el.publishStatus.hidden = false;
     el.publishStatus.className = "edit-publish-status is-publishing";
-    el.publishStatus.textContent = "閲覧ページへ反映中…";
+    el.publishStatus.textContent = "保存済み · 閲覧ページへ反映中…";
   } else if (status.state === "published") {
     el.publishStatus.hidden = true;
     toast("閲覧ページに反映しました");
