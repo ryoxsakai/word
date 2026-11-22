@@ -247,6 +247,7 @@ try {
     await submitSearch('look');
     unblockIdioms();
     await result('look up').waitFor({ timeout: 2000 });
+    await received(searches, 'look');
     await searchPage.keyboard.press('Escape');
     await submitSearch('create');
     await release('create', ['w2']);
