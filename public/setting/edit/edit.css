@@ -200,6 +200,14 @@
   position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.85rem 0 0.6rem; background: var(--edit-surface);
 }
+.edit-title-mark { display: inline; margin-inline-end: .5em; font-size: .8em; vertical-align: .07em; }
+.edit-title-mark[data-accent="default"] { color: var(--edit-accent); }
+.edit-title-mark[data-accent="senses"] { color: var(--pos-border); }
+.edit-title-mark[data-accent="examples"] { color: #ad640d; }
+:root[data-theme="dark"] .edit-title-mark[data-accent="examples"] { color: #efb55f; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .edit-title-mark[data-accent="examples"] { color: #efb55f; }
+}
 .edit-sheet-header h2 { margin: 0; font-size: 1rem; }
 .edit-sheet-close { width: var(--edit-tap); height: var(--edit-tap); margin-right: -.5rem; border: 0; border-radius: 50%; background: transparent; color: var(--edit-muted); font-size: 1.1rem; cursor: pointer; }
 /* ダイアログの下端：左に補助操作、右に「キャンセル」「決定（主要）」 */

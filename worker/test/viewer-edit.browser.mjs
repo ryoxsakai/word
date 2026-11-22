@@ -18,7 +18,7 @@ function fixture() {
     senses: [{ pos: '動', meaning: `${spelling}の意味`, pronunciation: null, is_primary: true }], derivatives: [], examples: [], tags: {}, derivedFrom: null, ...extra,
   });
   const words = new Map([
-    ['w1', word('w1', 'take', { pronunciation: 'teɪk', examples: [{ type: 'example', sentence: 'take a bus', translation: 'バスに乗る', answer: '' }] })],
+    ['w1', word('w1', 'take', { pronunciation: 'teɪk', examples: [{ type: 'example', sentence: 'take a bus', translation: 'バスに乗る', answer: 'take' }] })],
     ['w2', word('w2', 'make', { synonyms: 'create' })],
     ['w3', word('w3', 'give')],
     ['w4', word('w4', 'study', { illustration: { url: '/mcp-viewer/api/illustrations/w4/0a1b2c3d-0000-4000-8000-000000000001.png', meaning: '勉強' } })],
@@ -420,14 +420,17 @@ try {
   await waitWrites(4);
   assert.equal(db.words.get('w1').senses[0].pos, '他');
 
-  // ＋でフレーズを追加する（例文の新規追加はない）。
+  // 非表示になった旧解答は、ほかのフレーズを編集しても失われない。
   await dbl(entry('w1').locator('.example-phrase').first());
+  assert.equal(await page.locator('[role=dialog] [data-field=answer]').count(), 0);
+  assert.equal(await page.locator('.edit-title-mark[data-accent=examples]').textContent(), '●');
   await page.locator('[data-add]').click();
   await page.locator('[data-field=sentence]').last().fill('take a break');
   await apply();
   await save('w1');
   await waitWrites(5);
   assert.deepEqual(db.words.get('w1').examples.map(e => [e.type, e.sentence]), [['phrase', 'take a bus'], ['phrase', 'take a break']]);
+  assert.equal(db.words.get('w1').examples[0].answer, 'take');
   // −で削除する。
   await dbl(entry('w1').locator('.example-phrase').first());
   await page.locator('[data-delete]').last().click();
@@ -564,15 +567,23 @@ try {
   const w2 = entry('w2');
   await dbl(w2.locator('.entry-no'));
   await w2.locator('[data-op="fields"]').click();
-  await page.locator('.edit-tile', { hasText: '派生語' }).click();
-  await page.locator('.edit-inline-input').fill('maker');
-  await page.locator('.edit-inline-input').press('Enter');
-  const meaningInput = page.locator('.edit-inline-input');
-  await meaningInput.waitFor();
+  await page.getByRole('button', { name: '派生語を編集' }).click();
+  const derivatives = page.getByRole('dialog', { name: 'makeの派生語' });
+  const rows = derivatives.locator('.collection-row');
+  await rows.first().locator('[data-field=word]').fill('maker');
+  await rows.first().locator('[data-field=pos]').selectOption('名');
+  await rows.first().locator('[data-field=meaning]').fill('作る人');
+  await derivatives.locator('[data-add]').click();
+  await rows.last().locator('[data-field=word]').fill('making');
+  await rows.last().locator('[data-move="-1"]').click();
+  assert.equal(await rows.first().locator('[data-field=word]').inputValue(), 'making');
+  await derivatives.locator('[data-apply]').click();
   assert.equal(db.writes.length, 19);
-  assert.equal(await meaningInput.count(), 1, '意味を続けて入力できる');
-  await meaningInput.fill('作る人');
-  await meaningInput.press('Enter');
+  await dbl(w2.locator('.derivative-meaning').filter({ hasText: '作る人' }));
+  const badgeColor = await w2.locator('.derivative-badge').evaluate(el => getComputedStyle(el).color);
+  assert.equal(await derivatives.locator('.edit-title-mark').evaluate(el => getComputedStyle(el).color), badgeColor);
+  await rows.first().locator('[data-delete]').click();
+  await derivatives.locator('[data-apply]').click();
   await save('w2');
   // 進み具合は利用者の言葉と「n/全体」で示し、完了は満たしたバーで知らせる。
   const progress = w2.locator('.edit-progress', { hasText: '保存しています' });

@@ -522,7 +522,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const values = senses ? senseGroups(original).flat() : original;
     row.editingCollection = true;
     editWordCollection({
-      word: row.draft.spelling, senses, values, positions: POS_OPTIONS, field,
+      word: row.draft.spelling, kind: key, values, positions: POS_OPTIONS, field,
       index: Math.max(0, values.indexOf(original[index])),
       onApply: next => { if (!same(next, values)) mutate(row, draft => { draft[key] = next; }); },
       onClose: () => { row.editingCollection = false; },
@@ -548,9 +548,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     // 見出し行の操作は、アイコンだけにせず短い文字を添える（DESIGN.md）。
     insert(head, `<span class="edit-head-tools"><button type="button" class="edit-chip" data-op="badges"><i class="fa-solid fa-tags" aria-hidden="true"></i>バッジ</button><button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip" data-op="menu" aria-label="その他の操作"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i>その他</button></span>`);
     const card = article.querySelector(".entry-card");
-    for (const sense of article.querySelectorAll(".derivative-sense[data-derivative-index]")) insert(sense, btn("remove-derivative", "この派生語を削除", `data-index="${sense.dataset.derivativeIndex}"`, "edit-minus"));
-    const derivatives = article.querySelector(".notes-derivative .notes-content");
-    if (derivatives) insert(derivatives, `<button type="button" class="edit-add-inline" data-op="add-derivative"><i class="fa-solid fa-plus" aria-hidden="true"></i>派生語</button>`);
     for (const block of article.querySelectorAll(".notes-block[data-field]:not(.notes-derivative)")) insert(block, btn("remove-field", "この欄を削除", `data-field="${block.dataset.field}"`, "edit-minus"));
     const picture = card.querySelector(":scope > .entry-illustration");
     if (picture) {
@@ -618,69 +615,23 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     return !same(before, row.draft);
   }
 
-  function getPath(draft, path) {
-    if (path === "derivativeWord") return "";
-    return path.split(".").reduce((value, key) => value?.[key], draft) ?? "";
-  }
-  function setPath(draft, path, value, el) {
-    if (path === "derivativeWord") {
-      for (const index of el.dataset.derivativeIndexes.split(",").map(Number)) draft.derivatives[index].word = value;
-      return;
-    }
-    const keys = path.split(".");
-    const last = keys.pop();
-    keys.reduce((obj, key) => obj[key], draft)[last] = value;
-  }
-  const isNewItemPath = (row, path) => {
-    const [list, index, field] = path.split(".");
-    if (!["senses", "examples", "derivatives"].includes(list)) return false;
-    const item = row.draft[list][Number(index)];
-    return item && (row.pendingItem === `${list}.${index}`) && ((list === "senses" && field === "meaning") || (list === "examples" && field === "sentence") || (list === "derivatives" && field === "word"));
-  };
-
-  function editField(row, el, options = {}) {
+  function editField(row, el) {
     if (!beforeEdit(row)) return;
-    return editFieldNow(row, el, options);
-  }
-  function editFieldNow(row, el, { onDone } = {}) {
     const path = el.dataset.edit;
     const [key, index, field] = path.split(".");
-    if (key === "senses" || key === "examples") return openCollection(row, key, Number(index), field);
-    let value = path === "derivativeWord"
-      ? row.draft.derivatives[Number(el.dataset.derivativeIndexes.split(",")[0])].word
-      : getPath(row.draft, path);
-    const fieldName = path.split(".").at(-1);
-    const multiline = MULTILINE.has(fieldName) || fieldName === "translation" || fieldName === "sentence" || fieldName === "meaning";
-    const multilineEnter = MULTILINE.has(fieldName);
+    if (["senses", "examples", "derivatives"].includes(key)) return openCollection(row, key, Number(index), field);
+    const value = row.draft[path];
+    const multiline = MULTILINE.has(path);
     const placeholder = el.classList.contains("edit-empty") ? el.textContent : "";
     inlineEditor(el, String(value ?? ""), {
-      multiline: multilineEnter,
+      multiline,
       placeholder,
       onCommit: next => {
         const trimmed = multiline ? next.replace(/\s+$/, "") : next.trim();
-        const newItem = isNewItemPath(row, path);
-        row.pendingItem = null;
-        if (newItem && !trimmed.trim()) {
-          // 追加したばかりの行を空のまま確定したら、その行は作らない。
-          const [list, index] = path.split(".");
-          row.draft[list].splice(Number(index), 1);
-          if (row.pendingUndoBase) { row.draft = row.pendingUndoBase; }
-          row.pendingUndoBase = null;
-          rerenderEntry(row.id);
-          return;
-        }
         if (path === "spelling" && !trimmed) { toast("見出し語は空にできません", { tone: "error" }); rerenderEntry(row.id); return; }
-        row.pendingUndoBase = null;
-        mutate(row, draft => setPath(draft, path, trimmed, el));
-        if (newItem && path.startsWith("derivatives.") && path.endsWith(".word")) openEditor(row.id, path.replace(/\.word$/, ".meaning"));
-        onDone?.();
+        mutate(row, draft => { draft[path] = trimmed; });
       },
       onCancel: () => {
-        if (isNewItemPath(row, path)) {
-          row.draft = row.pendingUndoBase || row.draft;
-          row.pendingUndoBase = null;
-          row.pendingItem = null;
-        }
         if (row.isNew && !row.draft.spelling && path === "spelling") return discardNewWord(row);
         rerenderEntry(row.id);
       },
@@ -693,16 +644,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (el && row) editField(row, el);
     });
   }
-  function addItem(row, list, item, at, editPath) {
-    const before = clone(row.draft);
-    const index = at ?? row.draft[list].length;
-    row.draft[list].splice(index, 0, item);
-    row.pendingItem = `${list}.${index}`;
-    row.pendingUndoBase = before;
-    rerenderEntry(row.id);
-    openEditor(row.id, `${list}.${index}.${editPath}`);
-  }
-
   // ---- 編集の起点をDBの最新にする ----
   // 表示は閲覧ページの公開データ（や端末キャッシュ）なので、公開が遅れているとDBより古い。
   // 古い内容を起点に編集すると、保存時に「別の編集で変更されています」と誤って止まる。
@@ -733,7 +674,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   function resetWord(row) {
     if (row.isNew) return discardNewWord(row);
     row.draft = clone(row.base);
-    row.pendingItem = row.pendingUndoBase = null;
     row.showFields.clear();
     row.error = "";
     row.conflict = false;
@@ -1164,15 +1104,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       draw();
     });
   }
-  function openPosSheet(title, current, onPick) {
-    sheet(title, body => {
-      tiles(body, "", [...POS_OPTIONS, ...(current && !POS_OPTIONS.includes(current) ? [current] : []), ""].map(pos => ({
-        html: pos ? `<span class="pos-badge">${h(pos)}</span>` : "なし",
-        active: (current ?? null) === pos,
-        onSelect: () => { closeSheet(); onPick(pos); },
-      })), { columns: 5 });
-    });
-  }
   function openFieldSheet(row) {
     if (!beforeEdit(row)) return;
     sheet("欄", body => {
@@ -1180,10 +1111,11 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         body.replaceChildren();
         menuList(body, [
           { label: "意味を編集", icon: "fa-list", onSelect: () => openCollection(row, "senses") },
+          { label: "派生語を編集", icon: "fa-code-branch", onSelect: () => openCollection(row, "derivatives") },
           { label: "フレーズを編集", icon: "fa-quote-left", onSelect: () => openCollection(row, "examples") },
         ]);
-        tiles(body, "付けると空の欄が追加されます。外すとその欄の内容を削除します。", NOTE_FIELDS.map(([field, label, type]) => {
-          const active = field === "derivatives" ? row.draft.derivatives.length > 0 || row.showFields.has(field) : !!row.draft[field] || row.showFields.has(field);
+        tiles(body, "付けると空の欄が追加されます。外すとその欄の内容を削除します。", NOTE_FIELDS.filter(([field]) => field !== "derivatives").map(([field, label, type]) => {
+          const active = !!row.draft[field] || row.showFields.has(field);
           return {
             html: `<span class="notes-label ${type}-badge"><span class="notes-label-text">${h(label)}</span></span>`, active,
             onSelect: () => {
@@ -1191,8 +1123,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
               else {
                 closeSheet();
                 row.showFields.add(field);
-                if (field === "derivatives") addItem(row, "derivatives", { word: "", pos: "", meaning: "" }, undefined, "word");
-                else { rerenderEntry(row.id); openEditor(row.id, field); }
+                rerenderEntry(row.id); openEditor(row.id, field);
               }
             },
           };
@@ -1203,7 +1134,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
   function removeField(row, field) {
     row.showFields.delete(field);
-    mutate(row, d => { if (field === "derivatives") d.derivatives = []; else d[field] = ""; });
+    mutate(row, d => { d[field] = ""; });
   }
   async function openDetail(row) {
     // スナップショットにない項目（英検・カスタムタグなど）を含む最新の内容で開く。
@@ -1512,12 +1443,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const derivativePos = event.target.closest("[data-edit-derivative-pos]");
       if (derivativePos) {
         const index = Number(derivativePos.dataset.editDerivativePos);
-        return openPosSheet("派生語の品詞", row.draft.derivatives[index]?.pos || "", value => mutate(row, d => { d.derivatives[index].pos = value; }));
+        return openCollection(row, "derivatives", index, "pos");
       }
       if (pos && (event.target.closest(".pos-badge"))) {
         return openCollection(row, "senses", row.draft.senses.findIndex(s => s.pos === pos.dataset.editPos), "pos");
       }
       if (event.target.closest(".caution-badge, .learning-badge")) return openBadgeSheet(row);
+      if (event.target.closest('[data-edit-field-badge="derivatives"]')) return openCollection(row, "derivatives");
       if (event.target.closest("[data-edit-field-badge]")) return openFieldSheet(row);
       return;
     }
@@ -1541,6 +1473,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (article) {
       const row = S.rows.get(article.dataset.wordId);
       if (!row || row.saving || S.multi || target.closest("button, input, textarea")) return;
+      const derivative = target.closest(".derivative-item");
+      if (derivative) {
+        const sense = target.closest("[data-derivative-index]");
+        const index = Number(sense?.dataset.derivativeIndex ?? derivative.querySelector("[data-derivative-index]")?.dataset.derivativeIndex ?? 0);
+        if (S.selectedId !== row.id) select(row.id);
+        return openCollection(row, "derivatives", index, sense ? (target.closest(".derivative-pos") ? "pos" : "meaning") : "word");
+      }
       const line = target.closest("[data-example-index], [data-sense-index], .sense-line[data-edit-pos]");
       if (line) {
         const phrase = line.hasAttribute("data-example-index");
@@ -1553,10 +1492,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const field = target.closest("[data-edit]");
       if (!field || !article.contains(field)) return select(row.id);
       const path = field.dataset.edit;
-      const indexes = field.dataset.derivativeIndexes;
       if (S.selectedId !== row.id) {
         select(row.id);
-        const selector = indexes ? `[data-edit="derivativeWord"][data-derivative-indexes="${indexes}"]` : `[data-edit="${CSS.escape(path)}"]`;
+        const selector = `[data-edit="${CSS.escape(path)}"]`;
         const next = entryEl(row.id)?.querySelector(selector);
         if (next) editField(row, next);
         return;
@@ -1586,14 +1524,12 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (event.target.closest('[data-op="save-word"], [data-op="reset-word"]')) event.preventDefault();
   });
 
-  const DRAFT_OPS = new Set(["add-derivative", "remove-derivative", "remove-field"]);
+  const DRAFT_OPS = new Set(["remove-field"]);
   function handleOp(el, row) {
     const op = el.dataset.op;
     if (row && DRAFT_OPS.has(op) && !beforeEdit(row)) return;
     const id = el.dataset.id != null ? Number(el.dataset.id) : null;
     switch (op) {
-      case "add-derivative": return addItem(row, "derivatives", { word: "", pos: "", meaning: "" }, undefined, "word");
-      case "remove-derivative": return mutate(row, d => { d.derivatives.splice(Number(el.dataset.index), 1); });
       case "remove-field": return removeField(row, el.dataset.field);
       case "badges": return openBadgeSheet(row);
       case "fields": return openFieldSheet(row);
