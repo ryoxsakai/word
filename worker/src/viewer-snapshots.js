@@ -166,7 +166,7 @@ export class ViewerSnapshotPublisher {
 
 // Observe every D1 mutation entry point (REST, MCP, bulk imports and uploads).
 // D1 triggers determine affected shards; this wrapper only wakes the publisher.
-export function trackViewerEdits(env) {
+export function trackViewerEdits(env, { editorWordUpdate = false, waitUntil } = {}) {
   if (!enabled(env)) return { env, finish: async()=>{} };
   const id = crypto.randomUUID(); let began;
   const notify = async path => {
@@ -202,7 +202,25 @@ export function trackViewerEdits(env) {
     if (key === 'exec') return async sql=>{ if(relevant(sql)) await begin(); return target.exec(sql); };
     const value=target[key];return typeof value==='function'?value.bind(target):value;
   }});
-  return {env:{...env,DB:db},finish:async()=>{if(began){await began;await notify('/end');}}};
+  const trackedEnv = {...env, DB:db};
+  let wakeAfterCommit;
+  if (editorWordUpdate) {
+    // The word, its collections and their publication journal entries commit together.
+    // Only multi-step mutations need a lease before their first statement.
+    trackedEnv.commitWordBatch = async statements => {
+      const result = await env.DB.batch(statements.map(s => raw.get(s).statement));
+      wakeAfterCommit = notify('/wake').catch(error => console.error("Word publication notification failed", error));
+      waitUntil?.(wakeAfterCommit);
+      return result;
+    };
+  }
+  return {env:trackedEnv, finish:async()=>{
+    try {
+      if (began) { await began; await notify('/end'); }
+    } finally {
+      await wakeAfterCommit;
+    }
+  }};
 }
 
 export async function handleSnapshotAdmin(request,env) {

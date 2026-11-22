@@ -106,6 +106,13 @@ export default { async fetch(request,env,ctx) {
    stage.chapters[chapterKey('crossover-v3','viewer','99901')]=stage.chapters[chapterKey('snapshot-test','viewer','99901')];
    return new Response(await buildHomePage(env,stage));
  }
+ if(url.pathname==='/__busy_publisher_save') {
+   const ns={idFromName:name=>env.VIEWER_PUBLISHER.idFromName(name),get:id=>({fetch:(url,opts)=>{
+     if(new URL(url).pathname==='/begin') throw new Error('Publisher is busy');
+     return env.VIEWER_PUBLISHER.get(id).fetch(url,opts);
+   }})};
+   return app.fetch(new Request('https://test/mcp-editor/api/words/snap-a',request),{...env,VIEWER_PUBLISHER:ns},ctx);
+ }
  if(url.pathname==='/__editor_no_db') return app.fetch(new Request('https://test/mcp-editor/api'+url.searchParams.get('path'),{headers:request.headers}),{...env,DB:{prepare(){throw new Error('D1 must not be read by editor');}}},ctx);
  if(url.pathname==='/__no_db') return serveViewerSnapshot(new Request('https://test'+url.searchParams.get('path'),{headers:request.headers}),{...env,DB:{prepare(){throw new Error('D1 must not be read by viewer');}}});
  return app.fetch(request,env,ctx);
@@ -231,9 +238,11 @@ try {
  const saved=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:'alpha',notes:'changed note',synonyms:'serve; perform; carry A out',senses:[{pos:'名',meaning:'甲',is_primary:1,sort_order:0}]})});
  assert.equal(saved.status,200,await saved.clone().text());
  const detail=await saved.json();
- const noteOnly=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:detail.spelling,notes:detail.notes,synonyms:detail.synonyms,updatedCollections:[],senses:[]})});
+ const noteOnly=await api('/__busy_publisher_save',{method:'PUT',headers:{'content-type':'application/json',Authorization:'Bearer '+editorToken},body:JSON.stringify({spelling:detail.spelling,notes:"changed while publisher is busy",synonyms:detail.synonyms,updatedCollections:[],senses:[]})});
  assert.equal(noteOnly.status,200,await noteOnly.clone().text());
- assert.deepEqual((await noteOnly.json()).senses,detail.senses,'an untouched sense keeps its text and database id');
+ const confirmed=await noteOnly.json();
+ assert.equal(confirmed.notes,"changed while publisher is busy");
+ assert.deepEqual(confirmed.senses,detail.senses,'an untouched sense keeps its text and database id');
  assert.equal((await editorGet('/lists/snapshot-test/editor/index?editorFresh=1')).status,503,'read-after-write waits for publication without D1');
  status=await waitPublished(status.revision);
  manifest=await(await bucket.get('current.json')).json();
@@ -257,7 +266,7 @@ try {
  for(let n=0;n<80;n++){if((await(await admin()).json()).state==='failed')break;await new Promise(r=>setTimeout(r,100));}
  assert.equal((await(await admin()).json()).state,'failed');
  assert.equal((await(await bucket.get('current.json')).json()).revision,status.revision);
- assert.equal((await(await staticGet('/lists/snapshot-test/viewer/sections/99901')).json()).words[0].notes,'changed note');
+ assert.equal((await(await staticGet('/lists/snapshot-test/viewer/sections/99901')).json()).words[0].notes,'changed while publisher is busy');
  failWrites=false;status=await waitPublished(status.revision,true);
  assert.equal((await(await staticGet('/lists/snapshot-test/viewer/sections/99901')).json()).words[0].notes,'latest retry note');
  // Direct SQL records both sides of a move; explicit wake publishes those records.

@@ -1585,7 +1585,9 @@ async function updateWord(env, id, body) {
                       ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?,
                       ${setParent ? "derived_from_id = ?," : ""} updated_at = datetime('now') WHERE id = ?`
   ).bind(...commonBinds, id);
-  await db.batch([update, ...wordChildStatements(db, id, body, [...new Set(collections)])]);
+  const statements = [update, ...wordChildStatements(db, id, body, [...new Set(collections)])];
+  if (env.commitWordBatch) await env.commitWordBatch(statements);
+  else await db.batch(statements);
   if (existing.spelling !== body.spelling) {
     try {
       await generateAudioAfterSpellingChange(env, id, existing.spelling, body.spelling);

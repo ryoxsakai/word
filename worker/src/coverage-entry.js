@@ -19,7 +19,8 @@ export default {
         !url.pathname.startsWith('/oauth/') && !url.pathname.startsWith('/.well-known/oauth-')) {
       return fetch(request);
     }
-    const tracked = trackViewerEdits(originalEnv);
+    const editorWordUpdate = request.method === "PUT" && /^\/mcp-editor\/api\/words\/[^/]+\/?$/.test(url.pathname);
+    const tracked = trackViewerEdits(originalEnv, { editorWordUpdate, waitUntil: ctx?.waitUntil?.bind(ctx) });
     const env = tracked.env;
     try {
     const forward = async (req) => await handleCoverageMcp(req, env,

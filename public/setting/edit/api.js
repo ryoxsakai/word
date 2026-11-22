@@ -134,7 +134,7 @@ export async function verifySavedWordOrder(path, expected) {
 }
 
 // Keep the original write alive while checking a slow or lost acknowledgement.
-export async function saveExistingWord(path, id, body, matches, onCheck) {
+export async function saveExistingWord(path, id, body, differences, onCheck) {
   let settled = false;
   let timer;
   const check = async () => {
@@ -146,14 +146,15 @@ export async function saveExistingWord(path, id, body, matches, onCheck) {
         const { response, data } = await request(path, { method: "GET" }, 6000);
         if (!response.ok) throw new ApiError(`登録内容を取得できません（HTTP ${response.status}）`, { status: response.status });
         if (!data || data.id !== id) throw new Error("登録内容を読み取れません");
-        if (matches(data)) {
+        const missing = differences(data);
+        if (!missing.length) {
           if (!settled && response.headers.get("x-editor-snapshots") === "r2") {
             setPendingMarker();
             watchPublication();
           }
           return data;
         }
-        reason = "登録内容と今回の変更が一致しません";
+        reason = `反映を確認できていない項目：${missing.join("、")}`;
       } catch (error) {
         reason = error.status ? error.message : "登録内容を取得できません。通信状況を確認してください";
         if (error.status === 401 || error.status === 403) break;
@@ -183,7 +184,7 @@ export async function saveExistingWord(path, id, body, matches, onCheck) {
       if (error.status && error.status < 500) throw error;
       try { return await verify(); }
       catch (readError) {
-        const status = error.status ? `（保存時 HTTP ${error.status}）` : "";
+        const status = error.status ? `（保存時 HTTP ${error.status}）` : error.timeout ? "（保存応答がタイムアウトしました）" : "（保存応答を取得できませんでした）";
         throw Object.assign(new Error(`${readError.message}${status}。この画面に下書きを保持しています。`), { unconfirmed: true });
       }
     }
