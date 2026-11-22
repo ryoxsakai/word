@@ -6,15 +6,21 @@ import { createChapterStore } from "../../viewer/chapter-cache.js";
 import { api, onPublication, PENDING_KEY } from "./api.js";
 
 const VIEWER_API = `${VIEWER_API_BASE}/api`;
+const PUBLIC_READ_TIMEOUT = 5000;
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 const RECENT_KEY = "vocab-edit-recent-saves";
 const RECENT_MAX_AGE = 24 * 60 * 60 * 1000;
 const store = createChapterStore();
 
 async function fetchPublic(path) {
-  const response = await fetch(`${VIEWER_API}${path}`, { cache: "no-cache" });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PUBLIC_READ_TIMEOUT);
+  try {
+    const response = await fetch(`${VIEWER_API}${path}`, { cache: "no-cache", signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    // wait for JSON here so the deadline covers the body as well as the headers.
+    return await response.json();
+  } finally { clearTimeout(timer); }
 }
 
 // kind: "word"（wordsを持つ） | "idiom"（entriesを持つ）
