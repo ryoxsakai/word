@@ -30,7 +30,7 @@ export function editWordCollection({ word, kind, values, positions, index = 0, f
           <button type="button" data-move="1" aria-label="下へ移動" ${i + 1 < rows.length ? "" : "disabled"}>↓</button>
           <button type="button" class="is-danger" data-delete aria-label="${name}${i + 1}を削除">削除</button></div>
           ${senses || derivative ? `<div class="collection-options"><label>品詞 <select data-field="pos">${options}</select></label>${senses ? `<label><input type="checkbox" data-field="is_primary" ${row.is_primary ? "checked" : ""}> 見出しの意味</label>` : ""}</div>` : ""}
-          ${keys.map(([key,label]) => `<label class="collection-field">${label}<textarea rows="${key === main ? 2 : 1}" data-field="${key}">${h(row[key] || "")}</textarea></label>`).join("")}</div>`;
+          ${keys.map(([key,label]) => `<label class="collection-field">${label}<textarea rows="${key === main && !derivative ? 2 : 1}" data-field="${key}">${h(row[key] || "")}</textarea></label>`).join("")}</div>`;
       }).join("");
       if (focusRow != null) list.querySelector(`[data-row="${focusRow}"] [data-field="${focusField || main}"]`)?.focus();
     }
