@@ -149,6 +149,7 @@ function startServer(db) {
         return;
       }
       if (req.url.startsWith('/mcp-viewer/api/illustrations/')) {
+        db.imageRequests = [...(db.imageRequests || []), req.url];
         res.writeHead(200, { 'content-type': 'image/png' });
         res.end(await readFile(join(PUBLIC, 'shared/icons/apple-touch-icon-viewer.png')));
         return;
@@ -274,6 +275,7 @@ try {
 
   // ドラッグ（マウス）で同じSection内の順番を変える。
   await entry('w2').locator('.headword').click();
+  await entry('w1').evaluate(el => window.scrollBy(0, el.getBoundingClientRect().top - 200));
   const handle = await entry('w2').locator('.entry-no').boundingBox();
   const target = await entry('w1').boundingBox();
   await page.mouse.move(handle.x + 5, handle.y + 5);
@@ -425,6 +427,56 @@ try {
   await mobile.locator('#menuToggle').tap();
   await shot('5-contents');
   await phone.close();
+
+  // 閲覧ページと同じ上部タブ（索引）・下部のSectionナビ・検索。
+  await page.goto(`${origin}/setting/index.html`);
+  await entry('w1').waitFor();
+  assert.ok(await page.locator('#sectionNav button').count() >= 2, '下部にSectionナビを表示');
+  await page.locator('#sectionNav button[data-nav-key="10"]').click();
+  await page.waitForFunction(() => { const r = document.getElementById('section-10')?.getBoundingClientRect(); return r && r.top >= 0 && r.top < innerHeight; });
+  await page.locator('#viewTabIndex').click();
+  await page.locator('.index-entry', { hasText: 'give' }).click();
+  await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w3"]')?.classList.contains('is-edit-selected'));
+  assert.equal(await page.locator('#viewTabList').getAttribute('aria-selected'), 'true');
+  await page.locator('#viewTabIdioms').click();
+  await page.locator('#sectionNav button').first().waitFor();
+  assert.equal(await page.locator('#sectionNav').getAttribute('aria-label'), '熟語のセクション');
+  await page.locator('#settingsToggle').click();
+  await page.locator('#searchInput').fill('stud');
+  await page.locator('#searchInput').press('Enter');
+  await page.locator('.edit-sheet .edit-menu-item', { hasText: 'study' }).click();
+  await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w4"]')?.classList.contains('is-edit-selected'));
+
+  // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
+  const big = fixture();
+  big.sections = Array.from({ length: 40 }, (_, i) => ({ id: 1000 + i, name: '', subtitle: `S${i + 1}`, description: null, sortOrder: i + 1, chapterId: 1, groupId: null }));
+  big.words = new Map(); big.members = new Map();
+  for (let i = 0; i < 40 * 20; i++) {
+    const id = `b${i}`;
+    big.words.set(id, { id, spelling: `word${i}`, pronunciation: '', senses: [{ pos: '名', meaning: `意味${i}`, pronunciation: null, is_primary: true }], derivatives: [], examples: [], tags: {}, derivedFrom: null,
+      illustration: i % 20 === 0 ? { url: `/mcp-viewer/api/illustrations/${id}/0a1b2c3d-0000-4000-8000-${String(i).padStart(12, '0')}.png`, meaning: 'x' } : undefined });
+    big.members.set(id, { no: i + 1, branch: 0, sectionId: 1000 + Math.floor(i / 20), labelId: null });
+  }
+  const bigServer = await startServer(big);
+  const bigOrigin = `http://localhost:${bigServer.address().port}`;
+  const bigPage = await browser.newPage({ viewport: { width: 393, height: 900 } });
+  bigPage.on('pageerror', error => errors.push(error.message));
+  await bigPage.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
+  await bigPage.goto(`${bigOrigin}/setting/index.html`);
+  await bigPage.locator('.entry[data-word-id="b0"]').waitFor();
+  await bigPage.waitForTimeout(300);
+  const readsBefore = big.publicReads;
+  big.imageRequests = [];
+  await bigPage.locator('#sectionNav button', { hasText: 'Section 35' }).click();
+  await bigPage.locator('[data-section-entries="1034"] .entry[data-word-id="b680"]').waitFor();
+  await bigPage.waitForTimeout(500);
+  const top = await bigPage.locator('#section-1034').evaluate(el => el.getBoundingClientRect().top);
+  assert.ok(top >= 0 && top < 200, `移動先のSectionが画面の上にある（${top}）`);
+  assert.ok(big.publicReads - readsBefore <= 6, `途中のSectionを読み込まない（${big.publicReads - readsBefore}件）`);
+  assert.ok(big.imageRequests.every(url => /\/b(6[0-9]{2}|7[0-9]{2})\//.test(url)), `移動先付近の画像だけを読む：${big.imageRequests.join(',')}`);
+  assert.ok(await bigPage.locator('#sectionNav button.active', { hasText: 'Section 35' }).count() === 1, '下部ナビで現在のSectionを強調');
+  await bigPage.close();
+  bigServer.close();
 
   assert.deepEqual(errors, []);
   console.log('Viewer-style editor: selection, inline edits, autosave, undo, badges, +/- rows, insertion, moves, drag, section edits and idioms passed');

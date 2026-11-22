@@ -213,3 +213,10 @@ body.is-edit-dragging, body.is-edit-dragging * { cursor: grabbing !important; -w
 .edit-toc-link .hierarchy-icon { width: 1em; height: 1em; margin-right: 0.3em; vertical-align: -0.1em; }
 .contents-menu-heading small { font-weight: 400; color: var(--edit-muted); }
 
+
+/* 下部のSectionナビがあるときは、トーストと複数選択のバーをその上に出す */
+body.has-section-nav .edit-toast,
+body.has-section-nav .edit-multi-bar { bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px)); }
+body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-area-inset-bottom, 0px)); }
+.section-nav button[aria-busy="true"] { opacity: 0.6; }
+.edit-root .index-entry, .index-list .index-entry { cursor: pointer; }

@@ -14,6 +14,7 @@ import { api } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
+import { createNavigator } from "./navigation.js";
 
 export const POS_OPTIONS = ["名", "自", "他", "動", "形", "副", "代", "冠", "前", "接", "間", "助", "熟", "連"];
 const CAUTIONS = [
@@ -328,6 +329,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
 
   function observeSections() {
+    S.observer?.disconnect();
+    if (S.navPaused) return;
     const targets = root.querySelectorAll('[data-section-entries][aria-busy="true"]');
     if (!("IntersectionObserver" in window)) { targets.forEach(t => loadSection(t.dataset.sectionEntries)); return; }
     S.observer = new IntersectionObserver(items => {
@@ -1160,6 +1163,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     renderSection(sectionKey(sectionId));
   }
 
+  // ---- 移動 ----
+  const navigateTo = createNavigator();
+  function navSections() {
+    const list = orderedSections().map(section => ({ key: String(section.id), name: sectionName(section.id), subtitle: section.subtitle || "", count: S.order.filter(item => item.sectionId === section.id).length }));
+    return S.order.some(item => item.sectionId == null) ? [{ key: NONE, name: "Sectionなし", subtitle: "", count: 0 }, ...list] : list;
+  }
+
   // ---- イベント ----
   root.addEventListener("click", event => {
     // ダブルタップで入力欄に置き換えた要素のclickは無視する（すぐ確定しないように）。
@@ -1300,19 +1310,38 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     state: S,
     sectionName, chapterName, groupName, orderedSections, chapterById,
     saveSectionOrder, saveChapterOrder,
-    scrollToSection(key) {
-      const target = root.querySelector(`#section-${CSS.escape(String(key))}`);
-      target?.scrollIntoView({ block: "start" });
-      loadSection(String(key));
+    // 閲覧ページと同じ手順で移動する（移動先と直前だけを読み込み、位置を確定してから合わせる）。
+    navigateToSection(key, { targetId, block = "start", select: selectId } = {}) {
+      const sectionKeyValue = String(key);
+      return navigateTo({
+        sections: navSections(),
+        targetKey: sectionKeyValue,
+        load: loadSection,
+        groupOf: k => root.querySelector(`.section-group[data-section-key="${CSS.escape(k)}"]`),
+        target: () => document.getElementById(targetId || `section-${sectionKeyValue}`),
+        pause: () => { S.navPaused = true; S.observer?.disconnect(); },
+        resume: () => { S.navPaused = false; observeSections(); },
+        block,
+        onArrive: () => { if (selectId) select(selectId); },
+      }).catch(error => toast(`移動先を読み込めませんでした：${error.message}`, { tone: "error" }));
     },
-    scrollToChapter(id) { root.querySelector(`#chapter-${id}`)?.scrollIntoView({ block: "start" }); },
+    navigateToChapter(id) {
+      const first = orderedSections().find(s => s.chapterId === id);
+      if (first) return this.navigateToSection(String(first.id), { targetId: `chapter-${id}` });
+      root.querySelector(`#chapter-${id}`)?.scrollIntoView({ block: "start" });
+    },
+    navigateToWord(id) {
+      const item = S.order.find(o => o.id === id);
+      if (!item) return toast("この単語は見つかりません");
+      return this.navigateToSection(sectionKey(item.sectionId), { targetId: `word-${id}`, block: "center", select: id });
+    },
     jumpTo(number) {
       const id = [...S.seq].find(([, seq]) => seq === String(number))?.[0];
       if (!id) return toast(`No. ${number} は見つかりません`);
-      const item = S.order.find(o => o.id === id);
-      const key = sectionKey(item.sectionId);
-      loadSection(key).then(() => { select(id); entryEl(id)?.scrollIntoView({ block: "center" }); });
+      return this.navigateToWord(id);
     },
+    navSections,
+    seqOf: id => S.seq.get(id),
     sectionCount: id => S.order.filter(item => item.sectionId === id).length,
   };
 }
