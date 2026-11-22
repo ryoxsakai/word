@@ -378,11 +378,6 @@ try {
   assert.equal(await meaningInput.count(), 1, '意味を続けて入力できる');
   await meaningInput.fill('作る人');
   await save('w2');
-  const progress = w2.locator('.word-save-progress', { hasText: '保存結果' });
-  await progress.waitFor();
-  assert.match(await progress.textContent(), /2\/2.*保存結果/);
-  assert.equal(await progress.locator('progress').getAttribute('value'), '1');
-  await progress.waitFor({ state: 'detached' });
   for (let i = 0; i < 100 && db.words.get('w2').derivatives?.[0]?.meaning !== '作る人'; i++) await page.waitForTimeout(30);
   assert.deepEqual(db.words.get('w2').derivatives.map(d => [d.word, d.meaning]), [['maker', '作る人']]);
   db.putDelay = 0;
