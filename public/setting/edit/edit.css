@@ -56,10 +56,12 @@
 .edit-root .entry.is-edit-selected {
   background: var(--edit-selected);
 }
-.edit-root .entry.is-saving::after {
+.edit-root .idiom-entry.is-saving::after {
   content: "保存中…"; position: absolute; top: 0.1rem; right: 0.2rem; font-size: 0.7rem; color: var(--edit-muted);
 }
 .edit-root .entry.has-edit-error { outline: 2px solid var(--edit-danger); outline-offset: 3px; border-radius: 6px; }
+.word-save-progress { grid-column: 2; display: grid; gap: .25rem; margin-top: .4rem; font-size: .8rem; color: var(--edit-text); }
+.word-save-progress progress { width: 100%; height: .4rem; accent-color: var(--edit-accent); }
 .edit-word-actions { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
 .edit-word-actions [data-op="save-word"] { color: #fff; background: #28599d; }
 .edit-root .entry.is-multi-selected { outline: 2px dashed var(--edit-accent); outline-offset: 3px; border-radius: 6px; background: var(--edit-accent-soft); }
