@@ -1,6 +1,7 @@
 /* 閲覧型編集ページ：閲覧ページのstyle.cssの上に、編集用の部品だけを重ねる。 */
 :root {
   --edit-accent: #2f6fd6;
+  --edit-accent-ink: #fff;
   --edit-accent-soft: rgba(47, 111, 214, 0.1);
   --edit-danger: #c2412d;
   --edit-surface: #ffffff;
@@ -13,6 +14,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --edit-accent: #7ab3ff;
+    --edit-accent-ink: #15181a;
     --edit-accent-soft: rgba(122, 179, 255, 0.14);
     --edit-danger: #ff8a75;
     --edit-surface: #1d2129;
@@ -25,6 +27,7 @@
 }
 :root[data-theme="dark"] {
   --edit-accent: #7ab3ff;
+  --edit-accent-ink: #15181a;
   --edit-accent-soft: rgba(122, 179, 255, 0.14);
   --edit-danger: #ff8a75;
   --edit-surface: #1d2129;
@@ -35,10 +38,14 @@
   --edit-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* 編集画面では、ダーク時の明るいアクセントに暗い文字を載せる。 */
+.is-viewer-edit .view-tab[aria-selected="true"],
+.is-viewer-edit .section-nav button.active { color: var(--edit-accent-ink); }
+
 .edit-root { touch-action: manipulation; }
 .edit-brand-badge {
   display: inline-block; margin-left: 0.35em; padding: 0.05em 0.5em; border-radius: 999px;
-  background: var(--edit-accent); color: #fff; font-size: 0.6em; vertical-align: middle; letter-spacing: 0.05em;
+  background: var(--edit-accent); color: var(--edit-accent-ink); font-size: 0.6em; vertical-align: middle; letter-spacing: 0.05em;
 }
 .edit-publish-status { margin-left: 0.5rem; font-size: 0.75rem; color: var(--edit-muted); white-space: nowrap; }
 .edit-publish-status.is-publishing::before {
@@ -152,7 +159,7 @@
 .edit-sheet-actions button, .edit-multi-bar button {
   padding: 0.5rem 0.9rem; border: 1px solid var(--edit-border); border-radius: 8px; background: var(--edit-surface); color: var(--edit-text); font: inherit; cursor: pointer;
 }
-.edit-sheet-actions .primary, .edit-multi-bar .primary { border-color: var(--edit-accent); background: var(--edit-accent); color: #fff; }
+.edit-sheet-actions .primary, .edit-multi-bar .primary { border-color: var(--edit-accent); background: var(--edit-accent); color: var(--edit-accent-ink); }
 .edit-tiles-title { margin: 0.6rem 0 0.4rem; font-size: 0.8rem; font-weight: 500; color: var(--edit-muted); }
 .edit-tiles { display: grid; grid-template-columns: repeat(var(--tile-columns, 4), minmax(0, 1fr)); gap: 0.45rem; }
 @media (max-width: 420px) { .edit-tiles { grid-template-columns: repeat(min(var(--tile-columns, 4), 4), minmax(0, 1fr)); } }

@@ -34,6 +34,7 @@ export class ApiError extends Error {
 // 読み出しは時間を区切る。公開処理が混んでいると「最新」の確認が返ってこないことがあるため。
 const FRESH_TIMEOUT = 4000;
 const READ_TIMEOUT = 20000;
+const NEW_WORD_LOOKUP_TIMEOUT = 4000;
 async function request(path, options, timeout = 0) {
   const controller = timeout ? new AbortController() : null;
   const timer = timeout ? setTimeout(() => controller.abort(), timeout) : null;
@@ -53,6 +54,26 @@ async function request(path, options, timeout = 0) {
   } catch (error) {
     if (controller?.signal.aborted) throw Object.assign(new Error("通信に時間がかかっています"), { timeout: true });
     throw error;
+  } finally { clearTimeout(timer); }
+}
+
+// Pronunciation is optional at creation. A dictionary lookup is not a snapshot
+// read, and neither a slow lookup nor the editor publication queue should gate the write.
+export async function lookupNewWordPronunciation(spelling) {
+  const controller = new AbortController();
+  let timer;
+  const deadline = new Promise(resolve => {
+    timer = setTimeout(() => {
+      controller.abort();
+      resolve(null);
+    }, NEW_WORD_LOOKUP_TIMEOUT);
+  });
+  try {
+    return await Promise.race([
+      request(`/lookup?spelling=${encodeURIComponent(spelling)}`, { method: "GET", signal: controller.signal })
+        .then(({ response, data }) => response.ok && typeof data?.pronunciation === "string" ? data.pronunciation : null, () => null),
+      deadline,
+    ]);
   } finally { clearTimeout(timer); }
 }
 

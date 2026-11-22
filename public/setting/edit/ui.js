@@ -38,17 +38,37 @@ export function closeSheet() {
   if (!openSheetEl) return;
   const sheet = openSheetEl;
   openSheetEl = null;
-  sheet.onClose?.();
-  sheet.overlay.remove();
+  try {
+    sheet.onClose?.();
+  } finally {
+    const current = document.activeElement;
+    sheet.overlay.remove();
+    if (!openSheetEl && (current === document.body || sheet.overlay.contains(current))) {
+      sheet.restoreOpener()?.focus({ preventScroll: true });
+    }
+  }
 }
 export function sheet(title, build, { onClose, wide = false } = {}) {
   closeSheet();
+  const opener = document.activeElement;
+  const openerArticleId = opener?.closest("article[id]")?.id;
+  const openerAction = opener?.dataset.op;
+  const restoreOpener = () => {
+    if (opener?.isConnected) return opener;
+    // A tile toggle can redraw the card and replace the button that opened it.
+    if (!openerArticleId || !openerAction) return null;
+    const matches = document.getElementById(openerArticleId)
+      ?.querySelectorAll(`button[data-op="${CSS.escape(openerAction)}"]`);
+    return matches?.length === 1 ? matches[0] : null;
+  };
   const overlay = document.createElement("div");
   overlay.className = "edit-sheet-overlay";
   const panel = document.createElement("div");
   panel.className = `edit-sheet${wide ? " is-wide" : ""}`;
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", title);
+  panel.setAttribute("aria-modal", "true");
+  panel.tabIndex = -1;
   const header = document.createElement("div");
   header.className = "edit-sheet-header";
   const heading = document.createElement("h2");
@@ -66,12 +86,31 @@ export function sheet(title, build, { onClose, wide = false } = {}) {
   overlay.append(panel);
   overlay.addEventListener("click", event => { if (event.target === overlay) closeSheet(); });
   document.body.append(overlay);
-  openSheetEl = { overlay, onClose };
+  openSheetEl = { overlay, panel, restoreOpener, onClose };
   build(body, panel);
+  if (openSheetEl?.panel === panel && !panel.contains(document.activeElement)) {
+    close.focus({ preventScroll: true });
+  }
   return body;
 }
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && openSheetEl && !document.querySelector(".edit-inline-input")) closeSheet();
+  const panel = openSheetEl?.panel;
+  if (!panel || event.defaultPrevented || event.isComposing) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeSheet();
+    return;
+  }
+  if (event.key !== "Tab") return;
+
+  const elements = panel.querySelectorAll("a[href], button, input, select, textarea, [tabindex]");
+  const stops = Array.from(elements).filter(el => el.tabIndex >= 0 && !el.matches(":disabled") &&
+    el.getClientRects().length && getComputedStyle(el).visibility === "visible");
+  const first = stops[0], last = stops.at(-1), active = document.activeElement;
+  if (!first || !stops.includes(active) || active === (event.shiftKey ? first : last)) {
+    event.preventDefault();
+    (event.shiftKey ? last ?? panel : first ?? panel).focus({ preventScroll: true });
+  }
 });
 
 // タイル（バッジの付け外し・選択）
@@ -85,7 +124,7 @@ export function tiles(container, title, items, { columns = 4 } = {}) {
   const grid = document.createElement("div");
   grid.className = "edit-tiles";
   grid.style.setProperty("--tile-columns", String(columns));
-  for (const item of items) {
+  for (const [index, item] of items.entries()) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `edit-tile${item.active ? " is-active" : ""}${item.className ? ` ${item.className}` : ""}`;
@@ -93,7 +132,18 @@ export function tiles(container, title, items, { columns = 4 } = {}) {
     button.innerHTML = item.html || h(item.label);
     if (item.title) button.title = item.title;
     if (item.disabled) button.disabled = true;
-    button.addEventListener("click", () => item.onSelect(button));
+    button.addEventListener("click", () => {
+      // Some pickers rebuild all tiles after a selection. Keep keyboard focus
+      // on the equivalent tile instead of dropping it onto the page.
+      const focused = document.activeElement === button;
+      const currentSheet = openSheetEl;
+      const gridIndex = Array.from(container.querySelectorAll(".edit-tiles")).indexOf(grid);
+      item.onSelect(button);
+      if (focused && !button.isConnected && currentSheet && currentSheet === openSheetEl &&
+          document.activeElement === document.body) {
+        container.querySelectorAll(".edit-tiles")[gridIndex]?.children[index]?.focus({ preventScroll: true });
+      }
+    });
     grid.append(button);
   }
   container.append(grid);
@@ -319,3 +369,4 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
     if (commit && target) onDrop(idOf(item), idOf(target), before, { item, target });
   }
 }
+
