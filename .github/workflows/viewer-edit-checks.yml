@@ -1,0 +1,28 @@
+name: Viewer-style editor checks
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'public/setting/**'
+      - 'public/viewer/word-entry.js'
+      - 'public/viewer/idiom-entry.js'
+      - 'public/viewer/style.css'
+      - 'public/shared/**'
+      - 'worker/test/viewer-edit.browser.mjs'
+      - '.github/workflows/viewer-edit-checks.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: worker
+      - run: npx playwright install --with-deps chromium
+        working-directory: worker
+      - run: npm run test:viewer-edit
+        working-directory: worker

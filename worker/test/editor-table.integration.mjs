@@ -14,8 +14,8 @@ const bundle=(await build({entryPoints:[new URL('../../public/setting/table-mode
 const tick=()=>new Promise(r=>setTimeout(r,5));
 async function waitFor(fn,message){for(let i=0;i<200;i++){if(fn())return;await tick();}throw new Error(message);}
 async function run(idiom, referenceFailure=false, catalogTimeout=false){
- const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
- const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
+ const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'classic.html'),import.meta.url),'utf8');
+ const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'classic.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
  w.localStorage.setItem('vocab-setting-edit-mode','table');w.localStorage.setItem('vocab-setting-last-list','wrong-book');
  const extraWords=Array.from({length:20},(_,i)=>({...clone(word),id:`extra-${i}`,spelling:`extra ${i}`}));
@@ -182,8 +182,8 @@ edit(meanings[1],'edited meaning');edit(get('メモ'),'edited note');assert.equa
  dom.window.close();
 }
 async function pendingStartup(idiom) {
- const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'index.html'),import.meta.url),'utf8');
- const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'index.html'),runScripts:'outside-only'});
+ const html=readFileSync(new URL('../../public/setting/'+(idiom?'idioms.html':'classic.html'),import.meta.url),'utf8');
+ const dom=new JSDOM(html,{url:'http://localhost/setting/'+(idiom?'idioms.html':'classic.html'),runScripts:'outside-only'});
  const w=dom.window;Object.assign(w,{structuredClone,Response,Headers,Request,TextEncoder,confirm:()=>true});
  const nativeTimeout=w.setTimeout.bind(w);w.setTimeout=(fn,ms,...args)=>nativeTimeout(fn,ms===120000?50:ms===3000?10:ms,...args);
  const marker='previous-save';

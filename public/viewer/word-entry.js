@@ -28,8 +28,15 @@ function wordHaystack(w) {
   return parts.filter(Boolean).join(" ").toLowerCase();
 }
 
+// context.edit（編集ページのみ）: 各欄にdata-edit属性を付け、選択中の単語では空欄の入力位置も表示する。
+// 閲覧ページではeditを渡さないため、出力は従来と同じ。
 export function renderWordEntry(w, context) {
  const {resolveRef,resolveHeadwordRef,renderNotesMarkup,origin}=context;
+ const edit = context.edit || null;
+ const selected = !!edit?.selected;
+ const showFields = edit?.showFields || new Set();
+ const ed = (path) => edit ? ` data-edit="${escapeHtml(path)}"` : "";
+ const empty = (path, label, cls = "") => `<span class="edit-empty${cls ? ` ${cls}` : ""}" data-edit="${escapeHtml(path)}">${escapeHtml(label)}</span>`;
 function renderRef(spelling) {
   const hit = resolveRef(spelling);
   if (!hit.found) return escapeHtml(spelling);
@@ -63,6 +70,7 @@ function renderExampleHtml(ex) {
   const hasPrimarySense = (w.senses || []).some((s) => s.isPrimary);
   const sensesWithFlags = (w.senses || []).map((s, i) => ({
     ...s,
+    _index: i,
     _isPrimary: s.isPrimary || (!hasPrimarySense && i === 0),
   }));
 
@@ -84,18 +92,22 @@ function renderExampleHtml(ex) {
       const items = [...group.items].sort((a, b) => (a._isPrimary ? 0 : 1) - (b._isPrimary ? 0 : 1));
       const isPrimaryGroup = items.some((s) => s._isPrimary);
       const pron = items.find((s) => s.pronunciation)?.pronunciation;
+      const meaningHtml = (s) => edit && !String(s.meaning || "").trim()
+        ? empty(`senses.${s._index}.meaning`, "意味を入力", "sense-meaning")
+        : `<span class="sense-meaning"${ed(`senses.${s._index}.meaning`)}>${renderMarkup(s.meaning, { resolve: resolveRef })}</span>`;
       const meaningsHtml =
         items.length > 1
           ? `<span class="sense-items">${items
               .map(
                 (s, index) =>
-                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"><span class="sense-number">${formatSenseNumber(index + 1)}</span><span class="sense-meaning">${renderMarkup(s.meaning, { resolve: resolveRef })}</span></span>`
+                  `<span class="sense-item${s._isPrimary ? " sense-item-primary" : ""}"${edit ? ` data-sense-index="${s._index}"` : ""}><span class="sense-number">${formatSenseNumber(index + 1)}</span>${meaningHtml(s)}</span>`
               )
               .join("")}</span>`
-          : `<span class="sense-meaning">${renderMarkup(items[0].meaning, { resolve: resolveRef })}</span>`;
+          : edit ? `<span class="sense-item" data-sense-index="${items[0]._index}">${meaningHtml(items[0])}</span>` : meaningHtml(items[0]);
+      const posAttr = edit ? ` data-edit-pos="${escapeHtml(group.pos || "")}"` : "";
       return `
-    <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}">
-      ${group.pos ? `<span class="pos-badge">${escapeHtml(group.pos)}</span>` : ""}
+    <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}"${posAttr}>
+      ${group.pos ? `<span class="pos-badge"${posAttr}>${escapeHtml(group.pos)}</span>` : edit && selected ? `<span class="pos-badge edit-empty-badge"${posAttr}>品詞</span>` : ""}
       ${pron ? `<span class="pron sense-pron">${escapeHtml(formatPronunciationWithAccents(pron))}</span>` : ""}
       ${meaningsHtml}
     </div>`;
@@ -107,47 +119,58 @@ function renderExampleHtml(ex) {
     ? `<div class="example-list">${(w.examples || [])
         .map(
           (ex, index) => `
-        <div class="example-line">
+        <div class="example-line"${edit ? ` data-example-index="${index}"` : ""}>
           <span class="bullet${ex.type === "phrase" ? ` hollow${index === firstPhraseIndex ? " phrase-first" : ""}` : ""}">${ex.type === "phrase" ? "□" : "◆"}</span>
-          <span class="example-phrase">${renderExampleHtml(ex)}</span>
-          ${ex.translation ? `<span class="example-translation">${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : ""}
+          ${edit && !String(ex.sentence || "").trim() ? empty(`examples.${index}.sentence`, "フレーズを入力", "example-phrase") : `<span class="example-phrase"${ed(`examples.${index}.sentence`)}>${renderExampleHtml(ex)}</span>`}
+          ${ex.translation ? `<span class="example-translation"${ed(`examples.${index}.translation`)}>${renderMarkup(ex.translation, { resolve: resolveRef })}</span>` : selected ? empty(`examples.${index}.translation`, "訳を入力", "example-translation") : ""}
         </div>`
         )
         .join("")}</div>`
     : "";
 
   const derivativeGroups = groupDerivativeSenses(w.derivatives || []);
-  const derivativesHtml = derivativeGroups.length
-    ? `<div class="notes-block notes-derivative"><span class="notes-label derivative-badge"><span class="notes-label-text">派生語</span></span><span class="notes-content derivative-items">${derivativeGroups
+  if (edit) {
+    // 編集用に元の行番号を付ける（groupDerivativeSensesは初出順にまとめる）。
+    const key = (word, index) => String(word || "").trim().normalize("NFKC").toLocaleLowerCase("en") || `__empty_derivative_${index}`;
+    const groupByKey = new Map();
+    (w.derivatives || []).forEach((d, index) => {
+      const k = key(d?.word, index);
+      if (!groupByKey.has(k)) groupByKey.set(k, []);
+      groupByKey.get(k).push(index);
+    });
+    const indexLists = [...groupByKey.values()];
+    derivativeGroups.forEach((group, g) => group.senses.forEach((sense, n) => { sense.index = indexLists[g][n]; }));
+  }
+  const derivativesHtml = derivativeGroups.length || showFields.has("derivatives")
+    ? `<div class="notes-block notes-derivative"${edit ? ' data-field="derivatives"' : ""}><span class="notes-label derivative-badge"${edit ? ' data-edit-field-badge="derivatives"' : ""}><span class="notes-label-text">派生語</span></span><span class="notes-content derivative-items">${derivativeGroups
         .map((group) => {
           const senses = group.senses
             .map(
-              (sense) => `<span class="derivative-sense">${sense.pos ? `<span class="pos-badge derivative-pos">${escapeHtml(sense.pos)}</span>` : ""}${sense.meaning ? `<span class="derivative-meaning">${renderMarkup(sense.meaning, { resolve: resolveRef })}</span>` : ""}</span>`
+              (sense) => `<span class="derivative-sense"${edit ? ` data-derivative-index="${sense.index}"` : ""}>${sense.pos ? `<span class="pos-badge derivative-pos"${edit ? ` data-edit-derivative-pos="${sense.index}"` : ""}>${escapeHtml(sense.pos)}</span>` : selected ? `<span class="pos-badge derivative-pos edit-empty-badge" data-edit-derivative-pos="${sense.index}">品詞</span>` : ""}${sense.meaning ? `<span class="derivative-meaning"${ed(`derivatives.${sense.index}.meaning`)}>${renderMarkup(sense.meaning, { resolve: resolveRef })}</span>` : selected ? empty(`derivatives.${sense.index}.meaning`, "意味を入力", "derivative-meaning") : ""}</span>`
             )
             .join("");
-          return `<span class="derivative-item"><span class="derivative-word">${renderDerivativeWordMarkup(group.word, { resolve: resolveHeadwordRef })}</span>${senses}</span>`;
+          const wordHtml = edit && !String(group.word || "").trim()
+            ? empty(`derivatives.${group.senses[0].index}.word`, "派生語を入力", "derivative-word")
+            : `<span class="derivative-word"${edit ? ` data-edit="derivativeWord" data-derivative-indexes="${group.senses.map((s) => s.index).join(",")}"` : ""}>${renderDerivativeWordMarkup(group.word, { resolve: resolveHeadwordRef })}</span>`;
+          return `<span class="derivative-item">${wordHtml}${senses}</span>`;
         })
         .join("")}</span></div>`
     : "";
 
-  const irregularFormsHtml = w.irregularForms
-    ? `<div class="notes-block notes-irregular"><span class="notes-label irregular-badge"><span class="notes-label-text">不規則</span></span><span class="notes-content">${renderMarkup(w.irregularForms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const etymologyHtml = w.etymology
-    ? `<div class="notes-block notes-etymology"><span class="notes-label etymology-badge"><span class="notes-label-text">語源</span></span><span class="notes-content">${renderMarkup(w.etymology, { resolve: resolveRef })}</span></div>`
-    : "";
-  const synonymsHtml = w.synonyms
-    ? `<div class="notes-block notes-synonym"><span class="notes-label synonym-badge"><span class="notes-label-text">類義語</span></span><span class="notes-content">${renderWordListMarkup(w.synonyms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const antonymsHtml = w.antonyms
-    ? `<div class="notes-block notes-antonym"><span class="notes-label antonym-badge"><span class="notes-label-text">対義語</span></span><span class="notes-content">${renderWordListMarkup(w.antonyms, { resolve: resolveRef })}</span></div>`
-    : "";
-  const relatedWordsHtml = w.relatedWords
-    ? `<div class="notes-block notes-related"><span class="notes-label related-badge"><span class="notes-label-text">関連語</span></span><span class="notes-content">${renderWordListMarkup(w.relatedWords, { resolve: resolveRef })}</span></div>`
-    : "";
-  const notesHtml = w.notes
-    ? `<div class="notes-block notes-memo"><span class="notes-label memo-badge"><span class="notes-label-text">メモ</span></span><span class="notes-content">${renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: (w.examples || []).filter(ex => ex.type === "phrase").map(ex => ex.sentence) })}</span></div>`
-    : "";
+  function noteBlock(field, type, label, render) {
+    const value = w[field];
+    if (!value && !(edit && showFields.has(field))) return "";
+    const content = value
+      ? `<span class="notes-content"${ed(field)}>${render()}</span>`
+      : `<span class="notes-content edit-empty" data-edit="${field}">${escapeHtml(label)}を入力</span>`;
+    return `<div class="notes-block notes-${type}"${edit ? ` data-field="${field}"` : ""}><span class="notes-label ${type}-badge"${edit ? ` data-edit-field-badge="${field}"` : ""}><span class="notes-label-text">${label}</span></span>${content}</div>`;
+  }
+  const irregularFormsHtml = noteBlock("irregularForms", "irregular", "不規則", () => renderMarkup(w.irregularForms, { resolve: resolveRef }));
+  const etymologyHtml = noteBlock("etymology", "etymology", "語源", () => renderMarkup(w.etymology, { resolve: resolveRef }));
+  const synonymsHtml = noteBlock("synonyms", "synonym", "類義語", () => renderWordListMarkup(w.synonyms, { resolve: resolveRef }));
+  const antonymsHtml = noteBlock("antonyms", "antonym", "対義語", () => renderWordListMarkup(w.antonyms, { resolve: resolveRef }));
+  const relatedWordsHtml = noteBlock("relatedWords", "related", "関連語", () => renderWordListMarkup(w.relatedWords, { resolve: resolveRef }));
+  const notesHtml = noteBlock("notes", "memo", "メモ", () => renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: (w.examples || []).filter(ex => ex.type === "phrase").map(ex => ex.sentence) }));
 
   const cautionHtml = [
     w.ergative
@@ -186,12 +209,12 @@ function renderExampleHtml(ex) {
   const illustrationHtml = renderWordIllustration(w, origin);
 
   return `
-  <article class="entry${isBranch ? " branch-entry" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}" data-cefr="${escapeHtml(cefrLevel)}">
+  <article class="entry${isBranch ? " branch-entry" : ""}${selected ? " is-edit-selected" : ""}" id="word-${escapeHtml(w.id)}" data-word-id="${escapeHtml(w.id)}" data-no="${escapeHtml(w.seqNo)}" data-haystack="${escapeHtml(haystack)}" data-cefr="${escapeHtml(cefrLevel)}">
     <div class="entry-no" data-action="copy-link" data-word-id="${escapeHtml(w.id)}" title="リンクをコピー">${escapeHtml(w.seqNo)}</div>
     <div class="entry-body">
       <div class="entry-head">
-        <span class="headword">${renderStressedSpelling(w.spelling, w.pronunciation, escapeHtml)}</span>
-        ${w.pronunciation ? `<span class="pron">${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(generatedAudioUrl)}" title="${generatedAudioUrl ? "登録済み音声で発音を聞く" : "端末の英語音声で発音を聞く"}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : ""}
+        ${edit && !String(w.spelling || "").trim() ? empty("spelling", "見出し語を入力", "headword") : `<span class="headword"${ed("spelling")}>${renderStressedSpelling(w.spelling, w.pronunciation, escapeHtml)}</span>`}
+        ${w.pronunciation ? `<span class="pron"${ed("pronunciation")}>${escapeHtml(formatPronunciationWithAccents(w.pronunciation))}<button type="button" class="speak-btn" data-action="speak" data-text="${escapeHtml(w.spelling)}" data-audio-url="${escapeHtml(generatedAudioUrl)}" title="${generatedAudioUrl ? "登録済み音声で発音を聞く" : "端末の英語音声で発音を聞く"}"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button></span>` : selected ? empty("pronunciation", "発音記号", "pron") : ""}
         ${cefrBadge}
         ${awlBadge}
         ${cautionHtml}
