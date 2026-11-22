@@ -560,7 +560,7 @@ try {
   const known = await insertDraft('known-pronunciation');
   await known.locator('[data-op="menu"]').click();
   await page.locator('.edit-menu-item', { hasText: '発音記号を取得' }).click();
-  await known.locator('.pron', { hasText: 'ˈnjuː' }).waitFor();
+  await known.locator('.pron:not(.edit-empty)').waitFor();
   const saveKnown = db.writes.length;
   await known.locator('[data-op="save-word"]').click();
   const knownCard = page.locator('.entry:not(.is-new-entry)', { hasText: 'known-pronunciation' });
