@@ -194,7 +194,9 @@ export function onDoubleActivate(root, handler) {
     if (event.button > 0) return;
     const now = performance.now();
     const limit = event.pointerType === "mouse" ? 450 : 320;
-    if (last && now - last.time < limit && Math.hypot(event.clientX - last.x, event.clientY - last.y) < 30) {
+    const entry = event.target.closest(".entry[data-word-id]");
+    const wordId = entry?.dataset.wordId;
+    if (last && last.wordId === wordId && now - last.time < limit && Math.hypot(event.clientX - last.x, event.clientY - last.y) < 30) {
       last = null;
       const target = document.elementFromPoint(event.clientX, event.clientY) || event.target;
       if (!root.contains(target)) return;
@@ -202,7 +204,7 @@ export function onDoubleActivate(root, handler) {
       if (event.pointerType !== "mouse") event.preventDefault();
       return;
     }
-    last = { time: now, x: event.clientX, y: event.clientY };
+    last = { time: now, x: event.clientX, y: event.clientY, wordId };
   });
 }
 

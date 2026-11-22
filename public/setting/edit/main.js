@@ -1,5 +1,6 @@
 // 閲覧型編集ページの起動・メニュー・目次・タブ。
-import { createWordEditor } from "./words.js";
+import { readingPosition } from "../../shared/reading-position.js";
+import { createWordEditor, requestWordStructure } from "./words.js";
 import { setupIllustrationLoading } from "../../shared/illustrations.js";
 import { createIdiomEditor } from "./idioms.js";
 import { api, onPublication, resumePublicationWatch } from "./api.js";
@@ -360,13 +361,16 @@ async function start() {
   setupIllustrationLoading(el.wordList);
   setupIllustrationLoading(el.idiomList);
   try {
-    const lists = await api("/lists");
+    const catalog = api("/lists");
+    const structure = requestWordStructure(LIST_ID_FALLBACK);
+    const lists = await catalog;
     const crossover = lists.find(l => l.id === LIST_ID_FALLBACK) || lists.find(l => l.name?.trim().toLowerCase() === "crossover");
     if (!crossover) throw new Error("crossoverの単語帳が見つかりません");
     listId = crossover.id;
     words = createWordEditor({ root: el.wordList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
-    await words.load(crossover);
-    renderBottomNav();
+    const position = readingPosition("editor", listId, el.wordList, () => activeView === "list");
+    await words.load(crossover, { position: position.saved, structure: listId === LIST_ID_FALLBACK ? structure : null });
+    position.start();
   } catch (error) {
     el.wordList.innerHTML = `<p class="index-empty">読み込めませんでした：${h(error.message)} <button type="button" id="reloadPage">再読み込み</button></p>`;
     document.getElementById("reloadPage")?.addEventListener("click", () => location.reload());

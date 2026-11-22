@@ -1,3 +1,4 @@
+import { readingPosition, alignReadingWord } from "../shared/reading-position.js";
 import {hasEmbeddedChapter,staticBootstrap,staticChapterHtml,staticChapterDescriptor,applyStaticWordChapter,clearStaticChapterCache} from './static-client.js';
 import { renderWordEntry } from './word-entry.js';
 import { createIdiomReferenceResolver } from "../shared/idiom-references.js";
@@ -449,7 +450,12 @@ async function loadLists() {
   }
   const initial = CROSSOVER_LIST_ID;
   el.listSelect.value = initial;
-  await selectList(initial);
+  const position = readingPosition("viewer", initial, el.wordList, () =>
+    !PRINT_UI_MODE && !bookPrintInProgress && state.activeView === "list" && !state.search);
+  const reloadingSameLink = position.saved?.hash === location.hash && performance.getEntriesByType("navigation")[0]?.type === "reload";
+  const resume = !PRINT_UI_MODE && (!location.hash || reloadingSameLink) ? position.saved : null;
+  await selectList(initial, { resume });
+  if (!PRINT_UI_MODE) position.start();
 }
 
 function clearListCaches(listId) {
@@ -460,7 +466,7 @@ function clearListCaches(listId) {
   }
 }
 
-async function selectList(listId, { forceRefresh = false } = {}) {
+async function selectList(listId, { forceRefresh = false, resume = null } = {}) {
   beginPageLoading();
   let pageLoadingFinished = false;
   const generation = ++listLoadGeneration;
@@ -518,7 +524,9 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     }
     el.emptyMsg.hidden = state.indexWords.length > 0;
     const firstSection = state.sections[0];
-    if (firstSection) await loadSection(firstSection.key);
+    const resumeWord = resume && (state.wordMetaById.get(resume.id) || state.indexWords.find(word => String(word.seqNo) === resume.number));
+    if (resumeWord) await loadSection(resumeWord.sectionKey);
+    else if (firstSection) await loadSection(firstSection.key);
     if (generation !== listLoadGeneration) return;
     // Release the page skeleton as soon as the first body is ready.
     endPageLoading();
@@ -531,6 +539,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
     renderActiveBottomNav();
     setupSectionObserver();
     setupIndexObserver();
+    if (resumeWord && await navigateToWord(resumeWord.id, { historyMode: "none", block: "start" })) alignReadingWord(resumeWord.id);
     setupLazySectionObserver();
     if (state.activeView === "idioms") await ensureIdioms();
     else {
@@ -543,7 +552,7 @@ async function selectList(listId, { forceRefresh = false } = {}) {
       // 印刷DOMの組み替え・版組中に、参照情報の到着で本文を再描画しない。
       if (PRINT_BOOK_MODE) await idiomsReady;
     }
-    await applyHashScroll();
+    if (!resumeWord) await applyHashScroll();
     if (el.searchInput.value.trim()) void runSearch();
   } catch (err) {
     if (generation !== listLoadGeneration) return;
@@ -1788,7 +1797,7 @@ async function navigateToSection(sectionKey, targetId) {
   return scrollToNavigationTarget(target, { block: "start", flashTarget: true, generation });
 }
 
-async function navigateToWord(id, { historyMode = "push" } = {}) {
+async function navigateToWord(id, { historyMode = "push", block = "center" } = {}) {
   const normalizedId = String(id);
   const meta = state.wordMetaById.get(normalizedId);
   if (!meta) return false;
@@ -1804,7 +1813,7 @@ async function navigateToWord(id, { historyMode = "push" } = {}) {
     return false;
   }
   if (historyMode === "push") history.pushState(null, "", `#word-${encodeURIComponent(normalizedId)}`);
-  const scrolled = await scrollToNavigationTarget(target, { block: "center", flashTarget: true, generation });
+  const scrolled = await scrollToNavigationTarget(target, { block, flashTarget: true, generation });
   if (!scrolled) return false;
   return true;
 }
