@@ -193,6 +193,60 @@ const origin = `http://localhost:${server.address().port}`;
 const browser = await chromium.launch({ ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
 const errors = [];
 try {
+  // Holding the pointer still at the edge must move the marker and drop target as
+  // content scrolls, both in the page and in a collection editor's scroll pane.
+  for (const mode of ['window', 'pane']) {
+    const scrollPage = await browser.newPage({ viewport: { width: 400, height: 280 } });
+    try {
+      const testUrl = `${origin}/__sortable-edge`;
+      await scrollPage.route(testUrl, route => route.fulfill({
+        contentType: 'text/html',
+        body: `<!doctype html><style>
+          body { margin: 0; }
+          #list { ${mode === 'pane' ? 'margin: 10px; height: 260px; overflow: auto;' : ''} }
+          [data-sort-item] { height: 60px; }
+          [data-grip] { height: 100%; width: 64px; }
+          .edit-drop-line, .edit-drag-ghost { position: fixed; pointer-events: none; }
+        </style><div id="list"></div>`,
+      }));
+      await scrollPage.goto(testUrl);
+      await scrollPage.evaluate(async mode => {
+        const { sortable } = await import('/setting/edit/ui.js');
+        const list = document.getElementById('list');
+        list.innerHTML = Array.from({ length: 12 }, (_, i) =>
+          `<div data-sort-item="${i}"><button type="button" data-grip>Row ${i}</button></div>`).join('');
+        sortable(list, {
+          handleSelector: '[data-grip]', itemSelector: '[data-sort-item]', idOf: row => row.dataset.sortItem,
+          scrollElement: mode === 'pane' ? list : window,
+          onDrop: (...args) => { window.sortDrop = args.slice(0, 3); },
+        });
+      }, mode);
+
+      const x = 38, edgeY = 245;
+      await scrollPage.mouse.move(x, 34);
+      await scrollPage.mouse.down();
+      await scrollPage.mouse.move(x, edgeY);
+      await scrollPage.waitForFunction(mode => {
+        const el = mode === 'pane' ? document.getElementById('list') : document.scrollingElement;
+        return el.scrollTop >= el.scrollHeight - el.clientHeight - 1;
+      }, mode);
+      const expected = await scrollPage.evaluate(({ x, edgeY }) => {
+        const current = document.elementFromPoint(x, edgeY).closest('[data-sort-item]');
+        const rect = current.getBoundingClientRect();
+        const before = edgeY < rect.top + rect.height / 2;
+        return { id: current.dataset.sortItem, before, line: (before ? rect.top : rect.bottom) - 2 };
+      }, { x, edgeY });
+      assert.equal(expected.id, '11', `${mode}: later rows have scrolled under the stationary pointer`);
+      assert.equal(parseFloat(await scrollPage.locator('.edit-drop-line').evaluate(el => el.style.top)),
+        expected.line, `${mode}: marker follows the currently hovered row`);
+      await scrollPage.mouse.up();
+      assert.deepEqual(await scrollPage.evaluate(() => window.sortDrop), ['0', expected.id, expected.before]);
+      assert.equal(await scrollPage.locator('.edit-drop-line').count(), 0);
+    } finally {
+      await scrollPage.close();
+    }
+  }
+
   const page = await browser.newPage({ viewport: { width: 393, height: 900 }, hasTouch: false });
   page.on('pageerror', error => errors.push(error.message));
   await page.route(url => !url.href.startsWith(origin), route => route.abort());
@@ -695,3 +749,4 @@ try {
   await browser.close();
   server.close();
 }
+

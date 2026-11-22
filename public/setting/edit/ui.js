@@ -277,7 +277,6 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
   root.addEventListener("contextmenu", event => { if (drag || pending) event.preventDefault(); });
 
   function begin(item, event) {
-    const rect = item.getBoundingClientRect();
     const ghost = document.createElement("div");
     ghost.className = "edit-drag-ghost";
     ghost.textContent = item.dataset.dragLabel || item.textContent.trim().slice(0, 40);
@@ -285,7 +284,7 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
     const line = document.createElement("div");
     line.className = "edit-drop-line";
     document.body.append(line);
-    drag = { item, ghost, line, target: null, before: true, offsetY: event.clientY - rect.top, lastY: event.clientY, scrollTimer: null };
+    drag = { item, ghost, line, target: null, before: true, lastX: event.clientX, lastY: event.clientY, scrollTimer: null };
     item.classList.add("is-dragging");
     document.body.classList.add("is-edit-dragging");
     navigator.vibrate?.(15);
@@ -293,8 +292,15 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
   }
 
   function move(x, y) {
+    drag.lastX = x;
     drag.lastY = y;
     drag.ghost.style.transform = `translate(${x + 12}px, ${y - 18}px)`;
+    updateDropTarget();
+    autoScroll();
+  }
+
+  function updateDropTarget() {
+    const { lastX: x, lastY: y } = drag;
     drag.ghost.style.display = "none";
     const under = document.elementFromPoint(x, y);
     drag.ghost.style.display = "";
@@ -311,7 +317,6 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
       drag.target = null;
       drag.line.style.display = "none";
     }
-    autoScroll();
   }
 
   function autoScroll() {
@@ -322,11 +327,16 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
     if (!speed) return;
     drag.scrollTimer = setInterval(() => {
       if (!drag) return;
-      scrollElement.scrollBy(0, speed);
+      const scrollPosition = () => scrollElement === window ? window.scrollY : scrollElement.scrollTop;
+      const previousTop = scrollPosition();
+      scrollElement.scrollBy({ top: speed, behavior: "instant" });
+      // While the pointer stays in the edge, rows move under it without pointermove.
+      if (scrollPosition() !== previousTop) updateDropTarget();
     }, 16);
   }
 
   function finish(commit) {
+    if (commit) updateDropTarget();
     const { item, ghost, line, target, before, scrollTimer } = drag;
     clearInterval(scrollTimer);
     ghost.remove();
@@ -337,4 +347,5 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
     if (commit && target) onDrop(idOf(item), idOf(target), before, { item, target });
   }
 }
+
 
