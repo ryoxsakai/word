@@ -365,7 +365,7 @@ async function start() {
     if (!crossover) throw new Error("crossoverの単語帳が見つかりません");
     listId = crossover.id;
     words = createWordEditor({ root: el.wordList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
-    await words.load();
+    await words.load(crossover);
     renderBottomNav();
   } catch (error) {
     el.wordList.innerHTML = `<p class="index-empty">読み込めませんでした：${h(error.message)} <button type="button" id="reloadPage">再読み込み</button></p>`;

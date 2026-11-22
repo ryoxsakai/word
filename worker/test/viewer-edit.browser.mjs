@@ -1,5 +1,5 @@
 // 閲覧型編集ページ（public/setting/index.html）を実際のブラウザで動かし、
-// 選択・ダブルタップでの編集・自動保存・バッジ・＋／−・追加・移動・Section編集・熟語を検証する。
+// 選択・ダブルタップでの編集・単語ごとの保存・バッジ・＋／−・追加・移動・Section編集・熟語を検証する。
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -180,7 +180,8 @@ try {
   page.on('pageerror', error => errors.push(error.message));
   await page.route(url => !url.href.startsWith(origin), route => route.abort());
   await page.goto(`${origin}/setting/index.html`);
-  const entry = id => page.locator(`.entry[data-word-id="${id}"]`);
+  const entry = id => page.locator(`[data-section-entries] .entry[data-word-id="${id}"]`);
+  const save = id => entry(id).locator('[data-op="save-word"]').click();
   const dbl = async locator => { await locator.click(); await locator.click(); };
   const waitWrites = async count => { for (let i = 0; i < 100 && db.writes.length < count; i++) await page.waitForTimeout(30); };
 
@@ -195,34 +196,45 @@ try {
   assert.ok(await entry('w1').evaluate(el => el.classList.contains('is-edit-selected')));
   assert.ok(await entry('w1').locator('.edit-minus').count() > 0);
 
-  // ダブルタップで意味をその場で編集し、確定で自動保存する。
+  // ダブルタップで意味をその場で編集し、確定は下書きに留め、保存ボタンで書き込む。
   await dbl(entry('w1').locator('.sense-meaning').first());
   const input = page.locator('.edit-inline-input');
   assert.equal(await input.inputValue(), 'takeの意味');
   await input.fill('取る');
   await input.press('Enter');
+  assert.equal(db.writes.length, 0);
+  await save('w1');
   await waitWrites(1);
   assert.equal(db.words.get('w1').senses[0].meaning, '取る');
   assert.match(await entry('w1').locator('.sense-meaning').first().textContent(), /取る/);
   // 例文（◆）はフレーズとして保存し直される（種類は変えない：保存では既存の種類を保持）。
   assert.equal(db.words.get('w1').examples[0].sentence, 'take a bus');
 
-  // 「元に戻す」で直前の変更を取り消せる。
-  await page.locator('.edit-toast button', { hasText: '元に戻す' }).click();
+  // リセットは保存済みの語義を復元し、書き込みを行わない。
+  await dbl(entry('w1').locator('.sense-meaning').first());
+  await input.fill('取り消す下書き');
+  await entry('w1').locator('[data-op="reset-word"]').click();
+  assert.match(await entry('w1').locator('.sense-meaning').first().textContent(), /取る/);
+  assert.equal(db.writes.length, 1);
+  await dbl(entry('w1').locator('.sense-meaning').first());
+  await input.fill('takeの意味');
+  await save('w1');
   await waitWrites(2);
   assert.equal(db.words.get('w1').senses[0].meaning, 'takeの意味');
 
   // バッジのタイル：注意バッジを付ける。
   await entry('w1').locator('[data-op="badges"]').click();
   await page.locator('.edit-tile', { hasText: 'スペル' }).click();
+  await page.locator('.edit-sheet-close').click();
+  await save('w1');
   await waitWrites(3);
   assert.equal(db.words.get('w1').spellingCaution, true);
-  await page.locator('.edit-sheet-close').click();
   assert.equal(await entry('w1').locator('.caution-spelling').count(), 1);
 
   // 品詞バッジをタップしてタイルから選ぶ。
   await entry('w1').locator('.pos-badge').first().click();
   await page.locator('.edit-tile', { hasText: '他' }).click();
+  await save('w1');
   await waitWrites(4);
   assert.equal(db.words.get('w1').senses[0].pos, '他');
 
@@ -230,10 +242,12 @@ try {
   await entry('w1').locator('[data-op="add-phrase"]').click();
   await page.locator('.edit-inline-input').fill('take a break');
   await page.locator('.edit-inline-input').press('Enter');
+  await save('w1');
   await waitWrites(5);
   assert.deepEqual(db.words.get('w1').examples.map(e => [e.type, e.sentence]), [['example', 'take a bus'], ['phrase', 'take a break']]);
   // −で削除する。
   await entry('w1').locator('[data-op="remove-example"][data-index="1"]').click();
+  await save('w1');
   await waitWrites(6);
   assert.equal(db.words.get('w1').examples.length, 1);
 
@@ -249,6 +263,7 @@ try {
   await page.locator('.edit-tile', { hasText: 'メモ' }).click();
   await page.locator('.edit-inline-input').fill('よく使う');
   await page.locator('.edit-inline-input').press('Control+Enter');
+  await save('w1');
   await waitWrites(7);
   assert.equal(db.words.get('w1').notes, 'よく使う');
 
@@ -257,13 +272,18 @@ try {
   await page.locator('[data-op="insert-word"]').click();
   await page.locator('.edit-inline-input').fill('new');
   await page.locator('.edit-inline-input').press('Enter');
+  assert.equal(db.writes.length, 7);
+  await page.locator('.is-new-entry [data-op="save-word"]').click();
   await waitWrites(9);
   const created = [...db.words.keys()].find(id => db.words.get(id).spelling === 'new');
   assert.ok(created);
   assert.equal(db.members.get(created).no, 2, '選択した単語の直後に入る');
   assert.equal(db.words.get(created).pronunciation, 'ˈnjuː', '発音記号を自動取得');
+  await entry(created).locator('[data-op="add-pos-line"]').click();
+  await page.locator('.edit-tile', { hasText: '形' }).click();
   await page.locator('.edit-inline-input').fill('新しい');
   await page.locator('.edit-inline-input').press('Enter');
+  await save(created);
   await waitWrites(10);
   assert.equal(db.words.get(created).senses[0].meaning, '新しい');
   assert.equal(await entry('w2').locator('.entry-no').textContent(), '3', '後ろの番号が繰り下がる');
@@ -343,7 +363,7 @@ try {
   assert.equal(db.idioms.find(i => i.key === 'i2').hidden, true);
   assert.equal(await idiom('i3').locator('.entry-no').textContent(), '2', '非表示の熟語には番号を付けない');
 
-  // 保存中に次の欄を編集していても、保存の完了で入力欄が消えない（派生語の語→意味）。
+  // 派生語の語と意味をまとめて保存する。
   await page.locator('#viewTabList').click();
   db.putDelay = 600;
   const w2 = entry('w2');
@@ -354,10 +374,10 @@ try {
   await page.locator('.edit-inline-input').press('Enter');
   const meaningInput = w2.locator('.edit-inline-input');
   await meaningInput.waitFor();
-  await page.waitForTimeout(900); // 語の保存がこの間に完了する
-  assert.equal(await meaningInput.count(), 1, '保存完了後も意味の入力欄が残る');
+  assert.equal(db.writes.length, 19);
+  assert.equal(await meaningInput.count(), 1, '意味を続けて入力できる');
   await meaningInput.fill('作る人');
-  await meaningInput.press('Enter');
+  await save('w2');
   for (let i = 0; i < 100 && db.words.get('w2').derivatives?.[0]?.meaning !== '作る人'; i++) await page.waitForTimeout(30);
   assert.deepEqual(db.words.get('w2').derivatives.map(d => [d.word, d.meaning]), [['maker', '作る人']]);
   db.putDelay = 0;
@@ -393,6 +413,7 @@ try {
   await dbl(entry('w4').locator('.sense-meaning').first());
   await page.locator('.edit-inline-input').fill('学ぶ');
   await page.locator('.edit-inline-input').press('Enter');
+  await save('w4');
   for (let i = 0; i < 100 && db.words.get('w4').senses[0].meaning !== '学ぶ'; i++) await page.waitForTimeout(30);
   await page.reload();
   await entry('w4').waitFor();
@@ -424,6 +445,8 @@ try {
   await shot('3-editing');
   await mobile.locator('.edit-inline-ok').tap();
   const before = db.writes.length;
+  assert.equal(db.words.get('w4').senses[0].meaning, '学ぶ');
+  await mobileEntry.locator('[data-op="save-word"]').tap();
   for (let i = 0; i < 100 && db.writes.length === before; i++) await mobile.waitForTimeout(30);
   assert.equal(db.words.get('w4').senses[0].meaning, '勉強する');
   await mobileEntry.locator('[data-op="badges"]').tap();
@@ -517,7 +540,7 @@ try {
   bigServer.close();
 
   assert.deepEqual(errors, []);
-  console.log('Viewer-style editor: selection, inline edits, autosave, undo, badges, +/- rows, insertion, moves, drag, section edits and idioms passed');
+  console.log('Viewer-style editor: selection, inline edits, manual save, reset, badges, +/- rows, insertion, moves, drag, section edits and idioms passed');
 } finally {
   await browser.close();
   server.close();
