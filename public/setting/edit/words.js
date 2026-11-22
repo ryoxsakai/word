@@ -435,6 +435,66 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
 
   // 選択中の単語に＋／−・メニュー・ドラッグの部品を重ねる。
+  // The viewer groups meanings by part of speech and puts the primary meaning first.
+  function senseGroups(senses) {
+    const groups = new Map();
+    for (const sense of senses) {
+      if (!groups.has(sense.pos)) groups.set(sense.pos, []);
+      groups.get(sense.pos).push(sense);
+    }
+    return [...groups.values()].map(group => group.sort((a, b) => Number(b.is_primary) - Number(a.is_primary)));
+  }
+
+  function orderPanel(row) {
+    const groups = senseGroups(row.draft.senses);
+    const rowHtml = (kind, index, label, enabled, group = "") => {
+      const handle = enabled ? `<button type="button" class="edit-order-grip" data-op="order-grip" aria-label="${h(label)}を並べ替え" title="ドラッグまたは上下キーで移動"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>` : "";
+      return `<div class="edit-order-row" data-kind="${kind}" data-index="${index}" data-group="${group}" data-drag-label="${h(label)}">${handle}<span>${h(label)}</span></div>`;
+    };
+    const senses = groups.map((group, g) => rowHtml("group", g, group[0].pos || "品詞なし", groups.length > 1) +
+      group.map((sense, i) => rowHtml("sense", i, `${i + 1}. ${sense.meaning}`, group.length > 1, g)).join("")).join("");
+    const phrases = row.draft.examples.map((ex, i, all) => rowHtml("phrase", i, [ex.sentence, ex.translation].filter(Boolean).join("　"), all.length > 1)).join("");
+    return `<div class="edit-order-panel"><p class="edit-hint">取っ手をドラッグして移動します。スマホは長押し、キーボードは上下キーで操作できます。</p>${senses ? `<h3>意味</h3>${groups.some(group => group.length > 1 && group.some(s => s.is_primary)) ? '<p class="edit-hint">見出しの意味を含む品詞では、先頭が見出しになります。</p>' : ""}${senses}` : ""}${phrases ? `<h3>フレーズ</h3>${phrases}` : ""}</div>`;
+  }
+
+  function sameOrderList(a, b) {
+    return a.closest(".edit-order-panel") === b.closest(".edit-order-panel") &&
+      a.dataset.kind === b.dataset.kind && a.dataset.group === b.dataset.group;
+  }
+  function movePart(source, target, before) {
+    const row = S.rows.get(source.closest(".entry").dataset.wordId);
+    if (!row || row.saving || !sameOrderList(source, target)) return;
+    const from = Number(source.dataset.index), targetIndex = Number(target.dataset.index);
+    const to = targetIndex + (before ? 0 : 1) - (from < targetIndex ? 1 : 0);
+    if (from === to) return;
+    const { kind, group } = source.dataset;
+    mutate(row, draft => {
+      const groups = senseGroups(draft.senses);
+      const list = kind === "group" ? groups : kind === "sense" ? groups[Number(group)] : draft.examples;
+      const primaryCount = kind === "sense" ? list.filter(s => s.is_primary).length : 0;
+      list.splice(to, 0, list.splice(from, 1)[0]);
+      if (kind === "sense" && primaryCount) list.forEach((s, i) => { s.is_primary = i < primaryCount; });
+      if (kind !== "phrase") draft.senses = groups.flat();
+    });
+    return to;
+  }
+
+  sortable(root, {
+    handleSelector: ".edit-order-grip", itemSelector: ".edit-order-row", idOf: el => el,
+    canDrop: sameOrderList, onDrop: movePart,
+  });
+  root.addEventListener("keydown", event => {
+    const grip = event.target.closest(".edit-order-grip");
+    if (!grip || !["ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    const source = grip.closest(".edit-order-row");
+    const { kind, group, index } = source.dataset;
+    const up = event.key === "ArrowUp";
+    const selector = `.edit-order-row[data-kind="${kind}"][data-group="${group}"][data-index="${Number(index) + (up ? -1 : 1)}"]`;
+    const target = source.closest(".edit-order-panel").querySelector(selector);
+    if (target && movePart(source, target, up) !== undefined) entryEl(S.selectedId)?.querySelector(selector + " button")?.focus();
+  });
+
   function decorateSelected() {
     const id = S.selectedId;
     const article = id && entryEl(id);
@@ -452,6 +512,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     no.title = "長押し（マウスはドラッグ）で並べ替え";
     const head = article.querySelector(".entry-head");
     insert(head, `<button type="button" class="edit-chip" data-op="badges"><i class="fa-solid fa-tags" aria-hidden="true"></i>バッジ</button><button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
+    if (row.draft.senses.length > 1 || row.draft.examples.length > 1) {
+      insert(head.querySelector('[data-op="menu"]'), `<button type="button" class="edit-chip" data-op="order-parts" aria-pressed="${!!row.orderMode}"><i class="fa-solid fa-arrow-down-up-across-line" aria-hidden="true"></i>${row.orderMode ? "並べ替え完了" : "並べ替え"}</button>`, "beforebegin");
+      if (row.orderMode) {
+        const content = article.querySelector(".entry-content");
+        content.hidden = true;
+        insert(content, orderPanel(row), "afterend");
+      }
+    }
     for (const item of article.querySelectorAll(".sense-item[data-sense-index]")) insert(item, btn("remove-sense", "この意味を削除", `data-index="${item.dataset.senseIndex}"`, "edit-minus"));
     for (const line of article.querySelectorAll(".sense-line[data-edit-pos]")) insert(line, btn("add-sense", "同じ品詞の意味を追加", `data-pos="${h(line.dataset.editPos)}"`));
     const card = article.querySelector(".entry-card");
@@ -467,6 +535,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const derivatives = article.querySelector(".notes-derivative .notes-content");
     if (derivatives) insert(derivatives, `<button type="button" class="edit-add-inline" data-op="add-derivative"><i class="fa-solid fa-plus" aria-hidden="true"></i>派生語</button>`);
     for (const block of article.querySelectorAll(".notes-block[data-field]:not(.notes-derivative)")) insert(block, btn("remove-field", "この欄を削除", `data-field="${block.dataset.field}"`, "edit-minus"));
+    const picture = card.querySelector(":scope > .entry-illustration");
+    if (picture) {
+      const column = document.createElement("div");
+      column.className = "edit-illustrated-fields";
+      for (const child of [...card.children]) if (child !== picture) column.append(child);
+      card.append(column);
+      card.classList.add("edit-illustrated-card");
+    }
     if (row.error) insert(article.querySelector(".entry-body"), `<p class="edit-error" role="alert">${h(row.error)} <button type="button" data-op="retry-save">再試行</button>${row.conflict ? ' <button type="button" data-op="reload-word">最新を読み込む</button>' : ""}</p>`);
     root.querySelectorAll(".edit-insert-word").forEach(el => el.remove());
     if (!row.isNew) article.insertAdjacentHTML("afterend", `<button type="button" class="edit-add-bar edit-insert-word" data-op="insert-word" data-after="${h(id)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ここに単語を追加</button>`);
@@ -611,6 +687,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- 保存 ----
   function resetWord(row) {
+    row.orderMode = false;
     if (row.isNew) return discardNewWord(row);
     row.draft = clone(row.base);
     row.pendingItem = row.pendingUndoBase = null;
@@ -632,8 +709,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   async function saveWord(row) {
     if (row.saving) return;
     if (!row.draft.spelling.trim()) return toast("見出し語を入力してください", { tone: "error" });
+    row.orderMode = false;
     if (row.isNew) return commitNewWord(row);
-    if (same(row.base, row.draft)) return;
+    if (same(row.base, row.draft)) return rerenderEntry(row.id);
     row.error = ""; row.conflict = false;
     showSaveStep(row, updateSteps, 0);
     try {
@@ -1314,6 +1392,12 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const op = el.dataset.op;
     const id = el.dataset.id != null ? Number(el.dataset.id) : null;
     switch (op) {
+      case "order-grip": return;
+      case "order-parts":
+        finishInlineEditing();
+        row.orderMode = !row.orderMode;
+        rerenderEntry(row.id);
+        return;
       case "add-sense": {
         const pos = el.dataset.pos;
         const last = row.draft.senses.map((s, i) => [s, i]).filter(([s]) => (s.pos || "") === pos).at(-1);

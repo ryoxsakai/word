@@ -523,6 +523,9 @@ try {
       illustration: i % 20 === 0 ? { url: `/mcp-viewer/api/illustrations/${id}/0a1b2c3d-0000-4000-8000-${String(i).padStart(12, '0')}.png`, meaning: 'x' } : undefined });
     big.members.set(id, { no: i + 1, branch: 0, sectionId: 1000 + Math.floor(i / 20), labelId: null });
   }
+  const illustrated = big.words.get('b680');
+  illustrated.senses.push({ pos: '名', meaning: '別の意味', is_primary: false });
+  illustrated.examples = ['first phrase', 'second phrase'].map((sentence, i) => ({ type: 'phrase', sentence, translation: String(i), answer: '' }));
   const bigServer = await startServer(big);
   const bigOrigin = `http://localhost:${bigServer.address().port}`;
   const bigPage = await browser.newPage({ viewport: { width: 393, height: 900 } });
@@ -541,6 +544,35 @@ try {
   assert.ok(big.publicReads - readsBefore <= 6, `途中のSectionを読み込まない（${big.publicReads - readsBefore}件）`);
   assert.ok(big.imageRequests.every(url => /\/b(6[0-9]{2}|7[0-9]{2})\//.test(url)), `移動先付近の画像だけを読む：${big.imageRequests.join(',')}`);
   assert.ok(await bigPage.locator('#sectionNav button.active', { hasText: 'Section 35' }).count() === 1, '下部ナビで現在のSectionを強調');
+  const card = bigPage.locator('[data-section-entries="1034"] .entry[data-word-id="b680"]');
+  await card.locator('.headword').click();
+  const picture = await card.locator('.entry-illustration').boundingBox();
+  for (const control of await card.locator('.edit-illustrated-fields button').all()) {
+    const box = await control.boundingBox();
+    if (box) assert.ok(box.x + box.width <= picture.x + 1, '編集部品を画像の左に収める');
+  }
+  const orderButton = card.locator('[data-op="order-parts"]');
+  await orderButton.click();
+  const senses = card.locator('[data-kind="sense"]');
+  await senses.nth(1).locator('button').press('ArrowUp');
+  assert.match(await senses.first().textContent(), /別の意味/);
+  await card.locator('[data-op="reset-word"]').click();
+  assert.match(await card.locator('.sense-meaning').first().textContent(), /意味680/);
+
+  await orderButton.click();
+  const phrases = card.locator('[data-kind="phrase"]');
+  await phrases.first().evaluate(el => el.scrollIntoView({ block: 'center' }));
+  const grip = await phrases.nth(1).locator('button').boundingBox();
+  const destination = await phrases.first().boundingBox();
+  await bigPage.mouse.move(grip.x + 12, grip.y + 12);
+  await bigPage.mouse.down();
+  await bigPage.mouse.move(destination.x + 16, destination.y + 4, { steps: 8 });
+  await bigPage.mouse.up();
+  assert.match(await phrases.first().textContent(), /second phrase/);
+  assert.equal(big.writes.length, 0);
+  await card.locator('[data-op="save-word"]').click();
+  await bigPage.waitForFunction(() => !document.querySelector('.entry.is-saving'));
+  assert.deepEqual(big.words.get('b680').examples.map(ex => ex.translation), ['1', '0']);
   await bigPage.close();
   bigServer.close();
 
