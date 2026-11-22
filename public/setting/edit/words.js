@@ -234,6 +234,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const resumeId = position && (S.seq.has(position.id) ? position.id : S.order.find(item => S.seq.get(item.id) === position.number)?.id);
     S.navPaused = !!resumeId;
     renderShells();
+    onStructureChange?.();
     if (resumeId) {
       const item = S.order.find(word => word.id === resumeId);
       if (await this.navigateToSection(sectionKey(item.sectionId), { targetId: `word-${resumeId}` })) alignReadingWord(resumeId);
@@ -242,7 +243,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (first) await loadSection(sectionKey(first.id));
     }
     await afterBodyPaint();
-    onStructureChange?.();
     // 参照用データは表示を止めずに後から読む。
     Promise.allSettled([api(`${base}/editor/references`), api(`${base}/editor/idioms`)]).then(([references, idioms]) => {
       if (references.status === "fulfilled") S.referenceWords = references.value.words || [];
