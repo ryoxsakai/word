@@ -57,10 +57,10 @@ async function request(path, options, timeout = 0) {
 }
 
 // fresh: 公開待ちの変更を含む最新の内容を求める。公開待ちのときは公開済みの内容へ戻す（fallback）。
-export async function api(path, { method = "GET", body, fresh = false } = {}) {
+export async function api(path, { method = "GET", body, fresh = false, writeTimeout = 0 } = {}) {
   const read = method === "GET";
   if (!read) {
-    const { response, data } = await request(path, { method, body: body == null ? undefined : JSON.stringify(body) });
+    const { response, data } = await request(path, { method, body: body == null ? undefined : JSON.stringify(body) }, writeTimeout);
     if (!response.ok) throw new ApiError(data?.error || `HTTP ${response.status}`, { status: response.status, code: data?.code });
     if (response.headers.get("x-editor-snapshots") === "r2") {
       setPendingMarker();
@@ -89,6 +89,18 @@ export async function api(path, { method = "GET", body, fresh = false } = {}) {
     }
     throw new ApiError(data?.error || `HTTP ${response.status}`, { status: response.status, code: data?.code });
   }
+}
+
+// A write may have committed even when its response was lost. Verify via a
+// bounded detail read; never replay the write during recovery.
+export async function verifyWordSave(path, matches) {
+  const { response, data } = await request(path, { method: "GET" }, 8000);
+  if (!response.ok || !data || !matches(data)) return null;
+  if (response.headers.get("x-editor-snapshots") === "r2") {
+    setPendingMarker();
+    watchPublication();
+  }
+  return data;
 }
 
 // 閲覧ページへの反映を15秒ごとに確認する（読み出しのみ）。

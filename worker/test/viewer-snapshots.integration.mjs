@@ -230,6 +230,10 @@ try {
  // A real REST write wakes publishing. Unaffected sections retain exact object keys.
  const saved=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:'alpha',notes:'changed note',synonyms:'serve; perform; carry A out',senses:[{pos:'名',meaning:'甲',is_primary:1,sort_order:0}]})});
  assert.equal(saved.status,200,await saved.clone().text());
+ const detail=await saved.json();
+ const noteOnly=await api('/api/words/snap-a',{method:'PUT',headers:{'content-type':'application/json'},body:JSON.stringify({spelling:detail.spelling,notes:detail.notes,synonyms:detail.synonyms,updatedCollections:[],senses:[]})});
+ assert.equal(noteOnly.status,200,await noteOnly.clone().text());
+ assert.deepEqual((await noteOnly.json()).senses,detail.senses,'an untouched sense keeps its text and database id');
  assert.equal((await editorGet('/lists/snapshot-test/editor/index?editorFresh=1')).status,503,'read-after-write waits for publication without D1');
  status=await waitPublished(status.revision);
  manifest=await(await bucket.get('current.json')).json();

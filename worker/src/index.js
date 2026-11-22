@@ -1469,14 +1469,17 @@ async function replaceTags(db, wordId, tags) {
 
 // senses/derivatives/examples/tagsの置き換えを1回のdb.batch()にまとめて送る。
 // (以前は各行ごとにawaitしており、単語1件の保存でD1への往復が10回以上発生し遅かった)
-async function saveWordChildren(db, id, body) {
-  const stmts = [
-    ...buildReplaceChildRowsStatements(db, "senses", ["pos", "meaning", "pronunciation", "is_primary", "sort_order"], id, body.senses),
-    ...buildReplaceChildRowsStatements(db, "derivatives", ["pos", "word", "meaning", "sort_order"], id, body.derivatives),
-    ...buildReplaceChildRowsStatements(db, "examples", ["sentence", "answer", "translation", "type", "sort_order"], id, body.examples),
-    ...buildReplaceTagsStatements(db, id, body.tags),
-  ];
-  await runBatched(db, stmts);
+const wordChildColumns = {
+  senses: ["pos", "meaning", "pronunciation", "is_primary", "sort_order"],
+  derivatives: ["pos", "word", "meaning", "sort_order"],
+  examples: ["sentence", "answer", "translation", "type", "sort_order"],
+};
+const wordCollections = [...Object.keys(wordChildColumns), "tags"];
+
+function wordChildStatements(db, id, body, collections = wordCollections) {
+  return collections.flatMap(key => key === "tags"
+    ? buildReplaceTagsStatements(db, id, body.tags)
+    : buildReplaceChildRowsStatements(db, key, wordChildColumns[key], id, body[key]));
 }
 
 async function resolveDerivedFrom(db, body) {
@@ -1530,7 +1533,7 @@ async function createWord(db, body) {
       derivedFromId
     )
     .run();
-  await saveWordChildren(db, id, body);
+  await runBatched(db, wordChildStatements(db, id, body));
 
   if (body.listId && isNotebookListId(body.listId)) {
     const parsed = parseBranchNo(body.no);
@@ -1570,27 +1573,19 @@ async function updateWord(env, id, body) {
     body.conjugationCaution ? 1 : 0,
     body.usageCaution ? 1 : 0,
   ];
-  if (derivedFromResolved.id !== undefined) {
-    if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
-    await db
-      .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, related_words = ?, irregular_forms = ?,
-                           ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, derived_from_id = ?, updated_at = datetime('now')
-         WHERE id = ?`
-      )
-      .bind(...commonBinds, derivedFromResolved.id, id)
-      .run();
-  } else {
-    await db
-      .prepare(
-        `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, related_words = ?, irregular_forms = ?,
-                           ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?, updated_at = datetime('now')
-         WHERE id = ?`
-      )
-      .bind(...commonBinds, id)
-      .run();
+  if (derivedFromResolved.id === id) return badRequest("a word cannot be derived from itself");
+  const collections = body.updatedCollections === undefined ? wordCollections : body.updatedCollections;
+  if (!Array.isArray(collections) || collections.some(key => !wordCollections.includes(key))) {
+    return badRequest("invalid updatedCollections");
   }
-  await saveWordChildren(db, id, body);
+  const setParent = derivedFromResolved.id !== undefined;
+  if (setParent) commonBinds.push(derivedFromResolved.id);
+  const update = db.prepare(
+    `UPDATE words SET spelling = ?, pronunciation = ?, audio_url = ?, etymology = ?, notes = ?, synonyms = ?, antonyms = ?, related_words = ?, irregular_forms = ?,
+                      ergative = ?, pronunciation_caution = ?, accent_caution = ?, polysemous_caution = ?, spelling_caution = ?, conjugation_caution = ?, usage_caution = ?,
+                      ${setParent ? "derived_from_id = ?," : ""} updated_at = datetime('now') WHERE id = ?`
+  ).bind(...commonBinds, id);
+  await db.batch([update, ...wordChildStatements(db, id, body, [...new Set(collections)])]);
   if (existing.spelling !== body.spelling) {
     try {
       await generateAudioAfterSpellingChange(env, id, existing.spelling, body.spelling);
