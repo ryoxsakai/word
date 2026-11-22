@@ -12,7 +12,7 @@ import {
   createAutoCrossRefRenderer, createPhraseCrossReferenceResolver,
 } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
-import { api, verifyWordSave } from "./api.js";
+import { api, saveExistingWord } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
@@ -757,18 +757,16 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         const body = wordPayload(desired, latest);
         body.updatedCollections = ["senses", "examples", "derivatives"].filter(key => changed.includes(key));
         if (changed.some(key => ["oxford5000", "cefr_provisional", "awl", "eiken", "custom"].includes(key))) body.updatedCollections.push("tags");
-        try {
-          saved = await api(path, { method: "PUT", body, writeTimeout: 15000 });
-          if (saved?.id !== row.id) throw new Error("保存応答を読み取れません");
-        } catch (error) {
-          if (error.status && error.status < 500) throw error;
-          showSaveStep(row, [updateSteps[0], "サーバーの保存内容を再確認中"], 1);
-          saved = await verifyWordSave(path, detail => {
-            const actual = draftOf(detail);
-            return detail.id === row.id && changed.every(key => same(actual[key], desired[key]));
-          }).catch(() => null);
-          if (!saved) throw Object.assign(new Error("保存結果を確認できません。下書きを保持しています。"), { unconfirmed: true });
-        }
+        const expected = draftOf({
+          ...body, derivedFromSpelling: body.derivedFrom,
+          tags: { ...body.tags, cefr_provisional: body.tags.cefr_provisional?.trim().toUpperCase() },
+          senses: body.senses.map(s => ({ ...s, meaning: s.meaning.replace(/[〔【]/gu, "(").replace(/[〕】]/gu, ")") })),
+          examples: body.examples.map(e => ({ ...e, type: "phrase" })),
+        });
+        saved = await saveExistingWord(path, row.id, body, detail => {
+          const actual = draftOf(detail);
+          return changed.every(key => same(actual[key], expected[key]));
+        }, () => showSaveStep(row, [updateSteps[0], "サーバーの登録内容を照合中"], 1));
       }
       row.raw = toViewer(saved, row.raw);
       row.base = draftOf(saved);

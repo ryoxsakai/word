@@ -74,10 +74,18 @@ async function handleApi(db, method, path, body) {
     return detail(db, id);
   }
   if (parts[0] === 'words' && parts.length === 2) {
-    if (method === 'GET') return detail(db, parts[1]);
+    if (method === 'GET') {
+      if (db.staleDetail?.id === parts[1]) {
+        const old = db.staleDetail;
+        delete db.staleDetail;
+        return old;
+      }
+      return detail(db, parts[1]);
+    }
     if (method === 'PUT') {
       if (db.putDelay) await new Promise(resolve => setTimeout(resolve, db.putDelay));
-      db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
+      if (db.loseNextWriteResponse) db.staleDetail = detail(db, parts[1]);
+      db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, examples: body.examples.map(e => ({ ...e, type: 'phrase' })), senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
       return detail(db, parts[1]);
     }
   }
@@ -534,7 +542,7 @@ try {
   }
   const illustrated = big.words.get('b680');
   illustrated.senses.push({ pos: '名', meaning: '別の意味', is_primary: false });
-  illustrated.examples = ['first phrase', 'second phrase'].map((sentence, i) => ({ type: 'phrase', sentence, translation: String(i), answer: '' }));
+  illustrated.examples = ['first phrase', 'second phrase'].map((sentence, i) => ({ type: 'example', sentence, translation: String(i), answer: '' }));
   const bigServer = await startServer(big);
   const bigOrigin = `http://localhost:${bigServer.address().port}`;
   const bigContext = await browser.newContext({ viewport: { width: 393, height: 900 } });
