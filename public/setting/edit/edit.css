@@ -324,6 +324,9 @@ body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-
 .collection-toolbar .is-danger { color: var(--edit-danger); font-size: .85rem; font-weight: 600; }
 .collection-toolbar button:disabled { opacity: .3; }
 .collection-toolbar [data-grip] { touch-action: none; cursor: grab; }
+.collection-field textarea[data-field="word"] {
+  field-sizing: content; min-inline-size: 0; resize: none; overflow-wrap: anywhere;
+}
 .collection-field { display: grid; gap: .2rem; }
 .collection-field, .collection-options label { font-size: .85rem; }
 .collection-options { gap: 1rem; }
