@@ -189,7 +189,19 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
 // ---- ダブルタップ・ダブルクリック ----
 // 1回目のタップで再描画されても判定できるよう、要素ではなく位置と時間で判定する。
 export function onDoubleActivate(root, handler) {
-  let last = null;
+  let last = null, consumedTouch = false;
+  root.addEventListener("pointerdown", () => { consumedTouch = false; }, true);
+  // A touch double-tap can replace the label with a focused input before the
+  // compatibility mouse events arrive. Keep those events from blurring it.
+  root.addEventListener("touchend", event => { if (consumedTouch) event.preventDefault(); }, { passive: false });
+  for (const type of ["mousedown", "click"]) {
+    root.addEventListener(type, event => {
+      if (!consumedTouch || event.detail === 0) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (type === "click") consumedTouch = false;
+    }, true);
+  }
   root.addEventListener("pointerup", event => {
     if (event.button > 0) return;
     const now = performance.now();
@@ -200,6 +212,9 @@ export function onDoubleActivate(root, handler) {
       last = null;
       const target = document.elementFromPoint(event.clientX, event.clientY) || event.target;
       if (!root.contains(target)) return;
+      if (event.pointerType === "touch" && target.closest("[data-edit], [data-edit-header]") && !target.closest("button, a, .edit-inline")) {
+        consumedTouch = true;
+      }
       handler(event, target);
       if (event.pointerType !== "mouse") event.preventDefault();
       return;
