@@ -123,22 +123,29 @@ function setView(view) {
     tab.setAttribute("aria-selected", String(tab.dataset.view === view));
     tab.tabIndex = tab.dataset.view === view ? 0 : -1;
   }
-  ensureIdioms();
+  if (view === "idioms") ensureIdioms();
   if (view === "index") renderIndex();
   renderContents();
   renderBottomNav();
 }
+let idiomsReady = null;
 function ensureIdioms() {
-  if (idioms || !words) return idioms;
-  idioms = createIdiomEditor({ root: el.idiomList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
-  idioms.attachContentsSorting(el.contentsNav);
-  idiomsReady = idioms.load().then(() => true, error => {
-    el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)}</p>`;
+  if (!words?.state.list) return Promise.resolve(false);
+  if (!idioms) {
+    idioms = createIdiomEditor({ root: el.idiomList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
+    idioms.attachContentsSorting(el.contentsNav);
+  }
+  // The editor owns listeners and draft state; only retry its failed read.
+  idiomsReady ||= idioms.load().then(() => true, error => {
+    idiomsReady = null;
+    el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)} <button type="button" data-retry-idioms>再試行</button></p>`;
     return false;
   });
-  return idioms;
+  return idiomsReady;
 }
-let idiomsReady = null;
+el.idiomList.addEventListener("click", event => {
+  if (event.target.closest("[data-retry-idioms]")) ensureIdioms();
+});
 el.tabs.forEach(tab => tab.addEventListener("click", () => setView(tab.dataset.view)));
 
 el.jumpForm.addEventListener("submit", event => {
@@ -250,33 +257,50 @@ el.sectionNav.addEventListener("click", async event => {
 
 // ---- 索引（閲覧ページと同じ並び。タップでその単語・熟語へ移動して選択する） ----
 let indexSource = null;
+let indexRender = 0;
+function loadIndexSource() {
+  // Keep successful reads (including a genuinely empty index), not failures.
+  indexSource ||= fetch(`${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/index`, { cache: "no-cache" }).then(async response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const source = await response.json();
+    if (!Array.isArray(source?.words)) throw new Error("索引データが不正です");
+    return source;
+  }).catch(() => {
+    indexSource = null;
+    return null;
+  });
+  return indexSource;
+}
 async function renderIndex() {
-  if (!words) return;
+  if (!words?.state.list) return;
+  const render = ++indexRender;
   if (!el.indexList.childElementCount) el.indexList.innerHTML = '<p class="index-empty">索引を読み込み中...</p>';
   try {
-    // 類義語・派生語などの参照は、閲覧ページの公開索引（端末にキャッシュ済みのことが多い）から作る。
-    indexSource ||= fetch(`${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/index`, { cache: "no-cache" }).then(r => r.ok ? r.json() : { words: [] }).catch(() => ({ words: [] }));
-    const source = await indexSource;
-    if (idiomsReady) await idiomsReady;
-    const byId = new Map((source.words || []).map(w => [w.id, w]));
+    const [source, idiomsLoaded] = await Promise.all([loadIndexSource(), ensureIdioms()]);
+    if (render !== indexRender || activeView !== "index") return;
+    const byId = new Map((source?.words || []).map(w => [w.id, w]));
     const indexWords = words.state.order.map(item => ({ ...(byId.get(item.id) || {}), id: item.id, spelling: item.spelling, branch: item.branch, seqNo: words.seqOf(item.id) }));
-    const entries = buildAlphabeticalIndexEntries(indexWords, idioms?.visibleEntries?.() || []);
+    const entries = buildAlphabeticalIndexEntries(indexWords, idiomsLoaded ? idioms.visibleEntries() : []);
     const groups = [];
     for (const entry of entries) {
       const letter = (getAlphabeticalIndexKey(entry.spelling)[0] || "").toUpperCase();
       if (groups.at(-1)?.letter !== letter) groups.push({ letter, items: [] });
       groups.at(-1).items.push(entry);
     }
-    el.indexList.innerHTML = groups.length ? groups.map((group, index) => `<div class="index-group" id="index-group-${index}" data-index-key="${index}"><h2 class="index-letter">${h(group.letter)}</h2><div class="index-columns">${group.items.map(e => `<div class="index-entry index-kind-${e.kind}${e.isRef ? " is-ref" : ""}" data-index-jump="${h(e.targetId)}" data-kind="${e.kind}"><span class="index-word">${h(e.spelling)}</span><span class="index-loc"${e.isRef ? ` title="${h(e.loc)}"` : ""}>${h(e.loc)}</span></div>`).join("")}</div></div>`).join("") : '<p class="index-empty">単語がまだ登録されていません。</p>';
-    if (activeView === "index") { renderBottomNav(); renderContents(); }
+    const warning = source && idiomsLoaded ? "" : '<p class="index-empty" role="status">索引の一部を読み込めませんでした。 <button type="button" data-retry-index>再試行</button></p>';
+    const content = groups.length ? groups.map((group, index) => `<div class="index-group" id="index-group-${index}" data-index-key="${index}"><h2 class="index-letter">${h(group.letter)}</h2><div class="index-columns">${group.items.map(e => `<div class="index-entry index-kind-${e.kind}${e.isRef ? " is-ref" : ""}" data-index-jump="${h(e.targetId)}" data-kind="${e.kind}"><span class="index-word">${h(e.spelling)}</span><span class="index-loc"${e.isRef ? ` title="${h(e.loc)}"` : ""}>${h(e.loc)}</span></div>`).join("")}</div></div>`).join("") : warning ? "" : '<p class="index-empty">単語がまだ登録されていません。</p>';
+    el.indexList.innerHTML = warning + content;
+    renderBottomNav(); renderContents();
   } catch (error) {
+    if (render !== indexRender || activeView !== "index") return;
     el.indexList.innerHTML = `<p class="index-empty">索引を読み込めませんでした：${h(error.message)}</p>`;
   }
 }
 el.indexList.addEventListener("click", event => {
+  if (event.target.closest("[data-retry-index]")) { renderIndex(); return; }
   const item = event.target.closest("[data-index-jump]");
   if (!item) return;
-  if (item.dataset.kind === "idiom") { setView("idioms"); idiomsReady?.then(() => idioms.navigateToEntry(item.dataset.indexJump)); }
+  if (item.dataset.kind === "idiom") { setView("idioms"); idiomsReady?.then(loaded => { if (loaded && activeView === "idioms") idioms.navigateToEntry(item.dataset.indexJump); }); }
   else { setView("list"); words.navigateToWord(item.dataset.indexJump); }
 });
 
@@ -337,8 +361,7 @@ el.searchForm.addEventListener("submit", event => {
     finish("本文", true);
   }).catch(() => finish("本文", false));
 
-  ensureIdioms();
-  idiomsReady.then(loaded => {
+  ensureIdioms().then(loaded => {
     if (signal.aborted) return;
     if (loaded) {
       const hits = idioms.state.order.filter(item => [item.phrase, ...(item.alternateForms || [])].some(text => String(text).toLowerCase().includes(query)));
@@ -411,6 +434,8 @@ async function start() {
     const position = readingPosition("editor", listId, el.wordList, () => activeView === "list");
     await words.load(crossover, { position: position.saved, structure: listId === LIST_ID_FALLBACK ? structure : null });
     position.start();
+    if (activeView === "idioms") ensureIdioms();
+    if (activeView === "index") renderIndex();
   } catch (error) {
     el.wordList.innerHTML = `<p class="index-empty">読み込めませんでした：${h(error.message)} <button type="button" id="reloadPage">再読み込み</button></p>`;
     document.getElementById("reloadPage")?.addEventListener("click", () => location.reload());
