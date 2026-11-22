@@ -143,6 +143,11 @@ function startServer(db) {
         try {
           // 本番と同じく、公開が終わるまでは最新を求める読み出しを「公開待ち」で返す。
           // 公開処理が混んで、最新の確認が返ってこない状態を再現する。
+          if (req.method === 'GET' && req.url.startsWith('/api/lookup?')) {
+            const spelling = new URL(req.url, 'http://x').searchParams.get('spelling');
+            (db.lookupRequests ??= []).push(spelling);
+            if (spelling === db.hangLookup) return;
+          }
           if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.hangFresh) return;
           // 見出しだけ返し、本文が届かない状態を再現する。
           if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.hangFreshBody) { res.writeHead(200, { 'content-type': 'application/json' }); res.write('{'); return; }
@@ -237,9 +242,30 @@ try {
   assert.equal(db.words.get('w1').senses[0].meaning, 'takeの意味');
 
   // バッジのタイル：注意バッジを付ける。
-  await entry('w1').locator('[data-op="badges"]').click();
-  await page.locator('.edit-tile', { hasText: 'スペル' }).click();
-  await page.locator('.edit-sheet-close').click();
+  const badges = entry('w1').locator('[data-op="badges"]');
+  await badges.focus();
+  await page.keyboard.press('Enter');
+  const badgeDialog = page.getByRole('dialog', { name: 'バッジ' });
+  const closeBadgeDialog = badgeDialog.getByRole('button', { name: '閉じる' });
+  assert.equal(await badgeDialog.getAttribute('aria-modal'), 'true');
+  assert.ok(await closeBadgeDialog.evaluate(el => el === document.activeElement));
+  await page.keyboard.press('Shift+Tab');
+  assert.ok(await badgeDialog.locator('.edit-tile').last().evaluate(el => el === document.activeElement));
+  await page.keyboard.press('Tab');
+  assert.ok(await closeBadgeDialog.evaluate(el => el === document.activeElement));
+  await page.keyboard.press('Escape');
+  assert.equal(await badgeDialog.count(), 0);
+  assert.ok(await badges.evaluate(el => el === document.activeElement));
+
+  await page.keyboard.press('Enter');
+  const spellingTile = badgeDialog.getByRole('button', { name: 'スペル', exact: true });
+  await spellingTile.focus();
+  await page.keyboard.press('Space');
+  assert.equal(await spellingTile.getAttribute('aria-pressed'), 'true');
+  assert.ok(await spellingTile.evaluate(el => el === document.activeElement));
+  await page.keyboard.press('Escape');
+  assert.equal(await badgeDialog.count(), 0);
+  assert.ok(await badges.evaluate(el => el === document.activeElement));
   await save('w1');
   await waitWrites(3);
   assert.equal(db.words.get('w1').spellingCaution, true);
@@ -529,6 +555,41 @@ try {
   await entry('w1').waitFor({ timeout: 15000 });
   assert.ok(Date.now() - startedBody < 12000, `本文が届かなくても公開済みの内容で表示する（${Date.now() - startedBody}ms）`);
   db.hangFreshBody = false;
+
+  // 辞書の応答は任意。取得済みの発音を尊重し、停止した辞書を待たずに一度だけ登録する。
+  const insertDraft = async spelling => {
+    await dbl(entry('w1').locator('.entry-no'));
+    await page.locator('[data-op="insert-word"]').click();
+    await page.locator('.edit-inline-input').fill(spelling);
+    await page.locator('.edit-inline-input').press('Enter');
+    return page.locator('.is-new-entry');
+  };
+  db.lookupRequests = [];
+  const known = await insertDraft('known-pronunciation');
+  await known.locator('[data-op="menu"]').click();
+  await page.locator('.edit-menu-item', { hasText: '発音記号を取得' }).click();
+  await known.locator('.pron:not(.edit-empty)').waitFor();
+  const saveKnown = db.writes.length;
+  await known.locator('[data-op="save-word"]').click();
+  const knownCard = page.locator('.entry:not(.is-new-entry)', { hasText: 'known-pronunciation' });
+  await knownCard.waitFor();
+  await knownCard.locator('.word-save-progress').waitFor({ state: 'hidden' });
+  assert.deepEqual(db.lookupRequests, ['known-pronunciation'], '保存時に辞書を取り直さない');
+  assert.deepEqual(db.writes.slice(saveKnown).map(w => w.path), ['/api/words', `/api/lists/${LIST}/reorder`]);
+  assert.equal(db.writes[saveKnown].body.pronunciation, 'ˈnjuː');
+
+  db.hangLookup = 'slow-dictionary';
+  const slow = await insertDraft(db.hangLookup);
+  const saveSlow = db.writes.length;
+  const startedSlow = Date.now();
+  await slow.locator('[data-op="save-word"]').click();
+  const slowCard = page.locator('.entry:not(.is-new-entry)', { hasText: db.hangLookup });
+  await slowCard.waitFor({ timeout: 10000 });
+  await slowCard.locator('.word-save-progress').waitFor({ state: 'hidden' });
+  assert.ok(Date.now() - startedSlow < 10000, '応答が来ない辞書は20秒待たない');
+  assert.deepEqual(db.lookupRequests, ['known-pronunciation', 'slow-dictionary'], '辞書を再試行しない');
+  assert.deepEqual(db.writes.slice(saveSlow).map(w => w.path), ['/api/words', `/api/lists/${LIST}/reorder`]);
+  assert.equal(db.writes[saveSlow].body.pronunciation, null);
 
   // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
   const big = fixture();
