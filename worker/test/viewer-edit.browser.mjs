@@ -21,7 +21,7 @@ function fixture() {
     ['w1', word('w1', 'take', { pronunciation: 'teɪk', examples: [{ type: 'example', sentence: 'take a bus', translation: 'バスに乗る', answer: '' }] })],
     ['w2', word('w2', 'make', { synonyms: 'create' })],
     ['w3', word('w3', 'give')],
-    ['w4', word('w4', 'study')],
+    ['w4', word('w4', 'study', { illustration: { url: '/mcp-viewer/api/illustrations/w4/0a1b2c3d-0000-4000-8000-000000000001.png', meaning: '勉強' } })],
   ]);
   const members = new Map([
     ['w1', { no: 1, branch: 0, sectionId: 10, labelId: null }],
@@ -102,6 +102,13 @@ async function handleApi(db, method, path, body) {
     return { ok: true, count: body.items.length };
   }
   if (parts[2] === 'items' && method === 'DELETE') { db.members.delete(parts[3]); return null; }
+  // 閲覧ページの公開API（公開が遅れている状態を再現できるよう、frozenがあればその内容を返す）。
+  if (parts[2] === 'viewer' && parts[3] === 'sections') {
+    db.publicReads = (db.publicReads || 0) + 1;
+    if (db.publicDelay) await new Promise(resolve => setTimeout(resolve, db.publicDelay));
+    if (db.frozenPublic?.[parts[4]]) return db.frozenPublic[parts[4]];
+    return { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === parts[4]).map(([id]) => viewerWord(db, id)) };
+  }
   if (parts[2] === 'editor' && parts[3] === 'sections') return { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === parts[4]).map(([id]) => viewerWord(db, id)) };
   if (tail === 'editor/idioms') return { managed: true, chapters: db.idiomChapters, entries: db.idioms.map(({ key, phrase, sectionKey, hidden }) => ({ key, phrase, sectionKey, meanings: [], ...(hidden ? { hidden } : {}) })) };
   if (parts[2] === 'editor' && parts[3] === 'idiom-sections') return { sectionKey: parts[4], entries: structuredClone(db.idioms.filter(i => i.sectionKey === parts[4])) };
@@ -126,13 +133,26 @@ function startServer(db) {
         for await (const chunk of req) chunks.push(chunk);
         const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : null;
         try {
+          // 本番と同じく、公開が終わるまでは最新を求める読み出しを「公開待ち」で返す。
+          if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.frozenPublic) {
+            res.writeHead(503, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ code: 'editor_snapshot_pending', error: 'pending' }));
+            return;
+          }
           const data = await handleApi(db, req.method, req.url, body);
-          res.writeHead(data == null ? 204 : 200, { 'content-type': 'application/json' });
+          // 本番の書き込み応答と同じく、閲覧ページへの公開待ちを知らせる。
+          res.writeHead(data == null ? 204 : 200, { 'content-type': 'application/json', ...(req.method === 'GET' ? {} : { 'x-editor-snapshots': 'r2' }) });
           res.end(data == null ? '' : JSON.stringify(data));
         } catch (error) {
           res.writeHead(error.status || 500, { 'content-type': 'application/json' });
           res.end(JSON.stringify({ error: error.message }));
         }
+        return;
+      }
+      if (req.url.startsWith('/mcp-viewer/api/illustrations/')) {
+        db.imageRequests = [...(db.imageRequests || []), req.url];
+        res.writeHead(200, { 'content-type': 'image/png' });
+        res.end(await readFile(join(PUBLIC, 'shared/icons/apple-touch-icon-viewer.png')));
         return;
       }
       const path = normalize(join(PUBLIC, decodeURIComponent(new URL(req.url, 'http://x').pathname)));
@@ -256,6 +276,7 @@ try {
 
   // ドラッグ（マウス）で同じSection内の順番を変える。
   await entry('w2').locator('.headword').click();
+  await entry('w1').evaluate(el => window.scrollBy(0, el.getBoundingClientRect().top - 200));
   const handle = await entry('w2').locator('.entry-no').boundingBox();
   const target = await entry('w1').boundingBox();
   await page.mouse.move(handle.x + 5, handle.y + 5);
@@ -347,6 +368,34 @@ try {
   assert.equal(db.members.get('w2').sectionId, null);
   await page.locator('[data-section-entries="none"] .entry[data-word-id="w2"]').waitFor({ timeout: 5000 });
 
+  // イラストは閲覧ページと同じく、画面に近づくと読み込まれる。
+  const illustration = page.locator('.entry[data-word-id="w4"] .entry-illustration img');
+  await illustration.scrollIntoViewIfNeeded();
+  await page.waitForFunction(() => { const img = document.querySelector('.entry[data-word-id="w4"] .entry-illustration img'); return img?.complete && img.naturalWidth > 0; }, null, { timeout: 5000 });
+  assert.equal(await page.locator('.entry[data-word-id="w4"] .entry-illustration.is-loading').count(), 0);
+
+  // Sectionの表示データは閲覧ページと同じ端末キャッシュ（IndexedDB）に入る。
+  const cachedKeys = await page.evaluate(() => new Promise(resolve => {
+    const request = indexedDB.open('vocab-chapter-cache', 1);
+    request.onsuccess = () => { const tx = request.result.transaction('snapshots'); const all = tx.objectStore('snapshots').getAllKeys(); all.onsuccess = () => resolve(all.result); };
+    request.onerror = () => resolve([]);
+  }));
+  assert.ok(cachedKeys.includes('/api/lists/crossover-v3/viewer/sections/20'), JSON.stringify(cachedKeys));
+
+  // 閲覧ページへの反映が遅れていても、保存した直後の内容を再読み込み後に表示する。
+  const stale = viewerWord(db, 'w4');
+  db.frozenPublic = { 20: { words: [{ ...stale, senses: [{ pos: '動', meaning: '古い内容', isPrimary: true }] }] } };
+  await entry('w4').locator('.headword').click();
+  await dbl(entry('w4').locator('.sense-meaning').first());
+  await page.locator('.edit-inline-input').fill('学ぶ');
+  await page.locator('.edit-inline-input').press('Enter');
+  for (let i = 0; i < 100 && db.words.get('w4').senses[0].meaning !== '学ぶ'; i++) await page.waitForTimeout(30);
+  await page.reload();
+  await entry('w4').waitFor();
+  await page.waitForTimeout(300);
+  assert.match(await entry('w4').locator('.sense-meaning').first().textContent(), /学ぶ/);
+  db.frozenPublic = null;
+
   // スマホ：タップで選択、ダブルタップで編集する。
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
   const mobile = await phone.newPage();
@@ -366,7 +415,7 @@ try {
   await meaning.tap();
   const mobileInput = mobile.locator('.edit-inline-input');
   await mobileInput.waitFor();
-  assert.equal(await mobileInput.inputValue(), 'studyの意味');
+  assert.equal(await mobileInput.inputValue(), '学ぶ');
   await mobileInput.fill('勉強する');
   await shot('3-editing');
   await mobile.locator('.edit-inline-ok').tap();
@@ -379,6 +428,73 @@ try {
   await mobile.locator('#menuToggle').tap();
   await shot('5-contents');
   await phone.close();
+
+  // 端末キャッシュで表示中に入力を始めたら、裏の更新で入力中の単語を置き換えない
+  // （古い値のまま確定して、新しい内容を上書きしないため）。
+  db.words.get('w1').senses[0].meaning = 'ほかの画面で更新した意味';
+  db.publicDelay = 1500;
+  await page.evaluate(() => localStorage.removeItem('vocab-edit-recent-saves'));
+  await page.reload();
+  await entry('w1').waitFor();
+  assert.match(await entry('w1').locator('.sense-meaning').first().textContent(), /takeの意味/, 'キャッシュの内容を先に表示');
+  await entry('w1').locator('.headword').click();
+  await dbl(entry('w1').locator('.sense-meaning').first());
+  await page.locator('.edit-inline-input').waitFor();
+  await page.waitForTimeout(2000); // 裏の更新が完了する
+  await page.locator('.edit-inline-input').press('Enter');
+  await page.waitForTimeout(500);
+  assert.equal(db.words.get('w1').senses[0].meaning, 'ほかの画面で更新した意味', '新しい内容を上書きしない');
+  db.publicDelay = 0;
+
+  // 閲覧ページと同じ上部タブ（索引）・下部のSectionナビ・検索。
+  await page.goto(`${origin}/setting/index.html`);
+  await entry('w1').waitFor();
+  assert.ok(await page.locator('#sectionNav button').count() >= 2, '下部にSectionナビを表示');
+  await page.locator('#sectionNav button[data-nav-key="10"]').click();
+  await page.waitForFunction(() => { const r = document.getElementById('section-10')?.getBoundingClientRect(); return r && r.top >= 0 && r.top < innerHeight; });
+  await page.locator('#viewTabIndex').click();
+  await page.locator('.index-entry', { hasText: 'give' }).click();
+  await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w3"]')?.classList.contains('is-edit-selected'));
+  assert.equal(await page.locator('#viewTabList').getAttribute('aria-selected'), 'true');
+  await page.locator('#viewTabIdioms').click();
+  await page.locator('#sectionNav button').first().waitFor();
+  assert.equal(await page.locator('#sectionNav').getAttribute('aria-label'), '熟語のセクション');
+  await page.locator('#settingsToggle').click();
+  await page.locator('#searchInput').fill('stud');
+  await page.locator('#searchInput').press('Enter');
+  await page.locator('.edit-sheet .edit-menu-item', { hasText: 'study' }).click();
+  await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w4"]')?.classList.contains('is-edit-selected'));
+
+  // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
+  const big = fixture();
+  big.sections = Array.from({ length: 40 }, (_, i) => ({ id: 1000 + i, name: '', subtitle: `S${i + 1}`, description: null, sortOrder: i + 1, chapterId: 1, groupId: null }));
+  big.words = new Map(); big.members = new Map();
+  for (let i = 0; i < 40 * 20; i++) {
+    const id = `b${i}`;
+    big.words.set(id, { id, spelling: `word${i}`, pronunciation: '', senses: [{ pos: '名', meaning: `意味${i}`, pronunciation: null, is_primary: true }], derivatives: [], examples: [], tags: {}, derivedFrom: null,
+      illustration: i % 20 === 0 ? { url: `/mcp-viewer/api/illustrations/${id}/0a1b2c3d-0000-4000-8000-${String(i).padStart(12, '0')}.png`, meaning: 'x' } : undefined });
+    big.members.set(id, { no: i + 1, branch: 0, sectionId: 1000 + Math.floor(i / 20), labelId: null });
+  }
+  const bigServer = await startServer(big);
+  const bigOrigin = `http://localhost:${bigServer.address().port}`;
+  const bigPage = await browser.newPage({ viewport: { width: 393, height: 900 } });
+  bigPage.on('pageerror', error => errors.push(error.message));
+  await bigPage.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
+  await bigPage.goto(`${bigOrigin}/setting/index.html`);
+  await bigPage.locator('.entry[data-word-id="b0"]').waitFor();
+  await bigPage.waitForTimeout(300);
+  const readsBefore = big.publicReads;
+  big.imageRequests = [];
+  await bigPage.locator('#sectionNav button', { hasText: 'Section 35' }).click();
+  await bigPage.locator('[data-section-entries="1034"] .entry[data-word-id="b680"]').waitFor();
+  await bigPage.waitForTimeout(500);
+  const top = await bigPage.locator('#section-1034').evaluate(el => el.getBoundingClientRect().top);
+  assert.ok(top >= 0 && top < 200, `移動先のSectionが画面の上にある（${top}）`);
+  assert.ok(big.publicReads - readsBefore <= 6, `途中のSectionを読み込まない（${big.publicReads - readsBefore}件）`);
+  assert.ok(big.imageRequests.every(url => /\/b(6[0-9]{2}|7[0-9]{2})\//.test(url)), `移動先付近の画像だけを読む：${big.imageRequests.join(',')}`);
+  assert.ok(await bigPage.locator('#sectionNav button.active', { hasText: 'Section 35' }).count() === 1, '下部ナビで現在のSectionを強調');
+  await bigPage.close();
+  bigServer.close();
 
   assert.deepEqual(errors, []);
   console.log('Viewer-style editor: selection, inline edits, autosave, undo, badges, +/- rows, insertion, moves, drag, section edits and idioms passed');

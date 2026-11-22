@@ -1,8 +1,11 @@
 // 閲覧型編集ページの起動・メニュー・目次・タブ。
 import { createWordEditor } from "./words.js";
+import { setupIllustrationLoading } from "../../shared/illustrations.js";
 import { createIdiomEditor } from "./idioms.js";
 import { api, onPublication, resumePublicationWatch } from "./api.js";
-import { h, toast, sortable } from "./ui.js";
+import { h, toast, sortable, sheet, closeSheet } from "./ui.js";
+import { buildAlphabeticalIndexEntries, getAlphabeticalIndexKey } from "../../shared/word-index.js";
+import { VIEWER_API_BASE } from "../../shared/config.js";
 
 const LIST_ID_FALLBACK = "crossover-v3";
 const THEME_KEY = "vocab-viewer-theme";
@@ -22,6 +25,10 @@ const el = {
   jumpForm: document.getElementById("jumpForm"),
   jumpInput: document.getElementById("jumpInput"),
   publishStatus: document.getElementById("publishStatus"),
+  indexList: document.getElementById("indexList"),
+  sectionNav: document.getElementById("sectionNav"),
+  searchForm: document.getElementById("searchForm"),
+  searchInput: document.getElementById("searchInput"),
   tabs: [...document.querySelectorAll(".view-tab")],
 };
 
@@ -104,7 +111,7 @@ let listId = LIST_ID_FALLBACK;
 
 function setView(view) {
   activeView = view;
-  for (const panel of [el.wordList, el.idiomList]) {
+  for (const panel of [el.wordList, el.idiomList, el.indexList]) {
     const active = panel.dataset.viewPanel === view;
     panel.classList.toggle("is-active", active);
     panel.setAttribute("aria-hidden", String(!active));
@@ -113,13 +120,19 @@ function setView(view) {
     tab.setAttribute("aria-selected", String(tab.dataset.view === view));
     tab.tabIndex = tab.dataset.view === view ? 0 : -1;
   }
-  if (view === "idioms" && !idioms) {
-    idioms = createIdiomEditor({ root: el.idiomList, listId, onStructureChange: renderContents });
-    idioms.attachContentsSorting(el.contentsNav);
-    idioms.load().catch(error => { el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)}</p>`; });
-  }
+  ensureIdioms();
+  if (view === "index") renderIndex();
   renderContents();
+  renderBottomNav();
 }
+function ensureIdioms() {
+  if (idioms || !words) return idioms;
+  idioms = createIdiomEditor({ root: el.idiomList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
+  idioms.attachContentsSorting(el.contentsNav);
+  idiomsReady = idioms.load().catch(error => { el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)}</p>`; });
+  return idioms;
+}
+let idiomsReady = null;
 el.tabs.forEach(tab => tab.addEventListener("click", () => setView(tab.dataset.view)));
 
 el.jumpForm.addEventListener("submit", event => {
@@ -135,6 +148,10 @@ el.jumpForm.addEventListener("submit", event => {
 function renderContents() {
   if (!el.contentsMenu.classList.contains("is-open")) return;
   if (activeView === "idioms") { el.contentsNav.innerHTML = idioms?.contentsHtml?.() || ""; return; }
+  if (activeView === "index") {
+    el.contentsNav.innerHTML = [...el.indexList.querySelectorAll(".index-group")].map(group => `<button type="button" class="contents-section" data-index-target="${h(group.id)}"><span class="contents-item-text"><span class="contents-item-name">${h(group.querySelector(".index-letter")?.textContent || "")}</span></span></button>`).join("") || '<p class="contents-empty">索引はありません。</p>';
+    return;
+  }
   if (!words) return;
   const S = words.state;
   const sections = words.orderedSections();
@@ -163,11 +180,133 @@ el.contentsNav.addEventListener("click", event => {
   const section = event.target.closest("[data-nav-section]");
   const chapter = event.target.closest("[data-nav-chapter]");
   const idiomSection = event.target.closest("[data-nav-idiom-section]");
-  if (!section && !chapter && !idiomSection) return;
+  const letter = event.target.closest("[data-index-target]");
+  if (!section && !chapter && !idiomSection && !letter) return;
   closeMenus();
-  if (idiomSection) return idioms?.scrollToSection(idiomSection.dataset.navIdiomSection);
-  if (section) words.scrollToSection(section.dataset.navSection);
-  else words.scrollToChapter(Number(chapter.dataset.navChapter));
+  if (letter) return document.getElementById(letter.dataset.indexTarget)?.scrollIntoView({ block: "start" });
+  if (idiomSection) return idioms?.navigateToSection(idiomSection.dataset.navIdiomSection);
+  if (section) words.navigateToSection(section.dataset.navSection);
+  else words.navigateToChapter(Number(chapter.dataset.navChapter));
+});
+
+// ---- 下部のSectionナビ（閲覧ページと同じ） ----
+function renderBottomNav() {
+  let items = [], label = "";
+  if (activeView === "list" && words) { items = words.navSections().map(s => ({ key: s.key, name: s.name, title: s.subtitle, target: `section-${s.key}` })); label = "セクション"; }
+  else if (activeView === "idioms" && idioms) { items = idioms.navSections().map(s => ({ key: s.key, name: s.name, title: s.subtitle, target: `idiom-section-${s.key}` })); label = "熟語のセクション"; }
+  else if (activeView === "index") {
+    items = [...el.indexList.querySelectorAll(".index-group")].map(group => ({ key: group.id, name: group.querySelector(".index-letter")?.textContent || "", target: group.id }));
+    label = "索引の頭文字";
+  }
+  if (!items.length) {
+    el.sectionNav.hidden = true;
+    el.sectionNav.innerHTML = "";
+    document.body.classList.remove("has-section-nav");
+    return;
+  }
+  el.sectionNav.hidden = false;
+  el.sectionNav.setAttribute("aria-label", label);
+  el.sectionNav.innerHTML = items.map(item => `<button type="button" data-nav-key="${h(item.key)}" data-nav-target="${h(item.target)}"${item.title ? ` title="${h(item.title)}"` : ""}>${h(item.name)}</button>`).join("");
+  document.body.classList.add("has-section-nav");
+  updateActiveNav();
+}
+// 画面の中ほど（上から45%）より上にある最後の見出しのボタンを強調する。見出しが描き直されても追従する。
+let activeNavFrame = 0;
+function updateActiveNav() {
+  activeNavFrame = 0;
+  if (el.sectionNav.hidden) return;
+  const buttons = [...el.sectionNav.querySelectorAll("button[data-nav-target]")];
+  const line = innerHeight * 0.45;
+  let current = buttons[0];
+  for (const button of buttons) {
+    const target = document.getElementById(button.dataset.navTarget);
+    if (!target || !target.offsetParent) continue;
+    if (target.getBoundingClientRect().top <= line) current = button; else break;
+  }
+  for (const button of buttons) {
+    const active = button === current;
+    if (button.classList.contains("active") === active) continue;
+    button.classList.toggle("active", active);
+    if (active) el.sectionNav.scrollTo({ left: button.offsetLeft - el.sectionNav.clientWidth / 2 + button.offsetWidth / 2 });
+  }
+}
+addEventListener("scroll", () => { if (!activeNavFrame) activeNavFrame = requestAnimationFrame(updateActiveNav); }, { passive: true });
+el.sectionNav.addEventListener("click", async event => {
+  const button = event.target.closest("button[data-nav-key]");
+  if (!button) return;
+  button.setAttribute("aria-busy", "true");
+  try {
+    if (activeView === "list") await words.navigateToSection(button.dataset.navKey);
+    else if (activeView === "idioms") await idioms.navigateToSection(button.dataset.navKey);
+    else document.getElementById(button.dataset.navTarget)?.scrollIntoView({ block: "start" });
+  } finally { button.removeAttribute("aria-busy"); }
+});
+
+// ---- 索引（閲覧ページと同じ並び。タップでその単語・熟語へ移動して選択する） ----
+let indexSource = null;
+async function renderIndex() {
+  if (!words) return;
+  if (!el.indexList.childElementCount) el.indexList.innerHTML = '<p class="index-empty">索引を読み込み中...</p>';
+  try {
+    // 類義語・派生語などの参照は、閲覧ページの公開索引（端末にキャッシュ済みのことが多い）から作る。
+    indexSource ||= fetch(`${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/index`, { cache: "no-cache" }).then(r => r.ok ? r.json() : { words: [] }).catch(() => ({ words: [] }));
+    const source = await indexSource;
+    if (idiomsReady) await idiomsReady;
+    const byId = new Map((source.words || []).map(w => [w.id, w]));
+    const indexWords = words.state.order.map(item => ({ ...(byId.get(item.id) || {}), id: item.id, spelling: item.spelling, branch: item.branch, seqNo: words.seqOf(item.id) }));
+    const entries = buildAlphabeticalIndexEntries(indexWords, idioms?.visibleEntries?.() || []);
+    const groups = [];
+    for (const entry of entries) {
+      const letter = (getAlphabeticalIndexKey(entry.spelling)[0] || "").toUpperCase();
+      if (groups.at(-1)?.letter !== letter) groups.push({ letter, items: [] });
+      groups.at(-1).items.push(entry);
+    }
+    el.indexList.innerHTML = groups.length ? groups.map((group, index) => `<div class="index-group" id="index-group-${index}" data-index-key="${index}"><h2 class="index-letter">${h(group.letter)}</h2><div class="index-columns">${group.items.map(e => `<div class="index-entry index-kind-${e.kind}${e.isRef ? " is-ref" : ""}" data-index-jump="${h(e.targetId)}" data-kind="${e.kind}"><span class="index-word">${h(e.spelling)}</span><span class="index-loc"${e.isRef ? ` title="${h(e.loc)}"` : ""}>${h(e.loc)}</span></div>`).join("")}</div></div>`).join("") : '<p class="index-empty">単語がまだ登録されていません。</p>';
+    if (activeView === "index") { renderBottomNav(); renderContents(); }
+  } catch (error) {
+    el.indexList.innerHTML = `<p class="index-empty">索引を読み込めませんでした：${h(error.message)}</p>`;
+  }
+}
+el.indexList.addEventListener("click", event => {
+  const item = event.target.closest("[data-index-jump]");
+  if (!item) return;
+  if (item.dataset.kind === "idiom") { setView("idioms"); idiomsReady?.then(() => idioms.navigateToEntry(item.dataset.indexJump)); }
+  else { setView("list"); words.navigateToWord(item.dataset.indexJump); }
+});
+
+// ---- 検索（見出し語・熟語。結果をタップしてその場所へ移動する） ----
+el.searchForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const query = el.searchInput.value.trim().toLowerCase();
+  if (!query || !words) return;
+  closeMenus();
+  ensureIdioms();
+  if (idiomsReady) await idiomsReady;
+  const wordHits = words.state.order.filter(item => item.spelling.toLowerCase().includes(query)).slice(0, 50);
+  const idiomHits = (idioms?.state.order || []).filter(item => [item.phrase, ...(item.alternateForms || [])].some(text => String(text).toLowerCase().includes(query))).slice(0, 50);
+  let fullText = [];
+  try {
+    const response = await fetch(`${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/search?q=${encodeURIComponent(query)}`);
+    if (response.ok) fullText = ((await response.json()).matches || []).map(m => m.wordId).filter(id => !wordHits.some(hit => hit.id === id)).slice(0, 50);
+  } catch {}
+  const byId = new Map(words.state.order.map(item => [item.id, item]));
+  sheet(`「${el.searchInput.value.trim()}」の検索結果`, body => {
+    const list = document.createElement("div");
+    list.className = "edit-menu-list";
+    const add = (label, sub, onSelect) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "edit-menu-item";
+      button.innerHTML = `<span>${h(label)}</span><small class="edit-hint">${h(sub)}</small>`;
+      button.addEventListener("click", () => { closeSheet(); onSelect(); });
+      list.append(button);
+    };
+    for (const hit of wordHits) add(hit.spelling, `No. ${words.seqOf(hit.id)}`, () => { setView("list"); words.navigateToWord(hit.id); });
+    for (const id of fullText) if (byId.has(id)) add(byId.get(id).spelling, `No. ${words.seqOf(id)}（本文に一致）`, () => { setView("list"); words.navigateToWord(id); });
+    for (const hit of idiomHits) add(hit.phrase, hit.hidden ? "熟語（非表示）" : "熟語", () => { setView("idioms"); idioms.navigateToEntry(hit.key); });
+    if (!list.childElementCount) list.innerHTML = '<p class="edit-hint">見つかりませんでした。</p>';
+    body.append(list);
+  });
 });
 
 sortable(el.contentsNav, {
@@ -216,13 +355,17 @@ sortable(el.contentsNav, {
 
 async function start() {
   resumePublicationWatch();
+  // 閲覧ページと同じく、画面に近づいたイラストから読み込む。
+  setupIllustrationLoading(el.wordList);
+  setupIllustrationLoading(el.idiomList);
   try {
     const lists = await api("/lists");
     const crossover = lists.find(l => l.id === LIST_ID_FALLBACK) || lists.find(l => l.name?.trim().toLowerCase() === "crossover");
     if (!crossover) throw new Error("crossoverの単語帳が見つかりません");
     listId = crossover.id;
-    words = createWordEditor({ root: el.wordList, listId, onStructureChange: renderContents });
+    words = createWordEditor({ root: el.wordList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
     await words.load();
+    renderBottomNav();
   } catch (error) {
     el.wordList.innerHTML = `<p class="index-empty">読み込めませんでした：${h(error.message)} <button type="button" id="reloadPage">再読み込み</button></p>`;
     document.getElementById("reloadPage")?.addEventListener("click", () => location.reload());

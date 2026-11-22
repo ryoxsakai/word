@@ -30,6 +30,9 @@
     </button>
   </div>
   <div class="topbar-row topbar-row--secondary" id="settingsMenu">
+    <form id="searchForm" class="search-row" role="search">
+      <input id="searchInput" type="search" placeholder="スペル・熟語・本文で検索" autocomplete="off" />
+    </form>
     <form id="jumpForm" class="jump-row">
       <label for="jumpInput">no.</label>
       <input id="jumpInput" type="text" inputmode="numeric" placeholder="42" />
@@ -57,7 +60,7 @@
     <p class="edit-help">タップで選択、ダブルタップで文字を編集します。変更は確定するたびに保存されます。</p>
   </div>
   <div class="topbar-row topbar-row--contents" id="contentsMenu">
-    <div class="contents-menu-heading contents-menu-heading--sections">チャプター・セクション <small>（つまみを長押しして並べ替え）</small></div>
+    <div class="contents-menu-heading contents-menu-heading--sections">目次 <small>（単語タブでは、つまみを長押しして並べ替え）</small></div>
     <nav id="contentsNav" class="contents-nav edit-contents-nav" aria-label="チャプター・セクション一覧"></nav>
   </div>
 </header>
@@ -65,10 +68,13 @@
   <div class="view-tabs" role="tablist" aria-label="表示切り替え">
     <button type="button" class="view-tab" id="viewTabList" role="tab" aria-selected="true" aria-controls="wordList" data-view="list">単語</button>
     <button type="button" class="view-tab" id="viewTabIdioms" role="tab" aria-selected="false" aria-controls="idiomList" tabindex="-1" data-view="idioms">熟語</button>
+    <button type="button" class="view-tab" id="viewTabIndex" role="tab" aria-selected="false" aria-controls="indexList" tabindex="-1" data-view="index">索引</button>
   </div>
 </div>
 <main id="wordList" class="word-list view-panel is-active edit-root" data-view-panel="list" role="tabpanel" aria-labelledby="viewTabList"></main>
 <section id="idiomList" class="word-list idiom-list view-panel edit-root" data-view-panel="idioms" role="tabpanel" aria-labelledby="viewTabIdioms" aria-hidden="true"></section>
+<div id="indexList" class="index-list view-panel" data-view-panel="index" role="tabpanel" aria-labelledby="viewTabIndex" aria-hidden="true"></div>
+<nav id="sectionNav" class="section-nav" hidden></nav>
 <script type="module" src="./edit/main.js"></script>
 </body>
 </html>

@@ -7,8 +7,10 @@ import { groupIdiomEntries } from "../../shared/idioms.js";
 import { createAutoCrossRefRenderer } from "../../shared/markup.js";
 import { clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
+import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
+import { createNavigator } from "./navigation.js";
 
 const FIELDS = [["synonyms", "同義語", "synonym"], ["antonyms", "対義語", "antonym"], ["notes", "メモ", "memo"]];
 
@@ -46,7 +48,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     root.innerHTML = '<div class="loading-msg"><span class="loading-label">熟語を読み込み中...</span></div>';
     const [data, wordIndex] = await Promise.all([api(`${base}/editor/idioms`), api(`${base}/editor/index`).catch(() => ({ words: [] }))]);
     S.chapters = data.chapters || [];
-    S.order = (data.entries || []).map(e => ({ key: e.key, phrase: e.phrase, sectionKey: e.sectionKey, labelKey: e.labelKey ?? null, hidden: !!e.hidden }));
+    S.order = (data.entries || []).map(e => ({ key: e.key, phrase: e.phrase, sectionKey: e.sectionKey, labelKey: e.labelKey ?? null, hidden: !!e.hidden, alternateForms: e.alternateForms || [] }));
     S.wordNames = new Map((wordIndex.words || []).map(w => [w.id, w.spelling]));
     const wordMap = new Map((wordIndex.words || []).map(w => [w.spelling.toLowerCase(), { found: true, id: w.id, no: w.displayNo }]));
     S.resolve = createIdiomReferenceResolver(groupIdiomEntries(data.entries || [], data.chapters), name => wordMap.get(name.toLowerCase()) || { found: false });
@@ -62,9 +64,15 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     if (S.loading.has(key)) return S.loading.get(key);
     const promise = (async () => {
       let data;
-      try { data = await api(`${base}/editor/idiom-sections/${encodeURIComponent(key)}`); }
-      catch (error) { if (error.status !== 404) throw error; data = { entries: [] }; }
-      const byKey = new Map((data.entries || []).map(e => [e.key, e]));
+      try {
+        data = await loadSectionData({
+          kind: "idiom",
+          publicPath: `${base}/idioms/sections/${encodeURIComponent(key)}`,
+          editorPath: `${base}/editor/idiom-sections/${encodeURIComponent(key)}`,
+          onFresh: fresh => applyFresh(key, fresh.entries || []),
+        });
+      } catch (error) { if (error.status !== 404 && !/HTTP 404/.test(error.message)) throw error; data = { entries: [] }; }
+      const byKey = new Map((data.entries || []).map(e => [e.key, recentSaved("idiom", e.key) || e]));
       const members = S.order.filter(i => i.sectionKey === key && !S.rows.has(i.key));
       if (members.some(i => !byKey.has(i.key))) {
         const latest = await api(`${base}/idioms/sections/${encodeURIComponent(key)}`);
@@ -80,6 +88,16 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
       const entries = root.querySelector(`[data-idiom-section-entries="${CSS.escape(key)}"]`);
       if (entries) entries.innerHTML = `<div class="section-load-error">読み込みに失敗しました: ${h(error.message)} <button type="button" data-op="retry-section" data-key="${h(key)}">再試行</button></div>`;
     } finally { S.loading.delete(key); }
+  }
+  function applyFresh(key, entries) {
+    for (const entry of entries) {
+      const row = S.rows.get(entry.key);
+      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("idiom", entry.key) || hasActiveInlineIn(entryEl(entry.key))) continue;
+      const draft = idiomDraft(entry);
+      if (same(draft, row.base)) continue;
+      row.raw = entry; row.base = draft; row.draft = clone(draft);
+      rerender(entry.key);
+    }
   }
   function makeRow(raw, isNew = false) {
     const draft = idiomDraft(raw);
@@ -117,6 +135,11 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     });
     root.innerHTML = parts.join("") || '<p class="index-empty">熟語はありません。</p>';
     for (const key of S.loaded) renderSection(key);
+    observeSections();
+  }
+  function observeSections() {
+    S.observer?.disconnect();
+    if (S.navPaused) return;
     const targets = root.querySelectorAll('[data-idiom-section-entries][aria-busy="true"]');
     if (!("IntersectionObserver" in window)) { targets.forEach(t => loadSection(t.dataset.idiomSectionEntries)); return; }
     S.observer = new IntersectionObserver(items => {
@@ -250,6 +273,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         }
         row.raw = raw;
         row.base = idiomDraft(raw);
+        rememberSaved("idiom", row.key, raw);
         if (same(row.draft, sent)) row.draft = clone(row.base);
         const item = S.order.find(i => i.key === row.key);
         if (item) { item.phrase = row.base.phrase; item.hidden = row.base.hidden; }
@@ -467,6 +491,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     }
   }
 
+  const navigateTo = createNavigator();
+
   // ---- イベント ----
   root.addEventListener("click", event => {
     if (!event.target.isConnected || event.target.closest(".edit-inline")) return;
@@ -565,6 +591,31 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         },
       });
     },
-    scrollToSection(key) { root.querySelector(`#idiom-section-${CSS.escape(key)}`)?.scrollIntoView({ block: "start" }); loadSection(key); },
+    navSections() {
+      const numbers = sectionNumbers();
+      return sections().map(section => ({ key: section.key, name: numbers.get(section.key) ? `Section ${numbers.get(section.key)}` : "Section", subtitle: section.subtitle || "", count: S.order.filter(i => i.sectionKey === section.key).length }));
+    },
+    // 閲覧ページと同じ手順で移動する。
+    navigateToSection(key, { targetId, block = "start", select: selectKey } = {}) {
+      return navigateTo({
+        sections: this.navSections(),
+        targetKey: key,
+        load: loadSection,
+        groupOf: k => root.querySelector(`.section-group[data-idiom-section-group="${CSS.escape(k)}"]`),
+        target: () => document.getElementById(targetId || `idiom-section-${key}`),
+        pause: () => { S.navPaused = true; S.observer?.disconnect(); },
+        resume: () => { S.navPaused = false; observeSections(); },
+        block,
+        onArrive: () => { if (selectKey) select(selectKey); },
+      }).catch(error => toast(`移動先を読み込めませんでした：${error.message}`, { tone: "error" }));
+    },
+    navigateToEntry(key) {
+      const item = S.order.find(i => i.key === key);
+      if (!item) return toast("この熟語は見つかりません");
+      return this.navigateToSection(item.sectionKey, { targetId: `idiom-${encodeURIComponent(key)}`, block: "center", select: key });
+    },
+    visibleEntries() {
+      return S.order.filter(i => !i.hidden).map(i => ({ key: i.key, phrase: i.phrase, hidden: false, no: S.numbers.get(i.key), alternateForms: S.rows.get(i.key)?.raw.alternateForms || i.alternateForms || [] }));
+    },
   };
 }
