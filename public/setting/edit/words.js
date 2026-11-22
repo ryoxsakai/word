@@ -11,8 +11,8 @@ import {
   addDerivativeCrossReferenceAliases, collectDerivativeCrossReferences, collectPhraseCrossReferences,
   createAutoCrossRefRenderer, createPhraseCrossReferenceResolver,
 } from "../../shared/markup.js";
-import { clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
-import { api } from "./api.js";
+import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
+import { api, verifyWordSave } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
@@ -749,9 +749,26 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       try { merged = mergeDraft(row.base, sent, latestDraft); }
       catch (error) { error.conflict = true; throw error; }
       let saved = latest;
-      if (!same(cleanDraft(merged), latestDraft)) {
+      const desired = cleanDraft(merged);
+      const changed = changedKeys(latestDraft, desired);
+      if (changed.length) {
         showSaveStep(row, updateSteps, 1);
-        saved = await api(`/words/${encodeURIComponent(row.id)}`, { method: "PUT", body: wordPayload(cleanDraft(merged), latest) });
+        const path = `/words/${encodeURIComponent(row.id)}`;
+        const body = wordPayload(desired, latest);
+        body.updatedCollections = ["senses", "examples", "derivatives"].filter(key => changed.includes(key));
+        if (changed.some(key => ["oxford5000", "cefr_provisional", "awl", "eiken", "custom"].includes(key))) body.updatedCollections.push("tags");
+        try {
+          saved = await api(path, { method: "PUT", body, writeTimeout: 15000 });
+          if (saved?.id !== row.id) throw new Error("保存応答を読み取れません");
+        } catch (error) {
+          if (error.status && error.status < 500) throw error;
+          showSaveStep(row, [updateSteps[0], "サーバーの保存内容を再確認中"], 1);
+          saved = await verifyWordSave(path, detail => {
+            const actual = draftOf(detail);
+            return detail.id === row.id && changed.every(key => same(actual[key], desired[key]));
+          }).catch(() => null);
+          if (!saved) throw Object.assign(new Error("保存結果を確認できません。下書きを保持しています。"), { unconfirmed: true });
+        }
       }
       row.raw = toViewer(saved, row.raw);
       row.base = draftOf(saved);
@@ -764,7 +781,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       toast("単語を保存しました");
     } catch (error) {
       row.saving = false;
-      row.error = `保存できませんでした：${error.message}`;
+      row.error = error.unconfirmed ? error.message : `保存できませんでした：${error.message}`;
       row.conflict = !!error.conflict;
       rerenderEntry(row.id);
       toast(row.error, { tone: "error", duration: 7000 });

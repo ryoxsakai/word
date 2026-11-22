@@ -144,6 +144,10 @@ function startServer(db) {
             return;
           }
           const data = await handleApi(db, req.method, req.url, body);
+          if (req.method === 'PUT' && db.loseNextWriteResponse) {
+            db.loseNextWriteResponse = false;
+            return; // The write committed, but no response arrives.
+          }
           // 本番の書き込み応答と同じく、閲覧ページへの公開待ちを知らせる。
           res.writeHead(data == null ? 204 : 200, { 'content-type': 'application/json', ...(req.method === 'GET' ? {} : { 'x-editor-snapshots': 'r2' }) });
           res.end(data == null ? '' : JSON.stringify(data));
@@ -576,9 +580,13 @@ try {
   await bigPage.mouse.up();
   assert.match(await phrases.first().textContent(), /second phrase/);
   assert.equal(big.writes.length, 0);
+  big.loseNextWriteResponse = true;
   await card.locator('[data-op="save-word"]').click();
   await bigPage.waitForFunction(() => !document.querySelector('.entry.is-saving'));
   assert.deepEqual(big.words.get('b680').examples.map(ex => ex.translation), ['1', '0']);
+  assert.deepEqual(big.writes.map(write => write.body.updatedCollections), [['examples']]);
+  assert.equal(await card.locator('.edit-error').count(), 0);
+  assert.match(await bigPage.locator('#editToast').textContent(), /単語を保存しました/);
   // Restore an actual scroll position on a fresh page, without a selected editor card.
   const resumeId = 'b690';
   await bigPage.evaluate(async id => {

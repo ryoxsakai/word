@@ -38,7 +38,9 @@ export default {
 
     return await app.fetch(request, env, ctx);
     } finally {
-      await tracked.finish().catch(error => console.error("Viewer publication notification failed", error));
+      const notification = tracked.finish().catch(error => console.error("Viewer publication notification failed", error));
+      if (ctx?.waitUntil) ctx.waitUntil(notification);
+      else await notification;
     }
   },
 
