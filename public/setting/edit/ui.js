@@ -120,6 +120,8 @@ export function menuList(container, items) {
 // 対象の要素を同じ位置・同じ文字サイズのテキスト欄に置き換え、確定・取消を呼び出し元へ返す。
 let activeInline = null;
 export function isInlineEditing() { return !!activeInline; }
+// 入力中の欄がelの中にあるか（保存完了などで描き直すと、入力途中の文字が消えるため）。
+export function hasActiveInlineIn(el) { return !!activeInline && !!el?.contains(activeInline.wrapper); }
 export function finishInlineEditing() { activeInline?.commit(); }
 
 export function inlineEditor(target, value, { multiline = false, placeholder = "", onCommit, onCancel, onTab } = {}) {
@@ -155,7 +157,7 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
     if (commit) onCommit(input.value, next);
     else onCancel?.();
   };
-  activeInline = { commit: () => finish(true) };
+  activeInline = { commit: () => finish(true), wrapper };
   input.addEventListener("input", fit);
   input.addEventListener("keydown", event => {
     if (event.isComposing || event.keyCode === 229) return;

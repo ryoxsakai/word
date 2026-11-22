@@ -7,7 +7,7 @@ import { groupIdiomEntries } from "../../shared/idioms.js";
 import { createAutoCrossRefRenderer } from "../../shared/markup.js";
 import { clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 
 const FIELDS = [["synonyms", "同義語", "synonym"], ["antonyms", "対義語", "antonym"], ["notes", "メモ", "memo"]];
@@ -156,6 +156,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
   function rerender(key) {
     const el = entryEl(key), row = S.rows.get(key);
     if (!el || !row) return;
+    if (hasActiveInlineIn(el)) { el.classList.toggle("is-saving", row.saving); return; }
     const template = document.createElement("template");
     template.innerHTML = entryHtml(row).trim();
     el.replaceWith(template.content.firstElementChild);

@@ -76,6 +76,7 @@ async function handleApi(db, method, path, body) {
   if (parts[0] === 'words' && parts.length === 2) {
     if (method === 'GET') return detail(db, parts[1]);
     if (method === 'PUT') {
+      if (db.putDelay) await new Promise(resolve => setTimeout(resolve, db.putDelay));
       db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
       return detail(db, parts[1]);
     }
@@ -316,6 +317,35 @@ try {
   await waitWrites(19);
   assert.equal(db.idioms.find(i => i.key === 'i2').hidden, true);
   assert.equal(await idiom('i3').locator('.entry-no').textContent(), '2', '非表示の熟語には番号を付けない');
+
+  // 保存中に次の欄を編集していても、保存の完了で入力欄が消えない（派生語の語→意味）。
+  await page.locator('#viewTabList').click();
+  db.putDelay = 600;
+  const w2 = entry('w2');
+  await w2.locator('.headword').click();
+  await w2.locator('[data-op="fields"]').click();
+  await page.locator('.edit-tile', { hasText: '派生語' }).click();
+  await page.locator('.edit-inline-input').fill('maker');
+  await page.locator('.edit-inline-input').press('Enter');
+  const meaningInput = w2.locator('.edit-inline-input');
+  await meaningInput.waitFor();
+  await page.waitForTimeout(900); // 語の保存がこの間に完了する
+  assert.equal(await meaningInput.count(), 1, '保存完了後も意味の入力欄が残る');
+  await meaningInput.fill('作る人');
+  await meaningInput.press('Enter');
+  for (let i = 0; i < 100 && db.words.get('w2').derivatives?.[0]?.meaning !== '作る人'; i++) await page.waitForTimeout(30);
+  assert.deepEqual(db.words.get('w2').derivatives.map(d => [d.word, d.meaning]), [['maker', '作る人']]);
+  db.putDelay = 0;
+
+  // 「Sectionなし」の枠がない状態で、そこへ単語を移しても表示される。
+  assert.equal(await page.locator('[data-section-entries="none"]').count(), 0);
+  await w2.locator('[data-op="menu"]').click();
+  await page.locator('.edit-menu-item', { hasText: '移動' }).click();
+  await page.locator('.edit-sheet select').first().selectOption('');
+  await page.locator('.edit-sheet button', { hasText: '移動する' }).click();
+  for (let i = 0; i < 100 && db.members.get('w2').sectionId !== null; i++) await page.waitForTimeout(30);
+  assert.equal(db.members.get('w2').sectionId, null);
+  await page.locator('[data-section-entries="none"] .entry[data-word-id="w2"]').waitFor({ timeout: 5000 });
 
   // スマホ：タップで選択、ダブルタップで編集する。
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });

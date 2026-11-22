@@ -11,7 +11,7 @@ import {
 } from "../../shared/markup.js";
 import { clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
 import { api } from "./api.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 
 export const POS_OPTIONS = ["名", "自", "他", "動", "形", "副", "代", "冠", "前", "接", "間", "助", "熟", "連"];
@@ -359,6 +359,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   function rerenderEntry(id) {
     const el = entryEl(id), row = S.rows.get(id);
     if (!el || !row) return;
+    // 入力中の欄があれば描き直さない（確定・取消のときに必ず描き直す）。
+    if (hasActiveInlineIn(el)) { el.classList.toggle("is-saving", row.saving); return; }
     const template = document.createElement("template");
     template.innerHTML = entryHtml(row).trim();
     el.replaceWith(template.content.firstElementChild);
@@ -708,7 +710,15 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const item = S.order.find(o => o.id === row.id);
       if (item) { row.raw.sectionId = item.sectionId; row.raw.labelId = item.labelId; }
     }
-    const rerender = () => { for (const key of keys) renderSection(key); refreshNumbers(); onStructureChange?.(); };
+    const rerender = () => {
+      // 「Sectionなし」の枠がない状態でそこへ移したときは、枠ごと作り直す。
+      const noneShown = !!root.querySelector(`[data-section-entries="${NONE}"]`);
+      const noneNeeded = S.order.some(item => item.sectionId == null);
+      if (noneShown !== noneNeeded) { const y = window.scrollY; renderShells(); window.scrollTo(0, y); }
+      else for (const key of keys) renderSection(key);
+      refreshNumbers();
+      onStructureChange?.();
+    };
     rerender();
     try {
       await saveOrder();
