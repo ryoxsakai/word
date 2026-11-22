@@ -44,7 +44,11 @@ async function request(path, options, timeout = 0) {
       headers: { "content-type": "application/json", ...(options.headers || {}) },
       cache: "no-store",
     });
-    const data = response.status === 204 ? null : await response.json().catch(() => null);
+    // 本文の読み込み中の打ち切りは、成功（null）にせず打ち切りとして扱う。
+    const data = response.status === 204 ? null : await response.json().catch(error => {
+      if (controller?.signal.aborted) throw error;
+      return null;
+    });
     return { response, data };
   } catch (error) {
     if (controller?.signal.aborted) throw Object.assign(new Error("通信に時間がかかっています"), { timeout: true });

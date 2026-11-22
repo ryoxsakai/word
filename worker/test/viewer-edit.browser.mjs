@@ -136,6 +136,8 @@ function startServer(db) {
           // 本番と同じく、公開が終わるまでは最新を求める読み出しを「公開待ち」で返す。
           // 公開処理が混んで、最新の確認が返ってこない状態を再現する。
           if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.hangFresh) return;
+          // 見出しだけ返し、本文が届かない状態を再現する。
+          if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.hangFreshBody) { res.writeHead(200, { 'content-type': 'application/json' }); res.write('{'); return; }
           if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.frozenPublic) {
             res.writeHead(503, { 'content-type': 'application/json' });
             res.end(JSON.stringify({ code: 'editor_snapshot_pending', error: 'pending' }));
@@ -475,6 +477,13 @@ try {
   await entry('w1').waitFor({ timeout: 15000 });
   assert.ok(Date.now() - started < 12000, `公開済みの内容ですぐ表示する（${Date.now() - started}ms）`);
   db.hangFresh = false;
+  // 本文の読み込み中に打ち切った場合も、公開済みの内容で表示する。
+  db.hangFreshBody = true;
+  const startedBody = Date.now();
+  await page.reload();
+  await entry('w1').waitFor({ timeout: 15000 });
+  assert.ok(Date.now() - startedBody < 12000, `本文が届かなくても公開済みの内容で表示する（${Date.now() - startedBody}ms）`);
+  db.hangFreshBody = false;
 
   // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
   const big = fixture();
