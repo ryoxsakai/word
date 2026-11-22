@@ -130,7 +130,10 @@ function ensureIdioms() {
   if (idioms || !words) return idioms;
   idioms = createIdiomEditor({ root: el.idiomList, listId, onStructureChange: () => { renderContents(); renderBottomNav(); } });
   idioms.attachContentsSorting(el.contentsNav);
-  idiomsReady = idioms.load().catch(error => { el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)}</p>`; });
+  idiomsReady = idioms.load().then(() => true, error => {
+    el.idiomList.innerHTML = `<p class="index-empty">熟語を読み込めませんでした：${h(error.message)}</p>`;
+    return false;
+  });
   return idioms;
 }
 let idiomsReady = null;
@@ -275,39 +278,74 @@ el.indexList.addEventListener("click", event => {
   else { setView("list"); words.navigateToWord(item.dataset.indexJump); }
 });
 
-// ---- 検索（見出し語・熟語。結果をタップしてその場所へ移動する） ----
-el.searchForm.addEventListener("submit", async event => {
+// ---- 検索（見出し語は即時表示し、本文・熟語の結果を同じシートに追加） ----
+el.searchForm.addEventListener("submit", event => {
   event.preventDefault();
-  const query = el.searchInput.value.trim().toLowerCase();
-  if (!query || !words) return;
+  const label = el.searchInput.value.trim();
+  const query = label.toLowerCase();
+  if (!query) return;
+  if (!words?.state.list) { toast("単語を読み込んでから検索してください"); return; }
   closeMenus();
+
+  const controller = new AbortController();
+  const order = words.state.order;
+  const allWordHits = order.filter(item => item.spelling.toLowerCase().includes(query));
+  const localIds = new Set(allWordHits.map(item => item.id));
+  const byId = new Map(order.map(item => [item.id, item]));
+  const list = document.createElement("div");
+  list.className = "edit-menu-list";
+  const fullText = document.createComment("本文検索結果");
+  const idiomList = document.createComment("熟語検索結果");
+  list.append(fullText, idiomList);
+
+  const add = (label, sub, onSelect, before) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "edit-menu-item";
+    button.innerHTML = `<span>${h(label)}</span><small class="edit-hint">${h(sub)}</small>`;
+    button.addEventListener("click", () => { closeSheet(); onSelect(); });
+    list.insertBefore(button, before);
+  };
+  const addWord = (hit, note, before) => add(hit.spelling, `No. ${words.seqOf(hit.id)}${note}`, () => { setView("list"); words.navigateToWord(hit.id); }, before);
+  for (const hit of allWordHits.slice(0, 50)) addWord(hit, "", fullText);
+
+  const status = document.createElement("p");
+  status.className = "edit-hint";
+  status.setAttribute("role", "status");
+  status.textContent = "本文と熟語を検索中…";
+  sheet(`「${label}」の検索結果`, body => body.append(list, status), { onClose: () => controller.abort() });
+  const { signal } = controller;
+  let pending = 2;
+  const failed = [];
+  const finish = (source, ok) => {
+    if (signal.aborted) return;
+    if (!ok) failed.push(source);
+    if (--pending) return;
+    status.textContent = failed.length ? `${failed.join("・")}を検索できませんでした。` : list.childElementCount ? "" : "見つかりませんでした。";
+    status.hidden = !status.textContent;
+  };
+
+  const url = `${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/search?q=${encodeURIComponent(query)}`;
+  fetch(url, { signal }).then(async response => {
+    if (!response.ok) throw new Error("Full-text search failed");
+    const { matches } = await response.json();
+    if (signal.aborted) return;
+    const ids = new Set((matches || []).map(hit => hit.wordId).filter(id => byId.has(id) && !localIds.has(id)));
+    for (const id of [...ids].slice(0, 50)) addWord(byId.get(id), "（本文に一致）", fullText);
+    finish("本文", true);
+  }).catch(() => finish("本文", false));
+
   ensureIdioms();
-  if (idiomsReady) await idiomsReady;
-  const wordHits = words.state.order.filter(item => item.spelling.toLowerCase().includes(query)).slice(0, 50);
-  const idiomHits = (idioms?.state.order || []).filter(item => [item.phrase, ...(item.alternateForms || [])].some(text => String(text).toLowerCase().includes(query))).slice(0, 50);
-  let fullText = [];
-  try {
-    const response = await fetch(`${VIEWER_API_BASE}/api/lists/${encodeURIComponent(listId)}/viewer/search?q=${encodeURIComponent(query)}`);
-    if (response.ok) fullText = ((await response.json()).matches || []).map(m => m.wordId).filter(id => !wordHits.some(hit => hit.id === id)).slice(0, 50);
-  } catch {}
-  const byId = new Map(words.state.order.map(item => [item.id, item]));
-  sheet(`「${el.searchInput.value.trim()}」の検索結果`, body => {
-    const list = document.createElement("div");
-    list.className = "edit-menu-list";
-    const add = (label, sub, onSelect) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "edit-menu-item";
-      button.innerHTML = `<span>${h(label)}</span><small class="edit-hint">${h(sub)}</small>`;
-      button.addEventListener("click", () => { closeSheet(); onSelect(); });
-      list.append(button);
-    };
-    for (const hit of wordHits) add(hit.spelling, `No. ${words.seqOf(hit.id)}`, () => { setView("list"); words.navigateToWord(hit.id); });
-    for (const id of fullText) if (byId.has(id)) add(byId.get(id).spelling, `No. ${words.seqOf(id)}（本文に一致）`, () => { setView("list"); words.navigateToWord(id); });
-    for (const hit of idiomHits) add(hit.phrase, hit.hidden ? "熟語（非表示）" : "熟語", () => { setView("idioms"); idioms.navigateToEntry(hit.key); });
-    if (!list.childElementCount) list.innerHTML = '<p class="edit-hint">見つかりませんでした。</p>';
-    body.append(list);
-  });
+  idiomsReady.then(loaded => {
+    if (signal.aborted) return;
+    if (loaded) {
+      const hits = idioms.state.order.filter(item => [item.phrase, ...(item.alternateForms || [])].some(text => String(text).toLowerCase().includes(query)));
+      for (const hit of hits.slice(0, 50)) {
+        add(hit.phrase, hit.hidden ? "熟語（非表示）" : "熟語", () => { setView("idioms"); idioms.navigateToEntry(hit.key); }, idiomList);
+      }
+    }
+    finish("熟語", loaded);
+  }).catch(() => finish("熟語", false));
 });
 
 sortable(el.contentsNav, {
@@ -377,3 +415,4 @@ async function start() {
   }
 }
 start();
+
