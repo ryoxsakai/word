@@ -134,6 +134,8 @@ function startServer(db) {
         const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : null;
         try {
           // 本番と同じく、公開が終わるまでは最新を求める読み出しを「公開待ち」で返す。
+          // 公開処理が混んで、最新の確認が返ってこない状態を再現する。
+          if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.hangFresh) return;
           if (req.method === 'GET' && req.url.includes('editorFresh=1') && db.frozenPublic) {
             res.writeHead(503, { 'content-type': 'application/json' });
             res.end(JSON.stringify({ code: 'editor_snapshot_pending', error: 'pending' }));
@@ -464,6 +466,15 @@ try {
   await page.locator('#searchInput').press('Enter');
   await page.locator('.edit-sheet .edit-menu-item', { hasText: 'study' }).click();
   await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w4"]')?.classList.contains('is-edit-selected'));
+
+  // 公開待ちで「最新」の確認が返ってこなくても、公開済みの内容で表示する（白い画面で止まらない）。
+  db.hangFresh = true;
+  await page.evaluate(() => localStorage.setItem('vocab-editor-pending-publication', 'pending-test'));
+  const started = Date.now();
+  await page.reload();
+  await entry('w1').waitFor({ timeout: 15000 });
+  assert.ok(Date.now() - started < 12000, `公開済みの内容ですぐ表示する（${Date.now() - started}ms）`);
+  db.hangFresh = false;
 
   // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
   const big = fixture();

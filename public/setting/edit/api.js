@@ -31,14 +31,25 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, options) {
-  const response = await editorFetch(`${EDITOR_API_BASE}/api${path}`, {
-    ...options,
-    headers: { "content-type": "application/json", ...(options.headers || {}) },
-    cache: "no-store",
-  });
-  const data = response.status === 204 ? null : await response.json().catch(() => null);
-  return { response, data };
+// 読み出しは時間を区切る。公開処理が混んでいると「最新」の確認が返ってこないことがあるため。
+const FRESH_TIMEOUT = 4000;
+const READ_TIMEOUT = 20000;
+async function request(path, options, timeout = 0) {
+  const controller = timeout ? new AbortController() : null;
+  const timer = timeout ? setTimeout(() => controller.abort(), timeout) : null;
+  try {
+    const response = await editorFetch(`${EDITOR_API_BASE}/api${path}`, {
+      ...options,
+      ...(controller ? { signal: controller.signal } : {}),
+      headers: { "content-type": "application/json", ...(options.headers || {}) },
+      cache: "no-store",
+    });
+    const data = response.status === 204 ? null : await response.json().catch(() => null);
+    return { response, data };
+  } catch (error) {
+    if (controller?.signal.aborted) throw Object.assign(new Error("通信に時間がかかっています"), { timeout: true });
+    throw error;
+  } finally { clearTimeout(timer); }
 }
 
 // fresh: 公開待ちの変更を含む最新の内容を求める。公開待ちのときは公開済みの内容へ戻す（fallback）。
@@ -55,8 +66,17 @@ export async function api(path, { method = "GET", body, fresh = false } = {}) {
   }
   const wantFresh = fresh || !!pendingMarker();
   for (let attempt = 0; ; attempt += 1) {
-    const target = wantFresh && attempt === 0 ? `${path}${path.includes("?") ? "&" : "?"}editorFresh=1` : path;
-    const { response, data } = await request(target, { method });
+    const freshAttempt = wantFresh && attempt === 0;
+    const target = freshAttempt ? `${path}${path.includes("?") ? "&" : "?"}editorFresh=1` : path;
+    let result;
+    try { result = await request(target, { method }, freshAttempt ? FRESH_TIMEOUT : READ_TIMEOUT); }
+    catch (error) {
+      // 最新の確認が返ってこなければ、公開済みの内容で続ける。
+      if (freshAttempt && error.timeout) continue;
+      if (error.timeout) throw new ApiError("通信に時間がかかっています。少し待ってから再読み込みしてください。", { code: "timeout" });
+      throw error;
+    }
+    const { response, data } = result;
     if (response.ok) return data;
     if (data?.code === "editor_snapshot_pending" && attempt < 60) {
       // 1回目（最新を求めた読み出し）が公開待ちなら、公開済みの内容をすぐ読む。
@@ -77,7 +97,7 @@ export function watchPublication() {
     const marker = pendingMarker();
     if (!marker) { publicationStartedAt = 0; return; }
     try {
-      const { response, data } = await request("/lists?editorFresh=1", { method: "GET" });
+      const { response, data } = await request("/lists?editorFresh=1", { method: "GET" }, 10000);
       if (response.ok) {
         clearPendingMarker(marker);
         publicationStartedAt = 0;
