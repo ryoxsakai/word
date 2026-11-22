@@ -193,6 +193,84 @@ const origin = `http://localhost:${server.address().port}`;
 const browser = await chromium.launch({ ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
 const errors = [];
 try {
+  // Word hits are usable even when both search sources are still waiting.
+  // Each source appends to this sheet without reopening it or replacing a focused result.
+  const searchPage = await browser.newPage();
+  let unblockIdioms;
+  const idiomGate = new Promise(resolve => { unblockIdioms = resolve; });
+  const searches = new Map();
+  const hold = (map, key, route) => new Promise(resolve => map.set(key, async response => {
+    try { await route.fulfill(response); } catch { /* closing the sheet cancels fetch */ }
+    finally { resolve(); }
+  }));
+  const received = async (map, key) => {
+    for (let i = 0; i < 100 && !map.has(key); i++) await new Promise(resolve => setTimeout(resolve, 20));
+    assert.ok(map.has(key), `request observed: ${key}`);
+    return map.get(key);
+  };
+  await searchPage.route(`**/api/lists/${LIST}/editor/idioms`, async route => {
+    await idiomGate; // Both the reference warmup and the idiom editor use this route.
+    await route.fulfill({ json: await handleApi(db, 'GET', `/api/lists/${LIST}/editor/idioms`, null) });
+  });
+  await searchPage.route(`**/api/lists/${LIST}/viewer/search?*`, route => {
+    const query = new URL(route.request().url()).searchParams.get('q');
+    return hold(searches, query, route);
+  });
+  try {
+    await searchPage.goto(`${origin}/setting/index.html`);
+    await searchPage.locator('.entry[data-word-id="w1"]').waitFor();
+    const submitSearch = async query => {
+      await searchPage.locator('#settingsToggle').click();
+      const input = searchPage.locator('#searchInput');
+      await input.fill(query);
+      await input.press('Enter');
+    };
+    const searchSheet = searchPage.getByRole('dialog');
+    const result = label => searchSheet.locator('.edit-menu-item', { hasText: label });
+    const release = async (query, ids, status = 200) => (await received(searches, query))({
+      status, json: { matches: ids.map(wordId => ({ wordId })) },
+    });
+
+    await submitSearch('Take');
+    await result('take').waitFor({ timeout: 2000 });
+    assert.equal(await searchSheet.getAttribute('aria-label'), '「Take」の検索結果');
+    const local = result('take');
+    await local.focus();
+    await release('take', ['w1', 'w4', 'w4']);
+    await result('study').waitFor();
+    assert.equal(await result('study').count(), 1, '重複する本文検索結果は1件だけ表示する');
+    assert.equal(await local.count(), 1, '見出し語と本文に重複した結果は1件だけ表示する');
+    assert.equal(await local.evaluate(el => el === document.activeElement), true);
+    assert.match(await searchSheet.getByRole('status').textContent(), /検索中/);
+    await searchPage.keyboard.press('Escape');
+
+    await submitSearch('look');
+    unblockIdioms();
+    await result('look up').waitFor({ timeout: 2000 });
+    await received(searches, 'look');
+    await searchPage.keyboard.press('Escape');
+    await submitSearch('create');
+    await release('create', ['w2']);
+    await result('make').waitFor({ timeout: 2000 });
+    await release('look', ['w3']);
+    assert.equal(await searchSheet.getAttribute('aria-label'), '「create」の検索結果');
+    assert.equal(await result('give').count(), 0, '閉じた検索の応答で新しいシートを書き換えない');
+    await result('make').click();
+    await searchPage.waitForFunction(() => document.querySelector('.entry[data-word-id="w2"]')?.classList.contains('is-edit-selected'));
+    assert.equal(await searchSheet.count(), 0);
+
+    await submitSearch('nothing');
+    await release('nothing', []);
+    await searchSheet.getByText('見つかりませんでした。', { exact: true }).waitFor();
+    await searchPage.keyboard.press('Escape');
+    await submitSearch('network');
+    await release('network', [], 503);
+    await searchSheet.getByText('本文を検索できませんでした。', { exact: true }).waitFor();
+  } finally {
+    unblockIdioms();
+    await searchPage.close();
+  }
+
   // Holding the pointer still at the edge must move the marker and drop target as
   // content scrolls, both in the page and in a collection editor's scroll pane.
   for (const mode of ['window', 'pane']) {
@@ -749,4 +827,5 @@ try {
   await browser.close();
   server.close();
 }
+
 
