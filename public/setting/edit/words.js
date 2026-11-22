@@ -234,7 +234,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   function applyFreshWords(key, words) {
     for (const word of words) {
       const row = S.rows.get(word.id);
-      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id)) continue;
+      // 入力中の欄がある単語は更新しない（入力欄の古い値で、新しい内容を上書きしてしまうため）。
+      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id) || hasActiveInlineIn(entryEl(word.id))) continue;
       const draft = draftOf(word);
       if (same(draft, row.base) && JSON.stringify(word.illustration) === JSON.stringify(row.raw.illustration)) continue;
       row.raw = { ...row.raw, ...word };

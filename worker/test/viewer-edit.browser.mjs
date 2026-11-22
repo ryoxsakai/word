@@ -105,6 +105,7 @@ async function handleApi(db, method, path, body) {
   // 閲覧ページの公開API（公開が遅れている状態を再現できるよう、frozenがあればその内容を返す）。
   if (parts[2] === 'viewer' && parts[3] === 'sections') {
     db.publicReads = (db.publicReads || 0) + 1;
+    if (db.publicDelay) await new Promise(resolve => setTimeout(resolve, db.publicDelay));
     if (db.frozenPublic?.[parts[4]]) return db.frozenPublic[parts[4]];
     return { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === parts[4]).map(([id]) => viewerWord(db, id)) };
   }
@@ -427,6 +428,23 @@ try {
   await mobile.locator('#menuToggle').tap();
   await shot('5-contents');
   await phone.close();
+
+  // 端末キャッシュで表示中に入力を始めたら、裏の更新で入力中の単語を置き換えない
+  // （古い値のまま確定して、新しい内容を上書きしないため）。
+  db.words.get('w1').senses[0].meaning = 'ほかの画面で更新した意味';
+  db.publicDelay = 1500;
+  await page.evaluate(() => localStorage.removeItem('vocab-edit-recent-saves'));
+  await page.reload();
+  await entry('w1').waitFor();
+  assert.match(await entry('w1').locator('.sense-meaning').first().textContent(), /takeの意味/, 'キャッシュの内容を先に表示');
+  await entry('w1').locator('.headword').click();
+  await dbl(entry('w1').locator('.sense-meaning').first());
+  await page.locator('.edit-inline-input').waitFor();
+  await page.waitForTimeout(2000); // 裏の更新が完了する
+  await page.locator('.edit-inline-input').press('Enter');
+  await page.waitForTimeout(500);
+  assert.equal(db.words.get('w1').senses[0].meaning, 'ほかの画面で更新した意味', '新しい内容を上書きしない');
+  db.publicDelay = 0;
 
   // 閲覧ページと同じ上部タブ（索引）・下部のSectionナビ・検索。
   await page.goto(`${origin}/setting/index.html`);

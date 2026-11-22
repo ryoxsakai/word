@@ -92,7 +92,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
   function applyFresh(key, entries) {
     for (const entry of entries) {
       const row = S.rows.get(entry.key);
-      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("idiom", entry.key)) continue;
+      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("idiom", entry.key) || hasActiveInlineIn(entryEl(entry.key))) continue;
       const draft = idiomDraft(entry);
       if (same(draft, row.base)) continue;
       row.raw = entry; row.base = draft; row.draft = clone(draft);
