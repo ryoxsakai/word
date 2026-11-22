@@ -156,6 +156,10 @@ function startServer(db) {
             res.end(JSON.stringify({ code: 'editor_snapshot_pending', error: 'pending' }));
             return;
           }
+          if (req.method === 'PUT' && db.rejectNextWordSave) {
+            db.rejectNextWordSave = false;
+            throw Object.assign(new Error('temporarily unavailable'), {status:503});
+          }
           const data = await handleApi(db, req.method, req.url, body);
           if (req.method === 'PUT' && db.loseNextWriteResponse) {
             db.loseNextWriteResponse = false;
@@ -800,6 +804,13 @@ try {
   assert.equal(await phrases.first().locator('[data-field=sentence]').inputValue(), 'second phrase');
   await bigPage.locator('[data-apply]').click();
   assert.equal(big.writes.length, 0);
+  big.rejectNextWordSave = true;
+  await card.locator('[data-op="save-word"]').click();
+  const saveError = card.locator('.edit-error');
+  await saveError.waitFor();
+  assert.match(await saveError.textContent(), /フレーズ.*HTTP 503/);
+  assert.equal(big.writes.length, 0);
+  assert.match(await card.locator('.example-phrase').first().textContent(), /second phrase/);
   big.loseNextWriteResponse = true;
   await card.locator('[data-op="save-word"]').click();
   await bigPage.waitForFunction(() => !document.querySelector('.entry.is-saving'));

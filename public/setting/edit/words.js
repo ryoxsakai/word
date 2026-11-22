@@ -31,6 +31,11 @@ const NOTE_FIELDS = [
   ["antonyms", "対義語", "antonym"], ["relatedWords", "関連語", "related"], ["etymology", "語源", "etymology"],
   ["notes", "メモ", "memo"],
 ];
+const SAVE_FIELD_LABELS = Object.fromEntries([
+  ...NOTE_FIELDS, ...CAUTIONS, ["spelling", "見出し語"], ["pronunciation", "発音記号"],
+  ["examples", "フレーズ"], ["senses", "意味・品詞"], ["derivedFrom", "派生元"],
+  ["oxford5000", "Oxford"], ["cefr_provisional", "CEFR"], ["awl", "AWL"], ["eiken", "英検"], ["custom", "カスタムタグ"],
+]);
 const MULTILINE = new Set(["notes", "etymology", "irregularForms"]);
 const CEFR = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const EIKEN = ["5級", "4級", "3級", "準2級", "2級", "準1級", "1級"];
@@ -736,7 +741,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         });
         saved = await saveExistingWord(path, row.id, body, detail => {
           const actual = draftOf(detail);
-          return changed.every(key => same(actual[key], expected[key]));
+          return changed.filter(key => {
+            // The database resolves parent spelling with SQLite's ASCII NOCASE collation.
+            if (key === "derivedFrom") {
+              const fold = value => value.replace(/[A-Z]/g, ch => ch.toLowerCase());
+              return fold(actual[key]) !== fold(expected[key]);
+            }
+            return !same(actual[key], expected[key]);
+          }).map(key => SAVE_FIELD_LABELS[key] || key);
         }, () => showSaveStep(row, [updateSteps[0], "サーバーの登録内容を照合中"], 1));
       }
       row.raw = toViewer(saved, row.raw);
