@@ -5,7 +5,6 @@ import { editorFetch } from "../auth.js";
 export const PENDING_KEY = "vocab-editor-pending-publication";
 const listeners = new Set();
 let publicationTimer = null;
-let publicationStartedAt = 0;
 
 export function onPublication(listener) {
   listeners.add(listener);
@@ -20,7 +19,11 @@ function setPendingMarker() {
   try { localStorage.setItem(PENDING_KEY, crypto.randomUUID()); } catch {}
 }
 function clearPendingMarker(marker) {
-  try { if (localStorage.getItem(PENDING_KEY) === marker) localStorage.removeItem(PENDING_KEY); } catch {}
+  try {
+    if (localStorage.getItem(PENDING_KEY) !== marker) return false;
+    localStorage.removeItem(PENDING_KEY);
+    return true;
+  } catch { return false; }
 }
 
 export class ApiError extends Error {
@@ -174,37 +177,56 @@ export async function saveExistingWord(path, id, body, matches, onCheck) {
 
 // 閲覧ページへの反映を15秒ごとに確認する（読み出しのみ）。
 export function watchPublication() {
-  if (publicationTimer) return;
-  publicationStartedAt = publicationStartedAt || Date.now();
-  emit({ state: "publishing" });
-  const check = async () => {
+  // The timer also reserves the polling slot while its request is in flight.
+  if (publicationTimer !== null) return;
+  let marker = pendingMarker();
+  let startedAt = Date.now();
+  const updateMarker = current => {
+    if (current !== marker) {
+      marker = current;
+      startedAt = Date.now();
+    }
+  };
+  const stopIdle = () => {
     publicationTimer = null;
-    const marker = pendingMarker();
-    if (!marker) { publicationStartedAt = 0; return; }
+    emit({ state: "idle" });
+  };
+  const check = async () => {
+    updateMarker(pendingMarker());
+    if (!marker) { stopIdle(); return; }
+    let published = false;
+    let failure = "10分以上反映されていません";
     try {
       const { response, data } = await request("/lists?editorFresh=1", { method: "GET" }, 10000);
-      if (response.ok) {
-        clearPendingMarker(marker);
-        publicationStartedAt = 0;
+      published = response.ok;
+      if (!published && data?.code !== "editor_snapshot_pending") failure = data?.error || `HTTP ${response.status}`;
+    } catch (error) {
+      failure = error.message;
+    }
+    // A save or another tab may have changed the marker while this request waited.
+    let current = pendingMarker();
+    if (current === marker && published) {
+      const cleared = clearPendingMarker(marker);
+      current = pendingMarker();
+      if (cleared && !current) {
+        publicationTimer = null;
         emit({ state: "published" });
         return;
       }
-      if (data?.code !== "editor_snapshot_pending") throw new Error(data?.error || `HTTP ${response.status}`);
-    } catch (error) {
-      if (Date.now() - publicationStartedAt > 10 * 60 * 1000) {
-        publicationStartedAt = 0;
-        emit({ state: "failed", message: error.message });
-        return;
-      }
+      failure = "反映状況を端末に保存できません";
     }
-    if (Date.now() - publicationStartedAt > 10 * 60 * 1000) {
-      publicationStartedAt = 0;
-      emit({ state: "failed", message: "10分以上反映されていません" });
+    if (!current) { stopIdle(); return; }
+    if (current !== marker) {
+      updateMarker(current);
+    } else if (Date.now() - startedAt > 10 * 60 * 1000) {
+      publicationTimer = null;
+      emit({ state: "failed", message: failure });
       return;
     }
     publicationTimer = setTimeout(check, 15000);
   };
   publicationTimer = setTimeout(check, 8000);
+  emit({ state: "publishing" });
 }
 
 export function resumePublicationWatch() {
