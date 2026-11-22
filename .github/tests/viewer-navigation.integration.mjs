@@ -458,6 +458,7 @@ console.log("Tab-aware contents and word/idiom/index menu jumps passed");
   const context = {
     api: async path => { calls.push(path); return data; },
     CROSSOVER_LIST_ID: "crossover-v3", viewerIndexCache: cache, state: {},
+    location: { hash: "" }, readingPosition: () => ({ start() {} }),
     el: { listSelect: { appendChild() {} } },
     document: { createElement: () => ({}) },
     selectList: async id => { assert.equal(cache.get(id), data); },

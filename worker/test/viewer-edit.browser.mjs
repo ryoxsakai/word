@@ -191,8 +191,10 @@ try {
   assert.equal(await page.locator('#section-10 .section-subtitle').textContent(), '動詞');
   assert.equal(await page.locator('.edit-plus').count(), 0, '選択前は編集部品を出さない');
 
-  // タップで選択すると＋／−が出る。
+  // 1回のタップは閲覧のまま、番号をダブルタップすると＋／−が出る。
   await entry('w1').locator('.headword').click();
+  assert.equal(await entry('w1').locator('.edit-minus').count(), 0);
+  await dbl(entry('w1').locator('.entry-no'));
   assert.ok(await entry('w1').evaluate(el => el.classList.contains('is-edit-selected')));
   assert.ok(await entry('w1').locator('.edit-minus').count() > 0);
 
@@ -289,7 +291,7 @@ try {
   assert.equal(await entry('w2').locator('.entry-no').textContent(), '3', '後ろの番号が繰り下がる');
 
   // メニューから別のSectionへ移動する。
-  await entry('w3').locator('.headword').click();
+  await dbl(entry('w3').locator('.entry-no'));
   await entry('w3').locator('[data-op="menu"]').click();
   await page.locator('.edit-menu-item', { hasText: '移動' }).click();
   await page.locator('.edit-sheet select').first().selectOption('20');
@@ -299,7 +301,7 @@ try {
   await page.locator('[data-section-entries="20"] .entry[data-word-id="w3"]').waitFor();
 
   // ドラッグ（マウス）で同じSection内の順番を変える。
-  await entry('w2').locator('.headword').click();
+  await dbl(entry('w2').locator('.entry-no'));
   await entry('w1').evaluate(el => window.scrollBy(0, el.getBoundingClientRect().top - 200));
   const handle = await entry('w2').locator('.entry-no').boundingBox();
   const target = await entry('w1').boundingBox();
@@ -367,7 +369,7 @@ try {
   await page.locator('#viewTabList').click();
   db.putDelay = 600;
   const w2 = entry('w2');
-  await w2.locator('.headword').click();
+  await dbl(w2.locator('.entry-no'));
   await w2.locator('[data-op="fields"]').click();
   await page.locator('.edit-tile', { hasText: '派生語' }).click();
   await page.locator('.edit-inline-input').fill('maker');
@@ -414,7 +416,7 @@ try {
   // 閲覧ページへの反映が遅れていても、保存した直後の内容を再読み込み後に表示する。
   const stale = viewerWord(db, 'w4');
   db.frozenPublic = { 20: { words: [{ ...stale, senses: [{ pos: '動', meaning: '古い内容', isPrimary: true }] }] } };
-  await entry('w4').locator('.headword').click();
+  await dbl(entry('w4').locator('.entry-no'));
   await dbl(entry('w4').locator('.sense-meaning').first());
   await page.locator('.edit-inline-input').fill('学ぶ');
   await page.locator('.edit-inline-input').press('Enter');
@@ -437,6 +439,9 @@ try {
   const shot = async name => { if (process.env.SHOT_DIR) await mobile.screenshot({ path: `${process.env.SHOT_DIR}/${name}.png` }); };
   await shot('1-view');
   await mobileEntry.locator('.headword').tap();
+  assert.equal(await mobileEntry.locator('.edit-minus').count(), 0);
+  await mobileEntry.locator('.entry-no').tap();
+  await mobileEntry.locator('.entry-no').tap();
   assert.ok(await mobileEntry.evaluate(el => el.classList.contains('is-edit-selected')));
   await mobileEntry.scrollIntoViewIfNeeded();
   await shot('2-selected');
@@ -528,7 +533,8 @@ try {
   illustrated.examples = ['first phrase', 'second phrase'].map((sentence, i) => ({ type: 'phrase', sentence, translation: String(i), answer: '' }));
   const bigServer = await startServer(big);
   const bigOrigin = `http://localhost:${bigServer.address().port}`;
-  const bigPage = await browser.newPage({ viewport: { width: 393, height: 900 } });
+  const bigContext = await browser.newContext({ viewport: { width: 393, height: 900 } });
+  const bigPage = await bigContext.newPage();
   bigPage.on('pageerror', error => errors.push(error.message));
   await bigPage.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
   await bigPage.goto(`${bigOrigin}/setting/index.html`);
@@ -545,7 +551,7 @@ try {
   assert.ok(big.imageRequests.every(url => /\/b(6[0-9]{2}|7[0-9]{2})\//.test(url)), `移動先付近の画像だけを読む：${big.imageRequests.join(',')}`);
   assert.ok(await bigPage.locator('#sectionNav button.active', { hasText: 'Section 35' }).count() === 1, '下部ナビで現在のSectionを強調');
   const card = bigPage.locator('[data-section-entries="1034"] .entry[data-word-id="b680"]');
-  await card.locator('.headword').click();
+  await dbl(card.locator('.entry-no'));
   const picture = await card.locator('.entry-illustration').boundingBox();
   for (const control of await card.locator('.edit-illustrated-fields button').all()) {
     const box = await control.boundingBox();
@@ -573,7 +579,24 @@ try {
   await card.locator('[data-op="save-word"]').click();
   await bigPage.waitForFunction(() => !document.querySelector('.entry.is-saving'));
   assert.deepEqual(big.words.get('b680').examples.map(ex => ex.translation), ['1', '0']);
+  // Restore an actual scroll position on a fresh page, without a selected editor card.
+  const resumeId = 'b690';
+  await bigPage.evaluate(async id => {
+    const { alignReadingWord } = await import('/shared/reading-position.js');
+    alignReadingWord(id);
+  }, resumeId);
+  await bigPage.waitForFunction(id => JSON.parse(localStorage.getItem('crossover-reading:editor:crossover-v3'))?.id === id, resumeId);
+  const reopened = await bigContext.newPage();
+  await reopened.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
   await bigPage.close();
+  await reopened.goto(`${bigOrigin}/setting/index.html`);
+  await reopened.waitForFunction(id => {
+    const target = document.querySelector(`[data-section-entries] #word-${id}`);
+    const top = Math.max(...[...document.querySelectorAll('.topbar,.subbar')].map(el => el.getBoundingClientRect().bottom));
+    return target && Math.abs(target.getBoundingClientRect().top - top) < 3;
+  }, resumeId);
+  assert.equal(await reopened.locator('.entry.is-edit-selected').count(), 0);
+  await bigContext.close();
   bigServer.close();
 
   assert.deepEqual(errors, []);

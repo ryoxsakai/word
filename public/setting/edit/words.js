@@ -1,3 +1,5 @@
+import { alignReadingWord } from "../../shared/reading-position.js";
+import { afterBodyPaint } from "../../viewer/startup.js";
 // 閲覧型編集ページ：単語帳（crossover）の表示と編集。
 // 閲覧ページと同じ描画処理で表示し、選択した単語にだけ編集用の部品を重ねる。
 import { renderWordEntry } from "../../viewer/word-entry.js";
@@ -32,6 +34,17 @@ const MULTILINE = new Set(["notes", "etymology", "irregularForms"]);
 const CEFR = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const EIKEN = ["5級", "4級", "3級", "準2級", "2級", "準1級", "1級"];
 const NONE = "none";
+
+export function requestWordStructure(listId) {
+  const base = `/lists/${encodeURIComponent(listId)}`;
+  const requests = {
+    index: api(`${base}/editor/index`), sections: api(`${base}/sections`), chapters: api(`${base}/chapters`),
+    labels: api(`${base}/labels`), groups: api(`${base}/groups`).catch(() => []),
+  };
+  // During startup the notebook catalog can still be loading.
+  Promise.allSettled(Object.values(requests));
+  return requests;
+}
 
 export function createWordEditor({ root, listId, onStructureChange }) {
   const S = {
@@ -187,37 +200,49 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       },
     });
   }
-  async function load(list) {
+  async function load(list, { position, structure } = {}) {
     root.innerHTML = '<div class="loading-msg"><span class="loading-label">読み込み中...</span></div>';
     const base = `/lists/${encodeURIComponent(listId)}`;
-    const sectionsRequest = api(`${base}/sections`).then(sections => {
+    function preload(key, subtitle = "") {
+      firstKey = key;
+      firstData = readSection(key);
+      firstData.then(data => {
+        if (!root.querySelector(".loading-msg") || !data.words?.length) return;
+        const context = { resolveRef: S.resolveRef, resolveHeadwordRef: S.resolveHeadwordRef, renderNotesMarkup: S.renderNotesMarkup, origin: VIEWER_API_BASE || location.origin };
+        const target = position && data.words.find(word => word.id === position.id);
+        if (position && !target) return;
+        const entries = (target ? [target] : data.words).map(word => renderWordEntry(recentSaved("word", word.id) || word, context)).join("");
+        const title = target ? `No. ${h(position.number)}` : `${h(list.sectionLabel || "Section")} 1`;
+        root.innerHTML = `<div class="section-divider"><span class="section-title">${title}</span><span class="section-subtitle">${h(subtitle)}</span></div><div inert>${entries}</div>`;
+      }).catch(() => {});
+    }
+    const requests = structure || requestWordStructure(listId);
+    if (position && /^(?:none|[0-9]+)$/.test(position.section)) preload(position.section);
+    const sectionsRequest = requests.sections.then(sections => {
       const first = [...sections].sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id)[0];
-      if (first) {
-        firstKey = sectionKey(first.id);
-        firstData = readSection(firstKey);
-        // 一覧・章構成の通信中も、先に届いた本文を読むことができる。
-        firstData.then(data => {
-          if (!root.querySelector(".loading-msg") || !data.words?.length) return;
-          const context = { resolveRef: S.resolveRef, resolveHeadwordRef: S.resolveHeadwordRef, renderNotesMarkup: S.renderNotesMarkup, origin: VIEWER_API_BASE || location.origin };
-          const entries = data.words.map(word => renderWordEntry(recentSaved("word", word.id) || word, context)).join("");
-          root.innerHTML = `<div class="section-divider"><span class="section-title">${h(list.sectionLabel || "Section")} 1</span><span class="section-subtitle">${h(first.subtitle || "")}</span></div><div inert>${entries}</div>`;
-        }).catch(() => {});
-
-      }
+      if (!firstData && first) preload(sectionKey(first.id), first.subtitle);
       return sections;
     });
     const [index, sections, chapters, labels, groups] = await Promise.all([
-      api(`${base}/editor/index`), sectionsRequest, api(`${base}/chapters`), api(`${base}/labels`),
-      api(`${base}/groups`).catch(() => []),
+      requests.index, sectionsRequest, requests.chapters, requests.labels, requests.groups,
     ]);
     S.list = list;
     S.sections = sections; S.chapters = chapters; S.labels = labels; S.groups = groups || [];
     S.order = (index.words || []).map(({ id, spelling, branch, sectionId, labelId }) => ({ id, spelling, branch: branch || 0, sectionId: sectionId ?? null, labelId: labelId ?? null }));
     normalizeOrder();
     rebuildReferences();
+    const resumeId = position && (S.seq.has(position.id) ? position.id : S.order.find(item => S.seq.get(item.id) === position.number)?.id);
+    S.navPaused = !!resumeId;
     renderShells();
-    if (firstKey) void loadSection(firstKey);
     onStructureChange?.();
+    if (resumeId) {
+      const item = S.order.find(word => word.id === resumeId);
+      if (await this.navigateToSection(sectionKey(item.sectionId), { targetId: `word-${resumeId}` })) alignReadingWord(resumeId);
+    } else {
+      const first = orderedSections()[0];
+      if (first) await loadSection(sectionKey(first.id));
+    }
+    await afterBodyPaint();
     // 参照用データは表示を止めずに後から読む。
     Promise.allSettled([api(`${base}/editor/references`), api(`${base}/editor/idioms`)]).then(([references, idioms]) => {
       if (references.status === "fulfilled") S.referenceWords = references.value.words || [];
@@ -281,7 +306,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const tone = new Map(S.chapters.map((c, i) => [c.id, (i % 6) + 1]));
     const parts = [];
     const sections = orderedSections();
-    const hasNone = S.order.some(item => item.sectionId == null);
+    const counts = sectionCounts();
+    const hasNone = counts.has(NONE);
     const list = hasNone ? [{ id: null, chapterId: null }, ...sections] : sections;
     let lastChapter, lastGroup;
     const chaptersShown = new Set();
@@ -308,7 +334,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const key = sectionKey(section.id);
       const selected = S.selectedHeader?.type === "section" && S.selectedHeader.id === section.id;
       const divider = sectionDividerHtml(section);
-      const count = S.order.filter(item => sectionKey(item.sectionId) === key).length;
+      const count = counts.get(key) || 0;
       parts.push(`<section class="section-group section-tone-${(index % 6) + 1} chapter-tone-${tone.get(chapterId) || 1}${chapterHtml ? " has-chapter-divider" : ""}${groupHtml ? " has-group-divider" : ""}" data-section-key="${h(key)}">${chapterHtml}${groupHtml}${divider}<div class="section-entries" data-section-entries="${h(key)}" aria-busy="true" style="--section-placeholder-height:${Math.min(900, Math.max(120, count * 44))}px"><div class="section-loading"><span class="section-loading-label">読み込み中...</span></div></div>${selected && section.id != null ? addSectionBar(section.id) : ""}</section>`);
     }
     for (const chapter of S.chapters) if (!chaptersShown.has(chapter.id) && !sections.some(s => s.chapterId === chapter.id)) parts.push(emptyChapter(chapter, tone));
@@ -1292,8 +1318,17 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- 移動 ----
   const navigateTo = createNavigator();
+  function sectionCounts() {
+    const counts = new Map();
+    for (const item of S.order) {
+      const key = sectionKey(item.sectionId);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return counts;
+  }
   function navSections() {
-    const list = orderedSections().map(section => ({ key: String(section.id), name: sectionName(section.id), subtitle: section.subtitle || "", count: S.order.filter(item => item.sectionId === section.id).length }));
+    const counts = sectionCounts();
+    const list = orderedSections().map(section => ({ key: String(section.id), name: sectionName(section.id), subtitle: section.subtitle || "", count: counts.get(String(section.id)) || 0 }));
     return S.order.some(item => item.sectionId == null) ? [{ key: NONE, name: "Sectionなし", subtitle: "", count: 0 }, ...list] : list;
   }
 
@@ -1316,7 +1351,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       return;
     }
     if (row) {
-      if (S.selectedId !== row.id) return select(row.id);
+      if (S.selectedId !== row.id) return;
       if (row.saving) return;
       const pos = event.target.closest("[data-edit-pos]");
       const derivativePos = event.target.closest("[data-edit-derivative-pos]");
@@ -1351,9 +1386,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const article = target.closest(".entry[data-word-id]");
     if (article) {
       const row = S.rows.get(article.dataset.wordId);
-      if (!row || row.saving) return;
+      if (!row || row.saving || S.multi || target.closest("button, a, input, textarea")) return;
       const field = target.closest("[data-edit]");
-      if (!field || !article.contains(field)) return;
+      if (!field || !article.contains(field)) return select(row.id);
       const path = field.dataset.edit;
       const indexes = field.dataset.derivativeIndexes;
       if (S.selectedId !== row.id) {
