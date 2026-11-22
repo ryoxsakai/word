@@ -112,16 +112,64 @@ export async function api(path, { method = "GET", body, fresh = false, writeTime
   }
 }
 
-// A write may have committed even when its response was lost. Verify via a
-// bounded detail read; never replay the write during recovery.
-export async function verifyWordSave(path, matches) {
-  const { response, data } = await request(path, { method: "GET" }, 8000);
-  if (!response.ok || !data || !matches(data)) return null;
-  if (response.headers.get("x-editor-snapshots") === "r2") {
-    setPendingMarker();
-    watchPublication();
+// Keep the original write alive while checking a slow or lost acknowledgement.
+export async function saveExistingWord(path, id, body, matches, onCheck) {
+  let settled = false;
+  let timer;
+  const check = async () => {
+    let reason;
+    for (const delay of [0, 1000, 2500]) {
+      if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+      if (settled) return;
+      try {
+        const { response, data } = await request(path, { method: "GET" }, 6000);
+        if (!response.ok) throw new ApiError(`登録内容を取得できません（HTTP ${response.status}）`, { status: response.status });
+        if (!data || data.id !== id) throw new Error("登録内容を読み取れません");
+        if (matches(data)) {
+          if (!settled && response.headers.get("x-editor-snapshots") === "r2") {
+            setPendingMarker();
+            watchPublication();
+          }
+          return data;
+        }
+        reason = "登録内容と今回の変更が一致しません";
+      } catch (error) {
+        reason = error.status ? error.message : "登録内容を取得できません。通信状況を確認してください";
+        if (error.status === 401 || error.status === 403) break;
+      }
+    }
+    throw new Error(reason);
+  };
+  let verification;
+  const verify = () => {
+    if (!verification) {
+      onCheck();
+      verification = check();
+    }
+    return verification;
+  };
+  const write = api(path, { method: "PUT", body, writeTimeout: 30000 }).then(data => {
+    if (data?.id !== id) throw new Error("保存応答を読み取れません");
+    return data;
+  });
+  try {
+    // A failed early read cannot overrule a later successful write response.
+    const earlyRead = new Promise(resolve => {
+      timer = setTimeout(() => verify().then(resolve, () => { verification = null; }), 6500);
+    });
+    try { return await Promise.race([write, earlyRead]); }
+    catch (error) {
+      if (error.status && error.status < 500) throw error;
+      try { return await verify(); }
+      catch (readError) {
+        const status = error.status ? `（保存時 HTTP ${error.status}）` : "";
+        throw Object.assign(new Error(`${readError.message}${status}。この画面に下書きを保持しています。`), { unconfirmed: true });
+      }
+    }
+  } finally {
+    settled = true;
+    clearTimeout(timer);
   }
-  return data;
 }
 
 // 閲覧ページへの反映を15秒ごとに確認する（読み出しのみ）。
