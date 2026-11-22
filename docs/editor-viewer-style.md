@@ -101,7 +101,7 @@
 | 見た目 | 閲覧ページの `viewer/style.css` と描画処理（`word-entry.js`・`idiom-entry.js`）をそのまま使う。描画処理は `edit` を渡したときだけ編集用の属性を付けるので、閲覧ページの出力は変わらない |
 | 単語 | 第1〜10章の内容をすべて実装 |
 | 熟語 | 熟語・別形・意味・同義語・対義語・メモの編集、意味の追加・削除、熟語の追加、並べ替え（ドラッグ）、Sectionの移動、非表示、Section名の変更、Sectionの並べ替え |
-| 例文の変換 | `worker/pending-migrations/0061_examples_to_phrases.sql` に用意。承認後に `worker/migrations/` へ移すと、次のデプロイで適用される |
+| 例文の変換 | `worker/migrations/0061_examples_to_phrases.sql`（承認済み）。デプロイ時に既存の例文をすべてフレーズに変える。REST・MCPとも、以後は種類を問わずフレーズとして保存する（MCPの `type: "example"` は互換のため受け付ける）。閲覧ページへは、デプロイ後の最初の編集か `/mcp-viewer-publish` で反映される |
 | テスト | `npm --prefix worker run test:viewer-edit`（実際のブラウザで操作を確認する） |
 
 ### 仕様との違い（既存APIの範囲による）
