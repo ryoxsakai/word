@@ -14,7 +14,7 @@ import {
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
 import { api, lookupNewWordPronunciation, saveExistingWord, verifySavedWordOrder } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, isSheetOpen, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { editWordCollection } from "./collection-editor.js";
 import { hierarchyIcon } from "./icons.js";
 import { createNavigator } from "./navigation.js";
@@ -88,6 +88,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   const draftOf = raw => {
     const draft = wordDraft(raw, listId);
     draft.no = ""; draft.sectionId = ""; draft.labelId = "";
+    // 例文は廃止してすべてフレーズ。公開が遅れて種類が古いままでも差分にしない。
+    for (const example of draft.examples) example.type = "phrase";
     return draft;
   };
   const sectionKey = id => id == null ? NONE : String(id);
@@ -443,11 +445,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     });
     const classes = [row.saving ? "is-saving" : "", row.error ? "has-edit-error" : "", S.multi?.has(row.id) ? "is-multi-selected" : "", row.isNew ? "is-new-entry" : ""].filter(Boolean).join(" ");
     if (classes) html = html.replace('class="entry', `class="entry ${classes}`);
-    if (row.saving) {
-      const { steps, index } = row.saveProgress;
-      const label = `${index + 1}/${steps.length}　${steps[index]}`;
-      html = html.replace("</article>", `<div class="word-save-progress" role="status"><span>${h(label)}</span><progress max="${steps.length}" value="${index}" aria-label="${h(label)}"></progress></div></article>`);
-    }
+    if (row.saving || row.saveDone) html = html.replace("</article>", `${saveProgressHtml(row)}</article>`);
     return html;
   }
 
@@ -500,6 +498,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // 選択中の単語に＋／−・メニュー・ドラッグの部品を重ねる。
   // The viewer groups meanings by part of speech and puts the primary meaning first.
+  // 保存の進み具合：工程名と「n/全体」、完了時は満たしたバー（DESIGN.md）。
+  function saveProgressHtml(row) {
+    if (row.saveDone) return `<div class="edit-progress is-done" role="status"><span class="edit-progress-label">✓ 保存しました</span><progress max="1" value="1" aria-label="保存しました"></progress></div>`;
+    const { steps, index } = row.saveProgress;
+    const label = `${steps[index]}…`;
+    return `<div class="edit-progress" role="status"><span class="edit-progress-label">${h(label)}</span><span class="edit-progress-count">${index + 1}/${steps.length}</span><progress max="${steps.length}" value="${index + 0.5}" aria-label="${h(label)}"></progress></div>`;
+  }
+
   function senseGroups(senses) {
     const groups = new Map();
     for (const sense of senses) {
@@ -510,6 +516,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
 
   function openCollection(row, key, index = 0, field) {
+    if (!beforeEdit(row)) return;
     const senses = key === "senses";
     const original = row.draft[key];
     const values = senses ? senseGroups(original).flat() : original;
@@ -531,14 +538,15 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     article.querySelector(".entry-body").inert = row.saving;
     article.querySelector(".entry-no").inert = row.saving;
     const dirty = row.isNew || !same(row.base, row.draft);
-    article.querySelector(".entry-body").insertAdjacentHTML("beforeend", `<div class="edit-word-actions">${dirty && !row.saving ? '<span class="edit-hint">未保存</span>' : ""}<button type="button" class="edit-chip" data-op="reset-word">リセット</button><button type="button" class="edit-chip" data-op="save-word">保存</button></div>`);
+    article.querySelector(".entry-body").insertAdjacentHTML("beforeend", `<div class="edit-word-actions">${dirty && !row.saving ? '<span class="edit-unsaved">未保存の変更があります</span>' : ""}<button type="button" class="edit-btn" data-op="reset-word"${dirty ? "" : " disabled"}>変更を取り消す</button><button type="button" class="edit-btn is-primary" data-op="save-word"${dirty ? "" : " disabled"}>保存</button></div>`);
     const btn = (op, label, attrs = "", cls = "edit-plus") => `<button type="button" class="${cls}" data-op="${op}" ${attrs} aria-label="${h(label)}">${cls === "edit-minus" ? "−" : "＋"}</button>`;
     const insert = (target, html, where = "beforeend") => target?.insertAdjacentHTML(where, html);
     const no = article.querySelector(".entry-no");
     no.classList.add("edit-drag-handle");
     no.title = "長押し（マウスはドラッグ）で並べ替え";
     const head = article.querySelector(".entry-head");
-    insert(head, `<button type="button" class="edit-chip" data-op="badges" aria-label="バッジ" title="バッジ"><i class="fa-solid fa-tags" aria-hidden="true"></i></button><button type="button" class="edit-chip" data-op="fields" aria-label="欄" title="欄"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
+    // 見出し行の操作は、アイコンだけにせず短い文字を添える（DESIGN.md）。
+    insert(head, `<span class="edit-head-tools"><button type="button" class="edit-chip" data-op="badges"><i class="fa-solid fa-tags" aria-hidden="true"></i>バッジ</button><button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip" data-op="menu" aria-label="その他の操作"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i>その他</button></span>`);
     const card = article.querySelector(".entry-card");
     for (const sense of article.querySelectorAll(".derivative-sense[data-derivative-index]")) insert(sense, btn("remove-derivative", "この派生語を削除", `data-index="${sense.dataset.derivativeIndex}"`, "edit-minus"));
     const derivatives = article.querySelector(".notes-derivative .notes-content");
@@ -552,7 +560,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       card.append(column);
       card.classList.add("edit-illustrated-card");
     }
-    if (row.error) insert(article.querySelector(".entry-body"), `<p class="edit-error" role="alert">${h(row.error)} <button type="button" data-op="retry-save">再試行</button>${row.conflict ? ' <button type="button" data-op="reload-word">最新を読み込む</button>' : ""}</p>`);
+    if (row.error) insert(article.querySelector(".entry-body"), `<div class="edit-error" role="alert"><p>${h(row.error)}</p><div class="edit-error-actions">${row.conflict
+      ? '<button type="button" class="edit-btn" data-op="reload-word">最新を読み込む</button><button type="button" class="edit-btn is-primary" data-op="overwrite-word">上書きして保存</button>'
+      : '<button type="button" class="edit-btn is-primary" data-op="retry-save">もう一度保存</button>'}</div></div>`);
     root.querySelectorAll(".edit-insert-word").forEach(el => el.remove());
     if (!row.isNew) article.insertAdjacentHTML("afterend", `<button type="button" class="edit-add-bar edit-insert-word" data-op="insert-word" data-after="${h(id)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ここに単語を追加</button>`);
   }
@@ -570,7 +580,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     clearSelectionChrome();
     if (previous) rerenderEntry(previous);
     if (previousHeader) refreshHeader(previousHeader);
-    if (id) rerenderEntry(id);
+    if (id) { rerenderEntry(id); void freshen(S.rows.get(id)); }
   }
   function selectHeader(type, id) {
     finishInlineEditing();
@@ -628,7 +638,11 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     return item && (row.pendingItem === `${list}.${index}`) && ((list === "senses" && field === "meaning") || (list === "examples" && field === "sentence") || (list === "derivatives" && field === "word"));
   };
 
-  function editField(row, el, { onDone } = {}) {
+  function editField(row, el, options = {}) {
+    if (!beforeEdit(row)) return;
+    return editFieldNow(row, el, options);
+  }
+  function editFieldNow(row, el, { onDone } = {}) {
     const path = el.dataset.edit;
     const [key, index, field] = path.split(".");
     if (key === "senses" || key === "examples") return openCollection(row, key, Number(index), field);
@@ -689,6 +703,32 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     openEditor(row.id, `${list}.${index}.${editPath}`);
   }
 
+  // ---- 編集の起点をDBの最新にする ----
+  // 表示は閲覧ページの公開データ（や端末キャッシュ）なので、公開が遅れているとDBより古い。
+  // 古い内容を起点に編集すると、保存時に「別の編集で変更されています」と誤って止まる。
+  // 選択したらDBの最新を読み、未編集なら起点を差し替える。編集を始める操作はこれを待つ。
+  function freshen(row) {
+    if (!row || row.isNew || row.fresh) return Promise.resolve();
+    if (row.freshening) return row.freshening;
+    row.freshening = api(`/words/${encodeURIComponent(row.id)}`).then(latest => {
+      // 編集中（ダイアログを開いている・未保存の変更がある）なら起点は差し替えない。
+      if (row.saving || row.editingCollection || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
+      const next = draftOf(latest);
+      row.fresh = true;
+      if (same(next, row.base) && same(latest.illustration, row.raw.illustration)) return;
+      row.raw = toViewer(latest, row.raw);
+      row.base = next; row.draft = clone(next);
+      rerenderEntry(row.id);
+    }).catch(() => {}).finally(() => { row.freshening = null; });
+    return row.freshening;
+  }
+  // 編集を始める操作。スマホでキーボードを開くため、ここでは待たずにすぐ開く
+  // （最新の読み込みはタップした時点で始めている）。
+  function beforeEdit(row) {
+    void freshen(row);
+    return S.rows.get(row.id) === row;
+  }
+
   // ---- 保存 ----
   function resetWord(row) {
     if (row.isNew) return discardNewWord(row);
@@ -700,16 +740,27 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     rerenderEntry(row.id);
   }
 
-  const updateSteps = ["現在の登録内容を照合中", "変更を送信・保存結果を確認中"];
-  const createSteps = ["発音記号を辞書で確認中", "新しい単語を登録中", "並び順を保存中"];
+  // 工程は利用者の言葉で示す（DESIGN.md「保存の進み具合」）。
+  const updateSteps = ["最新の内容を確認しています", "保存しています"];
+  const createSteps = ["発音記号を調べています", "単語を登録しています", "並び順を保存しています"];
 
   function showSaveStep(row, steps, index) {
     row.saving = true;
+    row.saveDone = false;
     row.saveProgress = { steps, index };
     rerenderEntry(row.id);
   }
+  // 完了は一度だけ満たしたバーで知らせ、少しして消す。
+  function showSaveDone(row) {
+    row.saving = false;
+    row.saveDone = true;
+    rerenderEntry(row.id);
+    clearTimeout(row.saveDoneTimer);
+    row.saveDoneTimer = setTimeout(() => { row.saveDone = false; rerenderEntry(row.id); }, 1600);
+  }
 
-  async function saveWord(row) {
+  // force: 同じ欄が別の画面で変わっていても、自分の変更で上書きする（確認のうえで）。
+  async function saveWord(row, { force = false } = {}) {
     if (row.saving) return;
     if (!row.draft.spelling.trim()) return toast("見出し語を入力してください", { tone: "error" });
     if (row.isNew) return commitNewWord(row);
@@ -719,11 +770,21 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     try {
       const sent = clone(row.draft);
       const latest = await api(`/words/${encodeURIComponent(row.id)}`, { fresh: true });
-      if (!latest.lists?.some(l => l.listId === listId)) throw Object.assign(new Error("この単語は別の画面で単語帳から除外されています。再読み込みしてください。"), { conflict: true });
+      if (!latest.lists?.some(l => l.listId === listId)) throw Object.assign(new Error("この単語は別の画面で単語帳から除外されています。再読み込みしてください。"), { conflict: true, removed: true });
       const latestDraft = draftOf(latest);
       let merged;
-      try { merged = mergeDraft(row.base, sent, latestDraft); }
-      catch (error) { error.conflict = true; throw error; }
+      if (force) {
+        // 自分が変えた欄だけを、最新の内容の上に適用する。
+        merged = clone(latestDraft);
+        for (const key of changedKeys(row.base, sent)) merged[key] = clone(sent[key]);
+      } else {
+        try { merged = mergeDraft(row.base, sent, latestDraft); }
+        catch (error) {
+          error.conflict = true;
+          error.message = "この単語は、ほかの画面で同じ項目が変更されています。";
+          throw error;
+        }
+      }
       let saved = latest;
       const desired = cleanDraft(merged);
       const changed = changedKeys(latestDraft, desired);
@@ -749,7 +810,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
             }
             return !same(actual[key], expected[key]);
           }).map(key => SAVE_FIELD_LABELS[key] || key);
-        }, () => showSaveStep(row, [updateSteps[0], "サーバーの登録内容を照合中"], 1));
+        }, () => showSaveStep(row, [updateSteps[0], "保存結果を確認しています"], 1));
       }
       row.raw = toViewer(saved, row.raw);
       row.base = draftOf(saved);
@@ -757,22 +818,26 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (same(row.draft, sent)) row.draft = clone(row.base);
       const item = S.order.find(o => o.id === row.id);
       if (item && item.spelling !== row.base.spelling) { item.spelling = row.base.spelling; rebuildReferences(); }
-      row.saving = false;
-      rerenderEntry(row.id);
-      toast("単語を保存しました");
+      row.fresh = true;
+      showSaveDone(row);
+      toast(`「${row.base.spelling}」を保存しました`);
     } catch (error) {
       row.saving = false;
-      row.error = error.unconfirmed ? error.message : `保存できませんでした：${error.message}`;
-      row.conflict = !!error.conflict;
+      row.error = error.unconfirmed ? error.message : error.conflict ? error.message : `保存できませんでした：${error.message}`;
+      row.conflict = !!error.conflict && !error.removed;
       rerenderEntry(row.id);
       toast(row.error, { tone: "error", duration: 7000 });
     }
   }
+  async function overwriteWord(row) {
+    if (!confirm("ほかの画面での変更のうち、あなたが変えた項目だけを、あなたの内容で上書きします。よろしいですか？")) return;
+    return saveWord(row, { force: true });
+  }
   async function reloadWord(row) {
-    if (!confirm("この単語の未保存の変更を破棄して、最新の内容を読み込みますか？")) return;
+    if (!confirm("この単語の未保存の変更を取り消して、最新の内容を読み込みますか？")) return;
     const latest = await api(`/words/${encodeURIComponent(row.id)}`, { fresh: true });
     row.raw = toViewer(latest, row.raw);
-    row.base = draftOf(latest); row.draft = clone(row.base); row.error = ""; row.conflict = false;
+    row.base = draftOf(latest); row.draft = clone(row.base); row.error = ""; row.conflict = false; row.fresh = true;
     rerenderEntry(row.id);
   }
 
@@ -1076,6 +1141,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- シート（バッジ・欄・メニュー・詳細） ----
   function openBadgeSheet(row) {
+    if (!beforeEdit(row)) return;
     sheet("バッジ", body => {
       const draw = () => {
         body.replaceChildren();
@@ -1108,6 +1174,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     });
   }
   function openFieldSheet(row) {
+    if (!beforeEdit(row)) return;
     sheet("欄", body => {
       const draw = () => {
         body.replaceChildren();
@@ -1427,6 +1494,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const opEl = event.target.closest("[data-op]");
     const article = event.target.closest(".entry[data-word-id]");
     const row = article && S.rows.get(article.dataset.wordId);
+    // タップした時点で最新の読み込みを始める（ダブルタップの2回目までに終わることが多い）。
+    if (row) void freshen(row);
     if (opEl) return handleOp(opEl, row);
     const speak = event.target.closest('[data-action="speak"]');
     if (speak) return playPronunciation(speak.dataset.text, { audioUrl: speak.dataset.audioUrl, button: speak });
@@ -1517,8 +1586,10 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (event.target.closest('[data-op="save-word"], [data-op="reset-word"]')) event.preventDefault();
   });
 
+  const DRAFT_OPS = new Set(["add-derivative", "remove-derivative", "remove-field"]);
   function handleOp(el, row) {
     const op = el.dataset.op;
+    if (row && DRAFT_OPS.has(op) && !beforeEdit(row)) return;
     const id = el.dataset.id != null ? Number(el.dataset.id) : null;
     switch (op) {
       case "add-derivative": return addItem(row, "derivatives", { word: "", pos: "", meaning: "" }, undefined, "word");
@@ -1537,6 +1608,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         if (row.saving) return;
         return op === "reset-word" ? resetWord(row) : saveWord(row);
       case "reload-word": return reloadWord(row);
+      case "overwrite-word": return overwriteWord(row);
       case "retry-section": return loadSection(el.dataset.key);
       case "header-description": return openDescription(el.dataset.type, id);
       case "header-move": return moveHeader(el.dataset.type, id, Number(el.dataset.dir));

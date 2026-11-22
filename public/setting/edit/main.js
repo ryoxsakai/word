@@ -90,10 +90,12 @@ const closeMenus = () => {
 
 // ---- 反映状況 ----
 onPublication(status => {
+  // 保存（DB）と閲覧ページへの反映は別。保存はできているので、反映待ちは注意表示にとどめる（DESIGN.md）。
+  el.publishStatus.title = "保存は完了しています。閲覧ページへの反映を待っています。";
   if (status.state === "publishing") {
     el.publishStatus.hidden = false;
     el.publishStatus.className = "edit-publish-status is-publishing";
-    el.publishStatus.textContent = "閲覧ページへ反映中…";
+    el.publishStatus.textContent = "閲覧ページに反映中";
   } else if (status.state === "idle") {
     el.publishStatus.hidden = true;
   } else if (status.state === "published") {
@@ -101,9 +103,9 @@ onPublication(status => {
     toast("閲覧ページに反映しました");
   } else if (status.state === "failed") {
     el.publishStatus.hidden = false;
-    el.publishStatus.className = "edit-publish-status is-failed";
-    el.publishStatus.textContent = "反映を確認できません";
-    toast(`閲覧ページへの反映を確認できません：${status.message}`, { tone: "error", duration: 8000 });
+    el.publishStatus.className = "edit-publish-status is-slow";
+    el.publishStatus.textContent = "閲覧ページへの反映に時間がかかっています";
+    el.publishStatus.title = `保存は完了しています。閲覧ページへの反映を確認できていません（${status.message}）。しばらくすると反映されます。`;
   }
 });
 

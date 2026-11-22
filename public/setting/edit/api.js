@@ -200,10 +200,12 @@ export function watchPublication() {
   if (publicationTimer !== null) return;
   let marker = pendingMarker();
   let startedAt = Date.now();
+  let slowReported = false;
   const updateMarker = current => {
     if (current !== marker) {
       marker = current;
       startedAt = Date.now();
+      slowReported = false;
     }
   };
   const stopIdle = () => {
@@ -235,14 +237,16 @@ export function watchPublication() {
       failure = "反映状況を端末に保存できません";
     }
     if (!current) { stopIdle(); return; }
+    let delay = 15000;
     if (current !== marker) {
       updateMarker(current);
     } else if (Date.now() - startedAt > 10 * 60 * 1000) {
-      publicationTimer = null;
-      emit({ state: "failed", message: failure });
-      return;
+      // 10分を過ぎたら「時間がかかっている」と一度だけ知らせ、確認は1分ごとに続ける。
+      if (!slowReported) emit({ state: "failed", message: failure });
+      slowReported = true;
+      delay = 60000;
     }
-    publicationTimer = setTimeout(check, 15000);
+    publicationTimer = setTimeout(check, delay);
   };
   publicationTimer = setTimeout(check, 8000);
   emit({ state: "publishing" });

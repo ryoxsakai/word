@@ -5,10 +5,10 @@ import { orderIdiomLabels } from "../../shared/idioms.js";
 import { createIdiomReferenceResolver } from "../../shared/idiom-references.js";
 import { groupIdiomEntries } from "../../shared/idioms.js";
 import { createAutoCrossRefRenderer } from "../../shared/markup.js";
-import { clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
+import { changedKeys, clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, isSheetOpen, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 import { createNavigator } from "./navigation.js";
 
@@ -154,7 +154,14 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     });
     const classes = [row.saving ? "is-saving" : "", row.error ? "has-edit-error" : "", row.isNew ? "is-new-entry" : ""].filter(Boolean).join(" ");
     if (classes) html = html.replace('class="entry idiom-entry', `class="entry idiom-entry ${classes}`);
+    if (row.saving || row.saveDone) html = html.replace(/<\/article>\s*$/, `${progressHtml(row)}</article>`);
     return html;
+  }
+  // 単語と同じ保存の進み具合（DESIGN.md）。
+  function progressHtml(row) {
+    if (row.saveDone) return `<div class="edit-progress is-done" role="status"><span class="edit-progress-label">✓ 保存しました</span><progress max="1" value="1" aria-label="保存しました"></progress></div>`;
+    const { steps, index } = row.saveProgress;
+    return `<div class="edit-progress" role="status"><span class="edit-progress-label">${h(steps[index])}…</span><span class="edit-progress-count">${index + 1}/${steps.length}</span><progress max="${steps.length}" value="${index + 0.5}" aria-label="${h(steps[index])}"></progress></div>`;
   }
   function renderSection(key) {
     const container = root.querySelector(`[data-idiom-section-entries="${CSS.escape(key)}"]`);
@@ -199,7 +206,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     article.dataset.decorated = "1";
     const minus = (op, label, attrs) => `<button type="button" class="edit-minus" data-op="${op}" ${attrs} aria-label="${h(label)}">−</button>`;
     article.querySelector(".entry-no")?.classList.add("edit-drag-handle");
-    article.querySelector(".entry-head")?.insertAdjacentHTML("beforeend", `<button type="button" class="edit-chip" data-op="fields" aria-label="欄" title="欄"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
+    article.querySelector(".entry-head")?.insertAdjacentHTML("beforeend", `<span class="edit-head-tools"><button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip" data-op="menu" aria-label="その他の操作"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i>その他</button></span>`);
     for (const sense of article.querySelectorAll(".idiom-sense[data-meaning-index]")) {
       const index = Number(sense.dataset.meaningIndex);
       const refs = row.draft.meanings[index]?.wordIds || [];
@@ -209,7 +216,12 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     const card = article.querySelector(".entry-card");
     card?.querySelector(".entry-notes")?.insertAdjacentHTML("beforebegin", `<div class="edit-row-actions"><button type="button" class="edit-add-inline" data-op="add-meaning"><i class="fa-solid fa-plus" aria-hidden="true"></i>意味</button></div>`);
     for (const block of article.querySelectorAll(".notes-block[data-field]")) block.insertAdjacentHTML("beforeend", minus("remove-field", "この欄を削除", `data-field="${block.dataset.field}"`));
-    if (row.error) article.querySelector(".entry-body")?.insertAdjacentHTML("beforeend", `<p class="edit-error" role="alert">${h(row.error)} <button type="button" data-op="retry-save">再試行</button></p>`);
+    const dirty = row.isNew || !same(row.base, row.draft);
+    article.querySelector(".entry-body").inert = row.saving;
+    article.querySelector(".entry-body")?.insertAdjacentHTML("beforeend", `<div class="edit-word-actions">${dirty && !row.saving ? '<span class="edit-unsaved">未保存の変更があります</span>' : ""}<button type="button" class="edit-btn" data-op="reset-idiom"${dirty ? "" : " disabled"}>変更を取り消す</button><button type="button" class="edit-btn is-primary" data-op="save-idiom"${dirty ? "" : " disabled"}>保存</button></div>`);
+    if (row.error) article.querySelector(".entry-body")?.insertAdjacentHTML("beforeend", `<div class="edit-error" role="alert"><p>${h(row.error)}</p><div class="edit-error-actions">${row.conflict
+      ? '<button type="button" class="edit-btn" data-op="reload-idiom">最新を読み込む</button><button type="button" class="edit-btn is-primary" data-op="overwrite-idiom">上書きして保存</button>'
+      : '<button type="button" class="edit-btn is-primary" data-op="retry-save">もう一度保存</button>'}</div></div>`);
     root.querySelectorAll(".edit-insert-word").forEach(el => el.remove());
     if (!row.isNew) article.insertAdjacentHTML("afterend", `<button type="button" class="edit-add-bar edit-insert-word" data-op="insert" data-after="${h(key)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ここに熟語を追加</button>`);
   }
@@ -230,32 +242,68 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     const entry = undoEntry;
     toast(message, entry ? { undo: () => { if (undoEntry === entry) { undoEntry = null; entry(); } } } : {});
   }
-  function mutate(row, change, { save = true, undoBase = null } = {}) {
-    const before = undoBase || clone(row.draft);
+  // 内容の変更は下書きに入り、「保存」で書き込む（単語と同じ。DESIGN.md）。並べ替え・移動はすぐ保存する。
+  function mutate(row, change) {
+    const before = clone(row.draft);
     change(row.draft);
-    if (same(before, row.draft)) { rerender(row.key); return false; }
-    undoEntry = () => { row.draft = before; rerender(row.key); queueSave(row, "元に戻しました"); };
     rerender(row.key);
-    if (save) queueSave(row);
-    return true;
+    return !same(before, row.draft);
   }
-  async function queueSave(row, message = "保存しました") {
-    if (row.isNew && !row.draft.meanings.some(m => m.meaning.trim())) return;
-    if (row.saving) { row.queued = true; return; }
-    row.saving = true; row.error = "";
-    entryEl(row.key)?.classList.add("is-saving");
+  async function latestEntry(row) {
+    const data = await api(`${base}/idioms/sections/${encodeURIComponent(row.base.sectionKey)}`);
+    return (data.entries || []).find(e => e.key === row.key);
+  }
+  // 選択・タップした時点でDBの最新を読み、未編集なら起点を差し替える（単語と同じ）。
+  function freshen(row) {
+    if (!row || row.isNew || row.fresh || row.freshening) return;
+    row.freshening = latestEntry(row).then(latest => {
+      // ダイアログ・メニュー・選択肢を開いている間は差し替えない（表示と操作の対象がずれるため）。
+      if (!latest || row.saving || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
+      const next = idiomDraft(latest);
+      row.fresh = true;
+      if (same(next, row.base)) return;
+      row.raw = latest; row.base = next; row.draft = clone(next);
+      rerender(row.key);
+    }).catch(() => {}).finally(() => { row.freshening = null; });
+  }
+  function resetIdiom(row) {
+    if (row.isNew) return discard(row);
+    row.draft = clone(row.base);
+    row.showFields.clear();
+    row.error = ""; row.conflict = false;
+    rerender(row.key);
+  }
+  function showStep(row, steps, index) {
+    row.saving = true; row.saveDone = false;
+    row.saveProgress = { steps, index };
+    rerender(row.key);
+  }
+  async function queueSave(row, message = "保存しました", { force = false } = {}) {
+    if (row.isNew && !row.draft.meanings.some(m => m.meaning.trim())) return toast("意味を入力してください", { tone: "error" });
+    if (!row.draft.phrase.trim()) return toast("熟語を入力してください", { tone: "error" });
+    if (row.saving) return;
+    row.error = ""; row.conflict = false;
+    const steps = row.isNew ? ["熟語を登録しています", "並び順を保存しています"] : ["最新の内容を確認しています", "保存しています"];
+    showStep(row, steps, 0);
     try {
-      do {
-        row.queued = false;
+      {
         const sent = clone(row.draft);
         let latest = {};
         if (!row.isNew) {
-          const data = await api(`${base}/idioms/sections/${encodeURIComponent(row.base.sectionKey)}`);
-          latest = (data.entries || []).find(e => e.key === row.key);
-          if (!latest) throw new Error("この熟語は別の画面で移動されています。再読み込みしてください。");
+          latest = await latestEntry(row);
+          if (!latest) throw Object.assign(new Error("この熟語は別の画面で移動されています。再読み込みしてください。"), { removed: true });
         }
         const cleaned = { ...sent, meanings: sent.meanings.filter(m => m.meaning.trim()) };
-        const merged = row.isNew ? cleaned : mergeDraft(row.base, cleaned, idiomDraft(latest));
+        let merged;
+        if (row.isNew) merged = cleaned;
+        else if (force) {
+          merged = idiomDraft(latest);
+          for (const key of changedKeys(row.base, cleaned)) merged[key] = clone(cleaned[key]);
+        } else {
+          try { merged = mergeDraft(row.base, cleaned, idiomDraft(latest)); }
+          catch (error) { throw Object.assign(error, { conflict: true, message: "この熟語は、ほかの画面で同じ項目が変更されています。" }); }
+        }
+        if (!row.isNew) showStep(row, steps, 1);
         const payload = idiomPayload(merged, row.isNew ? {} : latest);
         const result = await api(`${base}/idioms`, { method: "PUT", body: payload });
         const raw = { ...row.raw, ...payload, key: result.id, meanings: payload.meanings.map(s => ({ ...s, refs: s.wordIds.map(wordId => ({ wordId })) })) };
@@ -268,6 +316,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
           const item = S.order.find(i => i.key === temp);
           item.key = row.key;
           if (S.selectedKey === temp) S.selectedKey = row.key;
+          showStep(row, steps, 1);
           await saveOrder();
           renderSection(row.draft.sectionKey);
         }
@@ -277,15 +326,20 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         if (same(row.draft, sent)) row.draft = clone(row.base);
         const item = S.order.find(i => i.key === row.key);
         if (item) { item.phrase = row.base.phrase; item.hidden = row.base.hidden; }
-      } while (row.queued);
-      row.saving = false;
+        row.fresh = true;
+      }
+      row.saving = false; row.saveDone = true;
       normalize();
       rerender(row.key);
       refreshNumbers();
+      clearTimeout(row.saveDoneTimer);
+      row.saveDoneTimer = setTimeout(() => { row.saveDone = false; rerender(row.key); }, 1600);
+      undoEntry = null;
       offer(message);
     } catch (error) {
-      row.saving = false; row.queued = false;
-      row.error = `保存できませんでした：${error.message}`;
+      row.saving = false;
+      row.error = error.conflict ? error.message : `保存できませんでした：${error.message}`;
+      row.conflict = !!error.conflict;
       rerender(row.key);
       toast(row.error, { tone: "error", duration: 7000 });
     }
@@ -310,7 +364,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         const pending = row.pendingItem === path;
         const undoBase = row.pendingBase;
         row.pendingItem = null; row.pendingBase = null;
-        if (pending && !next) { if (undoBase) row.draft = undoBase; if (row.isNew) return discard(row); return rerender(row.key); }
+        // 新しい熟語を消すのは、熟語そのものがまだ空のときだけ（入力済みの下書きは残す）。
+        if (pending && !next) { if (undoBase) row.draft = undoBase; if (row.isNew && !row.draft.phrase.trim()) return discard(row); return rerender(row.key); }
         if (path === "phrase" && !next) { if (row.isNew) return discard(row); toast("熟語は空にできません", { tone: "error" }); return rerender(row.key); }
         if (row.isNew && path === "phrase") {
           row.draft.phrase = next;
@@ -322,7 +377,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
       onCancel: () => {
         if (row.pendingItem === path && row.pendingBase) row.draft = row.pendingBase;
         row.pendingItem = null; row.pendingBase = null;
-        if (row.isNew) return discard(row);
+        if (row.isNew && !row.draft.phrase.trim()) return discard(row);
         rerender(row.key);
       },
     });
@@ -380,9 +435,12 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     draw();
     try {
       for (const { row, labelKey, sectionKey } of labelChanges) {
+        // 移動は内容の下書きとは別に、すぐ保存する。
+        if (!same(row.base, row.draft)) throw new Error("未保存の変更がある熟語は、保存してから移動してください");
         row.draft.labelKey = labelKey ?? "";
         row.draft.sectionKey = sectionKey;
         await queueSave(row, message);
+        if (row.error) throw new Error(row.error);
       }
       await saveOrder();
       for (const row of S.rows.values()) {
@@ -500,6 +558,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     if (link) event.preventDefault();
     const article = event.target.closest(".idiom-entry[data-idiom-key]");
     const row = article && S.rows.get(article.dataset.idiomKey);
+    // タップした時点でDBの最新を読み始める（単語と同じ）。
+    if (row) freshen(row);
     const op = event.target.closest("[data-op]");
     if (op) {
       switch (op.dataset.op) {
@@ -510,7 +570,14 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         case "menu": return openMenu(row);
         case "insert": return insert(op.dataset.after);
         case "add-first": return insert(null, op.dataset.key);
-        case "retry-save": return queueSave(row);
+        case "retry-save": case "save-idiom": finishInlineEditing(); return queueSave(row);
+        case "reset-idiom": return resetIdiom(row);
+        case "overwrite-idiom":
+          if (!confirm("ほかの画面での変更のうち、あなたが変えた項目だけを、あなたの内容で上書きします。よろしいですか？")) return;
+          return queueSave(row, "保存しました", { force: true });
+        case "reload-idiom":
+          if (!confirm("この熟語の未保存の変更を取り消して、最新の内容を読み込みますか？")) return;
+          return latestEntry(row).then(latest => { if (!latest) return; row.raw = latest; row.base = idiomDraft(latest); row.draft = clone(row.base); row.error = ""; row.conflict = false; row.fresh = true; rerender(row.key); });
         case "retry-section": return loadSection(op.dataset.key);
         case "section-move": return moveSection(op.dataset.key, Number(op.dataset.dir));
       }
@@ -566,7 +633,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     onDrop: (key, targetKey, before) => moveNear(key, targetKey, before),
   });
   window.addEventListener("beforeunload", event => {
-    if ([...S.rows.values()].some(r => r.saving || r.error || r.isNew) || isInlineEditing()) { event.preventDefault(); event.returnValue = ""; }
+    if ([...S.rows.values()].some(r => r.saving || r.error || r.isNew || !same(r.base, r.draft)) || isInlineEditing()) { event.preventDefault(); event.returnValue = ""; }
   });
 
   return {
