@@ -379,11 +379,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     });
     const classes = [row.saving ? "is-saving" : "", row.error ? "has-edit-error" : "", S.multi?.has(row.id) ? "is-multi-selected" : "", row.isNew ? "is-new-entry" : ""].filter(Boolean).join(" ");
     if (classes) html = html.replace('class="entry', `class="entry ${classes}`);
-    if (row.saving) {
-      const { steps, index } = row.saveProgress;
-      const label = `${index + 1}/${steps.length}　${steps[index]}`;
-      html = html.replace("</article>", `<div class="word-save-progress" role="status"><span>${h(label)}</span><progress max="${steps.length}" value="${index}" aria-label="${h(label)}"></progress></div></article>`);
-    }
     return html;
   }
 
@@ -441,10 +436,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const row = id && S.rows.get(id);
     if (!article || !row || article.dataset.decorated) return;
     article.dataset.decorated = "1";
-    article.querySelector(".entry-body").inert = row.saving;
-    article.querySelector(".entry-no").inert = row.saving;
+    article.inert = row.saving;
     const dirty = row.isNew || !same(row.base, row.draft);
-    article.querySelector(".entry-body").insertAdjacentHTML("beforeend", `<div class="edit-word-actions">${dirty && !row.saving ? '<span class="edit-hint">未保存</span>' : ""}<button type="button" class="edit-chip" data-op="reset-word">リセット</button><button type="button" class="edit-chip" data-op="save-word">保存</button></div>`);
+    article.querySelector(".entry-body").insertAdjacentHTML("beforeend", `<div class="edit-word-actions">${dirty ? '<span class="edit-hint">未保存</span>' : ""}<button type="button" class="edit-chip" data-op="reset-word">リセット</button><button type="button" class="edit-chip" data-op="save-word">保存</button></div>`);
     const btn = (op, label, attrs = "", cls = "edit-plus") => `<button type="button" class="${cls}" data-op="${op}" ${attrs} aria-label="${h(label)}">${cls === "edit-minus" ? "−" : "＋"}</button>`;
     const insert = (target, html, where = "beforeend") => target?.insertAdjacentHTML(where, html);
     const no = article.querySelector(".entry-no");
@@ -620,22 +614,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     rerenderEntry(row.id);
   }
 
-  const updateSteps = ["現在の登録内容を照合中", "変更を送信・保存結果を確認中"];
-  const createSteps = ["発音記号を辞書で確認中", "新しい単語を登録中", "並び順を保存中"];
-
-  function showSaveStep(row, steps, index) {
-    row.saving = true;
-    row.saveProgress = { steps, index };
-    rerenderEntry(row.id);
-  }
-
   async function saveWord(row) {
     if (row.saving) return;
     if (!row.draft.spelling.trim()) return toast("見出し語を入力してください", { tone: "error" });
     if (row.isNew) return commitNewWord(row);
     if (same(row.base, row.draft)) return;
-    row.error = ""; row.conflict = false;
-    showSaveStep(row, updateSteps, 0);
+    row.saving = true; row.error = ""; row.conflict = false;
+    rerenderEntry(row.id);
     try {
       const sent = clone(row.draft);
       const latest = await api(`/words/${encodeURIComponent(row.id)}`, { fresh: true });
@@ -645,10 +630,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       try { merged = mergeDraft(row.base, sent, latestDraft); }
       catch (error) { error.conflict = true; throw error; }
       let saved = latest;
-      if (!same(cleanDraft(merged), latestDraft)) {
-        showSaveStep(row, updateSteps, 1);
-        saved = await api(`/words/${encodeURIComponent(row.id)}`, { method: "PUT", body: wordPayload(cleanDraft(merged), latest) });
-      }
+      if (!same(cleanDraft(merged), latestDraft)) saved = await api(`/words/${encodeURIComponent(row.id)}`, { method: "PUT", body: wordPayload(cleanDraft(merged), latest) });
       row.raw = toViewer(saved, row.raw);
       row.base = draftOf(saved);
       rememberSaved("word", row.id, row.raw);
@@ -714,18 +696,17 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
   async function commitNewWord(row) {
     const spelling = row.draft.spelling;
-    row.error = "";
-    showSaveStep(row, createSteps, 0);
+    row.saving = true;
+    rerenderEntry(row.id);
     try {
       const info = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`).catch(() => null);
       if (info?.pronunciation && !row.draft.pronunciation) row.draft.pronunciation = info.pronunciation;
       const item = S.order.find(o => o.id === row.id);
       const payload = { ...wordPayload(cleanDraft(row.draft)), listId, sectionId: item.sectionId, labelId: item.labelId };
-      showSaveStep(row, createSteps, 1);
       const saved = await api("/words", { method: "POST", body: payload });
       const tempId = row.id;
       S.rows.delete(tempId);
-      row.id = saved.id; row.isNew = false;
+      row.id = saved.id; row.isNew = false; row.saving = false;
       row.raw = toViewer(saved, { branch: 0, sectionId: item.sectionId, labelId: item.labelId });
       row.base = draftOf(saved); row.draft = clone(row.base);
       S.rows.set(row.id, row);
@@ -733,13 +714,11 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (S.selectedId === tempId) S.selectedId = saved.id;
       computeSeq();
       rebuildReferences();
-      showSaveStep(row, createSteps, 2);
       renderSection(sectionKey(item.sectionId));
       rememberSaved("word", row.id, row.raw);
       // 単語の作成後に並べ替えだけ失敗しても、単語を二重に作らない。
       try { await saveOrder(); }
       catch (error) { return toast(`単語を追加しました。並び順を保存できませんでした：${error.message}`, { tone: "error" }); }
-      finally { row.saving = false; rerenderEntry(row.id); }
       rememberUndo("追加", () => removeWord(row, { confirmFirst: false }));
       offerUndo(`「${saved.spelling}」を追加しました`);
     } catch (error) {
