@@ -14,7 +14,7 @@ import {
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
 import { api, lookupNewWordPronunciation, saveExistingWord, verifySavedWordOrder } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, isSheetOpen, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { editWordCollection } from "./collection-editor.js";
 import { hierarchyIcon } from "./icons.js";
 import { createNavigator } from "./navigation.js";
@@ -712,7 +712,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (row.freshening) return row.freshening;
     row.freshening = api(`/words/${encodeURIComponent(row.id)}`).then(latest => {
       // 編集中（ダイアログを開いている・未保存の変更がある）なら起点は差し替えない。
-      if (row.saving || row.editingCollection || isInlineEditing() || !same(row.base, row.draft)) return;
+      if (row.saving || row.editingCollection || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
       const next = draftOf(latest);
       row.fresh = true;
       if (same(next, row.base) && same(latest.illustration, row.raw.illustration)) return;

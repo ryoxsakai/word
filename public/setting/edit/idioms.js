@@ -8,7 +8,7 @@ import { createAutoCrossRefRenderer } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
-import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, isSheetOpen, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 import { createNavigator } from "./navigation.js";
 
@@ -257,7 +257,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
   function freshen(row) {
     if (!row || row.isNew || row.fresh || row.freshening) return;
     row.freshening = latestEntry(row).then(latest => {
-      if (!latest || row.saving || isInlineEditing() || !same(row.base, row.draft)) return;
+      // ダイアログ・メニュー・選択肢を開いている間は差し替えない（表示と操作の対象がずれるため）。
+      if (!latest || row.saving || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
       const next = idiomDraft(latest);
       row.fresh = true;
       if (same(next, row.base)) return;
@@ -363,7 +364,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         const pending = row.pendingItem === path;
         const undoBase = row.pendingBase;
         row.pendingItem = null; row.pendingBase = null;
-        if (pending && !next) { if (undoBase) row.draft = undoBase; if (row.isNew) return discard(row); return rerender(row.key); }
+        // 新しい熟語を消すのは、熟語そのものがまだ空のときだけ（入力済みの下書きは残す）。
+        if (pending && !next) { if (undoBase) row.draft = undoBase; if (row.isNew && !row.draft.phrase.trim()) return discard(row); return rerender(row.key); }
         if (path === "phrase" && !next) { if (row.isNew) return discard(row); toast("熟語は空にできません", { tone: "error" }); return rerender(row.key); }
         if (row.isNew && path === "phrase") {
           row.draft.phrase = next;
@@ -375,7 +377,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
       onCancel: () => {
         if (row.pendingItem === path && row.pendingBase) row.draft = row.pendingBase;
         row.pendingItem = null; row.pendingBase = null;
-        if (row.isNew) return discard(row);
+        if (row.isNew && !row.draft.phrase.trim()) return discard(row);
         rerender(row.key);
       },
     });

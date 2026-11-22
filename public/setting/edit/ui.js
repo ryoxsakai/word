@@ -34,6 +34,8 @@ export function toast(message, { undo = null, duration = 5000, tone = "" } = {})
 
 // ---- 下から出るシート ----
 let openSheetEl = null;
+// ダイアログ・メニュー・選択肢が開いているか（開いている間は、項目の内容を裏で差し替えない）。
+export function isSheetOpen() { return !!openSheetEl; }
 export function closeSheet() {
   if (!openSheetEl) return;
   const sheet = openSheetEl;

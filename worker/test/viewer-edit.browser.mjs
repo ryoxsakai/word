@@ -120,6 +120,7 @@ async function handleApi(db, method, path, body) {
   if (parts[2] === 'editor' && parts[3] === 'sections') return { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === parts[4]).map(([id]) => viewerWord(db, id)) };
   if (tail === 'editor/idioms') return { managed: true, chapters: db.idiomChapters, entries: db.idioms.map(({ key, phrase, sectionKey, hidden }) => ({ key, phrase, sectionKey, meanings: [], ...(hidden ? { hidden } : {}) })) };
   if (parts[2] === 'editor' && parts[3] === 'idiom-sections') return { sectionKey: parts[4], entries: structuredClone(db.idioms.filter(i => i.sectionKey === parts[4])) };
+  if (tail.startsWith('idioms/sections/') && method === 'GET' && db.idiomLatestDelay) await new Promise(resolve => setTimeout(resolve, db.idiomLatestDelay));
   if (tail.startsWith('idioms/sections/') && method === 'GET') return { sectionKey: parts[4], entries: structuredClone(db.idioms.filter(i => i.sectionKey === parts[4])) };
   if (tail === 'idioms' && method === 'PUT') {
     const key = body.id || `idiom-${++db.nextId}`;
@@ -796,6 +797,44 @@ try {
   assert.deepEqual(db.lookupRequests, ['known-pronunciation', 'slow-dictionary'], '辞書を再試行しない');
   assert.deepEqual(db.writes.slice(saveSlow).map(w => w.path), ['/api/words', `/api/lists/${LIST}/reorder`]);
   assert.equal(db.writes[saveSlow].body.pronunciation, null);
+
+  // 熟語：入力済みの新しい熟語は、ほかの欄をキャンセルしても消さない。
+  {
+    await page.locator('#viewTabIdioms').click();
+    const idiomEntry = key => page.locator(`.idiom-entry[data-idiom-key="${key}"]`);
+    await idiomEntry('i1').waitFor();
+    await idiomEntry('i1').locator('.headword').click();
+    await page.locator('[data-op="insert"]').click();
+    await page.locator('.edit-inline-input').fill('look into');
+    await page.locator('.edit-inline-input').press('Enter');
+    await page.locator('.edit-inline-input').fill('調査する');
+    await page.locator('.edit-inline-input').press('Enter');
+    const draft = page.locator('.idiom-entry.is-new-entry');
+    await draft.locator('[data-op="fields"]').click();
+    await page.locator('.edit-tile', { hasText: 'メモ' }).click();
+    await page.locator('[role=dialog] [data-cancel]').click();
+    assert.equal(await draft.count(), 1, 'キャンセルしても下書きの熟語を残す');
+    assert.match(await draft.textContent(), /look into/);
+    const before = db.idioms.length;
+    await draft.locator('[data-op="save-idiom"]').click();
+    for (let i = 0; i < 100 && db.idioms.length === before; i++) await page.waitForTimeout(30);
+    assert.ok(db.idioms.some(i => i.phrase === 'look into'));
+
+    // 裏で最新を読み終えても、開いているメニューの操作は表示どおりに働く。
+    db.idioms.find(i => i.key === 'i3').hidden = true; // ほかの画面で非表示にした（表示はまだ古い）
+    db.idiomLatestDelay = 800;
+    await idiomEntry('i3').locator('.headword').click();
+    await idiomEntry('i3').locator('[data-op="menu"]').click();
+    const hideItem = page.locator('.edit-menu-item', { hasText: '非表示にする' });
+    await hideItem.waitFor();
+    await page.waitForTimeout(1200); // 最新の読み込みがメニューを開いている間に終わる
+    await hideItem.click();
+    db.idiomLatestDelay = 0;
+    await idiomEntry('i3').locator('[data-op="save-idiom"]').click();
+    await page.waitForFunction(() => !document.querySelector('.idiom-entry[data-idiom-key="i3"].is-saving'));
+    assert.equal(db.idioms.find(i => i.key === 'i3').hidden, true, '「非表示にする」が表示に反する操作をしない');
+    await page.locator('#viewTabList').click();
+  }
 
   // 大きな単語帳：下部ナビで遠くのSectionへ移動しても、途中のSectionと画像は読み込まない。
   const big = fixture();
