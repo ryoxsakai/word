@@ -115,6 +115,24 @@ export async function api(path, { method = "GET", body, fresh = false, writeTime
   }
 }
 
+// The list-words route is read directly from D1, not a published snapshot.
+export async function verifySavedWordOrder(path, expected) {
+  const { response, data } = await request(path, { method: "GET" }, 6000);
+  if (!response.ok || !Array.isArray(data) || data.length !== expected.length) return false;
+  let no = 0;
+  const verified = expected.every((item, index) => {
+    if (!item.branch) no += 1;
+    const row = data[index];
+    return row?.id === item.id && row.no === no && row.branch === item.branch &&
+      row.sectionId === item.sectionId && row.labelId === item.labelId;
+  });
+  if (verified && response.headers.get("x-editor-snapshots") === "r2") {
+    setPendingMarker();
+    watchPublication();
+  }
+  return verified;
+}
+
 // Keep the original write alive while checking a slow or lost acknowledgement.
 export async function saveExistingWord(path, id, body, matches, onCheck) {
   let settled = false;
