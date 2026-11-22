@@ -15,6 +15,7 @@ import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions 
 import { api, lookupNewWordPronunciation, saveExistingWord } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
+import { editWordCollection } from "./collection-editor.js";
 import { hierarchyIcon } from "./icons.js";
 import { createNavigator } from "./navigation.js";
 
@@ -291,7 +292,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     for (const word of words) {
       const row = S.rows.get(word.id);
       // 入力中の欄がある単語は更新しない（入力欄の古い値で、新しい内容を上書きしてしまうため）。
-      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id) || hasActiveInlineIn(entryEl(word.id))) continue;
+      if (!row || row.editingCollection || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id) || hasActiveInlineIn(entryEl(word.id))) continue;
       const draft = draftOf(word);
       if (same(draft, row.base) && JSON.stringify(word.illustration) === JSON.stringify(row.raw.illustration)) continue;
       row.raw = { ...row.raw, ...word };
@@ -471,55 +472,18 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     return [...groups.values()].map(group => group.sort((a, b) => Number(b.is_primary) - Number(a.is_primary)));
   }
 
-  function orderPanel(row) {
-    const groups = senseGroups(row.draft.senses);
-    const rowHtml = (kind, index, label, enabled, group = "") => {
-      const handle = enabled ? `<button type="button" class="edit-order-grip" data-op="order-grip" aria-label="${h(label)}を並べ替え" title="ドラッグまたは上下キーで移動"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></button>` : "";
-      return `<div class="edit-order-row" data-kind="${kind}" data-index="${index}" data-group="${group}" data-drag-label="${h(label)}">${handle}<span>${h(label)}</span></div>`;
-    };
-    const senses = groups.map((group, g) => rowHtml("group", g, group[0].pos || "品詞なし", groups.length > 1) +
-      group.map((sense, i) => rowHtml("sense", i, `${i + 1}. ${sense.meaning}`, group.length > 1, g)).join("")).join("");
-    const phrases = row.draft.examples.map((ex, i, all) => rowHtml("phrase", i, [ex.sentence, ex.translation].filter(Boolean).join("　"), all.length > 1)).join("");
-    return `<div class="edit-order-panel"><p class="edit-hint">取っ手をドラッグして移動します。スマホは長押し、キーボードは上下キーで操作できます。</p>${senses ? `<h3>意味</h3>${groups.some(group => group.length > 1 && group.some(s => s.is_primary)) ? '<p class="edit-hint">見出しの意味を含む品詞では、先頭が見出しになります。</p>' : ""}${senses}` : ""}${phrases ? `<h3>フレーズ</h3>${phrases}` : ""}</div>`;
-  }
-
-  function sameOrderList(a, b) {
-    return a.closest(".edit-order-panel") === b.closest(".edit-order-panel") &&
-      a.dataset.kind === b.dataset.kind && a.dataset.group === b.dataset.group;
-  }
-  function movePart(source, target, before) {
-    const row = S.rows.get(source.closest(".entry").dataset.wordId);
-    if (!row || row.saving || !sameOrderList(source, target)) return;
-    const from = Number(source.dataset.index), targetIndex = Number(target.dataset.index);
-    const to = targetIndex + (before ? 0 : 1) - (from < targetIndex ? 1 : 0);
-    if (from === to) return;
-    const { kind, group } = source.dataset;
-    mutate(row, draft => {
-      const groups = senseGroups(draft.senses);
-      const list = kind === "group" ? groups : kind === "sense" ? groups[Number(group)] : draft.examples;
-      const primaryCount = kind === "sense" ? list.filter(s => s.is_primary).length : 0;
-      list.splice(to, 0, list.splice(from, 1)[0]);
-      if (kind === "sense" && primaryCount) list.forEach((s, i) => { s.is_primary = i < primaryCount; });
-      if (kind !== "phrase") draft.senses = groups.flat();
+  function openCollection(row, key, index = 0, field) {
+    const senses = key === "senses";
+    const original = row.draft[key];
+    const values = senses ? senseGroups(original).flat() : original;
+    row.editingCollection = true;
+    editWordCollection({
+      word: row.draft.spelling, senses, values, positions: POS_OPTIONS, field,
+      index: Math.max(0, values.indexOf(original[index])),
+      onApply: next => { if (!same(next, values)) mutate(row, draft => { draft[key] = next; }); },
+      onClose: () => { row.editingCollection = false; },
     });
-    return to;
   }
-
-  sortable(root, {
-    handleSelector: ".edit-order-grip", itemSelector: ".edit-order-row", idOf: el => el,
-    canDrop: sameOrderList, onDrop: movePart,
-  });
-  root.addEventListener("keydown", event => {
-    const grip = event.target.closest(".edit-order-grip");
-    if (!grip || !["ArrowUp", "ArrowDown"].includes(event.key)) return;
-    event.preventDefault();
-    const source = grip.closest(".edit-order-row");
-    const { kind, group, index } = source.dataset;
-    const up = event.key === "ArrowUp";
-    const selector = `.edit-order-row[data-kind="${kind}"][data-group="${group}"][data-index="${Number(index) + (up ? -1 : 1)}"]`;
-    const target = source.closest(".edit-order-panel").querySelector(selector);
-    if (target && movePart(source, target, up) !== undefined) entryEl(S.selectedId)?.querySelector(selector + " button")?.focus();
-  });
 
   function decorateSelected() {
     const id = S.selectedId;
@@ -537,26 +501,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     no.classList.add("edit-drag-handle");
     no.title = "長押し（マウスはドラッグ）で並べ替え";
     const head = article.querySelector(".entry-head");
-    insert(head, `<button type="button" class="edit-chip" data-op="badges"><i class="fa-solid fa-tags" aria-hidden="true"></i>バッジ</button><button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
-    if (row.draft.senses.length > 1 || row.draft.examples.length > 1) {
-      insert(head.querySelector('[data-op="menu"]'), `<button type="button" class="edit-chip" data-op="order-parts" aria-pressed="${!!row.orderMode}"><i class="fa-solid fa-arrow-down-up-across-line" aria-hidden="true"></i>${row.orderMode ? "並べ替え完了" : "並べ替え"}</button>`, "beforebegin");
-      if (row.orderMode) {
-        const content = article.querySelector(".entry-content");
-        content.hidden = true;
-        insert(content, orderPanel(row), "afterend");
-      }
-    }
-    for (const item of article.querySelectorAll(".sense-item[data-sense-index]")) insert(item, btn("remove-sense", "この意味を削除", `data-index="${item.dataset.senseIndex}"`, "edit-minus"));
-    for (const line of article.querySelectorAll(".sense-line[data-edit-pos]")) insert(line, btn("add-sense", "同じ品詞の意味を追加", `data-pos="${h(line.dataset.editPos)}"`));
+    insert(head, `<button type="button" class="edit-chip" data-op="badges" aria-label="バッジ" title="バッジ"><i class="fa-solid fa-tags" aria-hidden="true"></i></button><button type="button" class="edit-chip" data-op="fields" aria-label="欄" title="欄"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
     const card = article.querySelector(".entry-card");
-    const lastSense = [...article.querySelectorAll(".sense-line")].at(-1);
-    const posLine = `<div class="edit-row-actions"><button type="button" class="edit-add-inline" data-op="add-pos-line"><i class="fa-solid fa-plus" aria-hidden="true"></i>品詞</button></div>`;
-    if (lastSense) lastSense.insertAdjacentHTML("afterend", posLine); else card.insertAdjacentHTML("afterbegin", posLine);
-    for (const line of article.querySelectorAll(".example-line[data-example-index]")) insert(line, btn("remove-example", "このフレーズを削除", `data-index="${line.dataset.exampleIndex}"`, "edit-minus"));
-    const phraseButton = `<div class="edit-row-actions"><button type="button" class="edit-add-inline" data-op="add-phrase"><i class="fa-solid fa-plus" aria-hidden="true"></i>フレーズ</button></div>`;
-    const examples = article.querySelector(".example-list");
-    if (examples) examples.insertAdjacentHTML("afterend", phraseButton);
-    else card.querySelector(".edit-row-actions").insertAdjacentHTML("afterend", phraseButton);
     for (const sense of article.querySelectorAll(".derivative-sense[data-derivative-index]")) insert(sense, btn("remove-derivative", "この派生語を削除", `data-index="${sense.dataset.derivativeIndex}"`, "edit-minus"));
     const derivatives = article.querySelector(".notes-derivative .notes-content");
     if (derivatives) insert(derivatives, `<button type="button" class="edit-add-inline" data-op="add-derivative"><i class="fa-solid fa-plus" aria-hidden="true"></i>派生語</button>`);
@@ -643,6 +589,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   function editField(row, el, { onDone } = {}) {
     const path = el.dataset.edit;
+    const [key, index, field] = path.split(".");
+    if (key === "senses" || key === "examples") return openCollection(row, key, Number(index), field);
     let value = path === "derivativeWord"
       ? row.draft.derivatives[Number(el.dataset.derivativeIndexes.split(",")[0])].word
       : getPath(row.draft, path);
@@ -653,8 +601,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     inlineEditor(el, String(value ?? ""), {
       multiline: multilineEnter,
       placeholder,
-      onTab: () => {},
-      onCommit: (next, direction) => {
+      onCommit: next => {
         const trimmed = multiline ? next.replace(/\s+$/, "") : next.trim();
         const newItem = isNewItemPath(row, path);
         row.pendingItem = null;
@@ -671,7 +618,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         row.pendingUndoBase = null;
         mutate(row, draft => setPath(draft, path, trimmed, el));
         if (newItem && path.startsWith("derivatives.") && path.endsWith(".word")) openEditor(row.id, path.replace(/\.word$/, ".meaning"));
-        else if (direction) openNextEditor(row.id, path, direction);
         onDone?.();
       },
       onCancel: () => {
@@ -692,15 +638,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (el && row) editField(row, el);
     });
   }
-  function openNextEditor(id, path, direction) {
-    requestAnimationFrame(() => {
-      const fields = [...(entryEl(id)?.querySelectorAll("[data-edit]") || [])];
-      const index = fields.findIndex(el => el.dataset.edit === path);
-      const next = fields[index + direction];
-      if (next) editField(S.rows.get(id), next);
-    });
-  }
-
   function addItem(row, list, item, at, editPath) {
     const before = clone(row.draft);
     const index = at ?? row.draft[list].length;
@@ -713,7 +650,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- 保存 ----
   function resetWord(row) {
-    row.orderMode = false;
     if (row.isNew) return discardNewWord(row);
     row.draft = clone(row.base);
     row.pendingItem = row.pendingUndoBase = null;
@@ -735,7 +671,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   async function saveWord(row) {
     if (row.saving) return;
     if (!row.draft.spelling.trim()) return toast("見出し語を入力してください", { tone: "error" });
-    row.orderMode = false;
     if (row.isNew) return commitNewWord(row);
     if (same(row.base, row.draft)) return rerenderEntry(row.id);
     row.error = ""; row.conflict = false;
@@ -1066,6 +1001,10 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     sheet("欄", body => {
       const draw = () => {
         body.replaceChildren();
+        menuList(body, [
+          { label: "意味を編集", icon: "fa-list", onSelect: () => openCollection(row, "senses") },
+          { label: "フレーズを編集", icon: "fa-quote-left", onSelect: () => openCollection(row, "examples") },
+        ]);
         tiles(body, "付けると空の欄が追加されます。外すとその欄の内容を削除します。", NOTE_FIELDS.map(([field, label, type]) => {
           const active = field === "derivatives" ? row.draft.derivatives.length > 0 || row.showFields.has(field) : !!row.draft[field] || row.showFields.has(field);
           return {
@@ -1380,8 +1319,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         return openPosSheet("派生語の品詞", row.draft.derivatives[index]?.pos || "", value => mutate(row, d => { d.derivatives[index].pos = value; }));
       }
       if (pos && (event.target.closest(".pos-badge"))) {
-        const current = pos.dataset.editPos;
-        return openPosSheet("品詞", current, value => mutate(row, d => { d.senses.forEach(s => { if ((s.pos || "") === current) s.pos = value; }); }));
+        return openCollection(row, "senses", row.draft.senses.findIndex(s => s.pos === pos.dataset.editPos), "pos");
       }
       if (event.target.closest(".caution-badge, .learning-badge")) return openBadgeSheet(row);
       if (event.target.closest("[data-edit-field-badge]")) return openFieldSheet(row);
@@ -1406,7 +1344,16 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const article = target.closest(".entry[data-word-id]");
     if (article) {
       const row = S.rows.get(article.dataset.wordId);
-      if (!row || row.saving || S.multi || target.closest("button, a, input, textarea")) return;
+      if (!row || row.saving || S.multi || target.closest("button, input, textarea")) return;
+      const line = target.closest("[data-example-index], [data-sense-index], .sense-line[data-edit-pos]");
+      if (line) {
+        const phrase = line.hasAttribute("data-example-index");
+        const index = phrase ? Number(line.dataset.exampleIndex) : line.hasAttribute("data-sense-index") ?
+          Number(line.dataset.senseIndex) : row.draft.senses.findIndex(s => s.pos === line.dataset.editPos);
+        if (S.selectedId !== row.id) select(row.id);
+        return openCollection(row, phrase ? "examples" : "senses", index, target.closest("[data-edit]")?.dataset.edit.split(".").at(-1));
+      }
+      if (target.closest("a")) return;
       const field = target.closest("[data-edit]");
       if (!field || !article.contains(field)) return select(row.id);
       const path = field.dataset.edit;
@@ -1447,21 +1394,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const op = el.dataset.op;
     const id = el.dataset.id != null ? Number(el.dataset.id) : null;
     switch (op) {
-      case "order-grip": return;
-      case "order-parts":
-        finishInlineEditing();
-        row.orderMode = !row.orderMode;
-        rerenderEntry(row.id);
-        return;
-      case "add-sense": {
-        const pos = el.dataset.pos;
-        const last = row.draft.senses.map((s, i) => [s, i]).filter(([s]) => (s.pos || "") === pos).at(-1);
-        return addItem(row, "senses", { pos, meaning: "", pronunciation: "", is_primary: false }, last ? last[1] + 1 : undefined, "meaning");
-      }
-      case "remove-sense": return mutate(row, d => { d.senses.splice(Number(el.dataset.index), 1); });
-      case "add-pos-line": return openPosSheet("追加する品詞", null, pos => addItem(row, "senses", { pos, meaning: "", pronunciation: "", is_primary: row.draft.senses.length === 0 }, undefined, "meaning"));
-      case "add-phrase": return addItem(row, "examples", { type: "phrase", sentence: "", translation: "", answer: "" }, undefined, "sentence");
-      case "remove-example": return mutate(row, d => { d.examples.splice(Number(el.dataset.index), 1); });
       case "add-derivative": return addItem(row, "derivatives", { word: "", pos: "", meaning: "" }, undefined, "word");
       case "remove-derivative": return mutate(row, d => { d.derivatives.splice(Number(el.dataset.index), 1); });
       case "remove-field": return removeField(row, el.dataset.field);
