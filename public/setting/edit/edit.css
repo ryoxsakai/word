@@ -10,6 +10,17 @@
   --edit-muted: #667085;
   --edit-border: #d5dae3;
   --edit-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+  /* DESIGN.md の状態色 */
+  --edit-success: #1f7a4d;
+  --edit-warning: #9a5b00;
+  --edit-warning-soft: rgba(196, 128, 0, 0.12);
+  --edit-danger-soft: rgba(194, 65, 45, 0.1);
+  --edit-toast-bg: #1f2430;
+  --edit-toast-error-bg: #8f2a1c;
+  /* 大きさ：押せる部品は最小44px（主要ボタン）・32px（行内のチップ） */
+  --edit-tap: 44px;
+  --edit-tap-small: 32px;
+  --edit-radius: 8px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -23,6 +34,12 @@
     --edit-muted: #a0a8b8;
     --edit-border: #394150;
     --edit-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --edit-success: #6fd39b;
+    --edit-warning: #f0b45a;
+    --edit-warning-soft: rgba(240, 180, 90, 0.14);
+    --edit-danger-soft: rgba(255, 138, 117, 0.14);
+    --edit-toast-bg: #0c0e12;
+    --edit-toast-error-bg: #6e1f14;
   }
 }
 :root[data-theme="dark"] {
@@ -36,6 +53,12 @@
   --edit-muted: #a0a8b8;
   --edit-border: #394150;
   --edit-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --edit-success: #6fd39b;
+  --edit-warning: #f0b45a;
+  --edit-warning-soft: rgba(240, 180, 90, 0.14);
+  --edit-danger-soft: rgba(255, 138, 117, 0.14);
+  --edit-toast-bg: #0c0e12;
+  --edit-toast-error-bg: #6e1f14;
 }
 
 /* 編集画面では、ダーク時の明るいアクセントに暗い文字を載せる。 */
@@ -52,7 +75,8 @@
   content: ""; display: inline-block; width: 0.55em; height: 0.55em; margin-right: 0.35em; border-radius: 50%;
   background: var(--edit-accent); animation: edit-pulse 1.2s ease-in-out infinite;
 }
-.edit-publish-status.is-failed { color: var(--edit-danger); }
+.edit-publish-status { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.edit-publish-status.is-slow { color: var(--edit-warning); }
 @keyframes edit-pulse { 50% { opacity: 0.25; } }
 .edit-links { display: grid; gap: 0.35rem; }
 .edit-links a { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; font-size: 0.9rem; }
@@ -63,14 +87,30 @@
 .edit-root .entry.is-edit-selected {
   background: var(--edit-selected);
 }
-.edit-root .idiom-entry.is-saving::after {
-  content: "保存中…"; position: absolute; top: 0.1rem; right: 0.2rem; font-size: 0.7rem; color: var(--edit-muted);
-}
 .edit-root .entry.has-edit-error { outline: 2px solid var(--edit-danger); outline-offset: 3px; border-radius: 6px; }
-.word-save-progress { grid-column: 2; display: grid; gap: .25rem; margin-top: .4rem; font-size: .8rem; color: var(--edit-text); }
-.word-save-progress progress { width: 100%; height: .4rem; accent-color: var(--edit-accent); }
-.edit-word-actions { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; margin-top: .4rem; }
-.edit-word-actions [data-op="save-word"] { color: #fff; background: #28599d; }
+/* ---- ボタン（DESIGN.md「ボタン」）：主要・通常・控えめ・危険の4種類だけを使う ---- */
+.edit-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .35em; min-height: var(--edit-tap); padding: 0 1rem;
+  border: 1px solid var(--edit-border); border-radius: var(--edit-radius); background: var(--edit-surface); color: var(--edit-text);
+  font: inherit; font-size: .9rem; font-weight: 600; line-height: 1.2; cursor: pointer; white-space: nowrap;
+}
+.edit-btn.is-primary { border-color: var(--edit-accent); background: var(--edit-accent); color: var(--edit-accent-ink); }
+.edit-btn.is-quiet { border-color: transparent; background: transparent; color: var(--edit-accent); }
+.edit-btn.is-danger { color: var(--edit-danger); }
+.edit-btn:disabled { opacity: .4; cursor: default; }
+.edit-btn:focus-visible, .edit-chip:focus-visible, .edit-tile:focus-visible, .edit-menu-item:focus-visible {
+  outline: 3px solid var(--edit-accent); outline-offset: 2px;
+}
+/* ---- 選択中の単語の操作列：未保存の表示 → 変更を取り消す → 保存 ---- */
+.edit-word-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem; margin-top: .6rem; }
+.edit-unsaved { margin-right: auto; font-size: .8rem; font-weight: 600; color: var(--edit-warning); }
+.edit-unsaved::before { content: "●"; margin-right: .3em; font-size: .7em; vertical-align: .1em; }
+/* ---- 保存の進み具合（DESIGN.md「保存の進み具合」） ---- */
+.edit-progress { grid-column: 2; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .3rem .5rem; margin-top: .6rem; font-size: .82rem; color: var(--edit-text); }
+.edit-progress progress { grid-column: 1 / -1; width: 100%; height: 6px; accent-color: var(--edit-accent); }
+.edit-progress-count { color: var(--edit-muted); font-variant-numeric: tabular-nums; }
+.edit-progress.is-done { color: var(--edit-success); font-weight: 600; }
+.edit-progress.is-done progress { accent-color: var(--edit-success); }
 .edit-root .entry.is-multi-selected { outline: 2px dashed var(--edit-accent); outline-offset: 3px; border-radius: 6px; background: var(--edit-accent-soft); }
 .edit-root .idiom-entry.is-hidden-idiom { opacity: 0.45; }
 .edit-root .idiom-entry.is-hidden-idiom .entry-no::after { content: "非表示"; display: block; font-size: 0.6rem; }
@@ -97,12 +137,15 @@
 .edit-minus { color: var(--edit-danger); }
 .edit-row-actions { margin: 0.15rem 0 0.3rem; }
 .edit-add-inline, .edit-chip {
-  display: inline-flex; align-items: center; gap: 0.3em; margin: 0.1rem 0.3rem 0.1rem 0; padding: 0.15rem 0.6rem;
+  display: inline-flex; align-items: center; gap: 0.35em; min-height: var(--edit-tap-small); margin: 0.1rem 0.3rem 0.1rem 0; padding: 0 0.7rem;
   border: 1px dashed var(--edit-accent); border-radius: 999px; background: transparent; color: var(--edit-accent);
   font: inherit; font-size: 0.78rem; line-height: 1.4; cursor: pointer;
 }
-.edit-chip { border-style: solid; background: var(--edit-surface); margin-left: 0.35rem; }
-.edit-chip-menu { padding-inline: 0.5rem; }
+.edit-chip { border-style: solid; border-color: var(--edit-border); background: var(--edit-surface); color: var(--edit-text); margin-left: 0; }
+.edit-chip i { color: var(--edit-accent); }
+/* 見出し行の操作はまとめて折り返し、見出し語に重ならないようにする */
+.edit-head-tools { display: inline-flex; flex-wrap: wrap; gap: .3rem; margin-left: .4rem; vertical-align: middle; }
+.edit-head-tools .edit-chip { margin: 0; font-size: .75rem; }
 .edit-add-bar {
   display: flex; align-items: center; justify-content: center; gap: 0.4em; width: 100%; margin: 0.4rem 0; padding: 0.45rem;
   border: 1px dashed var(--edit-accent); border-radius: 8px; background: var(--edit-accent-soft); color: var(--edit-accent);
@@ -116,8 +159,10 @@
 }
 .edit-header-tools .is-danger { color: var(--edit-danger); }
 .edit-root .label-divider, .edit-root .section-divider, .edit-root .chapter-divider { flex-wrap: wrap; }
-.edit-error { margin: 0.4rem 0 0; padding: 0.4rem 0.6rem; border-radius: 6px; background: rgba(194, 65, 45, 0.1); color: var(--edit-danger); font-size: 0.82rem; }
-.edit-error button { font: inherit; font-size: 0.78rem; }
+/* ---- 保存できなかったとき：理由と、次に取れる操作を並べる ---- */
+.edit-error { margin: .6rem 0 0; padding: .6rem .75rem; border-left: 4px solid var(--edit-danger); border-radius: var(--edit-radius); background: var(--edit-danger-soft); color: var(--edit-text); font-size: .85rem; }
+.edit-error p { margin: 0 0 .5rem; color: var(--edit-danger); font-weight: 600; }
+.edit-error-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; }
 .edit-ref-note { margin-left: 0.4rem; font-size: 0.72rem; color: var(--edit-muted); }
 
 /* その場の入力欄 */
@@ -156,12 +201,13 @@
   padding: 0.85rem 0 0.6rem; background: var(--edit-surface);
 }
 .edit-sheet-header h2 { margin: 0; font-size: 1rem; }
-.edit-sheet-close { width: 2rem; height: 2rem; border: 0; border-radius: 50%; background: transparent; color: var(--edit-muted); font-size: 1.1rem; cursor: pointer; }
-.edit-sheet-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
-.edit-sheet-actions button, .edit-multi-bar button {
-  padding: 0.5rem 0.9rem; border: 1px solid var(--edit-border); border-radius: 8px; background: var(--edit-surface); color: var(--edit-text); font: inherit; cursor: pointer;
+.edit-sheet-close { width: var(--edit-tap); height: var(--edit-tap); margin-right: -.5rem; border: 0; border-radius: 50%; background: transparent; color: var(--edit-muted); font-size: 1.1rem; cursor: pointer; }
+/* ダイアログの下端：左に補助操作、右に「キャンセル」「決定（主要）」 */
+.edit-sheet-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+.edit-sheet-actions button:not(.edit-btn), .edit-multi-bar button {
+  min-height: var(--edit-tap); padding: 0 1rem; border: 1px solid var(--edit-border); border-radius: var(--edit-radius); background: var(--edit-surface); color: var(--edit-text); font: inherit; font-weight: 600; cursor: pointer;
 }
-.edit-sheet-actions .primary, .edit-multi-bar .primary { border-color: var(--edit-accent); background: var(--edit-accent); color: var(--edit-accent-ink); }
+.edit-sheet-actions .primary:not(.edit-btn), .edit-multi-bar .primary { border-color: var(--edit-accent); background: var(--edit-accent); color: var(--edit-accent-ink); }
 .edit-tiles-title { margin: 0.6rem 0 0.4rem; font-size: 0.8rem; font-weight: 500; color: var(--edit-muted); }
 .edit-tiles { display: grid; grid-template-columns: repeat(var(--tile-columns, 4), minmax(0, 1fr)); gap: 0.45rem; }
 @media (max-width: 420px) { .edit-tiles { grid-template-columns: repeat(min(var(--tile-columns, 4), 4), minmax(0, 1fr)); } }
@@ -194,11 +240,11 @@
 /* トースト */
 .edit-toast {
   position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1100; display: flex; align-items: center; gap: 0.8rem;
-  max-width: calc(100% - 32px); padding: 0.6rem 0.9rem; border-radius: 10px; background: #1f2430; color: #fff; font-size: 0.88rem;
+  max-width: calc(100% - 32px); padding: 0.6rem 0.9rem; border-radius: 10px; background: var(--edit-toast-bg); color: #fff; font-size: 0.88rem;
   box-shadow: var(--edit-shadow); transform: translateX(-50%);
 }
 .edit-toast[hidden] { display: none; }
-.edit-toast.is-error { background: #8f2a1c; }
+.edit-toast.is-error { background: var(--edit-toast-error-bg); }
 .edit-toast button { padding: 0.2rem 0.6rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 6px; background: transparent; color: #fff; font: inherit; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
 
 /* 複数選択 */
@@ -266,11 +312,12 @@ body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-
 .collection-row { display: grid; gap: .5rem; padding: .9rem 0; border-top: 1px solid var(--edit-border); }
 .collection-toolbar, .collection-options { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; }
 .collection-toolbar strong { margin-right: auto; }
-.collection-toolbar button { width: 2.4rem; height: 2.5rem; border: 0; border-radius: 6px; background: var(--edit-surface); color: var(--edit-text); cursor: pointer; font: inherit; }
+.collection-toolbar button { min-width: var(--edit-tap); height: var(--edit-tap); padding: 0 .5rem; border: 0; border-radius: 6px; background: var(--edit-surface); color: var(--edit-text); cursor: pointer; font: inherit; }
+.collection-toolbar .is-danger { color: var(--edit-danger); font-size: .85rem; font-weight: 600; }
 .collection-toolbar button:disabled { opacity: .3; }
 .collection-toolbar [data-grip] { touch-action: none; cursor: grab; }
 .collection-field { display: grid; gap: .2rem; }
 .collection-field, .collection-options label { font-size: .85rem; }
 .collection-options { gap: 1rem; }
 .collection-footer { position: sticky; bottom: 0; margin: 0; padding: .65rem 0; background: var(--edit-surface); border-top: 1px solid var(--edit-border); }
-.collection-footer [data-add] { margin-right: auto; }
+.collection-footer [data-add] { margin-right: auto; padding-inline: .25rem; }

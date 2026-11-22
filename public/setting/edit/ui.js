@@ -77,7 +77,7 @@ export function sheet(title, build, { onClose, wide = false } = {}) {
   close.type = "button";
   close.className = "edit-sheet-close";
   close.setAttribute("aria-label", "閉じる");
-  close.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+  close.textContent = "✕";
   close.addEventListener("click", closeSheet);
   header.append(heading, close);
   const body = document.createElement("div");
@@ -179,7 +179,7 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
   const labels = { spelling: "見出し語", phrase: "熟語", pronunciation: "発音記号", notes: "メモ", meaning: "意味", word: "派生語", derivativeWord: "派生語", alternateForms: "別形", etymology: "語源", synonyms: "類義語", antonyms: "対義語", irregularForms: "不規則変化", relatedWords: "関連語" };
   const title = labels[field] || placeholder || "テキスト編集";
   sheet(title, body => {
-    body.innerHTML = '<textarea class="edit-text-input edit-inline-input" rows="4"></textarea><div class="edit-sheet-actions"><button type="button" class="primary">確定</button></div>';
+    body.innerHTML = '<textarea class="edit-text-input edit-inline-input" rows="4"></textarea><div class="edit-sheet-actions"><button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary">決定</button></div>';
     const input = body.querySelector("textarea");
     input.setAttribute("aria-label", title);
     input.value = value;
@@ -197,6 +197,7 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
       }
     });
     body.querySelector(".primary").onclick = commit;
+    body.querySelector("[data-cancel]").onclick = closeSheet;
     input.focus();
     input.setSelectionRange(value.length, value.length);
   }, { onClose: () => { activeInline = null; if (!accepted) onCancel?.(); } });

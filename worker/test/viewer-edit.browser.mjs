@@ -349,7 +349,8 @@ try {
   assert.equal(await entry('w1').locator('.edit-minus').count(), 0);
   await dbl(entry('w1').locator('.entry-no'));
   assert.ok(await entry('w1').evaluate(el => el.classList.contains('is-edit-selected')));
-  assert.equal(await entry('w1').getByRole('button', { name: 'バッジ', exact: true }).textContent(), '');
+  // 見出し行の操作は、アイコンだけにせず短い文字を添える（DESIGN.md）。
+  assert.equal((await entry('w1').getByRole('button', { name: 'バッジ', exact: true }).textContent()).trim(), 'バッジ');
 
   // ダブルタップで意味をその場で編集し、確定は下書きに留め、保存ボタンで書き込む。
   await dbl(entry('w1').locator('.sense-meaning').first());
@@ -534,18 +535,24 @@ try {
   await dbl(idiom('i1').locator('.sense-meaning'));
   await page.locator('.edit-inline-input').fill('辞書で調べる');
   await page.locator('.edit-inline-input').press('Enter');
+  // 熟語も単語と同じく、確定は下書きに留め、「保存」で書き込む。
+  assert.equal(db.writes.length, 16, '確定だけでは書き込まない');
+  assert.equal(await idiom('i1').locator('.edit-unsaved').count(), 1, '未保存の変更を示す');
+  await idiom('i1').locator('[data-op="save-idiom"]').click();
   await waitWrites(17);
   assert.equal(db.idioms.find(i => i.key === 'i1').meanings[0].meaning, '辞書で調べる');
   assert.equal(db.idioms.find(i => i.key === 'i1').meanings[0].id, 's1', '既存の意味のIDを保つ');
   await idiom('i1').locator('[data-op="add-meaning"]').click();
   await page.locator('.edit-inline-input').fill('見上げる');
   await page.locator('.edit-inline-input').press('Enter');
+  await idiom('i1').locator('[data-op="save-idiom"]').click();
   await waitWrites(18);
   assert.equal(db.idioms.find(i => i.key === 'i1').meanings.length, 2);
   // 非表示（削除の代わり）。
   await idiom('i2').locator('.headword').click();
   await idiom('i2').locator('[data-op="menu"]').click();
   await page.locator('.edit-menu-item', { hasText: '非表示' }).click();
+  await idiom('i2').locator('[data-op="save-idiom"]').click();
   await waitWrites(19);
   assert.equal(db.idioms.find(i => i.key === 'i2').hidden, true);
   assert.equal(await idiom('i3').locator('.entry-no').textContent(), '2', '非表示の熟語には番号を付けない');
@@ -566,11 +573,16 @@ try {
   await meaningInput.fill('作る人');
   await meaningInput.press('Enter');
   await save('w2');
-  const progress = w2.locator('.word-save-progress', { hasText: '保存結果' });
+  // 進み具合は利用者の言葉と「n/全体」で示し、完了は満たしたバーで知らせる。
+  const progress = w2.locator('.edit-progress', { hasText: '保存しています' });
   await progress.waitFor();
-  assert.match(await progress.textContent(), /2\/2.*保存結果/);
-  assert.equal(await progress.locator('progress').getAttribute('value'), '1');
-  await progress.waitFor({ state: 'detached' });
+  assert.match(await progress.textContent(), /保存しています…\s*2\/2/);
+  assert.equal(await progress.locator('progress').getAttribute('value'), '1.5');
+  const done = w2.locator('.edit-progress.is-done');
+  await done.waitFor();
+  assert.match(await done.textContent(), /保存しました/);
+  assert.equal(await done.locator('progress').getAttribute('value'), '1');
+  await done.waitFor({ state: 'detached' });
   for (let i = 0; i < 100 && db.words.get('w2').derivatives?.[0]?.meaning !== '作る人'; i++) await page.waitForTimeout(30);
   assert.deepEqual(db.words.get('w2').derivatives.map(d => [d.word, d.meaning]), [['maker', '作る人']]);
   db.putDelay = 0;
@@ -676,6 +688,45 @@ try {
   assert.equal(db.words.get('w1').senses[0].meaning, 'ほかの画面で更新した意味', '新しい内容を上書きしない');
   db.publicDelay = 0;
 
+  // 公開が遅れて表示がDBより古くても、選択時にDBの最新を起点にするので保存が止まらない。
+  {
+    const sectionOfW1 = String(db.members.get('w1').sectionId ?? 'none');
+    db.frozenPublic = { [sectionOfW1]: { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === sectionOfW1).map(([id]) => viewerWord(db, id)) } };
+    db.words.get('w1').senses = [{ pos: '他', meaning: 'DBで更新した意味', pronunciation: null, is_primary: true }];
+    await page.evaluate(() => { localStorage.removeItem('vocab-edit-recent-saves'); indexedDB.deleteDatabase('vocab-chapter-cache'); });
+    await page.reload();
+    await entry('w1').waitFor();
+    assert.doesNotMatch(await entry('w1').textContent(), /DBで更新した意味/, '表示は公開済み（古い）内容');
+    await dbl(entry('w1').locator('.entry-no'));
+    await page.waitForFunction(() => document.querySelector('.entry[data-word-id="w1"]')?.textContent.includes('DBで更新した意味'));
+    await dbl(entry('w1').locator('.sense-meaning').first());
+    await page.locator('[role=dialog] [data-add]').click();
+    await page.locator('[role=dialog] [data-field=meaning]').last().fill('追加した意味');
+    await page.locator('[role=dialog] [data-apply]').click();
+    const writesBefore = db.writes.length;
+    await entry('w1').locator('[data-op="save-word"]').click();
+    for (let i = 0; i < 100 && db.writes.length === writesBefore; i++) await page.waitForTimeout(30);
+    await page.waitForFunction(() => !document.querySelector('.entry[data-word-id="w1"].is-saving'));
+    assert.equal(await entry('w1').locator('.edit-error').count(), 0, '古い表示を起点にした誤った衝突で止まらない');
+    assert.deepEqual(db.words.get('w1').senses.map(x => x.meaning), ['DBで更新した意味', '追加した意味'], 'DBの新しい意味を残す');
+
+    // 本当にほかの画面で同じ項目が変わったときは、理由と「上書きして保存」を示す。
+    await dbl(entry('w1').locator('.sense-meaning').first());
+    await page.locator('[role=dialog] [data-field=meaning]').first().fill('わたしの意味');
+    await page.locator('[role=dialog] [data-apply]').click();
+    db.words.get('w1').senses = [{ pos: '他', meaning: 'ほかの画面の意味', pronunciation: null, is_primary: true }];
+    await entry('w1').locator('[data-op="save-word"]').click();
+    const conflict = entry('w1').locator('.edit-error');
+    await conflict.waitFor();
+    assert.match(await conflict.textContent(), /ほかの画面で同じ項目が変更されています/);
+    assert.equal(db.words.get('w1').senses[0].meaning, 'ほかの画面の意味', '確認なしに上書きしない');
+    page.once('dialog', dialog => dialog.accept());
+    await conflict.locator('[data-op="overwrite-word"]').click();
+    await page.waitForFunction(() => !document.querySelector('.entry[data-word-id="w1"] .edit-error') && !document.querySelector('.entry[data-word-id="w1"].is-saving'));
+    assert.deepEqual(db.words.get('w1').senses.map(x => x.meaning), ['わたしの意味', '追加した意味']);
+    db.frozenPublic = null;
+  }
+
   // 閲覧ページと同じ上部タブ（索引）・下部のSectionナビ・検索。
   await page.goto(`${origin}/setting/index.html`);
   await entry('w1').waitFor();
@@ -728,7 +779,7 @@ try {
   await known.locator('[data-op="save-word"]').click();
   const knownCard = page.locator('.entry:not(.is-new-entry)', { hasText: 'known-pronunciation' });
   await knownCard.waitFor();
-  await knownCard.locator('.word-save-progress').waitFor({ state: 'hidden' });
+  await knownCard.locator('.edit-progress:not(.is-done)').waitFor({ state: 'hidden' });
   assert.deepEqual(db.lookupRequests, ['known-pronunciation'], '保存時に辞書を取り直さない');
   assert.deepEqual(db.writes.slice(saveKnown).map(w => w.path), ['/api/words', `/api/lists/${LIST}/reorder`]);
   assert.equal(db.writes[saveKnown].body.pronunciation, 'ˈnjuː');
@@ -740,7 +791,7 @@ try {
   await slow.locator('[data-op="save-word"]').click();
   const slowCard = page.locator('.entry:not(.is-new-entry)', { hasText: db.hangLookup });
   await slowCard.waitFor({ timeout: 10000 });
-  await slowCard.locator('.word-save-progress').waitFor({ state: 'hidden' });
+  await slowCard.locator('.edit-progress:not(.is-done)').waitFor({ state: 'hidden' });
   assert.ok(Date.now() - startedSlow < 10000, '応答が来ない辞書は20秒待たない');
   assert.deepEqual(db.lookupRequests, ['known-pronunciation', 'slow-dictionary'], '辞書を再試行しない');
   assert.deepEqual(db.writes.slice(saveSlow).map(w => w.path), ['/api/words', `/api/lists/${LIST}/reorder`]);
@@ -817,7 +868,7 @@ try {
   assert.deepEqual(big.words.get('b680').examples.map(ex => ex.translation), ['1', '0']);
   assert.deepEqual(big.writes.map(write => write.body.updatedCollections), [['examples']]);
   assert.equal(await card.locator('.edit-error').count(), 0);
-  assert.match(await bigPage.locator('#editToast').textContent(), /単語を保存しました/);
+  assert.match(await bigPage.locator('#editToast').textContent(), /「word680」を保存しました/);
   // Restore an actual scroll position on a fresh page, without a selected editor card.
   const resumeId = 'b690';
   await bigPage.evaluate(async id => {

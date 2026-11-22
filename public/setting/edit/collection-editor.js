@@ -8,7 +8,7 @@ export function editWordCollection({ word, senses, values, positions, index = 0,
   const controller = new AbortController();
   sheet(`${word || "単語"}の${name}`, (body, panel) => {
     body.classList.add("collection-editor");
-    body.innerHTML = '<div class="collection-list"></div><div class="collection-footer edit-sheet-actions"><button type="button" data-add></button><button type="button" class="primary" data-apply>下書きに反映</button></div>';
+    body.innerHTML = '<div class="collection-list"></div><div class="collection-footer edit-sheet-actions"><button type="button" class="edit-btn is-quiet" data-add></button><button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary" data-apply>決定</button></div>';
     const list = body.querySelector(".collection-list");
     const add = body.querySelector("[data-add]");
     add.textContent = `＋ ${name}を追加`;
@@ -22,7 +22,7 @@ export function editWordCollection({ word, senses, values, positions, index = 0,
           <button type="button" data-grip aria-label="ドラッグして移動" title="ドラッグして移動"><i class="fa-solid fa-grip-vertical"></i></button>
           <button type="button" data-move="-1" aria-label="上へ移動" ${i ? "" : "disabled"}>↑</button>
           <button type="button" data-move="1" aria-label="下へ移動" ${i + 1 < rows.length ? "" : "disabled"}>↓</button>
-          <button type="button" data-delete aria-label="${name}${i + 1}を削除"><i class="fa-solid fa-trash-can"></i></button></div>
+          <button type="button" class="is-danger" data-delete aria-label="${name}${i + 1}を削除">削除</button></div>
           ${senses ? `<div class="collection-options"><label>品詞 <select data-field="pos">${options}</select></label><label><input type="checkbox" data-field="is_primary" ${row.is_primary ? "checked" : ""}> 見出しの意味</label></div>` : ""}
           ${keys.map(([key,label]) => `<label class="collection-field">${label}<textarea rows="${key === main ? 2 : 1}" data-field="${key}">${h(row[key] || "")}</textarea></label>`).join("")}</div>`;
       }).join("");
@@ -64,6 +64,7 @@ export function editWordCollection({ word, senses, values, positions, index = 0,
       render(rows.length - 1);
     }
     add.onclick = insert;
+    body.querySelector("[data-cancel]").onclick = closeSheet;
     body.querySelector("[data-apply]").onclick = () => {
       for (const [i, row] of rows.entries()) {
         if (row[main].trim()) continue;
