@@ -199,7 +199,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     article.dataset.decorated = "1";
     const minus = (op, label, attrs) => `<button type="button" class="edit-minus" data-op="${op}" ${attrs} aria-label="${h(label)}">−</button>`;
     article.querySelector(".entry-no")?.classList.add("edit-drag-handle");
-    article.querySelector(".entry-head")?.insertAdjacentHTML("beforeend", `<button type="button" class="edit-chip" data-op="fields"><i class="fa-solid fa-table-list" aria-hidden="true"></i>欄</button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
+    article.querySelector(".entry-head")?.insertAdjacentHTML("beforeend", `<button type="button" class="edit-chip" data-op="fields" aria-label="欄" title="欄"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button><button type="button" class="edit-chip edit-chip-menu" data-op="menu" aria-label="メニュー"><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></button>`);
     for (const sense of article.querySelectorAll(".idiom-sense[data-meaning-index]")) {
       const index = Number(sense.dataset.meaningIndex);
       const refs = row.draft.meanings[index]?.wordIds || [];

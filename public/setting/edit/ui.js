@@ -166,74 +166,40 @@ export function menuList(container, items) {
   container.append(list);
 }
 
-// ---- その場の入力欄 ----
-// 対象の要素を同じ位置・同じ文字サイズのテキスト欄に置き換え、確定・取消を呼び出し元へ返す。
+// テキスト編集モーダル。対象の行を記録し、編集中の再描画を防ぐ。
 let activeInline = null;
 export function isInlineEditing() { return !!activeInline; }
 // 入力中の欄がelの中にあるか（保存完了などで描き直すと、入力途中の文字が消えるため）。
 export function hasActiveInlineIn(el) { return !!activeInline && !!el?.contains(activeInline.wrapper); }
 export function finishInlineEditing() { activeInline?.commit(); }
 
-export function inlineEditor(target, value, { multiline = false, placeholder = "", onCommit, onCancel, onTab } = {}) {
-  activeInline?.commit();
-  const rect = target.getBoundingClientRect();
-  const style = getComputedStyle(target);
-  const wrapper = document.createElement("span");
-  wrapper.className = `edit-inline${multiline ? " is-multiline" : ""}`;
-  const input = document.createElement("textarea");
-  input.className = "edit-inline-input";
-  input.value = value;
-  input.rows = 1;
-  input.placeholder = placeholder;
-  input.spellcheck = false;
-  input.setAttribute("autocapitalize", "off");
-  for (const key of ["fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight", "color"]) input.style[key] = style[key];
-  const parentWidth = target.parentElement?.getBoundingClientRect().width || rect.width;
-  input.style.minWidth = `${Math.min(parentWidth, Math.max(rect.width + 24, 96))}px`;
-  const actions = document.createElement("span");
-  actions.className = "edit-inline-actions";
-  actions.innerHTML = '<button type="button" class="edit-inline-ok" aria-label="確定"><i class="fa-solid fa-check" aria-hidden="true"></i></button><button type="button" class="edit-inline-cancel" aria-label="取消"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>';
-  wrapper.append(input, actions);
-  target.replaceWith(wrapper);
-  const fit = () => {
-    input.style.height = "auto";
-    input.style.height = `${input.scrollHeight}px`;
-  };
-  let done = false;
-  const finish = (commit, next) => {
-    if (done) return;
-    done = true;
-    activeInline = null;
-    if (commit) onCommit(input.value, next);
-    else onCancel?.();
-  };
-  activeInline = { commit: () => finish(true), wrapper };
-  input.addEventListener("input", fit);
-  input.addEventListener("keydown", event => {
-    if (event.isComposing || event.keyCode === 229) return;
-    if (event.key === "Escape") { event.preventDefault(); finish(false); }
-    else if (event.key === "Tab" && onTab) { event.preventDefault(); finish(true, event.shiftKey ? -1 : 1); }
-    else if (event.key === "Enter" && (!multiline || event.metaKey || event.ctrlKey)) { event.preventDefault(); finish(true); }
-  });
-  input.addEventListener("blur", () => setTimeout(() => {
-    if (!done && document.activeElement !== input) finish(true);
-  }, 0));
-  // ボタンを押してもフォーカスを奪わないようにし、blurより先に処理する。
-  actions.addEventListener("pointerdown", event => event.preventDefault());
-  actions.querySelector(".edit-inline-ok").addEventListener("click", () => finish(true));
-  actions.querySelector(".edit-inline-cancel").addEventListener("click", () => finish(false));
-  // フォーカスはすぐに移す（次のフレームまで待つと、入力し始めた文字の位置がずれる）。
-  input.focus({ preventScroll: true });
-  input.setSelectionRange(input.value.length, input.value.length);
-  fit();
-  requestAnimationFrame(() => {
-    fit();
-    const box = wrapper.getBoundingClientRect();
-    const viewport = window.visualViewport;
-    const bottom = viewport ? viewport.height + viewport.offsetTop : innerHeight;
-    if (box.bottom > bottom - 16 || box.top < 64) wrapper.scrollIntoView({ block: "center", behavior: "smooth" });
-  });
-  return input;
+export function inlineEditor(target, value, { multiline = false, placeholder = "", onCommit, onCancel } = {}) {
+  let accepted = false;
+  const field = target.dataset.edit?.split(".").at(-1);
+  const labels = { spelling: "見出し語", phrase: "熟語", pronunciation: "発音記号", notes: "メモ", meaning: "意味", word: "派生語", derivativeWord: "派生語", alternateForms: "別形", etymology: "語源", synonyms: "類義語", antonyms: "対義語", irregularForms: "不規則変化", relatedWords: "関連語" };
+  const title = labels[field] || placeholder || "テキスト編集";
+  sheet(title, body => {
+    body.innerHTML = '<textarea class="edit-text-input edit-inline-input" rows="4"></textarea><div class="edit-sheet-actions"><button type="button" class="primary">確定</button></div>';
+    const input = body.querySelector("textarea");
+    input.setAttribute("aria-label", title);
+    input.value = value;
+    input.placeholder = placeholder;
+    const commit = () => {
+      accepted = true;
+      closeSheet();
+      onCommit(input.value);
+    };
+    activeInline = { wrapper: target, commit };
+    input.addEventListener("keydown", event => {
+      if (event.isComposing || event.keyCode === 229) return;
+      if (event.key === "Enter" && (!multiline || event.ctrlKey || event.metaKey)) {
+        event.preventDefault(); commit();
+      }
+    });
+    body.querySelector(".primary").onclick = commit;
+    input.focus();
+    input.setSelectionRange(value.length, value.length);
+  }, { onClose: () => { activeInline = null; if (!accepted) onCancel?.(); } });
 }
 
 // ---- ダブルタップ・ダブルクリック ----
@@ -275,7 +241,7 @@ export function onDoubleActivate(root, handler) {
 
 // ---- ドラッグで並べ替え ----
 // handleSelector: つかむ部分。itemSelector: 並べ替える要素。touchは長押しで開始する。
-export function sortable(root, { handleSelector, itemSelector, canDrag = () => true, canDrop = () => true, onDrop, idOf }) {
+export function sortable(root, { handleSelector, itemSelector, canDrag = () => true, canDrop = () => true, onDrop, idOf, signal, scrollElement = window }) {
   const LONG_PRESS = 380;
   let pending = null, drag = null;
   const clearPending = () => { if (pending) { clearTimeout(pending.timer); pending = null; } };
@@ -303,9 +269,10 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
     if (!drag) return;
     event.preventDefault();
     move(event.clientX, event.clientY);
-  }, { passive: false });
-  window.addEventListener("pointerup", () => { clearPending(); if (drag) finish(true); });
-  window.addEventListener("pointercancel", () => { clearPending(); if (drag) finish(false); });
+  }, { passive: false, signal });
+  window.addEventListener("pointerup", () => { clearPending(); if (drag) finish(true); }, { signal });
+  window.addEventListener("pointercancel", () => { clearPending(); if (drag) finish(false); }, { signal });
+  signal?.addEventListener("abort", () => { clearPending(); if (drag) finish(false); }, { once: true });
   root.addEventListener("touchmove", event => { if (drag) event.preventDefault(); }, { passive: false });
   root.addEventListener("contextmenu", event => { if (drag || pending) event.preventDefault(); });
 
@@ -350,11 +317,12 @@ export function sortable(root, { handleSelector, itemSelector, canDrag = () => t
   function autoScroll() {
     clearInterval(drag.scrollTimer);
     const edge = 70;
-    const speed = drag.lastY < edge ? -(edge - drag.lastY) / 3 : drag.lastY > innerHeight - edge ? (drag.lastY - (innerHeight - edge)) / 3 : 0;
+    const bounds = scrollElement === window ? { top: 0, bottom: innerHeight } : scrollElement.getBoundingClientRect();
+    const speed = drag.lastY < bounds.top + edge ? (drag.lastY - bounds.top - edge) / 3 : Math.max(0, drag.lastY - bounds.bottom + edge) / 3;
     if (!speed) return;
     drag.scrollTimer = setInterval(() => {
       if (!drag) return;
-      window.scrollBy(0, speed);
+      scrollElement.scrollBy(0, speed);
     }, 16);
   }
 
