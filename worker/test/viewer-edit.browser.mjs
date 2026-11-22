@@ -632,6 +632,12 @@ try {
   await meaning.tap();
   const mobileInput = mobile.locator('[role=dialog] [data-field=meaning]').first();
   await mobileInput.waitFor();
+  const gaps = await mobile.getByRole('dialog').evaluate(dialog => {
+    const box = dialog.getBoundingClientRect();
+    return [box.left, innerWidth - box.right, box.top, innerHeight - box.bottom];
+  });
+  assert.ok(gaps.every(gap => gap >= 15), `モーダルの四辺に余白がある: ${gaps}`);
+  assert.ok(Math.abs(gaps[2] - gaps[3]) < 2, 'モーダルを画面の中央に配置する');
   assert.equal(await mobileInput.inputValue(), '学ぶ');
   await mobileInput.fill('勉強する');
   await shot('3-editing');
