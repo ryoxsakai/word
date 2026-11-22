@@ -354,6 +354,7 @@ sortable(el.contentsNav, {
 });
 
 async function start() {
+  el.wordList.innerHTML = '<div class="loading-msg" role="status"><span class="loading-label">読み込み中...</span></div>';
   resumePublicationWatch();
   // 閲覧ページと同じく、画面に近づいたイラストから読み込む。
   setupIllustrationLoading(el.wordList);
