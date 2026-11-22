@@ -533,7 +533,8 @@ try {
   illustrated.examples = ['first phrase', 'second phrase'].map((sentence, i) => ({ type: 'phrase', sentence, translation: String(i), answer: '' }));
   const bigServer = await startServer(big);
   const bigOrigin = `http://localhost:${bigServer.address().port}`;
-  const bigPage = await browser.newPage({ viewport: { width: 393, height: 900 } });
+  const bigContext = await browser.newContext({ viewport: { width: 393, height: 900 } });
+  const bigPage = await bigContext.newPage();
   bigPage.on('pageerror', error => errors.push(error.message));
   await bigPage.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
   await bigPage.goto(`${bigOrigin}/setting/index.html`);
@@ -585,7 +586,7 @@ try {
     alignReadingWord(id);
   }, resumeId);
   await bigPage.waitForFunction(id => JSON.parse(localStorage.getItem('crossover-reading:editor:crossover-v3'))?.id === id, resumeId);
-  const reopened = await bigPage.context().newPage();
+  const reopened = await bigContext.newPage();
   await reopened.route(url => !url.href.startsWith(bigOrigin), route => route.abort());
   await bigPage.close();
   await reopened.goto(`${bigOrigin}/setting/index.html`);
@@ -595,7 +596,7 @@ try {
     return target && Math.abs(target.getBoundingClientRect().top - top) < 3;
   }, resumeId);
   assert.equal(await reopened.locator('.entry.is-edit-selected').count(), 0);
-  await reopened.close();
+  await bigContext.close();
   bigServer.close();
 
   assert.deepEqual(errors, []);
