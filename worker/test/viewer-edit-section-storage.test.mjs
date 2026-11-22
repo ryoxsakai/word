@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 globalThis.location = { hostname: 'localhost' };
-globalThis.localStorage = { getItem: () => null, setItem: () => {} };
+const storage = new Map();
+globalThis.localStorage = {
+  getItem: key => storage.get(key) ?? null,
+  setItem: (key, value) => storage.set(key, value),
+  removeItem: key => storage.delete(key),
+};
 const snapshots = new Map();
 const writes = [];
 globalThis.indexedDB = {
@@ -30,7 +35,8 @@ globalThis.indexedDB = {
   },
 };
 
-const { loadSectionData } = await import('../../public/setting/edit/section-cache.js');
+const { api, onPublication, PENDING_KEY } = await import('../../public/setting/edit/api.js');
+const { loadSectionData, recentSaved, rememberSaved } = await import('../../public/setting/edit/section-cache.js');
 const load = id => loadSectionData({
   kind: 'word',
   publicPath: `/lists/demo/viewer/sections/${id}`,
@@ -147,3 +153,82 @@ test('a warm section returns immediately and keeps the public snapshot when its 
     assert.deepEqual(snapshots.get(`/api${publicPath}`), snapshot);
   } finally { snapshots.delete(`/api${publicPath}`); }
 });
+
+
+for (const supersededBy of ['same-tab save', 'other-tab save', 'other tab confirmed publication']) {
+  test(`an old publication check cannot complete a newer generation: ${supersededBy}`, async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    let now = 10000;
+    t.mock.method(Date, 'now', () => now);
+    storage.clear();
+    const statuses = [];
+    const polls = [];
+    const nextTurn = () => new Promise(resolve => setImmediate(resolve));
+    const unsubscribe = onPublication(status => statuses.push(status.state));
+    const response = { id: 'edited-word' };
+    let saves = 0;
+    globalThis.fetch = async (url, options) => {
+      if (options.method === 'PUT') {
+        saves++;
+        return Response.json(response, { headers: { 'x-editor-snapshots': 'r2' } });
+      }
+      assert.equal(url, '/api/lists?editorFresh=1');
+      assert.equal(options.method, 'GET');
+      return new Promise((resolve, reject) => polls.push({ resolve, reject }));
+    };
+    try {
+      await api('/words/earlier', { method: 'PUT', body: response });
+      const earlier = storage.get(PENDING_KEY);
+      assert.ok(earlier);
+      t.mock.timers.tick(8000);
+      await nextTurn();
+      assert.equal(polls.length, 1);
+      if (supersededBy === 'same-tab save') {
+        await api('/words/later', { method: 'PUT', body: response });
+        t.mock.timers.tick(8000); // A second watch must not start a concurrent read.
+        await nextTurn();
+      } else if (supersededBy === 'other-tab save') {
+        now += 11 * 60 * 1000; // Old response expired, but the new generation still has its full budget.
+        storage.set(PENDING_KEY, 'new-marker-from-another-tab');
+      } else {
+        storage.delete(PENDING_KEY);
+      }
+      const latestMarker = storage.get(PENDING_KEY);
+      assert.notEqual(latestMarker, earlier);
+      rememberSaved('word', 'edited-word', response);
+      if (supersededBy === 'other-tab save') polls[0].reject(new Error('old network failure'));
+      else polls[0].resolve(Response.json([]));
+      await nextTurn();
+      assert.deepEqual(statuses, latestMarker ? ['publishing'] : ['publishing', 'idle']);
+      assert.deepEqual(recentSaved('word', 'edited-word'), response);
+      assert.equal(polls.length, 1);
+      assert.equal(storage.get(PENDING_KEY), latestMarker);
+
+      t.mock.timers.tick(15000);
+      await nextTurn();
+      if (!latestMarker) {
+        assert.equal(polls.length, 1);
+        return;
+      }
+      assert.equal(polls.length, 2);
+      if (supersededBy === 'other-tab save') {
+        // The newer marker did not inherit the old wait budget.
+        polls[1].resolve(Response.json({ code: 'editor_snapshot_pending' }, { status: 409 }));
+        await nextTurn();
+        assert.deepEqual(statuses, ['publishing']);
+        t.mock.timers.tick(15000);
+        await nextTurn();
+        assert.equal(polls.length, 3);
+      }
+      polls.at(-1).resolve(Response.json([]));
+      await nextTurn();
+      assert.deepEqual(statuses, ['publishing', 'published']);
+      assert.equal(recentSaved('word', 'edited-word'), null);
+      assert.equal(storage.has(PENDING_KEY), false);
+      assert.equal(saves, supersededBy === 'same-tab save' ? 2 : 1);
+    } finally {
+      unsubscribe();
+      storage.clear();
+    }
+  });
+}
