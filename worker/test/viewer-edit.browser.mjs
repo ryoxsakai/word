@@ -85,7 +85,7 @@ async function handleApi(db, method, path, body) {
     if (method === 'PUT') {
       if (db.putDelay) await new Promise(resolve => setTimeout(resolve, db.putDelay));
       if (db.loseNextWriteResponse) db.staleDetail = detail(db, parts[1]);
-      db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, examples: body.examples.map(e => ({ ...e, type: 'phrase' })), senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
+      db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, examples: body.updatedCollections?.includes('examples') ? body.examples.map(e => ({ ...e, type: 'phrase' })) : db.words.get(parts[1]).examples, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
       return detail(db, parts[1]);
     }
   }
@@ -284,7 +284,7 @@ try {
   await page.locator('.edit-inline-input').press('Enter');
   await save('w1');
   await waitWrites(5);
-  assert.deepEqual(db.words.get('w1').examples.map(e => [e.type, e.sentence]), [['example', 'take a bus'], ['phrase', 'take a break']]);
+  assert.deepEqual(db.words.get('w1').examples.map(e => [e.type, e.sentence]), [['phrase', 'take a bus'], ['phrase', 'take a break']]);
   // −で削除する。
   await entry('w1').locator('[data-op="remove-example"][data-index="1"]').click();
   await save('w1');
