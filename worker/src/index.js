@@ -1419,6 +1419,8 @@ function buildReplaceChildRowsStatements(db, table, columns, wordId, rows) {
   for (const row of rows || []) {
     const values = columns.map((c) => {
       if (c === "sort_order") return i;
+      // 例文（example）は廃止。どの経路から保存してもフレーズとして記録する。
+      if (table === "examples" && c === "type") return "phrase";
       const value = row[c] ?? null;
       return table === "senses" && c === "meaning" ? normalizeSenseMeaning(value) : value;
     });

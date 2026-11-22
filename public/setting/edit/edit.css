@@ -1,0 +1,215 @@
+/* 閲覧型編集ページ：閲覧ページのstyle.cssの上に、編集用の部品だけを重ねる。 */
+:root {
+  --edit-accent: #2f6fd6;
+  --edit-accent-soft: rgba(47, 111, 214, 0.1);
+  --edit-danger: #c2412d;
+  --edit-surface: #ffffff;
+  --edit-text: #1f2430;
+  --edit-muted: #667085;
+  --edit-border: #d5dae3;
+  --edit-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --edit-accent: #7ab3ff;
+    --edit-accent-soft: rgba(122, 179, 255, 0.14);
+    --edit-danger: #ff8a75;
+    --edit-surface: #1d2129;
+    --edit-text: #e8eaef;
+    --edit-muted: #a0a8b8;
+    --edit-border: #394150;
+    --edit-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme="dark"] {
+  --edit-accent: #7ab3ff;
+  --edit-accent-soft: rgba(122, 179, 255, 0.14);
+  --edit-danger: #ff8a75;
+  --edit-surface: #1d2129;
+  --edit-text: #e8eaef;
+  --edit-muted: #a0a8b8;
+  --edit-border: #394150;
+  --edit-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.edit-root { touch-action: manipulation; }
+.edit-brand-badge {
+  display: inline-block; margin-left: 0.35em; padding: 0.05em 0.5em; border-radius: 999px;
+  background: var(--edit-accent); color: #fff; font-size: 0.6em; vertical-align: middle; letter-spacing: 0.05em;
+}
+.edit-publish-status { margin-left: 0.5rem; font-size: 0.75rem; color: var(--edit-muted); white-space: nowrap; }
+.edit-publish-status.is-publishing::before {
+  content: ""; display: inline-block; width: 0.55em; height: 0.55em; margin-right: 0.35em; border-radius: 50%;
+  background: var(--edit-accent); animation: edit-pulse 1.2s ease-in-out infinite;
+}
+.edit-publish-status.is-failed { color: var(--edit-danger); }
+@keyframes edit-pulse { 50% { opacity: 0.25; } }
+.edit-links { display: grid; gap: 0.35rem; }
+.edit-links a { display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none; font-size: 0.9rem; }
+.edit-help { margin: 0; font-size: 0.8rem; color: var(--edit-muted); }
+
+/* 選択中の単語・見出し */
+.edit-root .entry { position: relative; cursor: default; -webkit-user-select: none; user-select: none; }
+.edit-root .entry.is-edit-selected {
+  outline: 2px solid var(--edit-accent); outline-offset: 3px; border-radius: 6px; background: var(--edit-accent-soft);
+}
+.edit-root .entry.is-saving::after {
+  content: "保存中…"; position: absolute; top: 0.1rem; right: 0.2rem; font-size: 0.7rem; color: var(--edit-muted);
+}
+.edit-root .entry.has-edit-error { outline: 2px solid var(--edit-danger); outline-offset: 3px; border-radius: 6px; }
+.edit-root .entry.is-new-entry { background: var(--edit-accent-soft); }
+.edit-root .entry.is-multi-selected { outline: 2px dashed var(--edit-accent); outline-offset: 3px; border-radius: 6px; background: var(--edit-accent-soft); }
+.edit-root .idiom-entry.is-hidden-idiom { opacity: 0.45; }
+.edit-root .idiom-entry.is-hidden-idiom .entry-no::after { content: "非表示"; display: block; font-size: 0.6rem; }
+.edit-root .entry.is-edit-selected .entry-no.edit-drag-handle {
+  cursor: grab; touch-action: none; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--edit-accent);
+}
+.edit-root [data-header] { cursor: default; }
+.edit-root [data-header].is-edit-selected { outline: 2px solid var(--edit-accent); outline-offset: 2px; border-radius: 6px; }
+.edit-root .is-empty-label { opacity: 0.7; }
+.edit-label-empty { margin-left: 0.5em; font-size: 0.8em; color: var(--edit-muted); }
+
+/* 空欄の入力位置 */
+.edit-root .edit-empty {
+  color: var(--edit-muted); font-style: italic; font-weight: 400; border-bottom: 1px dashed currentColor; opacity: 0.85;
+}
+.edit-root .edit-empty-badge { opacity: 0.55; border-style: dashed; }
+
+/* ＋／−ボタン */
+.edit-plus, .edit-minus {
+  display: inline-flex; align-items: center; justify-content: center; width: 1.45rem; height: 1.45rem; margin-left: 0.3rem;
+  padding: 0; border: 1px solid var(--edit-border); border-radius: 50%; background: var(--edit-surface); color: var(--edit-accent);
+  font-size: 0.95rem; font-weight: 700; line-height: 1; vertical-align: middle; cursor: pointer; flex: none;
+}
+.edit-minus { color: var(--edit-danger); }
+.edit-row-actions { margin: 0.15rem 0 0.3rem; }
+.edit-add-inline, .edit-chip {
+  display: inline-flex; align-items: center; gap: 0.3em; margin: 0.1rem 0.3rem 0.1rem 0; padding: 0.15rem 0.6rem;
+  border: 1px dashed var(--edit-accent); border-radius: 999px; background: transparent; color: var(--edit-accent);
+  font: inherit; font-size: 0.78rem; line-height: 1.4; cursor: pointer;
+}
+.edit-chip { border-style: solid; background: var(--edit-surface); margin-left: 0.35rem; }
+.edit-chip-menu { padding-inline: 0.5rem; }
+.edit-add-bar {
+  display: flex; align-items: center; justify-content: center; gap: 0.4em; width: 100%; margin: 0.4rem 0; padding: 0.45rem;
+  border: 1px dashed var(--edit-accent); border-radius: 8px; background: var(--edit-accent-soft); color: var(--edit-accent);
+  font: inherit; font-size: 0.85rem; cursor: pointer;
+}
+.edit-add-chapter { padding: 0 1rem 3rem; }
+.edit-header-tools { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; width: 100%; }
+.edit-header-tools button {
+  display: inline-flex; align-items: center; gap: 0.3em; padding: 0.2rem 0.6rem; border: 1px solid var(--edit-border); border-radius: 6px;
+  background: var(--edit-surface); color: var(--edit-text); font: inherit; font-size: 0.78rem; cursor: pointer;
+}
+.edit-header-tools .is-danger { color: var(--edit-danger); }
+.edit-root .label-divider, .edit-root .section-divider, .edit-root .chapter-divider { flex-wrap: wrap; }
+.edit-error { margin: 0.4rem 0 0; padding: 0.4rem 0.6rem; border-radius: 6px; background: rgba(194, 65, 45, 0.1); color: var(--edit-danger); font-size: 0.82rem; }
+.edit-error button { font: inherit; font-size: 0.78rem; }
+.edit-ref-note { margin-left: 0.4rem; font-size: 0.72rem; color: var(--edit-muted); }
+
+/* その場の入力欄 */
+.edit-inline { display: inline-flex; align-items: flex-start; gap: 0.25rem; max-width: 100%; vertical-align: top; }
+.edit-inline.is-multiline { display: flex; width: 100%; }
+.edit-inline-input {
+  flex: 1 1 auto; max-width: 100%; margin: -0.15rem 0; padding: 0.1rem 0.3rem; border: 1px solid var(--edit-accent); border-radius: 4px;
+  background: var(--edit-surface); resize: none; overflow: hidden; box-shadow: 0 0 0 3px var(--edit-accent-soft);
+  -webkit-user-select: text; user-select: text;
+}
+.edit-inline.is-multiline .edit-inline-input { width: 100%; }
+.edit-inline-actions { display: inline-flex; gap: 0.2rem; flex: none; }
+.edit-inline-actions button {
+  width: 1.7rem; height: 1.7rem; padding: 0; border: 1px solid var(--edit-border); border-radius: 50%;
+  background: var(--edit-surface); color: var(--edit-accent); font-size: 0.75rem; cursor: pointer;
+}
+.edit-inline-actions .edit-inline-cancel { color: var(--edit-muted); }
+
+/* 下から出るシート */
+.edit-sheet-overlay {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-end; justify-content: center; background: rgba(15, 23, 42, 0.35);
+}
+.edit-sheet {
+  width: min(560px, 100%); max-height: 82vh; overflow: auto; padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  border-radius: 16px 16px 0 0; background: var(--edit-surface); color: var(--edit-text); box-shadow: var(--edit-shadow);
+}
+.edit-sheet.is-wide { width: min(760px, 100%); }
+@media (min-width: 760px) {
+  .edit-sheet-overlay { align-items: center; }
+  .edit-sheet { border-radius: 16px; }
+}
+.edit-sheet-header {
+  position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.85rem 0 0.6rem; background: var(--edit-surface);
+}
+.edit-sheet-header h2 { margin: 0; font-size: 1rem; }
+.edit-sheet-close { width: 2rem; height: 2rem; border: 0; border-radius: 50%; background: transparent; color: var(--edit-muted); font-size: 1.1rem; cursor: pointer; }
+.edit-sheet-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+.edit-sheet-actions button, .edit-multi-bar button {
+  padding: 0.5rem 0.9rem; border: 1px solid var(--edit-border); border-radius: 8px; background: var(--edit-surface); color: var(--edit-text); font: inherit; cursor: pointer;
+}
+.edit-sheet-actions .primary, .edit-multi-bar .primary { border-color: var(--edit-accent); background: var(--edit-accent); color: #fff; }
+.edit-tiles-title { margin: 0.6rem 0 0.4rem; font-size: 0.8rem; font-weight: 500; color: var(--edit-muted); }
+.edit-tiles { display: grid; grid-template-columns: repeat(var(--tile-columns, 4), minmax(0, 1fr)); gap: 0.45rem; }
+@media (max-width: 420px) { .edit-tiles { grid-template-columns: repeat(min(var(--tile-columns, 4), 4), minmax(0, 1fr)); } }
+.edit-tile {
+  display: flex; align-items: center; justify-content: center; min-height: 2.6rem; padding: 0.35rem; border: 1px solid var(--edit-border);
+  border-radius: 10px; background: var(--edit-surface); color: var(--edit-text); font: inherit; font-size: 0.85rem; cursor: pointer; opacity: 0.6;
+}
+.edit-tile.is-active { opacity: 1; border-color: var(--edit-accent); box-shadow: 0 0 0 2px var(--edit-accent-soft); background: var(--edit-accent-soft); }
+.edit-tile .caution-badge, .edit-tile .learning-badge, .edit-tile .pos-badge, .edit-tile .notes-label { pointer-events: none; }
+.edit-menu-list { display: grid; gap: 0.25rem; }
+.edit-menu-item {
+  display: flex; align-items: center; gap: 0.7rem; padding: 0.75rem 0.5rem; border: 0; border-radius: 8px; background: transparent;
+  color: var(--edit-text); font: inherit; text-align: left; cursor: pointer;
+}
+.edit-menu-item:hover { background: var(--edit-accent-soft); }
+.edit-menu-item i { width: 1.2rem; color: var(--edit-accent); }
+.edit-menu-item.is-danger, .edit-menu-item.is-danger i { color: var(--edit-danger); }
+.edit-form { display: grid; gap: 0.7rem; }
+.edit-form label { display: grid; gap: 0.25rem; font-size: 0.82rem; color: var(--edit-muted); }
+.edit-form h3 { margin: 0.4rem 0 0; font-size: 0.85rem; }
+.edit-form input, .edit-form select, .edit-textarea {
+  width: 100%; box-sizing: border-box; padding: 0.5rem; border: 1px solid var(--edit-border); border-radius: 8px;
+  background: var(--edit-surface); color: var(--edit-text); font: inherit; font-size: 16px;
+}
+.edit-detail-row { display: grid; grid-template-columns: auto 1fr minmax(7rem, 40%); align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+.edit-detail-row:not(:has(input[type="radio"])) { grid-template-columns: 1fr minmax(7rem, 40%); }
+.edit-detail-row input[type="radio"] { width: auto; }
+.edit-hint { margin: 0.3rem 0 0; font-size: 0.78rem; color: var(--edit-muted); }
+
+/* トースト */
+.edit-toast {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1100; display: flex; align-items: center; gap: 0.8rem;
+  max-width: calc(100% - 32px); padding: 0.6rem 0.9rem; border-radius: 10px; background: #1f2430; color: #fff; font-size: 0.88rem;
+  box-shadow: var(--edit-shadow); transform: translateX(-50%);
+}
+.edit-toast[hidden] { display: none; }
+.edit-toast.is-error { background: #8f2a1c; }
+.edit-toast button { padding: 0.2rem 0.6rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 6px; background: transparent; color: #fff; font: inherit; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+
+/* 複数選択 */
+.edit-multi-bar {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 1050; display: flex; align-items: center; gap: 0.6rem;
+  max-width: calc(100% - 32px); padding: 0.5rem 0.7rem; border-radius: 12px; background: var(--edit-surface); color: var(--edit-text);
+  box-shadow: var(--edit-shadow); transform: translateX(-50%);
+}
+body.is-edit-multi .edit-toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+
+/* ドラッグ */
+body.is-edit-dragging, body.is-edit-dragging * { cursor: grabbing !important; -webkit-user-select: none; user-select: none; }
+.is-dragging { opacity: 0.35; }
+.edit-drag-ghost {
+  position: fixed; top: 0; left: 0; z-index: 1200; max-width: 60vw; padding: 0.35rem 0.7rem; border-radius: 8px; background: var(--edit-accent);
+  color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; box-shadow: var(--edit-shadow);
+}
+.edit-drop-line { position: fixed; z-index: 1150; display: none; height: 4px; border-radius: 2px; background: var(--edit-accent); pointer-events: none; }
+
+/* 目次 */
+.edit-contents-nav .edit-toc-item { display: flex; align-items: center; gap: 0.25rem; padding: 0; }
+.edit-toc-handle { font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; min-height: 2rem; color: var(--edit-muted); cursor: grab; touch-action: none; flex: none; }
+.edit-toc-link {
+  display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.35rem 0.4rem; border: 0;
+  background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.edit-toc-link .hierarchy-icon { width: 1em; height: 1em; margin-right: 0.3em; vertical-align: -0.1em; }
+.contents-menu-heading small { font-weight: 400; color: var(--edit-muted); }
+

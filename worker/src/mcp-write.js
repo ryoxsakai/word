@@ -30,7 +30,7 @@ const exampleSchema = {
     sentence: { type: "string", minLength: 1, maxLength: 2000 },
     answer: { type: "string" },
     translation: { type: "string" },
-    type: { type: "string", enum: ["example", "phrase"], default: "example" },
+    type: { type: "string", enum: ["example", "phrase"], default: "phrase", description: "Always stored as phrase; example is accepted for compatibility" },
   },
   required: ["sentence"],
   additionalProperties: false,
@@ -1210,7 +1210,7 @@ function childStatements(db, wordId, item, replace = false) {
       const values = columns.map((column) => {
         if (column === "sort_order") return index;
         if (column === "is_primary") return row.is_primary || (index === 0 && !rows.some((candidate) => candidate.is_primary)) ? 1 : 0;
-        if (column === "type") return row.type || "example";
+        if (column === "type") return "phrase"; // 例文は廃止。互換のため入力のexampleも受け付ける
         const value = row[column] ?? null;
         return table === "senses" && column === "meaning" ? normalizeSenseMeaning(value) : value;
       });

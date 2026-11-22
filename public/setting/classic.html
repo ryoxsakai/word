@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
+<title>単語帳 設定（旧編集画面）</title>
+<link rel="apple-touch-icon" href="../shared/icons/apple-touch-icon-setting.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,400;0,500;0,700;1,400&family=M+PLUS+2:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="../shared/fonts/charis-sil.css" />
+<link rel="stylesheet" href="./style.css" />
+<link rel="stylesheet" href="./table-mode.css">
+</head>
+<body>
+<div id="loadingProgress" class="loading-progress" role="progressbar" aria-label="読み込み中" aria-valuetext="読み込み中" hidden></div>
+<div class="layout" id="layout">
+  <header class="topbar">
+    <div class="topbar-row topbar-row--primary">
+      <h1 class="app-title">単語帳</h1>
+      <span class="app-subtitle">設定</span>
+      <a class="viewer-link" href="./index.html">新しい編集ページ</a>
+      <a class="viewer-link" id="idiomEditorLink" href="./idioms.html">熟語</a>
+      <a class="viewer-link" href="./illustrations.html">イラスト</a>
+      <a class="viewer-link" href="../index.html" target="_blank" rel="noopener">閲覧 <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      <button type="button" class="btn-compact" id="themeToggleBtn" title="ダーク/ライト切り替え">ダーク</button>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="topbarMenu" aria-label="メニューを開く">
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+      </button>
+      <button type="button" class="btn-compact edit-mode-toggle" id="editModeToggle" aria-pressed="false">カード編集に切替</button>
+    </div>
+    <div class="topbar-row topbar-row--secondary" id="topbarMenu">
+      <div class="master-toolbar" id="masterToolbar" hidden>
+        <div class="master-filters">
+          <select id="filterAwl" aria-label="AWL sublistで絞り込み">
+            <option value="">AWL 全sublist</option>
+            <option value="1">AWL 1</option>
+            <option value="2">AWL 2</option>
+            <option value="3">AWL 3</option>
+            <option value="4">AWL 4</option>
+            <option value="5">AWL 5</option>
+            <option value="6">AWL 6</option>
+            <option value="7">AWL 7</option>
+            <option value="8">AWL 8</option>
+            <option value="9">AWL 9</option>
+            <option value="10">AWL 10</option>
+          </select>
+          <select id="filterOxford" aria-label="Oxford 5000レベルで絞り込み">
+            <option value="">Oxford 全レベル</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+          </select>
+          <label class="filter-checkbox"><input type="checkbox" id="filterTarget1900" /> Target1900のみ</label>
+          <label class="filter-checkbox"><input type="checkbox" id="filterTarget1400" /> Target1400のみ</label>
+        </div>
+        <div class="master-actions">
+          <span id="selectionCount" class="selection-count">0語選択</span>
+          <button id="selectAllMasterBtn" type="button" class="btn-ghost" title="現在読み込み済みの単語のみ選択されます"><i class="fa-solid fa-square-check" aria-hidden="true"></i><span>表示中を全選択</span></button>
+          <button id="clearSelectionBtn" type="button" class="btn-ghost"><i class="fa-solid fa-xmark" aria-hidden="true"></i><span>解除</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="word-table-pane" id="wordTablePane">
+      <div class="pane-header">
+        <div class="list-switcher">
+          <select id="listSelect" aria-label="表示するリスト"></select>
+          <button id="listManageBtn" type="button" class="btn-compact"><i class="fa-solid fa-pen" aria-hidden="true"></i><span>編集</span></button>
+          <button id="listSettingsBtn" type="button" class="btn-compact" hidden title="単語帳の設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
+        </div>
+        <div class="pane-header-actions">
+          <button id="addToNotebookBtn" type="button" disabled hidden><i class="fa-solid fa-book" aria-hidden="true"></i><span>単語帳</span></button>
+          <button id="addToNotebookSettingsBtn" type="button" class="btn-icon-only" hidden title="追加先の単語帳・セクションを設定"><i class="fa-solid fa-gear" aria-hidden="true"></i></button>
+          <button id="newChapterBtn" type="button" class="btn-tight-label" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>チャプター</span></button>
+          <button id="newSectionBtn" type="button" class="btn-tight-label" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>セクション</span></button>
+          <button id="newLabelBtn" type="button" class="btn-tight-label" disabled hidden><i class="fa-solid fa-plus" aria-hidden="true"></i><span>ラベル</span></button>
+          <button id="newWordBtn" type="button" disabled><i class="fa-solid fa-plus" aria-hidden="true"></i><span>単語</span></button>
+          <button id="moveToSectionBtn" type="button" class="btn-ghost btn-icon-only" disabled hidden title="選択した単語をセクションへ移動"><i class="fa-solid fa-right-left" aria-hidden="true"></i></button>
+          <button id="toggleSearchBtn" type="button" class="btn-ghost btn-icon-only" aria-expanded="false" aria-controls="tableSearchRow" title="検索"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        </div>
+      </div>
+
+      <div class="table-search-row" id="tableSearchRow" hidden>
+        <input type="search" id="tableSearchInput" placeholder="スペルで検索…" autocomplete="off" />
+      </div>
+
+      <div id="ptrIndicator" class="ptr-indicator" aria-hidden="true"><i class="fa-solid fa-rotate" aria-hidden="true"></i></div>
+      <div class="table-scroll" id="tableScroll">
+        <table class="word-table">
+          <thead id="wordTableHead">
+            <tr><th class="col-no">no.</th><th>スペル</th><th class="col-meaning">意味</th><th class="col-awl">AWL</th><th class="col-cefr">CEFR</th><th class="col-eiken">英検</th><th class="col-target1900">1900</th><th class="col-target1400">1400</th><th class="col-pron">発音</th><th class="col-caution-ergative">能格</th><th class="col-caution-spelling">スペル注意</th><th class="col-caution-pron">発音注意</th><th class="col-caution-accent">アクセント注意</th><th class="col-caution-poly">多義語</th><th class="col-caution-conjugation">活用注意</th><th class="col-caution-usage">語法注意</th></tr>
+          </thead>
+          <tbody id="wordTableBody"></tbody>
+        </table>
+        <p id="masterLoadingMore" class="loading-more" hidden>読み込み中…</p>
+      </div>
+      <p id="wordTableEmpty" class="empty-msg" hidden>このリストにはまだ単語がありません。</p>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<div class="modal-overlay" id="editModalOverlay" hidden>
+  <section class="edit-pane" id="editPane" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="editTitle">単語を編集</h2>
+      <div class="edit-actions">
+        <button id="draftFromDictionaryBtn" type="button" class="btn-ghost btn-icon-only" title="辞書から発音・例文・類義語/対義語の下書きを取得" aria-label="辞書下書き"><i class="fa-solid fa-book-open" aria-hidden="true"></i></button>
+        <button id="saveBtn" type="button" class="primary btn-icon-only" title="保存" aria-label="保存"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i></button>
+        <button id="deleteBtn" type="button" class="danger btn-ghost btn-icon-only" title="削除" aria-label="削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+        <button id="closeBtn" type="button" class="btn-ghost btn-icon-only" title="閉じる" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+
+    <form id="wordForm" class="word-form">
+      <div class="field-row">
+        <label>スペル
+          <input type="text" id="fieldSpelling" required autocapitalize="none" spellcheck="false" />
+        </label>
+        <label class="field-pronunciation">発音記号 (IPA)
+          <span class="input-with-btn">
+            <input type="text" id="fieldPronunciation" placeholder="/səˈpɔːrt/" />
+            <button type="button" id="lookupPronunciationBtn" title="辞書から発音記号を取得し直す" aria-label="発音を再取得"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+            <button type="button" id="playAudioBtn" title="端末の英語音声で発音を再生" aria-label="端末の英語音声で発音を再生" disabled><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+            <button type="button" id="generateAudioBtn" class="generate-audio-btn" title="IPAを使ってElevenLabs音声を生成" aria-label="ElevenLabs音声を生成" disabled><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i></button>
+            <button type="button" id="ergativeBtn" class="caution-toggle-btn caution-toggle-btn--ergative" aria-pressed="false" title="自動詞の主語と他動詞の目的語が対応する能格動詞としてマークします">能</button>
+            <button type="button" id="spellingCautionBtn" class="caution-toggle-btn caution-toggle-btn--spelling" aria-pressed="false" title="スペルを間違えやすい単語としてマークします">ス</button>
+            <button type="button" id="pronunciationCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="発音を間違えやすい単語としてマークします">発</button>
+            <button type="button" id="accentCautionBtn" class="caution-toggle-btn" aria-pressed="false" title="アクセント位置を間違えやすい単語としてマークします">ア</button>
+            <button type="button" id="polysemousCautionBtn" class="caution-toggle-btn caution-toggle-btn--polysemous" aria-pressed="false" title="複数の意味を持つ紛らわしい単語としてマークします">多</button>
+            <button type="button" id="conjugationCautionBtn" class="caution-toggle-btn caution-toggle-btn--conjugation" aria-pressed="false" title="活用（不規則変化など）に注意が必要な単語としてマークします">活</button>
+            <button type="button" id="usageCautionBtn" class="caution-toggle-btn caution-toggle-btn--usage" aria-pressed="false" title="語法（用法）に注意が必要な単語としてマークします">法</button>
+          </span>
+        </label>
+      </div>
+      <div class="field-row notebook-only" id="notebookFields">
+        <label>このリストでの no.
+          <input type="text" id="fieldNo" placeholder="42" inputmode="numeric" />
+        </label>
+        <label>派生元
+          <input type="text" id="fieldDerivedFrom" placeholder="（なし）" autocapitalize="none" />
+        </label>
+        <label>セクション
+          <select id="fieldSection"><option value="">なし</option></select>
+        </label>
+        <label>ラベル
+          <select id="fieldLabel"><option value="">なし</option></select>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>意味（品詞ごと） <span class="hint">品詞: 名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語。「見出し」は単語一覧に表示する代表の意味</span></legend>
+        <div id="sensesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="senses" title="意味を追加" aria-label="意味を追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+      </fieldset>
+
+      <fieldset>
+        <legend>例文・フレーズ <span class="hint">◆例文 / ◇フレーズ。空所は ＿＿＿</span></legend>
+        <div id="examplesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="examples" title="例文・フレーズを追加" aria-label="例文・フレーズを追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+      </fieldset>
+
+      <fieldset>
+        <legend>派生語</legend>
+        <div id="derivativesList" class="repeat-list"></div>
+        <button type="button" class="add-row-btn" data-add="derivatives" title="派生語を追加" aria-label="派生語を追加"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>
+      </fieldset>
+
+      <fieldset>
+        <legend>不規則活用</legend>
+        <textarea id="fieldIrregularForms" rows="2" placeholder="go - went - gone"></textarea>
+        <div class="preview" id="irregularFormsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>類義語 <span class="hint">登録済み見出し語は自動参照 / 未登録語の意味: word (意味) / ##headword|表示##</span></legend>
+        <textarea id="fieldSynonyms" rows="2" placeholder="genuine (本物の), clean (きれいな)"></textarea>
+        <div class="preview" id="synonymsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>対義語 <span class="hint">登録済み見出し語は自動参照 / 未登録語の意味: word (意味) / ##headword|表示##</span></legend>
+        <textarea id="fieldAntonyms" rows="2" placeholder="hinder (妨げる), obstruct (ふさぐ)"></textarea>
+        <div class="preview" id="antonymsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>関連語 <span class="hint">意味・分野・用法上の関連語 / 未登録語の意味: word (意味) / ##headword|表示##</span></legend>
+        <textarea id="fieldRelatedWords" rows="2" placeholder="nutrition (栄養), nutrient (栄養素), protein (たんぱく質)"></textarea>
+        <div class="preview" id="relatedWordsPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>語源 <span class="hint">##見出し語## / *語根* / ==非リンク== / ::ハイライト::</span></legend>
+        <textarea id="fieldEtymology" rows="2" placeholder="sup- (下から) + *port* (運ぶ)"></textarea>
+        <div class="preview" id="etymologyPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>メモ <span class="hint">英単語は自動太字 / 任意太字 **…** / 他の登録語は自動参照 / //発音記号// → /…/</span></legend>
+        <textarea id="fieldNotes" rows="2" placeholder="import も参照。"></textarea>
+        <div class="preview" id="notesPreview"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>レベルタグ</legend>
+        <div class="tags-row">
+            <label class="tag-select">Oxford 5000
+              <select id="tagOxford5000">
+                <option value="">―</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+              </select>
+            </label>
+            <label class="tag-select">暫定CEFR
+              <select id="tagCefrProvisional" aria-describedby="provisionalCefrHint">
+                <option value="">―</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+              </select>
+              <span id="provisionalCefrHint" class="field-hint">Oxford未収録語用</span>
+            </label>
+            <label class="tag-select">AWL
+              <select id="tagAwl">
+                <option value="">―</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <label class="tag-select">英検
+              <select id="tagEiken">
+                <option value="">―</option>
+                <option value="5級">5級</option>
+                <option value="4級">4級</option>
+                <option value="3級">3級</option>
+                <option value="準2級">準2級</option>
+                <option value="2級">2級</option>
+                <option value="準1級">準1級</option>
+                <option value="1級">1級</option>
+              </select>
+            </label>
+          </div>
+          <div class="tags-readonly-row">
+            <span class="tag-readonly" id="tagTarget1900Display" hidden></span>
+            <span class="tag-readonly" id="tagTarget1400Display" hidden></span>
+          </div>
+          <label class="custom-tags-label">カスタムタグ（カンマ区切り）
+            <input type="text" id="tagCustom" placeholder="医学部頻出, 語法注意" />
+          </label>
+      </fieldset>
+    </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="chapterModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="chapterEditPane" role="dialog" aria-modal="true" aria-labelledby="chapterEditTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="chapterEditTitle">チャプターを編集</h2>
+      <div class="edit-actions">
+        <button id="chapterSaveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+        <button id="chapterDeleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
+        <button id="chapterCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <form id="chapterForm" class="word-form">
+      <label>サブタイトル <span class="hint">閲覧ページでタイトルの横に表示します</span>
+        <input type="text" id="chapterFieldSubtitle" placeholder="（任意）" />
+      </label>
+      <label>説明 <span class="hint">閲覧ページでタイトルの下に目立たない形で表示します</span>
+        <textarea id="chapterFieldDescription" rows="3" placeholder="（任意）"></textarea>
+      </label>
+      <label>帯の位置 <span class="hint">選択したセクションをこのチャプターの先頭に移動し、帯をその直前に表示します</span>
+        <select id="chapterFieldMoveBeforeSection">
+          <option value="">（移動しない）</option>
+        </select>
+      </label>
+    </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="sectionModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="sectionEditPane" role="dialog" aria-modal="true" aria-labelledby="sectionEditTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="sectionEditTitle">セクションを編集</h2>
+      <div class="edit-actions">
+        <button id="sectionSaveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+        <button id="sectionDeleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
+        <button id="sectionCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <form id="sectionForm" class="word-form">
+      <label>セクション名 <span class="hint">Section番号の横に表示します</span>
+        <input type="text" id="sectionFieldSubtitle" placeholder="（任意）" />
+      </label>
+      <label>説明 <span class="hint">閲覧ページでタイトルの下に目立たない形で表示します</span>
+        <textarea id="sectionFieldDescription" rows="3" placeholder="（任意）"></textarea>
+      </label>
+    </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="labelModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="labelEditPane" role="dialog" aria-modal="true" aria-labelledby="labelEditTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="labelEditTitle">ラベルを編集</h2>
+      <div class="edit-actions">
+        <button id="labelSaveBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+        <button id="labelDeleteBtn" type="button" class="danger btn-ghost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>削除</span></button>
+        <button id="labelCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <form class="word-form">
+      <label>所属セクション
+        <select id="labelFieldSection"></select>
+      </label>
+      <label>ラベル名
+        <input type="text" id="labelFieldName" placeholder="追加・適用" maxlength="120" />
+      </label>
+    </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="addNotebookModalOverlay" hidden>
+  <section class="settings-pane" id="addNotebookPane" role="dialog" aria-modal="true" aria-labelledby="addNotebookTitle">
+    <button id="addNotebookCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="addNotebookTitle">追加先の単語帳・セクション</h2>
+    <form id="addNotebookForm" class="word-form">
+      <p class="hint">ここで設定した単語帳へ、「単語帳」ボタンでチェック済みの単語を直接追加します。</p>
+      <label>追加先の単語帳
+        <select id="addNotebookSelect"></select>
+      </label>
+      <label>セクション <span class="hint">（任意）</span>
+        <select id="addNotebookSection"><option value="">（セクションなし）</option></select>
+      </label>
+      <div class="settings-actions">
+        <button id="addNotebookConfirmBtn" type="button" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div class="modal-overlay" id="listManageModalOverlay" hidden>
+  <section class="edit-pane section-edit-pane" id="listManagePane" role="dialog" aria-modal="true" aria-labelledby="listManageTitle">
+    <div class="pane-header pane-header--edit">
+      <h2 id="listManageTitle">単語帳を編集</h2>
+      <div class="edit-actions">
+        <button id="listManageCloseBtn" type="button" class="btn-ghost" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </div>
+    </div>
+    <div class="word-form">
+      <div id="listManageList" class="list-manage-list"></div>
+      <div class="list-manage-new">
+        <input type="text" id="listManageNewName" placeholder="新しい単語帳名" autocomplete="off" />
+        <button type="button" id="listManageCreateBtn" class="primary"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>作成</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="listSettingsModalOverlay" hidden>
+  <section class="settings-pane" id="listSettingsPane" role="dialog" aria-modal="true" aria-labelledby="listSettingsTitle">
+    <button id="listSettingsCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="listSettingsTitle">単語帳の設定</h2>
+    <div class="word-form">
+      <label>チャプターの呼び方
+        <select id="listSettingsChapterLabel">
+          <option value="Chapter">Chapter</option>
+          <option value="Module">Module</option>
+          <option value="Volume">Volume</option>
+        </select>
+      </label>
+      <label>セクションの呼び方
+        <select id="listSettingsSectionLabel">
+          <option value="Section">Section</option>
+          <option value="Unit">Unit</option>
+          <option value="Part">Part</option>
+        </select>
+      </label>
+      <div class="settings-actions">
+        <button type="button" id="listSettingsSaveBtn" class="primary"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i><span>保存</span></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="moveToSectionModalOverlay" hidden>
+  <section class="settings-pane" id="moveToSectionPane" role="dialog" aria-modal="true" aria-labelledby="moveToSectionTitle">
+    <button id="moveToSectionCloseBtn" type="button" class="btn-ghost modal-close-btn" aria-label="閉じる"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <h2 id="moveToSectionTitle">セクションへ移動</h2>
+    <form id="moveToSectionForm" class="word-form">
+      <p id="moveToSectionCount" class="add-notebook-count"></p>
+      <label>移動先のセクション
+        <select id="moveToSectionSelect"><option value="">（セクションなし）</option></select>
+      </label>
+      <div class="settings-actions">
+        <button id="moveToSectionConfirmBtn" type="button" class="primary"><i class="fa-solid fa-right-left" aria-hidden="true"></i><span>移動</span></button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<template id="senseRowTpl">
+  <div class="repeat-row sense-row" data-kind="senses">
+    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語">
+      <option value="">―</option>
+      <option value="名">名</option>
+      <option value="自">自</option>
+      <option value="他">他</option>
+      <option value="動">動</option>
+      <option value="形">形</option>
+      <option value="副">副</option>
+      <option value="代">代</option>
+      <option value="冠">冠</option>
+      <option value="前">前</option>
+      <option value="接">接</option>
+      <option value="間">間</option>
+      <option value="助">助</option>
+      <option value="熟">熟</option>
+      <option value="連">連</option>
+    </select>
+    <input type="text" class="meaning" placeholder="意味" />
+    <label class="primary-radio" title="単語一覧に表示する見出しの意味にする">
+      <input type="radio" name="isPrimarySense" class="is-primary" /><i class="fa-solid fa-star" aria-hidden="true"></i>
+    </label>
+    <button type="button" class="add-pron-btn" title="品詞ごとの発音を追加" aria-label="品詞ごとの発音を追加"><i class="fa-solid fa-ear-listen" aria-hidden="true"></i></button>
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+    <input type="text" class="pronunciation" placeholder="発音（品詞ごとに違う場合）" hidden />
+  </div>
+</template>
+
+<template id="derivativeRowTpl">
+  <div class="repeat-row derivative-row" data-kind="derivatives">
+    <select class="pos" aria-label="品詞" title="名=名詞 自=自動詞 他=他動詞 形=形容詞 副=副詞 代=代名詞 冠=冠詞・限定詞 前=前置詞 接=接続詞 間=間投詞 助=助動詞 熟=熟語 連=連語">
+      <option value="">―</option>
+      <option value="名">名</option>
+      <option value="自">自</option>
+      <option value="他">他</option>
+      <option value="動">動</option>
+      <option value="形">形</option>
+      <option value="副">副</option>
+      <option value="代">代</option>
+      <option value="冠">冠</option>
+      <option value="前">前</option>
+      <option value="接">接</option>
+      <option value="間">間</option>
+      <option value="助">助</option>
+      <option value="熟">熟</option>
+      <option value="連">連</option>
+    </select>
+    <input type="text" class="word" placeholder="派生語" autocapitalize="none" />
+    <input type="text" class="meaning" placeholder="意味" />
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+  </div>
+</template>
+
+<template id="exampleRowTpl">
+  <div class="repeat-row example-row" data-kind="examples">
+    <select class="type" aria-label="種別">
+      <option value="example">◆ 例文</option>
+      <option value="phrase">◇ フレーズ</option>
+    </select>
+    <input type="text" class="sentence" placeholder="例文・フレーズ（空所は ＿＿＿）" />
+    <input type="text" class="translation" placeholder="和訳" />
+    <input type="hidden" class="answer" />
+    <span class="row-actions">
+      <span class="row-drag-handle" draggable="true" title="ドラッグで並び替え"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>
+      <button type="button" class="move-btn" data-action="row-up" aria-label="上へ"><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+      <button type="button" class="move-btn" data-action="row-down" aria-label="下へ"><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+    </span>
+    <button type="button" class="remove-row-btn" aria-label="行を削除"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+  </div>
+</template>
+
+<script type="module" src="./app.js"></script>
+<script type="module" src="./table-mode.js"></script>
+</body>
+</html>

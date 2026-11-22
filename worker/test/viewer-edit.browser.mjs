@@ -1,0 +1,388 @@
+// 閲覧型編集ページ（public/setting/index.html）を実際のブラウザで動かし、
+// 選択・ダブルタップでの編集・自動保存・バッジ・＋／−・追加・移動・Section編集・熟語を検証する。
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { extname, join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const PUBLIC = fileURLToPath(new URL('../../public/', import.meta.url));
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
+const LIST = 'crossover-v3';
+
+function fixture() {
+  const word = (id, spelling, extra = {}) => ({
+    id, spelling, pronunciation: '', audioUrl: null, etymology: null, notes: null, synonyms: null, antonyms: null, relatedWords: null, irregularForms: null,
+    pronunciationCaution: false, accentCaution: false, polysemousCaution: false, spellingCaution: false, ergative: false, conjugationCaution: false, usageCaution: false,
+    senses: [{ pos: '動', meaning: `${spelling}の意味`, pronunciation: null, is_primary: true }], derivatives: [], examples: [], tags: {}, derivedFrom: null, ...extra,
+  });
+  const words = new Map([
+    ['w1', word('w1', 'take', { pronunciation: 'teɪk', examples: [{ type: 'example', sentence: 'take a bus', translation: 'バスに乗る', answer: '' }] })],
+    ['w2', word('w2', 'make', { synonyms: 'create' })],
+    ['w3', word('w3', 'give')],
+    ['w4', word('w4', 'study')],
+  ]);
+  const members = new Map([
+    ['w1', { no: 1, branch: 0, sectionId: 10, labelId: null }],
+    ['w2', { no: 2, branch: 0, sectionId: 10, labelId: null }],
+    ['w3', { no: 3, branch: 0, sectionId: 10, labelId: null }],
+    ['w4', { no: 4, branch: 0, sectionId: 20, labelId: null }],
+  ]);
+  const idioms = [
+    { key: 'i1', phrase: 'look up', sectionKey: 'look', meanings: [{ id: 's1', meaning: '調べる', refs: [] }] },
+    { key: 'i2', phrase: 'look after', sectionKey: 'look', meanings: [{ id: 's2', meaning: '世話をする', refs: [] }], notes: 'care for' },
+    { key: 'i3', phrase: 'see off', sectionKey: 'see', meanings: [{ id: 's3', meaning: '見送る', refs: [] }] },
+  ];
+  return {
+    words, members, idioms, writes: [],
+    chapters: [{ id: 1, subtitle: '基本', description: null, sortOrder: 1 }, { id: 2, subtitle: '発展', description: null, sortOrder: 2 }],
+    sections: [{ id: 10, name: '', subtitle: '動詞', description: null, sortOrder: 1, chapterId: 1, groupId: null }, { id: 20, name: '', subtitle: '学習', description: null, sortOrder: 2, chapterId: 2, groupId: null }],
+    labels: [], nextId: 100,
+    idiomChapters: [{ key: 'verbs', subtitle: '基本動詞の熟語', sections: [{ key: 'look', subtitle: 'look' }, { key: 'see', subtitle: 'see' }] }],
+  };
+}
+
+function detail(db, id) {
+  const w = db.words.get(id), m = db.members.get(id);
+  return structuredClone({ ...w, lists: m ? [{ listId: LIST, listName: 'crossover', no: m.no, branch: m.branch, sectionId: m.sectionId, labelId: m.labelId, displayNo: String(m.no) }] : [] });
+}
+function viewerWord(db, id) {
+  const w = detail(db, id), m = db.members.get(id);
+  return { ...w, no: m.no, branch: m.branch, sectionId: m.sectionId, labelId: m.labelId, senses: w.senses.map(s => ({ ...s, isPrimary: !!s.is_primary })) };
+}
+function ordered(db) {
+  const section = id => db.sections.find(s => s.id === id);
+  const chapterSort = id => db.chapters.find(c => c.id === id)?.sortOrder ?? -1;
+  return [...db.members].sort(([, a], [, b]) => {
+    const sa = section(a.sectionId), sb = section(b.sectionId);
+    return (chapterSort(sa?.chapterId) - chapterSort(sb?.chapterId)) || ((sa?.sortOrder ?? -1) - (sb?.sortOrder ?? -1)) || a.no - b.no || a.branch - b.branch;
+  });
+}
+
+async function handleApi(db, method, path, body) {
+  const url = new URL(path, 'http://x');
+  const parts = url.pathname.replace(/^\/api\//, '').split('/').map(decodeURIComponent);
+  if (method !== 'GET') db.writes.push({ method, path: url.pathname, body });
+  if (parts[0] === 'lists' && parts.length === 1) return [{ id: LIST, name: 'crossover', isNotebook: true, chapterLabel: 'Chapter', sectionLabel: 'Section' }];
+  if (parts[0] === 'lookup') return { pronunciation: 'ˈnjuː' };
+  if (parts[0] === 'words' && parts.length === 1 && method === 'POST') {
+    const id = `w${++db.nextId}`;
+    db.words.set(id, { ...body, id, derivedFrom: null, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
+    const maxNo = Math.max(...[...db.members.values()].map(m => m.no));
+    db.members.set(id, { no: maxNo + 1, branch: 0, sectionId: body.sectionId, labelId: body.labelId });
+    return detail(db, id);
+  }
+  if (parts[0] === 'words' && parts.length === 2) {
+    if (method === 'GET') return detail(db, parts[1]);
+    if (method === 'PUT') {
+      if (db.putDelay) await new Promise(resolve => setTimeout(resolve, db.putDelay));
+      db.words.set(parts[1], { ...db.words.get(parts[1]), ...body, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
+      return detail(db, parts[1]);
+    }
+  }
+  if (parts[0] !== 'lists' || parts[1] !== LIST) throw Object.assign(new Error('not found'), { status: 404 });
+  const tail = parts.slice(2).join('/');
+  if (tail === 'editor/index') return { words: ordered(db).map(([id, m]) => ({ id, spelling: db.words.get(id).spelling, no: m.no, branch: m.branch, sectionId: m.sectionId, labelId: m.labelId, displayNo: String(m.no) })) };
+  if (tail === 'editor/references') return { words: [] };
+  if (tail === 'sections' && method === 'GET') return db.sections;
+  if (tail === 'sections' && method === 'POST') {
+    const section = { id: ++db.nextId, name: '', subtitle: null, description: null, sortOrder: db.sections.length + 1, chapterId: body.chapterId ?? null, groupId: body.groupId ?? null };
+    db.sections.push(section);
+    return section;
+  }
+  if (tail === 'sections/reorder') { body.sections.forEach((s, i) => Object.assign(db.sections.find(x => x.id === s.id), { sortOrder: i + 1, chapterId: s.chapterId })); return { ok: true }; }
+  if (parts[2] === 'sections' && parts.length === 4 && method === 'PUT') { Object.assign(db.sections.find(s => s.id === Number(parts[3])), { subtitle: body.subtitle, description: body.description }); return body; }
+  if (tail === 'chapters') return db.chapters;
+  if (tail === 'labels' && method === 'GET') return db.labels;
+  if (tail === 'labels' && method === 'POST') { const label = { id: ++db.nextId, sectionId: body.sectionId, name: body.name, sortOrder: 1 }; db.labels.push(label); return label; }
+  if (tail === 'groups') return [];
+  if (tail === 'reorder') {
+    body.items.forEach((item, index) => Object.assign(db.members.get(item.wordId), { no: index + 1, sectionId: item.sectionId, labelId: item.labelId }));
+    return { ok: true, count: body.items.length };
+  }
+  if (parts[2] === 'items' && method === 'DELETE') { db.members.delete(parts[3]); return null; }
+  if (parts[2] === 'editor' && parts[3] === 'sections') return { words: ordered(db).filter(([, m]) => String(m.sectionId ?? 'none') === parts[4]).map(([id]) => viewerWord(db, id)) };
+  if (tail === 'editor/idioms') return { managed: true, chapters: db.idiomChapters, entries: db.idioms.map(({ key, phrase, sectionKey, hidden }) => ({ key, phrase, sectionKey, meanings: [], ...(hidden ? { hidden } : {}) })) };
+  if (parts[2] === 'editor' && parts[3] === 'idiom-sections') return { sectionKey: parts[4], entries: structuredClone(db.idioms.filter(i => i.sectionKey === parts[4])) };
+  if (tail.startsWith('idioms/sections/') && method === 'GET') return { sectionKey: parts[4], entries: structuredClone(db.idioms.filter(i => i.sectionKey === parts[4])) };
+  if (tail === 'idioms' && method === 'PUT') {
+    const key = body.id || `idiom-${++db.nextId}`;
+    const existing = db.idioms.find(i => i.key === key);
+    const next = { key, phrase: body.phrase, sectionKey: body.sectionKey, meanings: body.meanings.map((m, i) => ({ id: m.id || `sense-${key}-${i}`, meaning: m.meaning, refs: [] })), synonyms: body.synonyms, antonyms: body.antonyms, notes: body.notes, hidden: body.hidden, alternateForms: body.alternateForms };
+    if (existing) Object.assign(existing, next); else db.idioms.push(next);
+    return { id: key };
+  }
+  if (tail === 'idioms/reorder') { db.idioms.sort((a, b) => body.entries.findIndex(e => e.id === a.key) - body.entries.findIndex(e => e.id === b.key)); body.entries.forEach(e => { db.idioms.find(i => i.key === e.id).sectionKey = e.sectionKey; }); return { updated: body.entries.length }; }
+  if (tail.startsWith('idioms/sections/') && method === 'PUT') { db.idiomChapters[0].sections.find(s => s.key === parts[4]).subtitle = body.subtitle; return { key: parts[4], subtitle: body.subtitle }; }
+  throw Object.assign(new Error(`unhandled ${method} ${tail}`), { status: 500 });
+}
+
+function startServer(db) {
+  const server = createServer(async (req, res) => {
+    try {
+      if (req.url.startsWith('/api/')) {
+        const chunks = [];
+        for await (const chunk of req) chunks.push(chunk);
+        const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : null;
+        try {
+          const data = await handleApi(db, req.method, req.url, body);
+          res.writeHead(data == null ? 204 : 200, { 'content-type': 'application/json' });
+          res.end(data == null ? '' : JSON.stringify(data));
+        } catch (error) {
+          res.writeHead(error.status || 500, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ error: error.message }));
+        }
+        return;
+      }
+      const path = normalize(join(PUBLIC, decodeURIComponent(new URL(req.url, 'http://x').pathname)));
+      if (!path.startsWith(PUBLIC)) { res.writeHead(403); res.end(); return; }
+      const file = path.endsWith('/') ? join(path, 'index.html') : path;
+      const content = await readFile(file);
+      res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' });
+      res.end(content);
+    } catch { res.writeHead(404); res.end(); }
+  });
+  return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(server)));
+}
+
+const db = fixture();
+const server = await startServer(db);
+const origin = `http://localhost:${server.address().port}`;
+const browser = await chromium.launch({ ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
+const errors = [];
+try {
+  const page = await browser.newPage({ viewport: { width: 393, height: 900 }, hasTouch: false });
+  page.on('pageerror', error => errors.push(error.message));
+  await page.route(url => !url.href.startsWith(origin), route => route.abort());
+  await page.goto(`${origin}/setting/index.html`);
+  const entry = id => page.locator(`.entry[data-word-id="${id}"]`);
+  const dbl = async locator => { await locator.click(); await locator.click(); };
+  const waitWrites = async count => { for (let i = 0; i < 100 && db.writes.length < count; i++) await page.waitForTimeout(30); };
+
+  await entry('w1').waitFor();
+  // 閲覧ページと同じ見た目（番号・見出し・Section帯）で表示される。
+  assert.equal(await entry('w1').locator('.entry-no').textContent(), '1');
+  assert.equal(await page.locator('#section-10 .section-subtitle').textContent(), '動詞');
+  assert.equal(await page.locator('.edit-plus').count(), 0, '選択前は編集部品を出さない');
+
+  // タップで選択すると＋／−が出る。
+  await entry('w1').locator('.headword').click();
+  assert.ok(await entry('w1').evaluate(el => el.classList.contains('is-edit-selected')));
+  assert.ok(await entry('w1').locator('.edit-minus').count() > 0);
+
+  // ダブルタップで意味をその場で編集し、確定で自動保存する。
+  await dbl(entry('w1').locator('.sense-meaning').first());
+  const input = page.locator('.edit-inline-input');
+  assert.equal(await input.inputValue(), 'takeの意味');
+  await input.fill('取る');
+  await input.press('Enter');
+  await waitWrites(1);
+  assert.equal(db.words.get('w1').senses[0].meaning, '取る');
+  assert.match(await entry('w1').locator('.sense-meaning').first().textContent(), /取る/);
+  // 例文（◆）はフレーズとして保存し直される（種類は変えない：保存では既存の種類を保持）。
+  assert.equal(db.words.get('w1').examples[0].sentence, 'take a bus');
+
+  // 「元に戻す」で直前の変更を取り消せる。
+  await page.locator('.edit-toast button', { hasText: '元に戻す' }).click();
+  await waitWrites(2);
+  assert.equal(db.words.get('w1').senses[0].meaning, 'takeの意味');
+
+  // バッジのタイル：注意バッジを付ける。
+  await entry('w1').locator('[data-op="badges"]').click();
+  await page.locator('.edit-tile', { hasText: 'スペル' }).click();
+  await waitWrites(3);
+  assert.equal(db.words.get('w1').spellingCaution, true);
+  await page.locator('.edit-sheet-close').click();
+  assert.equal(await entry('w1').locator('.caution-spelling').count(), 1);
+
+  // 品詞バッジをタップしてタイルから選ぶ。
+  await entry('w1').locator('.pos-badge').first().click();
+  await page.locator('.edit-tile', { hasText: '他' }).click();
+  await waitWrites(4);
+  assert.equal(db.words.get('w1').senses[0].pos, '他');
+
+  // ＋でフレーズを追加する（例文の新規追加はない）。
+  await entry('w1').locator('[data-op="add-phrase"]').click();
+  await page.locator('.edit-inline-input').fill('take a break');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(5);
+  assert.deepEqual(db.words.get('w1').examples.map(e => [e.type, e.sentence]), [['example', 'take a bus'], ['phrase', 'take a break']]);
+  // −で削除する。
+  await entry('w1').locator('[data-op="remove-example"][data-index="1"]').click();
+  await waitWrites(6);
+  assert.equal(db.words.get('w1').examples.length, 1);
+
+  // 空のまま確定した追加行は作らない（保存もしない）。
+  await entry('w1').locator('[data-op="add-sense"]').first().click();
+  await page.locator('.edit-inline-input').press('Enter');
+  await page.waitForTimeout(100);
+  assert.equal(db.writes.length, 6);
+  assert.equal(await entry('w1').locator('.sense-item').count(), 1);
+
+  // 欄のタイルでメモを追加する。
+  await entry('w1').locator('[data-op="fields"]').click();
+  await page.locator('.edit-tile', { hasText: 'メモ' }).click();
+  await page.locator('.edit-inline-input').fill('よく使う');
+  await page.locator('.edit-inline-input').press('Control+Enter');
+  await waitWrites(7);
+  assert.equal(db.words.get('w1').notes, 'よく使う');
+
+  // 単語の下の＋で新しい単語を挿入する（位置は並べ替えとして保存）。
+  await entry('w1').locator('.headword').click();
+  await page.locator('[data-op="insert-word"]').click();
+  await page.locator('.edit-inline-input').fill('new');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(9);
+  const created = [...db.words.keys()].find(id => db.words.get(id).spelling === 'new');
+  assert.ok(created);
+  assert.equal(db.members.get(created).no, 2, '選択した単語の直後に入る');
+  assert.equal(db.words.get(created).pronunciation, 'ˈnjuː', '発音記号を自動取得');
+  await page.locator('.edit-inline-input').fill('新しい');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(10);
+  assert.equal(db.words.get(created).senses[0].meaning, '新しい');
+  assert.equal(await entry('w2').locator('.entry-no').textContent(), '3', '後ろの番号が繰り下がる');
+
+  // メニューから別のSectionへ移動する。
+  await entry('w3').locator('.headword').click();
+  await entry('w3').locator('[data-op="menu"]').click();
+  await page.locator('.edit-menu-item', { hasText: '移動' }).click();
+  await page.locator('.edit-sheet select').first().selectOption('20');
+  await page.locator('.edit-sheet button', { hasText: '移動する' }).click();
+  await waitWrites(11);
+  assert.equal(db.members.get('w3').sectionId, 20);
+  await page.locator('[data-section-entries="20"] .entry[data-word-id="w3"]').waitFor();
+
+  // ドラッグ（マウス）で同じSection内の順番を変える。
+  await entry('w2').locator('.headword').click();
+  const handle = await entry('w2').locator('.entry-no').boundingBox();
+  const target = await entry('w1').boundingBox();
+  await page.mouse.move(handle.x + 5, handle.y + 5);
+  await page.mouse.down();
+  await page.mouse.move(handle.x + 5, target.y + 4, { steps: 8 });
+  await page.mouse.up();
+  await waitWrites(12);
+  assert.equal(db.members.get('w2').no, 1);
+  assert.equal(await entry('w2').locator('.entry-no').textContent(), '1');
+
+  // Section帯のサブタイトルをダブルタップで編集する。
+  await dbl(page.locator('#section-10 .section-subtitle'));
+  await page.locator('.edit-inline-input').fill('基本動詞');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(13);
+  assert.equal(db.sections.find(s => s.id === 10).subtitle, '基本動詞');
+
+  // Sectionを追加する。
+  await page.locator('#section-10 .section-title').click();
+  await page.locator('[data-op="add-section-after"]').click();
+  await waitWrites(15);
+  assert.equal(db.sections.length, 3);
+  assert.deepEqual(db.sections.sort((a, b) => a.sortOrder - b.sortOrder).map(s => s.id).slice(0, 2), [10, db.sections.find(s => ![10, 20].includes(s.id)).id]);
+
+  // 目次でSectionをドラッグし、別のChapterの先頭へ移す。
+  await page.locator('#menuToggle').click();
+  const sectionHandle = await page.locator('[data-section-id="20"] > .edit-toc-handle').boundingBox();
+  const firstSection = await page.locator('[data-section-id="10"]').boundingBox();
+  await page.mouse.move(sectionHandle.x + 4, sectionHandle.y + 4);
+  await page.mouse.down();
+  await page.mouse.move(sectionHandle.x + 4, firstSection.y + 3, { steps: 10 });
+  await page.mouse.up();
+  await waitWrites(16);
+  const sorted = [...db.sections].sort((a, b) => a.sortOrder - b.sortOrder);
+  assert.equal(sorted[0].id, 20);
+  assert.equal(sorted[0].chapterId, 1);
+  assert.equal(await page.locator('[data-section-entries="20"] .entry-no').first().textContent(), '1', 'Section順に番号を振り直す');
+  await page.locator('#menuToggle').click();
+
+  // 熟語タブ：熟語をダブルタップで編集し、意味を追加する。
+  await page.locator('#viewTabIdioms').click();
+  const idiom = key => page.locator(`.idiom-entry[data-idiom-key="${key}"]`);
+  await idiom('i1').waitFor();
+  await dbl(idiom('i1').locator('.sense-meaning'));
+  await page.locator('.edit-inline-input').fill('辞書で調べる');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(17);
+  assert.equal(db.idioms.find(i => i.key === 'i1').meanings[0].meaning, '辞書で調べる');
+  assert.equal(db.idioms.find(i => i.key === 'i1').meanings[0].id, 's1', '既存の意味のIDを保つ');
+  await idiom('i1').locator('[data-op="add-meaning"]').click();
+  await page.locator('.edit-inline-input').fill('見上げる');
+  await page.locator('.edit-inline-input').press('Enter');
+  await waitWrites(18);
+  assert.equal(db.idioms.find(i => i.key === 'i1').meanings.length, 2);
+  // 非表示（削除の代わり）。
+  await idiom('i2').locator('.headword').click();
+  await idiom('i2').locator('[data-op="menu"]').click();
+  await page.locator('.edit-menu-item', { hasText: '非表示' }).click();
+  await waitWrites(19);
+  assert.equal(db.idioms.find(i => i.key === 'i2').hidden, true);
+  assert.equal(await idiom('i3').locator('.entry-no').textContent(), '2', '非表示の熟語には番号を付けない');
+
+  // 保存中に次の欄を編集していても、保存の完了で入力欄が消えない（派生語の語→意味）。
+  await page.locator('#viewTabList').click();
+  db.putDelay = 600;
+  const w2 = entry('w2');
+  await w2.locator('.headword').click();
+  await w2.locator('[data-op="fields"]').click();
+  await page.locator('.edit-tile', { hasText: '派生語' }).click();
+  await page.locator('.edit-inline-input').fill('maker');
+  await page.locator('.edit-inline-input').press('Enter');
+  const meaningInput = w2.locator('.edit-inline-input');
+  await meaningInput.waitFor();
+  await page.waitForTimeout(900); // 語の保存がこの間に完了する
+  assert.equal(await meaningInput.count(), 1, '保存完了後も意味の入力欄が残る');
+  await meaningInput.fill('作る人');
+  await meaningInput.press('Enter');
+  for (let i = 0; i < 100 && db.words.get('w2').derivatives?.[0]?.meaning !== '作る人'; i++) await page.waitForTimeout(30);
+  assert.deepEqual(db.words.get('w2').derivatives.map(d => [d.word, d.meaning]), [['maker', '作る人']]);
+  db.putDelay = 0;
+
+  // 「Sectionなし」の枠がない状態で、そこへ単語を移しても表示される。
+  assert.equal(await page.locator('[data-section-entries="none"]').count(), 0);
+  await w2.locator('[data-op="menu"]').click();
+  await page.locator('.edit-menu-item', { hasText: '移動' }).click();
+  await page.locator('.edit-sheet select').first().selectOption('');
+  await page.locator('.edit-sheet button', { hasText: '移動する' }).click();
+  for (let i = 0; i < 100 && db.members.get('w2').sectionId !== null; i++) await page.waitForTimeout(30);
+  assert.equal(db.members.get('w2').sectionId, null);
+  await page.locator('[data-section-entries="none"] .entry[data-word-id="w2"]').waitFor({ timeout: 5000 });
+
+  // スマホ：タップで選択、ダブルタップで編集する。
+  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+  const mobile = await phone.newPage();
+  mobile.on('pageerror', error => errors.push(error.message));
+  await mobile.route(url => !url.href.startsWith(origin), route => route.abort());
+  await mobile.goto(`${origin}/setting/index.html`);
+  const mobileEntry = mobile.locator('.entry[data-word-id="w4"]');
+  await mobileEntry.waitFor();
+  const shot = async name => { if (process.env.SHOT_DIR) await mobile.screenshot({ path: `${process.env.SHOT_DIR}/${name}.png` }); };
+  await shot('1-view');
+  await mobileEntry.locator('.headword').tap();
+  assert.ok(await mobileEntry.evaluate(el => el.classList.contains('is-edit-selected')));
+  await mobileEntry.scrollIntoViewIfNeeded();
+  await shot('2-selected');
+  const meaning = mobileEntry.locator('.sense-meaning').first();
+  await meaning.tap();
+  await meaning.tap();
+  const mobileInput = mobile.locator('.edit-inline-input');
+  await mobileInput.waitFor();
+  assert.equal(await mobileInput.inputValue(), 'studyの意味');
+  await mobileInput.fill('勉強する');
+  await shot('3-editing');
+  await mobile.locator('.edit-inline-ok').tap();
+  const before = db.writes.length;
+  for (let i = 0; i < 100 && db.writes.length === before; i++) await mobile.waitForTimeout(30);
+  assert.equal(db.words.get('w4').senses[0].meaning, '勉強する');
+  await mobileEntry.locator('[data-op="badges"]').tap();
+  await shot('4-badges');
+  await mobile.locator('.edit-sheet-close').tap();
+  await mobile.locator('#menuToggle').tap();
+  await shot('5-contents');
+  await phone.close();
+
+  assert.deepEqual(errors, []);
+  console.log('Viewer-style editor: selection, inline edits, autosave, undo, badges, +/- rows, insertion, moves, drag, section edits and idioms passed');
+} finally {
+  await browser.close();
+  server.close();
+}
