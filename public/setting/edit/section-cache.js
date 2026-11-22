@@ -25,8 +25,9 @@ export async function loadSectionData({ publicPath, editorPath, kind, onFresh })
   const fetchFresh = async () => {
     let data;
     try { data = await fetchPublic(publicPath); }
-    catch { data = await api(editorPath); } // 公開APIが使えない環境では編集用APIで読む
-    try { await store.put(key, { version: 1, savedAt: Date.now(), data }); } catch {}
+    catch { return api(editorPath); } // 編集用の応答は、閲覧側と共有するキャッシュには入れない。
+    // 表示はネットワーク応答が届いた時点で進める。任意の端末キャッシュへの書き込み完了は待たない。
+    void store.put(key, { version: 1, savedAt: Date.now(), data }).catch(() => {});
     return data;
   };
   let saved = null;
