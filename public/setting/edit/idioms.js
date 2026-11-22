@@ -7,6 +7,7 @@ import { groupIdiomEntries } from "../../shared/idioms.js";
 import { createAutoCrossRefRenderer } from "../../shared/markup.js";
 import { clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
+import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, finishInlineEditing, hasActiveInlineIn, isInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 
@@ -62,9 +63,15 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     if (S.loading.has(key)) return S.loading.get(key);
     const promise = (async () => {
       let data;
-      try { data = await api(`${base}/editor/idiom-sections/${encodeURIComponent(key)}`); }
-      catch (error) { if (error.status !== 404) throw error; data = { entries: [] }; }
-      const byKey = new Map((data.entries || []).map(e => [e.key, e]));
+      try {
+        data = await loadSectionData({
+          kind: "idiom",
+          publicPath: `${base}/idioms/sections/${encodeURIComponent(key)}`,
+          editorPath: `${base}/editor/idiom-sections/${encodeURIComponent(key)}`,
+          onFresh: fresh => applyFresh(key, fresh.entries || []),
+        });
+      } catch (error) { if (error.status !== 404 && !/HTTP 404/.test(error.message)) throw error; data = { entries: [] }; }
+      const byKey = new Map((data.entries || []).map(e => [e.key, recentSaved("idiom", e.key) || e]));
       const members = S.order.filter(i => i.sectionKey === key && !S.rows.has(i.key));
       if (members.some(i => !byKey.has(i.key))) {
         const latest = await api(`${base}/idioms/sections/${encodeURIComponent(key)}`);
@@ -80,6 +87,16 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
       const entries = root.querySelector(`[data-idiom-section-entries="${CSS.escape(key)}"]`);
       if (entries) entries.innerHTML = `<div class="section-load-error">読み込みに失敗しました: ${h(error.message)} <button type="button" data-op="retry-section" data-key="${h(key)}">再試行</button></div>`;
     } finally { S.loading.delete(key); }
+  }
+  function applyFresh(key, entries) {
+    for (const entry of entries) {
+      const row = S.rows.get(entry.key);
+      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("idiom", entry.key)) continue;
+      const draft = idiomDraft(entry);
+      if (same(draft, row.base)) continue;
+      row.raw = entry; row.base = draft; row.draft = clone(draft);
+      rerender(entry.key);
+    }
   }
   function makeRow(raw, isNew = false) {
     const draft = idiomDraft(raw);
@@ -250,6 +267,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         }
         row.raw = raw;
         row.base = idiomDraft(raw);
+        rememberSaved("idiom", row.key, raw);
         if (same(row.draft, sent)) row.draft = clone(row.base);
         const item = S.order.find(i => i.key === row.key);
         if (item) { item.phrase = row.base.phrase; item.hidden = row.base.hidden; }

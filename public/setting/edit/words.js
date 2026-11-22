@@ -11,6 +11,7 @@ import {
 } from "../../shared/markup.js";
 import { clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
 import { api } from "./api.js";
+import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
 
@@ -199,8 +200,15 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (S.loaded.has(key)) return;
     if (S.loading.has(key)) return S.loading.get(key);
     const promise = (async () => {
-      const data = await api(`/lists/${encodeURIComponent(listId)}/editor/sections/${encodeURIComponent(key)}?full=1`);
-      const byId = new Map((data.words || []).map(word => [word.id, word]));
+      // 閲覧ページと同じ公開APIと端末キャッシュを使う（キャッシュがあれば即表示し、裏で更新を確認）。
+      const data = await loadSectionData({
+        kind: "word",
+        publicPath: `/lists/${encodeURIComponent(listId)}/viewer/sections/${encodeURIComponent(key)}`,
+        editorPath: `/lists/${encodeURIComponent(listId)}/editor/sections/${encodeURIComponent(key)}?full=1`,
+        onFresh: fresh => applyFreshWords(key, fresh.words || []),
+      });
+      // 保存した直後の単語は、閲覧ページに反映されるまで手元の保存結果を使う。
+      const byId = new Map((data.words || []).map(word => [word.id, recentSaved("word", word.id) || word]));
       const members = S.order.filter(item => sectionKey(item.sectionId) === key);
       // 公開待ちの間に移ってきた単語など、スナップショットにない単語は個別に読む。
       const missing = members.filter(item => !S.rows.has(item.id) && !byId.has(item.id));
@@ -219,6 +227,19 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const entries = root.querySelector(`[data-section-entries="${CSS.escape(key)}"]`);
       if (entries) entries.innerHTML = `<div class="section-load-error">読み込みに失敗しました: ${h(error.message)} <button type="button" data-op="retry-section" data-key="${h(key)}">再試行</button></div>`;
     } finally { S.loading.delete(key); }
+  }
+
+  // 裏で読み直した最新の内容を、編集中でない単語にだけ反映する。
+  function applyFreshWords(key, words) {
+    for (const word of words) {
+      const row = S.rows.get(word.id);
+      if (!row || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id)) continue;
+      const draft = draftOf(word);
+      if (same(draft, row.base) && JSON.stringify(word.illustration) === JSON.stringify(row.raw.illustration)) continue;
+      row.raw = { ...row.raw, ...word };
+      row.base = draft; row.draft = clone(draft);
+      if (S.loaded.has(key)) rerenderEntry(word.id);
+    }
   }
 
   // ---- 描画 ----
@@ -572,6 +593,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         if (!same(cleanDraft(merged), latestDraft)) saved = await api(`/words/${encodeURIComponent(row.id)}`, { method: "PUT", body: wordPayload(cleanDraft(merged), latest) });
         row.raw = toViewer(saved, row.raw);
         row.base = draftOf(saved);
+        rememberSaved("word", row.id, row.raw);
         if (same(row.draft, sent)) row.draft = clone(row.base);
         const item = S.order.find(o => o.id === row.id);
         if (item && item.spelling !== row.base.spelling) { item.spelling = row.base.spelling; rebuildReferences(); }

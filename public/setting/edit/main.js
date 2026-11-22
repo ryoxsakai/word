@@ -1,5 +1,6 @@
 // 閲覧型編集ページの起動・メニュー・目次・タブ。
 import { createWordEditor } from "./words.js";
+import { setupIllustrationLoading } from "../../shared/illustrations.js";
 import { createIdiomEditor } from "./idioms.js";
 import { api, onPublication, resumePublicationWatch } from "./api.js";
 import { h, toast, sortable } from "./ui.js";
@@ -216,6 +217,9 @@ sortable(el.contentsNav, {
 
 async function start() {
   resumePublicationWatch();
+  // 閲覧ページと同じく、画面に近づいたイラストから読み込む。
+  setupIllustrationLoading(el.wordList);
+  setupIllustrationLoading(el.idiomList);
   try {
     const lists = await api("/lists");
     const crossover = lists.find(l => l.id === LIST_ID_FALLBACK) || lists.find(l => l.name?.trim().toLowerCase() === "crossover");
