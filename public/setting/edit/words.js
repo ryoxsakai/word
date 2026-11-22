@@ -12,7 +12,7 @@ import {
   createAutoCrossRefRenderer, createPhraseCrossReferenceResolver,
 } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
-import { api, lookupNewWordPronunciation, saveExistingWord } from "./api.js";
+import { api, lookupNewWordPronunciation, saveExistingWord, verifySavedWordOrder } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { editWordCollection } from "./collection-editor.js";
@@ -56,6 +56,28 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     resolveRef: () => ({ found: false }), resolveHeadwordRef: () => ({ found: false }), renderNotesMarkup: (text) => h(text || ""),
     seq: new Map(), observer: null, tempId: 0,
   };
+
+  const ORDER_WRITE_TIMEOUT = 30000;
+  const orderWriteRejected = error => [400, 401, 403, 404].includes(error.status);
+  let orderSaving = false;
+  let orderUnconfirmed = false;
+  function canChangeOrder() {
+    if (orderUnconfirmed) {
+      toast("並び順の保存結果を確認できません。少し待ってからページを再読み込みしてください。", { tone: "error" });
+      return false;
+    }
+    if (orderSaving) {
+      toast("並び順に関わる変更を保存中です。完了してからもう一度お試しください。");
+      return false;
+    }
+    return true;
+  }
+  async function withOrderChange(run) {
+    if (!canChangeOrder()) return;
+    orderSaving = true;
+    try { return await run(); }
+    finally { orderSaving = false; }
+  }
 
   // ---- データ ----
   const draftOf = raw => {
@@ -133,15 +155,15 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // PUT/POSTの応答（D1の詳細）を閲覧データの形にする。
   function toViewer(detail, previous = {}) {
-    const membership = detail.lists?.find(m => m.listId === listId);
+    const membership = S.order.find(item => item.id === detail.id) ?? detail.lists?.find(m => m.listId === listId);
     return {
       ...previous,
       ...detail,
       senses: (detail.senses || []).map(s => ({ pos: s.pos, meaning: s.meaning, pronunciation: s.pronunciation, isPrimary: !!(s.is_primary ?? s.isPrimary) })),
       derivedFromSpelling: detail.derivedFrom?.spelling ?? previous.derivedFromSpelling ?? null,
       branch: membership?.branch ?? previous.branch ?? 0,
-      sectionId: membership?.sectionId ?? previous.sectionId ?? null,
-      labelId: membership?.labelId ?? previous.labelId ?? null,
+      sectionId: membership ? membership.sectionId ?? null : previous.sectionId ?? null,
+      labelId: membership ? membership.labelId ?? null : previous.labelId ?? null,
       illustration: detail.illustration ?? previous.illustration,
     };
   }
@@ -273,7 +295,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
           byId.set(item.id, toViewer(await api(`/words/${encodeURIComponent(item.id)}`), { branch: item.branch }));
         }));
       }
-      for (const item of members) if (!S.rows.has(item.id) && byId.has(item.id)) S.rows.set(item.id, makeRow(byId.get(item.id)));
+      const placements = new Map(S.order.map(item => [item.id, item]));
+      for (const item of members) if (!S.rows.has(item.id) && byId.has(item.id)) {
+        const raw = byId.get(item.id);
+        // A section read may complete after a move or rollback.
+        const current = placements.get(item.id);
+        if (current) S.rows.set(item.id, makeRow({ ...raw, sectionId: current.sectionId, labelId: current.labelId }));
+      }
       S.loaded.add(key);
       if (pendingFresh.has(key)) applyFreshWords(key, pendingFresh.get(key).words || []);
       pendingFresh.delete(key);
@@ -289,13 +317,17 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // 裏で読み直した最新の内容を、編集中でない単語にだけ反映する。
   function applyFreshWords(key, words) {
+    const placements = new Map(S.order.map(item => [item.id, item]));
     for (const word of words) {
       const row = S.rows.get(word.id);
       // 入力中の欄がある単語は更新しない（入力欄の古い値で、新しい内容を上書きしてしまうため）。
       if (!row || row.editingCollection || row.saving || row.isNew || row.error || !same(row.base, row.draft) || recentSaved("word", word.id) || hasActiveInlineIn(entryEl(word.id))) continue;
       const draft = draftOf(word);
       if (same(draft, row.base) && JSON.stringify(word.illustration) === JSON.stringify(row.raw.illustration)) continue;
-      row.raw = { ...row.raw, ...word };
+      // Snapshots may still reflect the previous section after a move.
+      const item = placements.get(word.id);
+      if (!item) continue;
+      row.raw = { ...row.raw, ...word, sectionId: item.sectionId, labelId: item.labelId };
       row.base = draft; row.draft = clone(draft);
       if (S.loaded.has(key)) rerenderEntry(word.id);
     }
@@ -554,10 +586,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- 編集操作 ----
   let undoEntry = null;
-  function rememberUndo(label, run) { undoEntry = { label, run }; }
+  function rememberUndo(label, run, order = false) { undoEntry = { label, run, order }; }
   function offerUndo(message) {
     const entry = undoEntry;
-    toast(message, entry ? { undo: () => { if (undoEntry === entry) { undoEntry = null; entry.run(); } } } : {});
+    toast(message, entry ? { undo: () => {
+      if (undoEntry !== entry || (entry.order && !canChangeOrder())) return;
+      undoEntry = null;
+      entry.run();
+    } } : {});
   }
 
   function mutate(row, change) {
@@ -730,7 +766,9 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   // ---- 単語の追加・削除 ----
   function insertNewWord(afterId, { sectionId, labelId } = {}) {
+    if (!canChangeOrder()) return;
     finishInlineEditing();
+    if (undoEntry?.order) undoEntry = null;
     let position, target;
     if (afterId) {
       const fam = family(afterId);
@@ -758,6 +796,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     openEditor(id, "spelling");
   }
   function discardNewWord(row) {
+    if (row.saving || !canChangeOrder()) return;
+    if (undoEntry?.order) undoEntry = null;
     S.order = S.order.filter(item => item.id !== row.id);
     S.rows.delete(row.id);
     if (S.selectedId === row.id) S.selectedId = null;
@@ -766,8 +806,12 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     renderSection(key);
     refreshNumbers();
   }
-  async function commitNewWord(row) {
+  function commitNewWord(row) {
+    return withOrderChange(() => createWordAndPlace(row));
+  }
+  async function createWordAndPlace(row) {
     const spelling = row.draft.spelling;
+    if (undoEntry?.order) undoEntry = null;
     row.error = "";
     const needsPronunciation = !row.draft.pronunciation?.trim();
     const steps = needsPronunciation ? createSteps : createSteps.slice(1);
@@ -781,7 +825,15 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       }
       const item = S.order.find(o => o.id === row.id);
       const payload = { ...wordPayload(cleanDraft(row.draft)), listId, sectionId: item.sectionId, labelId: item.labelId };
-      const saved = await api("/words", { method: "POST", body: payload });
+      let saved;
+      try {
+        saved = await api("/words", { method: "POST", body: payload, writeTimeout: ORDER_WRITE_TIMEOUT });
+        if (!saved?.id) throw new Error("登録応答を確認できません");
+      } catch (error) {
+        if (orderWriteRejected(error)) throw error;
+        orderUnconfirmed = true;
+        throw new Error("登録結果を確認できません。再登録せず、少し待ってから再読み込みして確認してください。");
+      }
       const tempId = row.id;
       S.rows.delete(tempId);
       row.id = saved.id; row.isNew = false;
@@ -797,9 +849,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       rememberSaved("word", row.id, row.raw);
       // 単語の作成後に並べ替えだけ失敗しても、単語を二重に作らない。
       try { await saveOrder(); }
-      catch (error) { return toast(`単語を追加しました。並び順を保存できませんでした：${error.message}`, { tone: "error" }); }
+      catch (error) {
+        const message = orderUnconfirmed ? orderErrorMessage(error) : `${orderErrorMessage(error)} ページを再読み込みしてください。`;
+        orderUnconfirmed = true;
+        return toast(`単語を追加しました。${message}`, { tone: "error", duration: 7000 });
+      }
       finally { row.saving = false; rerenderEntry(row.id); }
-      rememberUndo("追加", () => removeWord(row, { confirmFirst: false }));
+      rememberUndo("追加", () => removeWord(row, { confirmFirst: false }), true);
       offerUndo(`「${saved.spelling}」を追加しました`);
     } catch (error) {
       row.saving = false;
@@ -808,10 +864,13 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       toast(row.error, { tone: "error", duration: 7000 });
     }
   }
-  async function removeWord(row, { confirmFirst = true } = {}) {
+  function removeWord(row, options) {
+    return withOrderChange(() => removeWordFromList(row, options));
+  }
+  async function removeWordFromList(row, { confirmFirst = true } = {}) {
     if (confirmFirst && !confirm(`「${row.draft.spelling}」を単語帳から削除しますか？（単語マスターのデータは残ります）`)) return;
     try {
-      await api(`/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(row.id)}`, { method: "DELETE" });
+      await api(`/lists/${encodeURIComponent(listId)}/items/${encodeURIComponent(row.id)}`, { method: "DELETE", writeTimeout: ORDER_WRITE_TIMEOUT });
       const key = sectionKey(S.order.find(item => item.id === row.id)?.sectionId ?? null);
       S.order = S.order.filter(item => item.id !== row.id);
       S.rows.delete(row.id);
@@ -824,26 +883,60 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       refreshNumbers();
       toast(`「${row.draft.spelling}」を削除しました`);
     } catch (error) {
-      toast(`削除できませんでした：${error.message}`, { tone: "error" });
+      if (!orderWriteRejected(error)) orderUnconfirmed = true;
+      toast(orderUnconfirmed
+        ? "削除結果を確認できません。少し待ってから再読み込みしてください。"
+        : `削除できませんでした：${error.message}`, { tone: "error" });
     }
   }
 
   // ---- 並べ替え・移動 ----
   async function saveOrder() {
-    const items = S.order.filter(item => !item.branch && !String(item.id).startsWith("__new_")).map(item => ({ wordId: item.id, sectionId: item.sectionId, labelId: item.labelId }));
+    const base = `/lists/${encodeURIComponent(listId)}`;
+    const persisted = S.order.filter(item => !String(item.id).startsWith("__new_"));
+    const items = persisted.filter(item => !item.branch).map(item => ({ wordId: item.id, sectionId: item.sectionId, labelId: item.labelId }));
     if (!items.length) return;
-    await api(`/lists/${encodeURIComponent(listId)}/reorder`, { method: "POST", body: { items } });
+    try {
+      const result = await api(`${base}/reorder`, { method: "POST", body: { items }, writeTimeout: ORDER_WRITE_TIMEOUT });
+      if (!result?.ok || result.count !== items.length) throw new Error("保存応答を確認できません");
+    } catch (error) {
+      // These responses reject before the placement write starts. A timeout,
+      // invalid receipt or 5xx is not proof that nothing was written.
+      if (orderWriteRejected(error)) throw error;
+      try {
+        if (await verifySavedWordOrder(`${base}/words`, persisted)) return;
+      } catch { /* An unreadable or lagging result is still unconfirmed. */ }
+      orderUnconfirmed = true;
+      throw error;
+    }
   }
-  async function applyOrder(nextOrder, message, { undo = true } = {}) {
+  function orderErrorMessage(error) {
+    return orderUnconfirmed
+      ? "並び順の保存結果を確認できません。少し待ってから、再読み込みして確認してください。"
+      : `並び順を保存できませんでした：${error.message}`;
+  }
+  function syncRowPlacements() {
+    for (const item of S.order) {
+      const row = S.rows.get(item.id);
+      if (row) { row.raw.sectionId = item.sectionId; row.raw.labelId = item.labelId; }
+    }
+  }
+  function applyOrder(nextOrder, message, options) {
+    return withOrderChange(() => updateWordOrder(nextOrder, message, options));
+  }
+  async function updateWordOrder(nextOrder, message, { undo = true } = {}) {
     const previous = S.order.map(item => ({ ...item }));
+    const restorePlacements = () => {
+      // An ordinary word edit can finish while this placement request is pending.
+      const current = new Map(S.order.map(item => [item.id, item]));
+      return previous.map(item => ({ ...item, spelling: current.get(item.id)?.spelling ?? item.spelling }));
+    };
     const keys = new Set([...previous, ...nextOrder].map(item => sectionKey(item.sectionId)));
     S.order = nextOrder;
     normalizeOrder();
-    for (const row of S.rows.values()) {
-      const item = S.order.find(o => o.id === row.id);
-      if (item) { row.raw.sectionId = item.sectionId; row.raw.labelId = item.labelId; }
-    }
+    syncRowPlacements();
     const rerender = () => {
+      rebuildReferences();
       // 「Sectionなし」の枠がない状態でそこへ移したときは、枠ごと作り直す。
       const noneShown = !!root.querySelector(`[data-section-entries="${NONE}"]`);
       const noneNeeded = S.order.some(item => item.sectionId == null);
@@ -855,13 +948,16 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     rerender();
     try {
       await saveOrder();
-      if (undo) rememberUndo("移動", () => applyOrder(previous, "元に戻しました", { undo: false }));
+      if (undo) rememberUndo("移動", () => applyOrder(restorePlacements(), "元に戻しました", { undo: false }), true);
       if (undo) offerUndo(message); else toast(message);
     } catch (error) {
-      S.order = previous;
-      computeSeq();
-      rerender();
-      toast(`並び順を保存できませんでした：${error.message}`, { tone: "error", duration: 7000 });
+      if (!orderUnconfirmed) {
+        S.order = restorePlacements();
+        computeSeq();
+        syncRowPlacements();
+        rerender();
+      } else if (undoEntry?.order) undoEntry = null;
+      toast(orderErrorMessage(error), { tone: "error", duration: 7000 });
     }
   }
   function moveWordNear(id, targetId, before) {
@@ -877,7 +973,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     })();
     const moved = moving.map(item => ({ ...item, sectionId: target.sectionId, labelId: target.labelId }));
     rest.splice(before ? targetFamily.start : targetFamily.end, 0, ...moved);
-    applyOrder(rest, `「${moving[0].spelling}」を移動しました`);
+    return applyOrder(rest, `「${moving[0].spelling}」を移動しました`);
   }
   function moveWordsTo(ids, sectionId, labelId) {
     const moving = ids.flatMap(id => family(id));
@@ -891,10 +987,11 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (rank[0] < targetRank[0] || (rank[0] === targetRank[0] && (rank[1] < targetRank[1] || (rank[1] === targetRank[1] && rank[2] <= targetRank[2])))) { index = i + 1; break; }
     }
     rest.splice(index, 0, ...unique.map(item => ({ ...item, sectionId, labelId })));
-    applyOrder(rest, `${ids.length}語を${sectionName(sectionId)}へ移動しました`);
+    return applyOrder(rest, `${ids.length}語を${sectionName(sectionId)}へ移動しました`);
   }
 
   function openMoveSheet(ids) {
+    if (!canChangeOrder()) return;
     sheet(`${ids.length}語を移動`, body => {
       const form = document.createElement("div");
       form.className = "edit-form";
@@ -924,6 +1021,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const ok = document.createElement("button");
       ok.type = "button"; ok.className = "primary"; ok.textContent = "移動する";
       ok.addEventListener("click", () => {
+        if (!canChangeOrder()) return;
         closeSheet();
         endMulti();
         moveWordsTo(ids, sectionSelect.value ? Number(sectionSelect.value) : null, labelSelect.value ? Number(labelSelect.value) : null);
@@ -1119,13 +1217,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   }
 
   // ---- Chapter・Section・Labelの編集 ----
-  async function structureCall(path, options, message) {
+  async function structureCall(path, options, message, { affectsOrder = false } = {}) {
     try {
-      const result = await api(`/lists/${encodeURIComponent(listId)}${path}`, options);
+      const result = await api(`/lists/${encodeURIComponent(listId)}${path}`, affectsOrder ? { ...options, writeTimeout: ORDER_WRITE_TIMEOUT } : options);
       if (message) toast(message);
       return result;
     } catch (error) {
-      toast(`保存できませんでした：${error.message}`, { tone: "error", duration: 7000 });
+      if (affectsOrder && !orderWriteRejected(error)) orderUnconfirmed = true;
+      toast(orderUnconfirmed && affectsOrder ? orderErrorMessage(error) : `保存できませんでした：${error.message}`, { tone: "error", duration: 7000 });
       throw error;
     }
   }
@@ -1199,64 +1298,80 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     }
     return saveSectionOrder(order);
   }
-  async function saveSectionOrder(order) {
+  function saveSectionOrder(order) {
+    return withOrderChange(() => updateSectionOrder(order));
+  }
+  async function updateSectionOrder(order) {
+    if (undoEntry?.order) undoEntry = null;
     const previous = S.sections.map(s => ({ ...s }));
     S.sections = order.map((s, index) => ({ ...s, sortOrder: index + 1 }));
     normalizeOrder();
     rerenderHeaders();
     onStructureChange?.();
     try {
-      await structureCall("/sections/reorder", { method: "POST", body: { sections: S.sections.map(s => ({ id: s.id, chapterId: s.chapterId ?? null, groupId: s.groupId ?? null })) } }, "Sectionの順番を保存しました");
+      await structureCall("/sections/reorder", { method: "POST", body: { sections: S.sections.map(s => ({ id: s.id, chapterId: s.chapterId ?? null, groupId: s.groupId ?? null })) } }, "Sectionの順番を保存しました", { affectsOrder: true });
     } catch {
-      S.sections = previous; normalizeOrder(); rerenderHeaders(); onStructureChange?.();
+      if (!orderUnconfirmed) { S.sections = previous; normalizeOrder(); rerenderHeaders(); onStructureChange?.(); }
     }
   }
-  async function saveChapterOrder(order) {
+  function saveChapterOrder(order) {
+    return withOrderChange(() => updateChapterOrder(order));
+  }
+  async function updateChapterOrder(order) {
+    if (undoEntry?.order) undoEntry = null;
     const previous = S.chapters.map(c => ({ ...c }));
     S.chapters = order.map((c, index) => ({ ...c, sortOrder: index + 1 }));
     normalizeOrder();
     rerenderHeaders();
     onStructureChange?.();
-    try { await structureCall("/chapters/reorder", { method: "POST", body: { chapterIds: S.chapters.map(c => c.id) } }, "Chapterの順番を保存しました"); }
-    catch { S.chapters = previous; normalizeOrder(); rerenderHeaders(); onStructureChange?.(); }
+    try { await structureCall("/chapters/reorder", { method: "POST", body: { chapterIds: S.chapters.map(c => c.id) } }, "Chapterの順番を保存しました", { affectsOrder: true }); }
+    catch { if (!orderUnconfirmed) { S.chapters = previous; normalizeOrder(); rerenderHeaders(); onStructureChange?.(); } }
   }
-  async function deleteHeader(type, id) {
+  function deleteHeader(type, id) {
+    return withOrderChange(() => deleteWordHeader(type, id));
+  }
+  async function deleteWordHeader(type, id) {
     if (type === "label") {
       const label = labelById(id);
       const count = S.order.filter(item => item.labelId === id).length;
       if (!confirm(`Label「${label.name}」を削除しますか？${count ? `（${count}語はLabelなしになります）` : ""}`)) return;
-      await structureCall(`/labels/${id}`, { method: "DELETE" }, "Labelを削除しました");
+      await structureCall(`/labels/${id}`, { method: "DELETE" }, "Labelを削除しました", { affectsOrder: true });
       S.labels = S.labels.filter(l => l.id !== id);
       for (const item of S.order) if (item.labelId === id) item.labelId = null;
     } else if (type === "section") {
       const count = S.order.filter(item => item.sectionId === id).length;
       if (!confirm(`${sectionName(id)}を削除しますか？${count ? `（${count}語は「Sectionなし」になります）` : ""}`)) return;
-      await structureCall(`/sections/${id}`, { method: "DELETE" }, "Sectionを削除しました");
+      await structureCall(`/sections/${id}`, { method: "DELETE" }, "Sectionを削除しました", { affectsOrder: true });
       S.sections = S.sections.filter(s => s.id !== id);
       S.labels = S.labels.filter(l => l.sectionId !== id);
       for (const item of S.order) if (item.sectionId === id) { item.sectionId = null; item.labelId = null; }
       S.loaded.delete(NONE);
     } else {
       if (!confirm(`${chapterName(id)}を削除しますか？（中のSectionはChapterなしになります）`)) return;
-      await structureCall(`/chapters/${id}`, { method: "DELETE" }, "Chapterを削除しました");
+      await structureCall(`/chapters/${id}`, { method: "DELETE" }, "Chapterを削除しました", { affectsOrder: true });
       S.chapters = S.chapters.filter(c => c.id !== id);
       for (const section of S.sections) if (section.chapterId === id) { section.chapterId = null; section.groupId = null; }
     }
     S.selectedHeader = null;
+    if (undoEntry?.order) undoEntry = null;
     normalizeOrder();
+    syncRowPlacements();
     rerenderHeaders();
     onStructureChange?.();
   }
-  async function addSection(afterId, chapterId) {
+  function addSection(afterId, chapterId) {
+    return withOrderChange(() => createSection(afterId, chapterId));
+  }
+  async function createSection(afterId, chapterId) {
     const after = afterId != null ? sectionById(afterId) : null;
     const body = { chapterId: after ? after.chapterId ?? null : chapterId ?? null, groupId: after ? after.groupId ?? null : null };
-    const created = await structureCall("/sections", { method: "POST", body });
+    const created = await structureCall("/sections", { method: "POST", body }, undefined, { affectsOrder: true });
     S.sections.push({ ...created, name: "", subtitle: created.subtitle || "", chapterId: body.chapterId, groupId: body.groupId });
     const order = orderedSections().filter(s => s.id !== created.id);
     const index = after ? order.findIndex(s => s.id === after.id) + 1 : order.filter(s => chapterSort(s.chapterId) <= chapterSort(chapterId)).length;
     order.splice(index, 0, sectionById(created.id));
     S.selectedHeader = { type: "section", id: created.id };
-    await saveSectionOrder(order);
+    await updateSectionOrder(order);
     requestAnimationFrame(() => root.querySelector(`#section-${created.id}`)?.scrollIntoView({ block: "center", behavior: "smooth" }));
   }
   async function addChapter() {
@@ -1425,13 +1540,14 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     handleSelector: ".entry.is-edit-selected > .entry-no",
     itemSelector: ".entry[data-word-id]",
     idOf: el => el.dataset.wordId,
-    canDrag: el => !S.rows.get(el.dataset.wordId)?.isNew && !(S.order.find(o => o.id === el.dataset.wordId)?.branch > 0),
+    canDrag: el => !S.rows.get(el.dataset.wordId)?.isNew &&
+      !(S.order.find(o => o.id === el.dataset.wordId)?.branch > 0) && canChangeOrder(),
     canDrop: (item, target) => !(S.order.find(o => o.id === target.dataset.wordId)?.branch > 0) && !S.rows.get(target.dataset.wordId)?.isNew,
     onDrop: (id, targetId, before) => moveWordNear(id, targetId, before),
   });
 
   window.addEventListener("beforeunload", event => {
-    const busy = [...S.rows.values()].some(row => row.saving || row.error || row.isNew || !same(row.base, row.draft)) || isInlineEditing();
+    const busy = orderSaving || [...S.rows.values()].some(row => row.saving || row.error || row.isNew || !same(row.base, row.draft)) || isInlineEditing();
     if (busy) { event.preventDefault(); event.returnValue = ""; }
   });
 
