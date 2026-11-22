@@ -12,7 +12,7 @@ import {
   createAutoCrossRefRenderer, createPhraseCrossReferenceResolver,
 } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
-import { api, verifyWordSave } from "./api.js";
+import { api, lookupNewWordPronunciation, verifyWordSave } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
 import { h, toast, sheet, closeSheet, tiles, menuList, inlineEditor, isInlineEditing, hasActiveInlineIn, finishInlineEditing, onDoubleActivate, sortable } from "./ui.js";
 import { hierarchyIcon } from "./icons.js";
@@ -836,13 +836,18 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   async function commitNewWord(row) {
     const spelling = row.draft.spelling;
     row.error = "";
-    showSaveStep(row, createSteps, 0);
+    const needsPronunciation = !row.draft.pronunciation?.trim();
+    const steps = needsPronunciation ? createSteps : createSteps.slice(1);
+    const registrationStep = needsPronunciation ? 1 : 0;
+    showSaveStep(row, steps, 0);
     try {
-      const info = await api(`/lookup?spelling=${encodeURIComponent(spelling)}`).catch(() => null);
-      if (info?.pronunciation && !row.draft.pronunciation) row.draft.pronunciation = info.pronunciation;
+      if (needsPronunciation) {
+        const pronunciation = await lookupNewWordPronunciation(spelling);
+        if (pronunciation && !row.draft.pronunciation?.trim()) row.draft.pronunciation = pronunciation;
+        showSaveStep(row, steps, registrationStep);
+      }
       const item = S.order.find(o => o.id === row.id);
       const payload = { ...wordPayload(cleanDraft(row.draft)), listId, sectionId: item.sectionId, labelId: item.labelId };
-      showSaveStep(row, createSteps, 1);
       const saved = await api("/words", { method: "POST", body: payload });
       const tempId = row.id;
       S.rows.delete(tempId);
@@ -854,7 +859,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       if (S.selectedId === tempId) S.selectedId = saved.id;
       computeSeq();
       rebuildReferences();
-      showSaveStep(row, createSteps, 2);
+      showSaveStep(row, steps, registrationStep + 1);
       renderSection(sectionKey(item.sectionId));
       rememberSaved("word", row.id, row.raw);
       // 単語の作成後に並べ替えだけ失敗しても、単語を二重に作らない。
