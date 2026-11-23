@@ -13,16 +13,40 @@ export function editWordCollection({ word, kind, values, positions, index = 0, f
   const main = keys[0][0];
   const rows = structuredClone(values);
   const controller = new AbortController();
-  sheet(`${word || "単語"}の${name}`, (body, panel) => {
-    body.classList.add("collection-editor");
-    body.innerHTML = '<div class="collection-list"></div><div class="collection-footer edit-sheet-actions"><button type="button" class="edit-btn is-quiet" data-add></button><button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary" data-apply>決定</button></div>';
-    const list = body.querySelector(".collection-list");
-    const add = body.querySelector("[data-add]");
+  sheet(`${word || "単語"}の${name}`, (list, _panel, actions) => {
+    list.classList.add("collection-editor", "collection-list");
+    actions.classList.add("collection-footer");
+    actions.innerHTML = '<button type="button" class="edit-btn is-quiet" data-add></button><button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary" data-apply>決定</button>';
+    const add = actions.querySelector("[data-add]");
     add.textContent = `＋ ${name}を追加`;
     const rowOf = el => rows[Number(el.closest("[data-row]").dataset.row)];
+    const needsMeasuredHeight = !CSS.supports("field-sizing", "content");
+    function fitField(input) {
+      input.style.height = "auto";
+      const borderHeight = input.offsetHeight - input.clientHeight;
+      input.style.height = `${input.scrollHeight + borderHeight}px`;
+    }
+    function fitFields() {
+      if (needsMeasuredHeight) list.querySelectorAll("[data-autogrow]").forEach(fitField);
+    }
+    if (needsMeasuredHeight) {
+      let lastWidth;
+      const observer = new ResizeObserver(([entry]) => {
+        if (entry.contentRect.width === lastWidth) return;
+        lastWidth = entry.contentRect.width;
+        fitFields();
+      });
+      observer.observe(list);
+      controller.signal.addEventListener("abort", () => observer.disconnect(), { once: true });
+    }
     function render(focusRow, focusField) {
       list.innerHTML = rows.map((row, i) => {
         const options = senses || derivative ? [...new Set(["", ...positions, row.pos])].map(pos => `<option value="${h(pos)}"${pos === row.pos ? " selected" : ""}>${h(pos || "未指定")}</option>`).join("") : "";
+        const fields = keys.map(([key, label]) => {
+          const lines = senses && key === main ? 2 : 1;
+          const grow = kind === "examples" || key === "word";
+          return `<label class="collection-field">${label}<textarea rows="${lines}" data-field="${key}"${grow ? " data-autogrow" : ""}>${h(row[key] || "")}</textarea></label>`;
+        }).join("");
         return `<div class="collection-row" data-row="${i}" data-drag-label="${h(row[main] || name)}">
           <div class="collection-toolbar"><strong>${name} ${i + 1}</strong>
           <button type="button" data-grip aria-label="ドラッグして移動" title="ドラッグして移動"><i class="fa-solid fa-grip-vertical"></i></button>
@@ -30,8 +54,9 @@ export function editWordCollection({ word, kind, values, positions, index = 0, f
           <button type="button" data-move="1" aria-label="下へ移動" ${i + 1 < rows.length ? "" : "disabled"}>↓</button>
           <button type="button" class="is-danger" data-delete aria-label="${name}${i + 1}を削除">削除</button></div>
           ${senses || derivative ? `<div class="collection-options"><label>品詞 <select data-field="pos">${options}</select></label>${senses ? `<label><input type="checkbox" data-field="is_primary" ${row.is_primary ? "checked" : ""}> 見出しの意味</label>` : ""}</div>` : ""}
-          ${keys.map(([key,label]) => `<label class="collection-field">${label}<textarea rows="${key === main && !derivative ? 2 : 1}" data-field="${key}">${h(row[key] || "")}</textarea></label>`).join("")}</div>`;
+          ${fields}</div>`;
       }).join("");
+      fitFields();
       if (focusRow != null) list.querySelector(`[data-row="${focusRow}"] [data-field="${focusField || main}"]`)?.focus();
     }
     function move(from, to) {
@@ -54,6 +79,7 @@ export function editWordCollection({ word, kind, values, positions, index = 0, f
     }
     list.addEventListener("input", ({ target }) => {
       if (target.dataset.field) rowOf(target)[target.dataset.field] = target.type === "checkbox" ? target.checked : target.value;
+      if (needsMeasuredHeight && target.hasAttribute("data-autogrow")) fitField(target);
     });
     list.addEventListener("click", ({ target }) => {
       const button = target.closest("button");
@@ -63,15 +89,15 @@ export function editWordCollection({ word, kind, values, positions, index = 0, f
       if (button.dataset.move) move(i, i + Number(button.dataset.move));
     });
     sortable(list, { handleSelector: "[data-grip]", itemSelector: "[data-row]", idOf: el => Number(el.dataset.row),
-      signal: controller.signal, scrollElement: panel, onDrop: (from, dest, before) => move(from, dest + Number(!before) - Number(from < dest)) });
+      signal: controller.signal, scrollElement: list, onDrop: (from, dest, before) => move(from, dest + Number(!before) - Number(from < dest)) });
     function insert() {
       rows.push(senses ? { pos: rows.at(-1)?.pos || "", meaning: "", pronunciation: "", is_primary: !rows.length } :
         derivative ? { word: "", pos: "", meaning: "" } : { type: "phrase", sentence: "", translation: "", answer: "" });
       render(rows.length - 1);
     }
     add.onclick = insert;
-    body.querySelector("[data-cancel]").onclick = closeSheet;
-    body.querySelector("[data-apply]").onclick = () => {
+    actions.querySelector("[data-cancel]").onclick = closeSheet;
+    actions.querySelector("[data-apply]").onclick = () => {
       for (const [i, row] of rows.entries()) {
         if (row[main].trim()) continue;
         const input = list.querySelector(`[data-row="${i}"] [data-field="${main}"]`);

@@ -32,8 +32,19 @@ export function toast(message, { undo = null, duration = 5000, tone = "" } = {})
   toastTimer = setTimeout(() => { el.hidden = true; }, duration);
 }
 
-// ---- 下から出るシート ----
+// ---- 編集モーダル ----
 let openSheetEl = null;
+// iPhoneのソフトキーボードが開くと、画面の見えている範囲だけが縮む。
+function fitSheetToViewport() {
+  const viewport = window.visualViewport;
+  if (!openSheetEl || !viewport) return;
+  const { style } = openSheetEl.overlay;
+  style.top = `${viewport.offsetTop}px`;
+  style.height = `${viewport.height}px`;
+}
+window.visualViewport?.addEventListener("resize", fitSheetToViewport);
+window.visualViewport?.addEventListener("scroll", fitSheetToViewport);
+
 // ダイアログ・メニュー・選択肢が開いているか（開いている間は、項目の内容を裏で差し替えない）。
 export function isSheetOpen() { return !!openSheetEl; }
 export function closeSheet() {
@@ -93,12 +104,15 @@ export function sheet(title, build, { onClose, wide = false, accent = "default" 
   header.append(heading, close);
   const body = document.createElement("div");
   body.className = "edit-sheet-body";
-  panel.append(header, body);
+  const actions = document.createElement("div");
+  actions.className = "edit-sheet-actions";
+  panel.append(header, body, actions);
   overlay.append(panel);
   overlay.addEventListener("click", event => { if (event.target === overlay) closeSheet(); });
   document.body.append(overlay);
   openSheetEl = { overlay, panel, restoreOpener, onClose };
-  build(body, panel);
+  fitSheetToViewport();
+  build(body, panel, actions);
   if (openSheetEl?.panel === panel && !panel.contains(document.activeElement)) {
     close.focus({ preventScroll: true });
   }
@@ -190,8 +204,9 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
   const labels = { spelling: "見出し語", phrase: "熟語", pronunciation: "発音記号", notes: "メモ", meaning: "意味", word: "派生語", derivativeWord: "派生語", alternateForms: "別形", etymology: "語源", synonyms: "類義語", antonyms: "対義語", irregularForms: "不規則変化", relatedWords: "関連語" };
   const accents = { notes: "memo", synonyms: "synonym", antonyms: "antonym", relatedWords: "related", irregularForms: "irregular", etymology: "etymology", phrase: "examples", meaning: "senses" };
   const title = labels[field] || placeholder || "テキスト編集";
-  sheet(title, body => {
-    body.innerHTML = '<textarea class="edit-text-input edit-inline-input" rows="4"></textarea><div class="edit-sheet-actions"><button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary">決定</button></div>';
+  sheet(title, (body, _panel, actions) => {
+    body.innerHTML = '<textarea class="edit-text-input edit-inline-input" rows="4"></textarea>';
+    actions.innerHTML = '<button type="button" class="edit-btn" data-cancel>キャンセル</button><button type="button" class="edit-btn is-primary primary">決定</button>';
     const input = body.querySelector("textarea");
     input.setAttribute("aria-label", title);
     input.value = value;
@@ -208,8 +223,8 @@ export function inlineEditor(target, value, { multiline = false, placeholder = "
         event.preventDefault(); commit();
       }
     });
-    body.querySelector(".primary").onclick = commit;
-    body.querySelector("[data-cancel]").onclick = closeSheet;
+    actions.querySelector(".primary").onclick = commit;
+    actions.querySelector("[data-cancel]").onclick = closeSheet;
     input.focus();
     input.setSelectionRange(value.length, value.length);
   }, { accent: accents[field], onClose: () => { activeInline = null; if (!accepted) onCancel?.(); } });

@@ -182,10 +182,10 @@ html { touch-action: pan-x pan-y; }
 }
 .edit-inline-actions .edit-inline-cancel { color: var(--edit-muted); }
 
-/* 下から出るシート */
+/* 四辺に余白を取った編集モーダル。本文だけをスクロールする。 */
 .edit-sheet-overlay {
   --dialog-gap: clamp(16px, 3vmin, 28px);
-  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0 0 auto; z-index: 1000; display: flex; align-items: center; justify-content: center;
   box-sizing: border-box; height: 100dvh;
   padding: max(var(--dialog-gap), env(safe-area-inset-top)) max(var(--dialog-gap), env(safe-area-inset-right))
            max(var(--dialog-gap), env(safe-area-inset-bottom)) max(var(--dialog-gap), env(safe-area-inset-left));
@@ -193,16 +193,17 @@ html { touch-action: pan-x pan-y; }
 }
 .edit-sheet {
   box-sizing: border-box; width: min(560px, 100%); max-height: 100%; min-width: 0;
-  overflow: auto; overscroll-behavior: contain; padding: 0 16px 16px;
+  display: flex; flex-direction: column; overflow: hidden; padding: 0 16px 16px;
   border-radius: 16px; background: var(--edit-surface); color: var(--edit-text); box-shadow: var(--edit-shadow);
 }
 .edit-sheet.is-wide { width: min(760px, 100%); }
+.edit-sheet-body { min-height: 0; overflow: auto; overscroll-behavior: contain; }
 .edit-sheet :is(input, select, textarea) { font: inherit; font-size: 14px; }
 .edit-sheet :is(input, select, textarea):not([type="checkbox"], [type="radio"]):focus {
   outline: 1px solid var(--edit-muted); outline-offset: -1px;
 }
 .edit-sheet-header {
-  position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.85rem 0 0.6rem; background: var(--edit-surface);
 }
 .edit-title-mark { display: inline; margin-inline-end: .5em; font-size: .8em; vertical-align: .07em; }
@@ -216,7 +217,8 @@ html { touch-action: pan-x pan-y; }
 .edit-sheet-header h2 { margin: 0; font-size: 1rem; }
 .edit-sheet-close { width: var(--edit-tap); height: var(--edit-tap); margin-right: -.5rem; border: 0; border-radius: 50%; background: transparent; color: var(--edit-muted); font-size: 1.1rem; cursor: pointer; }
 /* ダイアログの下端：左に補助操作、右に「キャンセル」「決定（主要）」 */
-.edit-sheet-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+.edit-sheet-actions { flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 0.9rem; }
+.edit-sheet-actions:empty { display: none; }
 .edit-sheet-actions button:not(.edit-btn), .edit-multi-bar button {
   min-height: var(--edit-tap); padding: 0 1rem; border: 1px solid var(--edit-border); border-radius: var(--edit-radius); background: var(--edit-surface); color: var(--edit-text); font: inherit; font-weight: 600; cursor: pointer;
 }
@@ -329,11 +331,11 @@ body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-
 .collection-toolbar .is-danger { color: var(--edit-danger); font-size: .85rem; font-weight: 600; }
 .collection-toolbar button:disabled { opacity: .3; }
 .collection-toolbar [data-grip] { touch-action: none; cursor: grab; }
-.collection-field textarea[data-field="word"] {
-  field-sizing: content; min-inline-size: 0; resize: none; overflow-wrap: anywhere;
+.collection-field textarea[data-autogrow] {
+  field-sizing: content; min-inline-size: 0; resize: none; overflow: hidden; overflow-wrap: anywhere;
 }
-.collection-field { display: grid; gap: .2rem; }
+.collection-field { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: .2rem; }
 .collection-field, .collection-options label { font-size: .85rem; }
 .collection-options { gap: 1rem; }
-.collection-footer { position: sticky; bottom: 0; margin: 0; padding: .65rem 0; background: var(--edit-surface); border-top: 1px solid var(--edit-border); }
+.collection-footer { margin: 0; padding-top: .65rem; background: var(--edit-surface); border-top: 1px solid var(--edit-border); }
 .collection-footer [data-add] { margin-right: auto; padding-inline: .25rem; }
