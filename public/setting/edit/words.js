@@ -62,6 +62,8 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     seq: new Map(), observer: null, tempId: 0,
   };
 
+  const pendingReloads = new WeakSet();
+  const reloadLabel = pending => pending ? "最新の内容を読み込み中…" : "最新を読み込む";
   const ORDER_WRITE_TIMEOUT = 30000;
   const orderWriteRejected = error => [400, 401, 403, 404].includes(error.status);
   let orderSaving = false;
@@ -558,7 +560,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       card.classList.add("edit-illustrated-card");
     }
     if (row.error) insert(article.querySelector(".entry-body"), `<div class="edit-error" role="alert"><p>${h(row.error)}</p><div class="edit-error-actions">${row.conflict
-      ? '<button type="button" class="edit-btn" data-op="reload-word">最新を読み込む</button><button type="button" class="edit-btn is-primary" data-op="overwrite-word">上書きして保存</button>'
+      ? `<button type="button" class="edit-btn" data-op="reload-word"${pendingReloads.has(row) ? " disabled" : ""}>${reloadLabel(pendingReloads.has(row))}</button><button type="button" class="edit-btn is-primary" data-op="overwrite-word">上書きして保存</button>`
       : '<button type="button" class="edit-btn is-primary" data-op="retry-save">もう一度保存</button>'}</div></div>`);
     root.querySelectorAll(".edit-insert-word").forEach(el => el.remove());
     if (!row.isNew) article.insertAdjacentHTML("afterend", `<button type="button" class="edit-add-bar edit-insert-word" data-op="insert-word" data-after="${h(id)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> ここに単語を追加</button>`);
@@ -649,11 +651,11 @@ export function createWordEditor({ root, listId, onStructureChange }) {
   // 古い内容を起点に編集すると、保存時に「別の編集で変更されています」と誤って止まる。
   // 選択したらDBの最新を読み、未編集なら起点を差し替える。編集を始める操作はこれを待つ。
   function freshen(row) {
-    if (!row || row.isNew || row.fresh) return Promise.resolve();
+    if (!row || row.isNew || row.fresh || pendingReloads.has(row)) return Promise.resolve();
     if (row.freshening) return row.freshening;
     row.freshening = api(`/words/${encodeURIComponent(row.id)}`).then(latest => {
       // 編集中（ダイアログを開いている・未保存の変更がある）なら起点は差し替えない。
-      if (row.saving || row.editingCollection || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
+      if (row.saving || pendingReloads.has(row) || row.editingCollection || isInlineEditing() || isSheetOpen() || !same(row.base, row.draft)) return;
       const next = draftOf(latest);
       row.fresh = true;
       if (same(next, row.base) && same(latest.illustration, row.raw.illustration)) return;
@@ -773,12 +775,50 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     if (!confirm("ほかの画面での変更のうち、あなたが変えた項目だけを、あなたの内容で上書きします。よろしいですか？")) return;
     return saveWord(row, { force: true });
   }
+  function updateReloadButton(row) {
+    // Keep the live editor, its focus, and any modal working copy intact.
+    const button = entryEl(row.id)?.querySelector('[data-op="reload-word"]');
+    if (!button) return;
+    const pending = pendingReloads.has(row);
+    button.disabled = pending;
+    button.textContent = reloadLabel(pending);
+  }
+
   async function reloadWord(row) {
+    if (!row || row.saving || !row.conflict || pendingReloads.has(row) || S.rows.get(row.id) !== row) return;
     if (!confirm("この単語の未保存の変更を取り消して、最新の内容を読み込みますか？")) return;
-    const latest = await api(`/words/${encodeURIComponent(row.id)}`, { fresh: true });
-    row.raw = toViewer(latest, row.raw);
-    row.base = draftOf(latest); row.draft = clone(row.base); row.error = ""; row.conflict = false; row.fresh = true;
-    rerenderEntry(row.id);
+    const { id, base, draft, saveProgress } = row;
+    const confirmedDraft = clone(draft);
+    const stillCurrent = () => S.rows.get(id) === row;
+    pendingReloads.add(row);
+    try {
+      updateReloadButton(row);
+      const latest = await api(`/words/${encodeURIComponent(id)}`, { fresh: true });
+      // A newer save attempt also invalidates this read, even if it has already failed.
+      if (!stillCurrent() || row.saving || row.saveProgress !== saveProgress) return;
+      // The confirmation was for this draft only. Modal input can still be uncommitted.
+      if (row.base !== base || row.draft !== draft || !same(row.draft, confirmedDraft) ||
+          row.editingCollection || isSheetOpen() || hasActiveInlineIn(entryEl(id))) {
+        toast("下書きを残しました。最新の内容に切り替えるには、編集を終えてからもう一度「最新を読み込む」を押してください。");
+        return;
+      }
+      if (latest?.id !== id || !latest.spelling?.trim() || !Array.isArray(latest.lists)) throw new Error("Invalid word detail");
+      if (!latest.lists.some(item => item.listId === listId)) {
+        toast("この単語は現在の単語帳にありません。下書きは残しています。", { tone: "error" });
+        return;
+      }
+      const next = draftOf(latest);
+      row.raw = toViewer(latest, row.raw);
+      row.base = next; row.draft = clone(next); row.error = ""; row.conflict = false; row.fresh = true;
+      rerenderEntry(id);
+    } catch {
+      if (stillCurrent() && row.conflict && !row.saving && row.saveProgress === saveProgress) {
+        toast("最新の内容を読み込めませんでした。下書きは残しています。もう一度「最新を読み込む」を押してください。", { tone: "error", duration: 7000 });
+      }
+    } finally {
+      pendingReloads.delete(row);
+      if (stillCurrent()) updateReloadButton(row);
+    }
   }
 
   // ---- 単語の追加・削除 ----
@@ -1426,7 +1466,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
     const article = event.target.closest(".entry[data-word-id]");
     const row = article && S.rows.get(article.dataset.wordId);
     // タップした時点で最新の読み込みを始める（ダブルタップの2回目までに終わることが多い）。
-    if (row) void freshen(row);
+    if (row && opEl?.dataset.op !== "reload-word") void freshen(row);
     if (opEl) return handleOp(opEl, row);
     const speak = event.target.closest('[data-action="speak"]');
     if (speak) return playPronunciation(speak.dataset.text, { audioUrl: speak.dataset.audioUrl, button: speak });
