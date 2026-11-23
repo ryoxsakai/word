@@ -1049,7 +1049,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
 
   function openMoveSheet(ids) {
     if (!canChangeOrder()) return;
-    sheet(`${ids.length}語を移動`, body => {
+    sheet(`${ids.length}語を移動`, (body, _panel, actions) => {
       const form = document.createElement("div");
       form.className = "edit-form";
       const sectionSelect = document.createElement("select");
@@ -1069,8 +1069,6 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const note = document.createElement("p");
       note.className = "edit-hint";
       note.textContent = "移動先の末尾に入ります。位置はあとからドラッグで調整できます。";
-      const actions = document.createElement("div");
-      actions.className = "edit-sheet-actions";
       const many = document.createElement("button");
       many.type = "button";
       many.textContent = "ほかの単語も選ぶ";
@@ -1084,7 +1082,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
         moveWordsTo(ids, sectionSelect.value ? Number(sectionSelect.value) : null, labelSelect.value ? Number(labelSelect.value) : null);
       });
       actions.append(many, ok);
-      body.append(form, note, actions);
+      body.append(form, note);
     });
   }
   function startMulti(ids = []) {

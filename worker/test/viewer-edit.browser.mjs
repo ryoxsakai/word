@@ -330,6 +330,77 @@ try {
     }
   }
 
+  // フレーズ／訳の自動伸縮と、キーボード表示時の独立した操作列。
+  for (const fallback of [false, true]) {
+    const phone = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    try {
+      await phone.route(url => !url.href.startsWith(origin), route => route.abort());
+      if (fallback) await phone.addInitScript(() => {
+        const supports = CSS.supports.bind(CSS);
+        CSS.supports = (...args) => args[0] === 'field-sizing' ? false : supports(...args);
+      });
+      await phone.goto(`${origin}/setting/index.html`);
+      if (fallback) await phone.addStyleTag({ content: '.collection-field textarea { field-sizing: fixed !important; }' });
+      const entry = phone.locator('.entry[data-word-id="w1"]');
+      const openPhrase = async phrase => { await phrase.tap(); await phrase.tap(); };
+      await openPhrase(entry.locator('.example-phrase').first());
+      const dialog = phone.getByRole('dialog', { name: 'takeのフレーズ' });
+      const sentences = dialog.locator('[data-field=sentence]');
+      const translations = dialog.locator('[data-field=translation]');
+      const longTranslation = '予想以上に長い訳を入力したときの折り返しを確認します。'.repeat(12);
+      for (const [input, longText] of [[sentences.first(), 'take a longer break '.repeat(18)], [translations.first(), longTranslation]]) {
+        const original = await input.inputValue();
+        const oneLine = await input.evaluate(el => {
+          const style = getComputedStyle(el);
+          return parseFloat(style.lineHeight) + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
+            + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+        });
+        assert.equal(await input.getAttribute('rows'), '1');
+        for (const value of [longText, 'A\nB', original, '']) {
+          await input.fill(value);
+          const { offsetHeight, clientHeight, scrollHeight } = await input.evaluate(el => ({
+            offsetHeight: el.offsetHeight, clientHeight: el.clientHeight, scrollHeight: el.scrollHeight,
+          }));
+          if (value === original || !value) assert.ok(Math.abs(offsetHeight - oneLine) <= 1, '短い入力は1行');
+          else assert.ok(offsetHeight > oneLine + 1, '折り返し・改行で欄が伸びる');
+          assert.ok(scrollHeight <= clientHeight + 1, '欄の内部にスクロールを残さない');
+        }
+        await input.fill(original);
+      }
+      for (const sentence of ['second phrase', 'last phrase']) {
+        await dialog.locator('[data-add]').tap();
+        await sentences.last().fill(sentence);
+      }
+      await translations.last().fill(longTranslation);
+      await dialog.locator('[data-apply]').tap();
+      await openPhrase(entry.locator('.example-phrase').filter({ hasText: 'last phrase' }));
+      assert.equal(await translations.last().inputValue(), longTranslation);
+      assert.ok(await translations.last().evaluate(el => el.scrollHeight <= el.clientHeight + 1));
+
+      // iOSと同様に、レイアウト幅・高さを維持して可視領域だけを縮める。
+      await phone.evaluate(() => {
+        Object.defineProperties(visualViewport, { height: { configurable: true, value: 330 }, offsetTop: { configurable: true, value: 64 } });
+        visualViewport.dispatchEvent(new Event('resize'));
+      });
+      const panel = await dialog.boundingBox();
+      assert.ok(panel.y >= 64 + 15 && panel.y + panel.height <= 64 + 330 - 15, '可視領域の上下に余白がある');
+      const list = dialog.locator('.collection-list');
+      const footer = dialog.locator('.collection-footer');
+      const bar = await footer.boundingBox();
+      assert.ok(bar.y + bar.height <= panel.y + panel.height);
+      await list.evaluate(el => { el.scrollTop = 0; });
+      assert.deepEqual(await footer.boundingBox(), bar);
+      assert.ok(await list.evaluate(el => { el.scrollTop = el.scrollHeight; return el.scrollTop > 0; }));
+      assert.deepEqual(await footer.boundingBox(), bar, '一覧を末尾に送っても操作列は動かない');
+      const last = await translations.last().boundingBox();
+      assert.ok(last.y + last.height <= bar.y + 1, '最後の訳まで操作列に隠れず読める');
+      await dialog.locator('[data-cancel]').tap();
+      assert.equal(await dialog.count(), 0);
+    } finally {
+      await phone.close();
+    }
+  }
+
   const page = await browser.newPage({ viewport: { width: 393, height: 900 }, hasTouch: false });
   page.on('pageerror', error => errors.push(error.message));
   await page.route(url => !url.href.startsWith(origin), route => route.abort());

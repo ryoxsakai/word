@@ -466,7 +466,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     applyOrder(rest, `「${moving.phrase}」を移動しました`, changes);
   }
   function openMoveSheet(row) {
-    sheet(`「${row.draft.phrase}」を移動`, body => {
+    sheet(`「${row.draft.phrase}」を移動`, (body, _panel, actions) => {
       const select = document.createElement("select");
       select.innerHTML = sections().map((s, i) => `<option value="${h(s.key)}">${h(`${i + 1}. ${s.subtitle || s.key}`)}</option>`).join("");
       select.value = row.draft.sectionKey;
@@ -484,8 +484,8 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
         S.loaded.delete(key);
         applyOrder(rest, "移動しました", [{ row, labelKey: null, sectionKey: key }]).then(() => loadSection(key));
       });
-      const actions = document.createElement("div"); actions.className = "edit-sheet-actions"; actions.append(ok);
-      body.append(form, actions);
+      actions.append(ok);
+      body.append(form);
     });
   }
   function openFieldSheet(row) {
