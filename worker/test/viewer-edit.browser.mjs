@@ -635,6 +635,8 @@ try {
   await idiom('i2').locator('[data-op="save-idiom"]').click();
   await waitWrites(19);
   assert.equal(db.idioms.find(i => i.key === 'i2').hidden, true);
+  // 書き込みがサーバーに届いた後、応答を受けて描き直すまで待つ。
+  await page.waitForFunction(() => document.querySelector('.idiom-entry[data-idiom-key="i3"] .entry-no')?.textContent === '2', null, { timeout: 5000 }).catch(() => {});
   assert.equal(await idiom('i3').locator('.entry-no').textContent(), '2', '非表示の熟語には番号を付けない');
 
   // 派生語の語と意味をまとめて保存する。
