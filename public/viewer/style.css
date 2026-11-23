@@ -1532,7 +1532,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
   margin-top: max(0px, calc((var(--sense-row-height) - 1.5em) / 2));
   transform: translateY(1px);
 }
-.sense-line > .sense-pron,
+.sense-line > .sense-with-pron,
 .sense-line .sense-meaning {
   min-width: 0;
   line-height: var(--sense-row-height);
@@ -1541,7 +1541,7 @@ body.is-printing-book > .loading-msg { display: none !important; }
    Move the whole group once so wrapped lines retain their spacing. */
 .sense-line > .sense-meaning,
 .sense-line > .sense-items,
-.sense-line > .sense-pron {
+.sense-line > .sense-with-pron {
   position: relative;
   top: 1px;
 }
@@ -1564,7 +1564,14 @@ body.is-printing-book > .loading-msg { display: none !important; }
   line-height: 1;
 }
 .sense-meaning { color: var(--accent-strong); font-weight: 600; }
-.sense-pron { font-size: 0.78rem; }
+.sense-with-pron { min-width: 0; overflow-wrap: anywhere; }
+.sense-pron {
+  display: inline-block;
+  margin-inline-start: 0.4em;
+  max-width: 100%;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
 
 /* 同一品詞の意味をまとめた行: 番号は版組時にも安定する実体要素で表示する。 */
 .sense-items {

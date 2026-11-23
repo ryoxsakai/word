@@ -783,7 +783,8 @@ async function loadSection(sectionKey, { forceRefresh = false } = {}) {
     try {html=await staticChapterHtml(list,'viewer',sectionKey,{force:forceRefresh});}
     catch(error){if(generation===listLoadGeneration)renderSectionLoadError(sectionKey,error.message);throw error;}
     if(generation!==listLoadGeneration || list!==state.currentListId)return;
-    if(html && generation===listLoadGeneration && list===state.currentListId) {
+    // Older chapter HTML stored only one pronunciation per POS. Re-render it from section data.
+    if(html && !html.includes('class="pron sense-pron"')) {
       if(!forceRefresh && state.loadedSectionKeys.has(String(sectionKey)))return;
       applyStaticWordChapter(el.wordList,html,key=>state.loadedSectionKeys.add(String(key)));
       applyFilters();return;
