@@ -42,7 +42,9 @@ export function chapterContext(index, idiomIndex, content=null) {
  const collect=value=>{if(typeof value==='string')texts.push(value);else if(Array.isArray(value))value.forEach(collect);else if(value&&typeof value==='object')Object.values(value).forEach(collect);};
  if(content)collect(content);
  const haystack=texts.join('\n').toLowerCase().replace(/ſ/g,'s').replace(/\s+/g,' ');
- const relevant=term=>!content||/[^\x00-\x7f]/.test(term)||haystack.includes(term.toLowerCase());
+ // Non-ASCII terms (～, ’, Japanese) are filtered too: phrases often contain
+ // them, and keeping all of them compiles a whole-book alternation per note.
+ const relevant=term=>!content||haystack.includes(String(term).toLowerCase().replace(/ſ/g,'s').replace(/\s+/g,' ').trim());
  const idiomPhrases=(state.idiomResolver?.phrases||[]).filter(relevant);
  const renderNotesMarkup=createAutoCrossRefRenderer([...state.headwordIndex.keys(),...idiomPhrases].filter(relevant),{resolve:resolveRef,derivativeReferences:derivatives.filter(r=>relevant(r.derivative)),idiomReferences:idiomPhrases,phraseReferences:phraseReferences.filter(r=>relevant(r.phrase))});
  return {resolveRef,resolveHeadwordRef,renderNotesMarkup,origin:'https://vocab.lrnr.jp',dependencies};

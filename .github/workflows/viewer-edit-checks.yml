@@ -5,6 +5,7 @@ on:
     paths:
       - 'public/setting/**'
       - 'public/viewer/word-entry.js'
+      - 'public/viewer/static-chapter.js'
       - 'public/viewer/idiom-entry.js'
       - 'public/viewer/style.css'
       - 'public/shared/**'

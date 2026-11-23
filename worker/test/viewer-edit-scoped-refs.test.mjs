@@ -55,3 +55,23 @@ test('大きな単語帳でも、1件ずつの描画が重くならない', () =
   // 単語帳全体の正規表現では1件あたり数百ミリ秒かかっていた。
   assert.ok(elapsed < 3000, `200件の描画に${Math.round(elapsed)}msかかりました`);
 });
+
+// 閲覧ページのChapter HTML（サーバーで作る）も、本文に含まれる語句だけで照合する。
+// 「～」「’」を含むフレーズを絞らずに残すと、1件ごとに単語帳全体の正規表現を組み、処理時間の上限を超えていた。
+test('閲覧ページのChapter HTMLも、英数字以外を含むフレーズを絞り、同じHTMLを速く作る', async () => {
+  const { chapterContext } = await import('../../public/viewer/static-chapter.js');
+  const words = [...Array(2500)].map((_, i) => ({ id: `x${i}`, spelling: spell(i), branch: 0, seqNo: String(i + 1),
+    phrases: [`${spell(i)} a ${spell(i + 2)}～`, `${spell(i)} one’s way`], derivatives: [{ word: `${spell(i)}er` }] }));
+  const notes = i => `メモ ${spell(i + 5)} と ${spell(i + 7)}、${spell(i + 9)} a ${spell(i + 11)}～ と ${spell(i + 3)} ONE’S  WAY`;
+  const shardWords = words.slice(0, 50).map((w, i) => ({ ...w, notes: notes(i) }));
+  const scoped = chapterContext({ words }, null, { s1: { words: shardWords } });
+  const full = chapterContext({ words }, null, null);
+  const started = performance.now();
+  const html = shardWords.map(w => scoped.renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: w.phrases }));
+  const elapsed = performance.now() - started;
+  assert.ok(elapsed < 5000, `50件のメモに${Math.round(elapsed)}msかかりました`);
+  for (const [i, w] of shardWords.slice(0, 3).entries()) {
+    assert.equal(html[i], full.renderNotesMarkup(w.notes, { currentHeadword: w.spelling, currentPhrases: w.phrases }), w.notes);
+  }
+  assert.match(html[0], /class="ref/, 'フレーズへのリンクを保つ');
+});
