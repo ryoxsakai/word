@@ -47,7 +47,7 @@ function harness(transport) {
     collectDerivativeCrossReferences: () => [], collectPhraseCrossReferences: () => [],
     addDerivativeCrossReferenceAliases: index => index,
     createPhraseCrossReferenceResolver: () => () => ({}), createIdiomReferenceResolver: () => () => ({}),
-    groupIdiomEntries: () => [], createAutoCrossRefRenderer: () => () => "",
+    groupIdiomEntries: () => [], createScopedCrossRefRenderer: () => () => "",
     h: val => val, hierarchyIcon: () => "", requestAnimationFrame() {},
   });
   const editor = runInContext(

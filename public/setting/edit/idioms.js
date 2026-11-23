@@ -4,7 +4,7 @@ import { VIEWER_API_BASE } from "../../shared/config.js";
 import { orderIdiomLabels } from "../../shared/idioms.js";
 import { createIdiomReferenceResolver } from "../../shared/idiom-references.js";
 import { groupIdiomEntries } from "../../shared/idioms.js";
-import { createAutoCrossRefRenderer } from "../../shared/markup.js";
+import { createScopedCrossRefRenderer } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, idiomDraft, idiomPayload } from "../table-data.js";
 import { api } from "./api.js";
 import { loadSectionData, rememberSaved, recentSaved } from "./section-cache.js";
@@ -53,7 +53,7 @@ export function createIdiomEditor({ root, listId, onStructureChange }) {
     const wordMap = new Map((wordIndex.words || []).map(w => [w.spelling.toLowerCase(), { found: true, id: w.id, no: w.displayNo }]));
     S.resolve = createIdiomReferenceResolver(groupIdiomEntries(data.entries || [], data.chapters), name => wordMap.get(name.toLowerCase()) || { found: false });
     const names = [...wordMap.keys(), ...(S.resolve.phrases || [])];
-    S.renderNotes = createAutoCrossRefRenderer(names, { resolve: S.resolve, idiomReferences: S.resolve.phrases || [] });
+    S.renderNotes = createScopedCrossRefRenderer(names, { resolve: S.resolve, idiomReferences: S.resolve.phrases || [] });
     normalize();
     renderShells();
     onStructureChange?.();

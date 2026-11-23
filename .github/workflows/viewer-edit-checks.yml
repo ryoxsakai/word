@@ -8,7 +8,7 @@ on:
       - 'public/viewer/idiom-entry.js'
       - 'public/viewer/style.css'
       - 'public/shared/**'
-      - 'worker/test/viewer-edit.browser.mjs'
+      - 'worker/test/viewer-edit*'
       - '.github/workflows/viewer-edit-checks.yml'
 permissions:
   contents: read
