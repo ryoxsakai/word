@@ -65,7 +65,8 @@
 .is-viewer-edit .view-tab[aria-selected="true"],
 .is-viewer-edit .section-nav button.active { color: var(--edit-accent-ink); }
 
-.edit-root { touch-action: manipulation; }
+/* 編集ページ全体で片指の縦・横スクロールを許可する。 */
+html { touch-action: pan-x pan-y; }
 .edit-brand-badge {
   display: inline-block; margin-left: 0.35em; padding: 0.05em 0.5em; border-radius: 999px;
   background: var(--edit-accent); color: var(--edit-accent-ink); font-size: 0.6em; vertical-align: middle; letter-spacing: 0.05em;
@@ -170,7 +171,7 @@
 .edit-inline.is-multiline { display: flex; width: 100%; }
 .edit-inline-input {
   flex: 1 1 auto; max-width: 100%; margin: -0.15rem 0; padding: 0.1rem 0.3rem; border: 1px solid var(--edit-accent); border-radius: 4px;
-  background: var(--edit-surface); resize: none; overflow: hidden; box-shadow: 0 0 0 3px var(--edit-accent-soft);
+  background: var(--edit-surface); resize: none; overflow: hidden;
   -webkit-user-select: text; user-select: text;
 }
 .edit-inline.is-multiline .edit-inline-input { width: 100%; }
@@ -196,6 +197,10 @@
   border-radius: 16px; background: var(--edit-surface); color: var(--edit-text); box-shadow: var(--edit-shadow);
 }
 .edit-sheet.is-wide { width: min(760px, 100%); }
+.edit-sheet :is(input, select, textarea) { font: inherit; font-size: 14px; }
+.edit-sheet :is(input, select, textarea):not([type="checkbox"], [type="radio"]):focus {
+  outline: 1px solid var(--edit-muted); outline-offset: -1px;
+}
 .edit-sheet-header {
   position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 0.85rem 0 0.6rem; background: var(--edit-surface);
@@ -238,7 +243,7 @@
 .edit-form h3 { margin: 0.4rem 0 0; font-size: 0.85rem; }
 .edit-form input, .edit-form select, .edit-textarea {
   width: 100%; box-sizing: border-box; padding: 0.5rem; border: 1px solid var(--edit-border); border-radius: 8px;
-  background: var(--edit-surface); color: var(--edit-text); font: inherit; font-size: 16px;
+  background: var(--edit-surface); color: var(--edit-text);
 }
 .edit-detail-row { display: grid; grid-template-columns: auto 1fr minmax(7rem, 40%); align-items: center; gap: 0.5rem; font-size: 0.85rem; }
 .edit-detail-row:not(:has(input[type="radio"])) { grid-template-columns: 1fr minmax(7rem, 40%); }
@@ -309,7 +314,7 @@ body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-
 .edit-chip[aria-pressed="true"] { background: var(--edit-accent-soft); }
 
 .edit-sheet .edit-text-input, .collection-field textarea, .collection-options select {
-  box-sizing: border-box; font: inherit; font-size: 16px; line-height: 1.5;
+  box-sizing: border-box; line-height: 1.5;
   color: var(--edit-text); background: var(--edit-surface); border: 1px solid var(--edit-border);
   border-radius: 8px; padding: .5rem .65rem;
 }
