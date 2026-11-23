@@ -54,3 +54,20 @@ const objects=new Map([['old',oldIdioms],['search',[{text:'carry   out A'.toLowe
 await markChapters({VIEWER_SNAPSHOTS:{get:async key=>({json:async()=>objects.get(key)})}},stage,{list_id:'book',kind:'idiom-index'},{key:'old'},{data:newIdioms});
 assert.ok(stage.pendingChapters[chapterId], 'inferred references must be rebuilt after a heading changes');
 console.log('Static chapters: inferred idiom links and targeted reference invalidation passed');
+
+const {renderWordEntry} = await import('../../public/viewer/word-entry.js');
+const lead = {id:'lead', spelling:'lead', senses:[
+  {pos:'動', meaning:'案内する', pronunciation:' /liːd/ '},
+  {pos:'動', meaning:'導く', pronunciation:'liːd', isPrimary:true},
+  {pos:'名', meaning:'鉛', pronunciation:'led'},
+  {pos:'名', meaning:'先頭', pronunciation:' '}
+]};
+for (const edit of [null, {selected:true}]) {
+  const html = renderWordEntry(lead, {...chapterContext(index,null), edit});
+  for (const [i, sense] of lead.senses.slice(0,3).entries()) {
+    const attr = edit ? ` data-edit="senses.${i}.pronunciation"` : '';
+    const ipa = i === 2 ? 'led' : 'liːd';
+    assert.ok(html.includes(`${sense.meaning}</span><span class="pronunciation-inline sense-pron"${attr}>/${ipa}/</span>`));
+  }
+  assert.equal(html.match(/class="pronunciation-inline sense-pron"/g).length,3);
+}

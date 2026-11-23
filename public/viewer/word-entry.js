@@ -91,10 +91,14 @@ function renderExampleHtml(ex) {
       // 見出しの意味は常に①として先頭に来るよう並べ替える
       const items = [...group.items].sort((a, b) => (a._isPrimary ? 0 : 1) - (b._isPrimary ? 0 : 1));
       const isPrimaryGroup = items.some((s) => s._isPrimary);
-      const pron = items.find((s) => s.pronunciation)?.pronunciation;
-      const meaningHtml = (s) => edit && !String(s.meaning || "").trim()
-        ? empty(`senses.${s._index}.meaning`, "意味を入力", "sense-meaning")
-        : `<span class="sense-meaning"${ed(`senses.${s._index}.meaning`)}>${renderMarkup(s.meaning, { resolve: resolveRef })}</span>`;
+      const meaningHtml = (s) => {
+        const meaning = edit && !String(s.meaning || "").trim()
+          ? empty(`senses.${s._index}.meaning`, "意味を入力", "sense-meaning")
+          : `<span class="sense-meaning"${ed(`senses.${s._index}.meaning`)}>${renderMarkup(s.meaning, { resolve: resolveRef })}</span>`;
+        const ipa = formatPronunciationWithAccents((s.pronunciation || "").trim().replace(/^[/／]+|[/／]+$/g, "").trim());
+        if (!ipa) return meaning;
+        return `<span class="sense-with-pron">${meaning}<span class="pronunciation-inline sense-pron"${ed(`senses.${s._index}.pronunciation`)}>/${escapeHtml(ipa)}/</span></span>`;
+      };
       const meaningsHtml =
         items.length > 1
           ? `<span class="sense-items">${items
@@ -108,7 +112,6 @@ function renderExampleHtml(ex) {
       return `
     <div class="sense-line${isPrimaryGroup ? " sense-primary" : ""}"${posAttr}>
       ${group.pos ? `<span class="pos-badge"${posAttr}>${escapeHtml(group.pos)}</span>` : edit && selected ? `<span class="pos-badge edit-empty-badge"${posAttr}>品詞</span>` : ""}
-      ${pron ? `<span class="pron sense-pron">${escapeHtml(formatPronunciationWithAccents(pron))}</span>` : ""}
       ${meaningsHtml}
     </div>`;
     })
