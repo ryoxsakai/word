@@ -198,6 +198,15 @@ const origin = `http://localhost:${server.address().port}`;
 const browser = await chromium.launch({ ...(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {}) });
 const errors = [];
 try {
+  // 端末がダークでも、選んだテーマ（ライト）で読み込み中から表示する。処理が重くて main.js が遅れても変わらない。
+  {
+    const themePage = await browser.newPage({ colorScheme: 'dark' });
+    await themePage.addInitScript(() => { try { localStorage.setItem('vocab-viewer-theme', 'light'); } catch {} });
+    await themePage.route('**/edit/main.js', route => route.abort());
+    await themePage.goto(`${origin}/setting/index.html`);
+    assert.equal(await themePage.evaluate(() => document.documentElement.dataset.theme), 'light', '選んだテーマを最初の描画から使う');
+    await themePage.close();
+  }
   // Word hits are usable even when both search sources are still waiting.
   // Each source appends to this sheet without reopening it or replacing a focused result.
   const searchPage = await browser.newPage();

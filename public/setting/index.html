@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#12141a" media="(prefers-color-scheme: dark)" />
 <title>crossover 編集</title>
+<!-- 最初の描画の前にテーマを決める（読み込み中も、選んだテーマで表示する）。 -->
+<script>try { const t = localStorage.getItem("vocab-viewer-theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch {}</script>
 <link rel="apple-touch-icon" href="../shared/icons/apple-touch-icon-setting.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -7,7 +7,7 @@ import { createAutoCrossRefRenderer, createScopedCrossRefRenderer } from '../../
 const spell = i => { let s = ''; i += 1; while (i) { s = String.fromCharCode(97 + (i % 26)) + s; i = Math.floor(i / 26); } return `w${s}ing`; };
 
 function book(size) {
-  const headwords = ['take', 'take off', 'act', 'look', 'Resume', '日本語の見出し'];
+  const headwords = ['take', 'take off', 'act', 'look', 'Resume', '日本語の見出し', 'pass', 'café'];
   const derivativeReferences = [{ derivative: 'actor', target: 'act' }, { derivative: 'taker', target: 'take' }];
   const phraseReferences = [{ phrase: 'take a bus', target: 'take' }, { phrase: 'look  forward to', target: 'look' }];
   const idiomReferences = ['look after', 'by the way', 'お見通し'];
@@ -15,6 +15,8 @@ function book(size) {
     headwords.push(spell(i));
     derivativeReferences.push({ derivative: `${spell(i)}er`, target: spell(i) });
     phraseReferences.push({ phrase: `${spell(i)} a ${spell(i + 2)}`, target: spell(i) });
+    // 本番のフレーズには「～」や日本語、’ を含むものが多い。
+    phraseReferences.push({ phrase: `${spell(i)} one’s ～`, target: spell(i) });
   }
   const opts = { resolve: name => ({ found: true, id: name, no: 1 }), derivativeReferences, phraseReferences, idiomReferences };
   return { headwords, opts };
@@ -28,6 +30,8 @@ const texts = [
   ['wbaing a wbacing、wbaer、お見通し、日本語の見出し', { currentHeadword: 'wbaing' }],
   ['https://example.com/take と (no. 221) take /teɪk/', { currentHeadword: 'new word' }],
   ['resume と Resume', {}],
+  ['wbaing one’s ～ と WBAING ONE’S ～、お見通し', { currentHeadword: 'x' }],
+  ['paſs と pass、CAFÉ と café', {}],
   ['', {}],
 ];
 
@@ -46,7 +50,7 @@ test('大きな単語帳でも、1件ずつの描画が重くならない', () =
   const { headwords, opts } = book(4000);
   const scoped = createScopedCrossRefRenderer(headwords, opts);
   const started = performance.now();
-  for (let i = 0; i < 200; i++) scoped(`メモ ${spell(i + 5)} と ${spell(i + 7)} を比較。${spell(i)} a ${spell(i + 2)}`, { currentHeadword: spell(i), currentPhrases: [`${spell(i)} a ${spell(i + 2)}`] });
+  for (let i = 0; i < 200; i++) scoped(`メモ ${spell(i + 5)} と ${spell(i + 7)} を比較。${spell(i)} a ${spell(i + 2)}、${spell(i + 1)} one’s ～`, { currentHeadword: spell(i), currentPhrases: [`${spell(i)} a ${spell(i + 2)}`] });
   const elapsed = performance.now() - started;
   // 単語帳全体の正規表現では1件あたり数百ミリ秒かかっていた。
   assert.ok(elapsed < 3000, `200件の描画に${Math.round(elapsed)}msかかりました`);
