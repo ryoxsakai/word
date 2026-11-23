@@ -9,7 +9,7 @@ import { groupIdiomEntries } from "../../shared/idioms.js";
 import { playPronunciation } from "../../shared/speech.js";
 import {
   addDerivativeCrossReferenceAliases, collectDerivativeCrossReferences, collectPhraseCrossReferences,
-  createAutoCrossRefRenderer, createPhraseCrossReferenceResolver,
+  createScopedCrossRefRenderer, createPhraseCrossReferenceResolver,
 } from "../../shared/markup.js";
 import { changedKeys, clone, same, mergeDraft, wordDraft, wordPayload, cautions } from "../table-data.js";
 import { api, lookupNewWordPronunciation, saveExistingWord, verifySavedWordOrder } from "./api.js";
@@ -213,7 +213,7 @@ export function createWordEditor({ root, listId, onStructureChange }) {
       const hit = headwordIndex.get(headword.toLowerCase());
       return hit ? { found: true, id: hit.id, no: hit.no } : { found: false };
     };
-    S.renderNotesMarkup = createAutoCrossRefRenderer([...headwordIndex.keys(), ...(idiomResolver.phrases || [])], {
+    S.renderNotesMarkup = createScopedCrossRefRenderer([...headwordIndex.keys(), ...(idiomResolver.phrases || [])], {
       resolve: S.resolveRef, derivativeReferences, idiomReferences: idiomResolver.phrases || [], phraseReferences,
     });
   }

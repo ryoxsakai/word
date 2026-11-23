@@ -384,6 +384,45 @@ export function addDerivativeCrossReferenceAliases(headwordIndex, derivativeRefe
  * @param {Iterable<{phrase: string, target: string}>} [opts.phraseReferences]
  * @returns {(raw: string, context?: {currentHeadword?: string, currentPhrases?: string[]}) => string}
  */
+/**
+ * createAutoCrossRefRenderer と同じ結果を返す、本文ごとに候補を絞る版。
+ * 単語帳全体の語句（見出し語・派生語・フレーズ・熟語）を1つの正規表現にすると、
+ * 1回の描画ごとに数千の候補を照合して重くなる。本文に含まれる語句だけで組み立てる
+ * （閲覧ページの static-chapter.js が Chapter ごとに絞るのと同じ考え方）。
+ * ラテン文字以外を含む語句は、大文字小文字の扱いが異なり得るため常に残す。
+ */
+export function createScopedCrossRefRenderer(headwords, opts = {}) {
+  const normalize = (text) => String(text || "").toLowerCase().replace(/\s+/g, " ").trim();
+  const term = (text) => ({ text, key: normalize(text), always: /[^\x00-\x7f]/.test(String(text || "")) });
+  const headwordTerms = [...(headwords || [])].map(term);
+  const derivativeTerms = (opts.derivativeReferences || []).map((ref) => ({ ref, ...term(ref?.derivative) }));
+  const phraseTerms = (opts.phraseReferences || []).map((ref) => ({ ref, ...term(ref?.phrase) }));
+  const idiomTerms = (opts.idiomReferences || []).map(term);
+  const cache = new Map();
+  return (raw, context = {}) => {
+    if (!raw) return "";
+    const haystack = normalize(raw);
+    const hit = (t) => t.always || (t.key && haystack.includes(t.key));
+    const heads = headwordTerms.filter(hit);
+    const derivatives = derivativeTerms.filter(hit);
+    const phrases = phraseTerms.filter(hit);
+    const idioms = idiomTerms.filter(hit);
+    const key = [heads, derivatives, phrases, idioms].map((list) => list.map((t) => t.key).join("\u0001")).join("\u0002");
+    let render = cache.get(key);
+    if (!render) {
+      render = createAutoCrossRefRenderer(heads.map((t) => t.text), {
+        ...opts,
+        derivativeReferences: derivatives.map((t) => t.ref),
+        phraseReferences: phrases.map((t) => t.ref),
+        idiomReferences: idioms.map((t) => t.text),
+      });
+      if (cache.size >= 500) cache.delete(cache.keys().next().value);
+      cache.set(key, render);
+    }
+    return render(raw, context);
+  };
+}
+
 export function createAutoCrossRefRenderer(headwords, opts = {}) {
   const canonicalByLower = new Map();
   for (const rawHeadword of headwords || []) {
