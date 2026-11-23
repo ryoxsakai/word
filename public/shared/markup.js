@@ -389,11 +389,13 @@ export function addDerivativeCrossReferenceAliases(headwordIndex, derivativeRefe
  * 単語帳全体の語句（見出し語・派生語・フレーズ・熟語）を1つの正規表現にすると、
  * 1回の描画ごとに数千の候補を照合して重くなる。本文に含まれる語句だけで組み立てる
  * （閲覧ページの static-chapter.js が Chapter ごとに絞るのと同じ考え方）。
- * ラテン文字以外を含む語句は、大文字小文字の扱いが異なり得るため常に残す。
+ * 日本語や「～」などを含む語句も同じく絞る（フレーズの多くが含むため、常に残すと絞れない）。
+ * 照合は大文字小文字を区別しないので、小文字にそろえて含まれるかを調べる。
  */
 export function createScopedCrossRefRenderer(headwords, opts = {}) {
-  const normalize = (text) => String(text || "").toLowerCase().replace(/\s+/g, " ").trim();
-  const term = (text) => ({ text, key: normalize(text), always: /[^\x00-\x7f]/.test(String(text || "")) });
+  // 正規表現の i フラグでは ſ が s に一致するため、そろえておく。
+  const normalize = (text) => String(text || "").toLowerCase().replace(/ſ/g, "s").replace(/\s+/g, " ").trim();
+  const term = (text) => ({ text, key: normalize(text) });
   const headwordTerms = [...(headwords || [])].map(term);
   const derivativeTerms = (opts.derivativeReferences || []).map((ref) => ({ ref, ...term(ref?.derivative) }));
   const phraseTerms = (opts.phraseReferences || []).map((ref) => ({ ref, ...term(ref?.phrase) }));
@@ -402,7 +404,7 @@ export function createScopedCrossRefRenderer(headwords, opts = {}) {
   return (raw, context = {}) => {
     if (!raw) return "";
     const haystack = normalize(raw);
-    const hit = (t) => t.always || (t.key && haystack.includes(t.key));
+    const hit = (t) => t.key && haystack.includes(t.key);
     const heads = headwordTerms.filter(hit);
     const derivatives = derivativeTerms.filter(hit);
     const phrases = phraseTerms.filter(hit);
