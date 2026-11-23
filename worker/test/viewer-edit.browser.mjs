@@ -452,8 +452,13 @@ try {
   // 欄のタイルでメモを追加する。
   await entry('w1').locator('[data-op="fields"]').click();
   await page.locator('.edit-tile', { hasText: 'メモ' }).click();
-  await page.locator('.edit-inline-input').fill('よく使う');
-  await page.locator('.edit-inline-input').press('Control+Enter');
+  const memo = page.getByRole('textbox', { name: 'メモ' });
+  assert.deepEqual(await memo.evaluate(el => {
+    const style = getComputedStyle(el);
+    return [el === document.activeElement, style.fontSize, style.boxShadow, style.outlineStyle, style.outlineWidth];
+  }), [true, '14px', 'none', 'solid', '1px']);
+  await memo.fill('よく使う');
+  await memo.press('Control+Enter');
   await save('w1');
   await waitWrites(7);
   assert.equal(db.words.get('w1').notes, 'よく使う');
@@ -657,6 +662,15 @@ try {
   await mobile.goto(`${origin}/setting/index.html`);
   const mobileEntry = mobile.locator('.entry[data-word-id="w4"]');
   await mobileEntry.waitFor();
+  const touch = await phone.newCDPSession(mobile);
+  const { width, height: screenHeight } = mobile.viewportSize();
+  const pinch = async () => {
+    await touch.send('Input.synthesizePinchGesture', {
+      x: width / 2, y: screenHeight / 2, scaleFactor: 1.6, gestureSourceType: 'touch',
+    });
+    assert.equal(await mobile.evaluate(() => visualViewport.scale), 1);
+  };
+  await pinch();
   const shot = async name => { if (process.env.SHOT_DIR) await mobile.screenshot({ path: `${process.env.SHOT_DIR}/${name}.png` }); };
   await shot('1-view');
   await mobileEntry.locator('.headword').tap();
@@ -680,7 +694,11 @@ try {
   assert.equal(await mobileInput.inputValue(), '学ぶ');
   await mobileInput.fill('勉強する');
   await shot('3-editing');
-  assert.equal(await mobileInput.evaluate(el => getComputedStyle(el).fontSize), '16px');
+  assert.equal(await mobileInput.evaluate(el => getComputedStyle(el).fontSize), '14px');
+  assert.equal(await mobile.evaluate(() => visualViewport.scale), 1);
+  await pinch();
+  assert.ok(await mobileInput.evaluate(el => ['gesturestart', 'gesturechange'].every(type =>
+    !el.dispatchEvent(new Event(type, { bubbles: true, cancelable: true })))), '編集欄でもSafariのピンチ操作を抑制する');
   await mobile.locator('[data-apply]').tap();
   const before = db.writes.length;
   assert.equal(db.words.get('w4').senses[0].meaning, '学ぶ');

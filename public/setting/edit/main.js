@@ -13,6 +13,11 @@ const THEME_KEY = "vocab-viewer-theme";
 const FONT_SIZE_KEY = "vocab-viewer-font-size";
 const FONT_SCALES = { 1: 0.8, 2: 0.9, 3: 1, 4: 1.15, 5: 1.32 };
 
+// Safariではviewportの指定だけではピンチできるため、編集画面で拡大・縮小のジェスチャーを止める。
+for (const type of ["gesturestart", "gesturechange"]) {
+  addEventListener(type, event => event.preventDefault(), { passive: false });
+}
+
 const el = {
   settingsToggle: document.getElementById("settingsToggle"),
   settingsMenu: document.getElementById("settingsMenu"),
