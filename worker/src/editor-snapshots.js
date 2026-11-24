@@ -129,13 +129,15 @@ export async function viewerPublicationRoute(request, env) {
   }
   // 公開処理が重い作業の途中だと状態の問い合わせに答えられないため、時間を区切る。
   // 未反映の件数と、閲覧ページを最後に更新した時刻は、公開処理を通さずに読む。
-  const [statusResponse, pendingRow, current] = await Promise.all([
+  const [statusResponse, pendingRow, nextJob, current] = await Promise.all([
     withTimeout(publisher(env).fetch('https://publisher/status').catch(() => null), 5000),
     env.DB.prepare('SELECT COUNT(*) AS count FROM viewer_snapshot_dirty').first().catch(() => null),
+    // 公開処理は未反映の作業をこの順に1件ずつ処理する。先頭が止まると後ろも進まない。
+    env.DB.prepare('SELECT kind, section_key AS sectionKey FROM viewer_snapshot_dirty ORDER BY list_id,kind,section_key LIMIT 1').first().catch(() => null),
     env.VIEWER_SNAPSHOTS.get('current.json').then(object => object?.json()).catch(() => null),
   ]);
   const status = statusResponse?.ok ? await statusResponse.json() : { state: 'busy' };
   if (!status.generatedAt && current?.generatedAt) status.generatedAt = current.generatedAt;
   status.publishedAt = current?.generatedAt ?? null;
-  return json({ enabled: true, ...status, pendingEdits: pendingRow?.count ?? null });
+  return json({ enabled: true, ...status, pendingEdits: pendingRow?.count ?? null, nextJob: nextJob || null });
 }

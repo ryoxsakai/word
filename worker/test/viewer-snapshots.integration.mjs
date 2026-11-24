@@ -171,6 +171,7 @@ try {
  assert.equal(publication.state,'ready');
  assert.equal(publication.revision,status.revision);
  assert.equal(publication.pendingEdits,0);
+ assert.equal(publication.nextJob,null);
  const retried=await api('/mcp-editor/api/viewer-publication',{method:'POST',headers:{Authorization:'Bearer '+editorToken}});
  assert.equal(retried.status,200,'やり直しを受け付ける');
  assert.equal((await retried.json()).state,'ready','未反映の変更がなければ作り直さない');

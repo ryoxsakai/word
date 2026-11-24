@@ -132,6 +132,8 @@ function publicationSummary(status) {
   else rows.push(["状態", "まだ一度も作成していません"]);
   if (status.publishedAt && status.state !== "ready") rows.push(["閲覧ページを最後に更新した時刻", timeText(status.publishedAt)]);
   if (status.pendingEdits != null) rows.push(["まだ反映していない変更", `${status.pendingEdits}件`]);
+  const jobNames = { "word-section": "単語のSection", "viewer-index": "単語の一覧", "idiom-section": "熟語のSection", "idiom-index": "熟語の一覧", catalog: "単語帳の一覧" };
+  if (status.nextJob && status.pendingEdits > 0) rows.push(["次に作るもの", `${jobNames[status.nextJob.kind] || status.nextJob.kind}${status.nextJob.sectionKey ? `（${status.nextJob.sectionKey}）` : ""}`]);
   if (status.scheduledAt && (waiting || status.state !== "ready")) rows.push(["次に試す時刻", timeText(status.scheduledAt)]);
   return rows.filter(([, value]) => value);
 }
