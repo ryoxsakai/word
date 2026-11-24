@@ -229,6 +229,14 @@ try {
     assert.equal(db.writes.at(-1)?.path, '/api/viewer-publication', 'やり直しを送る');
     assert.equal(db.writes.length, before + 1);
     db.writes.pop();
+    // 前回の公開が終わっていても、未反映の変更があれば「反映済み」とは出さない。
+    db.publication = { state: 'ready', generatedAt: '2026-11-24T00:00:00Z', scheduledAt: Date.parse('2026-11-24T01:20:00Z') };
+    await pubPage.locator('.edit-sheet-close').click();
+    await pubPage.locator('#settingsToggle').click();
+    await pubPage.locator('#publicationInfoBtn').click();
+    await info.getByText('反映待ち').waitFor();
+    assert.doesNotMatch(await info.textContent(), /反映済み/);
+    assert.match(await info.textContent(), /次に試す時刻/);
     delete db.publication;
     await pubPage.close();
   }

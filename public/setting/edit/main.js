@@ -122,12 +122,15 @@ const timeText = value => {
 function publicationSummary(status) {
   const rows = [];
   if (status.enabled === false) return [["状態", "この環境では閲覧ページの自動作成を使っていません"]];
-  if (status.state === "ready") rows.push(["状態", "反映済み"], ["最後に反映した時刻", timeText(status.generatedAt)]);
+  // 前回の公開が終わっていても、未反映の変更か予定された処理があれば、まだ反映していない。
+  const waiting = status.state === "ready" && (status.pendingEdits > 0 || !!status.scheduledAt);
+  if (waiting) rows.push(["状態", "反映待ち"], ["前回反映した時刻", timeText(status.generatedAt)]);
+  else if (status.state === "ready") rows.push(["状態", "反映済み"], ["最後に反映した時刻", timeText(status.generatedAt)]);
   else if (status.state === "building") rows.push(["状態", status.remainingChapters ? `作成中（残り${status.remainingChapters}Chapter）` : "作成中"], ["最後に進んだ時刻", timeText(status.updatedAt)]);
   else if (status.state === "failed") rows.push(["状態", `うまく作れていません（${status.failures || 1}回目）`], ["理由", status.error || "不明"]);
   else rows.push(["状態", "まだ一度も作成していません"]);
   if (status.pendingEdits != null) rows.push(["まだ反映していない変更", `${status.pendingEdits}件`]);
-  if (status.scheduledAt && status.state !== "ready") rows.push(["次に試す時刻", timeText(status.scheduledAt)]);
+  if (status.scheduledAt && (waiting || status.state !== "ready")) rows.push(["次に試す時刻", timeText(status.scheduledAt)]);
   return rows.filter(([, value]) => value);
 }
 function openPublicationSheet() {
