@@ -237,6 +237,15 @@ try {
     await info.getByText('反映待ち').waitFor();
     assert.doesNotMatch(await info.textContent(), /反映済み/);
     assert.match(await info.textContent(), /次に試す時刻/);
+    // 公開処理が答えられないときも、閲覧ページを最後に更新した時刻と未反映の件数を出す。
+    db.publication = { state: 'busy', publishedAt: '2026-11-20T00:00:00Z', nextJob: { kind: 'word-section', sectionKey: '100' } };
+    await pubPage.locator('.edit-sheet-close').click();
+    await pubPage.locator('#settingsToggle').click();
+    await pubPage.locator('#publicationInfoBtn').click();
+    await info.getByText(/作成中（いま処理していて/).waitFor();
+    assert.match(await info.textContent(), /閲覧ページを最後に更新した時刻/);
+    assert.match(await info.textContent(), /次に作るもの単語のSection（100）/);
+    assert.match(await info.textContent(), /まだ反映していない変更2件/);
     delete db.publication;
     await pubPage.close();
   }
