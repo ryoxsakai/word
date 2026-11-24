@@ -165,6 +165,15 @@ try {
  assert.equal((await staticGet('/lists')).status,503,'uninitialized snapshot never falls back to D1');
  assert.equal((await api('/mcp-viewer-publish',{method:'POST'})).status,401);
  await admin('POST'); let status=await waitPublished();
+ // 編集画面から、閲覧ページへの反映の状態と未反映の件数を読める（編集の権限が必要）。
+ assert.equal((await api('/mcp-editor/api/viewer-publication')).status,401);
+ const publication=await(await api('/mcp-editor/api/viewer-publication',{headers:{Authorization:'Bearer '+editorToken}})).json();
+ assert.equal(publication.state,'ready');
+ assert.equal(publication.revision,status.revision);
+ assert.equal(publication.pendingEdits,0);
+ const retried=await api('/mcp-editor/api/viewer-publication',{method:'POST',headers:{Authorization:'Bearer '+editorToken}});
+ assert.equal(retried.status,200,'やり直しを受け付ける');
+ assert.equal((await retried.json()).state,'ready','未反映の変更がなければ作り直さない');
  let manifest=await(await bucket.get('current.json')).json();
  const sectionA=scope('snapshot-test','word-section','99901'), sectionB=scope('snapshot-test','word-section','99902');
  const originalA=manifest.files[sectionA].key, originalB=manifest.files[sectionB].key;

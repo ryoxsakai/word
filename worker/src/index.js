@@ -1,4 +1,4 @@
-import { serveEditorSnapshot, editorSnapshotsEnabled } from './editor-snapshots.js';
+import { serveEditorSnapshot, editorSnapshotsEnabled, viewerPublicationRoute } from './editor-snapshots.js';
 import { handleIdiomIllustrationRoute } from './idiom-illustrations.js';
 import { renderMarkup } from "../../public/shared/markup.js";
 import { readIdioms, readIdiomIndex, readIdiomSection, reorderIdioms, reorderIdiomSections, renameIdiomSection, saveIdiom } from "./idioms.js";
@@ -2946,6 +2946,10 @@ export default {
       const apiPath = pathname.slice("/mcp-editor".length);
       const parts = apiPath.split("/").filter(Boolean).map(decodeURIComponent);
       try {
+        // 閲覧ページへの反映（公開処理）の状態。GETは状態と未処理の件数、POSTはやり直し。
+        if (pathname === "/mcp-editor/api/viewer-publication") {
+          return withCors(await viewerPublicationRoute(request, env), allowedOrigin);
+        }
         const snapshot = await serveEditorSnapshot(request, env);
         if (snapshot) return withCors(snapshot, allowedOrigin);
         if (pathname === "/mcp-editor/api/audio-generation/status") {

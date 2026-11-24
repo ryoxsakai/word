@@ -114,6 +114,64 @@ onPublication(status => {
   }
 });
 
+// ---- 反映の状況（閲覧ページを作る処理の状態を見て、やり直せるようにする） ----
+const timeText = value => {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.getTime()) ? date.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+};
+function publicationSummary(status) {
+  const rows = [];
+  if (status.enabled === false) return [["状態", "この環境では閲覧ページの自動作成を使っていません"]];
+  // 前回の公開が終わっていても、未反映の変更か予定された処理があれば、まだ反映していない。
+  const waiting = status.state === "ready" && (status.pendingEdits > 0 || !!status.scheduledAt);
+  if (waiting) rows.push(["状態", "反映待ち"], ["前回反映した時刻", timeText(status.generatedAt)]);
+  else if (status.state === "ready") rows.push(["状態", "反映済み"], ["最後に反映した時刻", timeText(status.generatedAt)]);
+  else if (status.state === "building") rows.push(["状態", status.remainingChapters ? `作成中（残り${status.remainingChapters}Chapter）` : "作成中"], ["最後に進んだ時刻", timeText(status.updatedAt)]);
+  else if (status.state === "failed") rows.push(["状態", `うまく作れていません（${status.failures || 1}回目）`], ["理由", status.error || "不明"]);
+  else rows.push(["状態", "まだ一度も作成していません"]);
+  if (status.pendingEdits != null) rows.push(["まだ反映していない変更", `${status.pendingEdits}件`]);
+  if (status.scheduledAt && (waiting || status.state !== "ready")) rows.push(["次に試す時刻", timeText(status.scheduledAt)]);
+  return rows.filter(([, value]) => value);
+}
+function openPublicationSheet() {
+  closeMenus();
+  sheet("閲覧ページへの反映", body => {
+    const list = document.createElement("dl");
+    list.className = "edit-publication-info";
+    list.setAttribute("role", "status");
+    list.innerHTML = '<div><dt>状態</dt><dd>確認しています…</dd></div>';
+    const note = document.createElement("p");
+    note.className = "edit-hint";
+    note.textContent = "保存した内容は、この処理で閲覧ページに反映されます。止まっているときは「反映をやり直す」を押してください。";
+    const footer = document.createElement("div");
+    footer.className = "edit-sheet-actions";
+    const close = document.createElement("button");
+    close.type = "button"; close.className = "edit-btn"; close.textContent = "閉じる";
+    close.addEventListener("click", closeSheet);
+    const retry = document.createElement("button");
+    retry.type = "button"; retry.className = "edit-btn is-primary"; retry.textContent = "反映をやり直す";
+    footer.append(close, retry);
+    body.append(list, note, footer);
+    const show = status => {
+      list.innerHTML = publicationSummary(status).map(([label, value]) => `<div><dt>${h(label)}</dt><dd>${h(value)}</dd></div>`).join("");
+    };
+    const load = async (method = "GET") => {
+      retry.disabled = true;
+      try { show(await api("/viewer-publication", method === "GET" ? {} : { method })); }
+      catch (error) { list.innerHTML = `<div><dt>状態</dt><dd>${h(`確認できませんでした：${error.message}`)}</dd></div>`; }
+      finally { retry.disabled = false; }
+    };
+    retry.addEventListener("click", async () => {
+      await load("POST");
+      toast("閲覧ページへの反映をやり直しています");
+      resumePublicationWatch();
+    });
+    load();
+  });
+}
+document.getElementById("publicationInfoBtn")?.addEventListener("click", openPublicationSheet);
+el.publishStatus.addEventListener("click", openPublicationSheet);
+
 // ---- 単語・熟語 ----
 let activeView = "list";
 let words, idioms;

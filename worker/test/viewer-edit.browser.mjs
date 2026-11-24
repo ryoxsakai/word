@@ -66,6 +66,10 @@ async function handleApi(db, method, path, body) {
   if (method !== 'GET') db.writes.push({ method, path: url.pathname, body });
   if (parts[0] === 'lists' && parts.length === 1) return [{ id: LIST, name: 'crossover', isNotebook: true, chapterLabel: 'Chapter', sectionLabel: 'Section' }];
   if (parts[0] === 'lookup') return { pronunciation: 'ˈnjuː' };
+  if (parts[0] === 'viewer-publication') {
+    if (method === 'POST') db.publication = { state: 'building', remainingChapters: 3, updatedAt: '2026-11-24T01:00:00Z', scheduledAt: Date.parse('2026-11-24T01:00:02Z') };
+    return { enabled: true, pendingEdits: 2, ...(db.publication || { state: 'ready', generatedAt: '2026-11-24T00:00:00Z' }) };
+  }
   if (parts[0] === 'words' && parts.length === 1 && method === 'POST') {
     const id = `w${++db.nextId}`;
     db.words.set(id, { ...body, id, derivedFrom: null, senses: body.senses.map(s => ({ ...s, is_primary: !!s.is_primary })) });
@@ -206,6 +210,35 @@ try {
     await themePage.goto(`${origin}/setting/index.html`);
     assert.equal(await themePage.evaluate(() => document.documentElement.dataset.theme), 'light', '選んだテーマを最初の描画から使う');
     await themePage.close();
+  }
+
+  // 歯車の「反映の状況」で、閲覧ページを作る処理が止まっている理由を見て、やり直せる。
+  {
+    db.publication = { state: 'failed', failures: 4, error: 'Exceeded CPU time limit', scheduledAt: Date.parse('2026-11-24T01:15:00Z') };
+    const pubPage = await browser.newPage();
+    await pubPage.goto(`${origin}/setting/index.html`);
+    await pubPage.locator('#settingsToggle').click();
+    await pubPage.locator('#publicationInfoBtn').click();
+    const info = pubPage.locator('.edit-publication-info');
+    await info.getByText('うまく作れていません（4回目）').waitFor();
+    assert.match(await info.textContent(), /Exceeded CPU time limit/, '失敗の理由を出す');
+    assert.match(await info.textContent(), /まだ反映していない変更2件/, '未反映の件数を出す');
+    const before = db.writes.length;
+    await pubPage.getByRole('button', { name: '反映をやり直す' }).click();
+    await info.getByText('作成中（残り3Chapter）').waitFor();
+    assert.equal(db.writes.at(-1)?.path, '/api/viewer-publication', 'やり直しを送る');
+    assert.equal(db.writes.length, before + 1);
+    db.writes.pop();
+    // 前回の公開が終わっていても、未反映の変更があれば「反映済み」とは出さない。
+    db.publication = { state: 'ready', generatedAt: '2026-11-24T00:00:00Z', scheduledAt: Date.parse('2026-11-24T01:20:00Z') };
+    await pubPage.locator('.edit-sheet-close').click();
+    await pubPage.locator('#settingsToggle').click();
+    await pubPage.locator('#publicationInfoBtn').click();
+    await info.getByText('反映待ち').waitFor();
+    assert.doesNotMatch(await info.textContent(), /反映済み/);
+    assert.match(await info.textContent(), /次に試す時刻/);
+    delete db.publication;
+    await pubPage.close();
   }
   // Word hits are usable even when both search sources are still waiting.
   // Each source appends to this sheet without reopening it or replacing a focused result.

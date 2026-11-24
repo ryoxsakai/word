@@ -1,5 +1,6 @@
 // Authenticated notebook reads project the already-published viewer JSON.
-// This module must never query D1, even on a missing or damaged snapshot.
+// Snapshot reads must never query D1, even on a missing or damaged snapshot
+// (only viewerPublicationRoute counts the publication journal).
 import { indexKey, wordSection, idiomSection } from './viewer-snapshot-build.js';
 
 export const editorSnapshotsEnabled = env => env.VIEWER_STATIC_ENABLED === 'true' &&
@@ -114,4 +115,21 @@ export async function serveEditorSnapshot(request, env) {
     console.error('Editor snapshot read failed', error);
     return json({ error: '一覧データを読み込めませんでした。少し待ってから再読み込みしてください。' }, 503);
   }
+}
+
+// 閲覧ページへの反映の状態（編集画面の表示用）。公開処理の状態に、未処理の変更の件数を添える。
+// 件数だけはD1の公開待ちの記録（viewer_snapshot_dirty）を数える。
+export async function viewerPublicationRoute(request, env) {
+  if (!editorSnapshotsEnabled(env)) return json({ enabled: false });
+  if (request.method === 'POST') {
+    await publisher(env).fetch('https://publisher/wake', { method: 'POST' });
+  } else if (request.method !== 'GET') {
+    return json({ error: 'method not allowed' }, 405);
+  }
+  const [statusResponse, pendingRow] = await Promise.all([
+    publisher(env).fetch('https://publisher/status'),
+    env.DB.prepare('SELECT COUNT(*) AS count FROM viewer_snapshot_dirty').first().catch(() => null),
+  ]);
+  const status = statusResponse.ok ? await statusResponse.json() : { state: 'unknown' };
+  return json({ enabled: true, ...status, pendingEdits: pendingRow?.count ?? null });
 }
