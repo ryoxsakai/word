@@ -339,3 +339,10 @@ body.has-section-nav.is-edit-multi .edit-toast { bottom: calc(8.2rem + env(safe-
 .collection-options { gap: 1rem; }
 .collection-footer { margin: 0; padding-top: .65rem; background: var(--edit-surface); border-top: 1px solid var(--edit-border); }
 .collection-footer [data-add] { margin-right: auto; padding-inline: .25rem; }
+
+/* 閲覧ページへの反映の状況 */
+.edit-publication-info { margin: 0; display: grid; gap: 0.5rem; }
+.edit-publication-info > div { display: grid; grid-template-columns: 9.5em 1fr; gap: 0.5rem; }
+.edit-publication-info dt { color: var(--edit-muted); font-size: 0.85rem; }
+.edit-publication-info dd { margin: 0; color: var(--edit-text); overflow-wrap: anywhere; }
+.edit-publish-status { cursor: pointer; }
