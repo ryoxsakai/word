@@ -128,7 +128,9 @@ function publicationSummary(status) {
   else if (status.state === "ready") rows.push(["状態", "反映済み"], ["最後に反映した時刻", timeText(status.generatedAt)]);
   else if (status.state === "building") rows.push(["状態", status.remainingChapters ? `作成中（残り${status.remainingChapters}Chapter）` : "作成中"], ["最後に進んだ時刻", timeText(status.updatedAt)]);
   else if (status.state === "failed") rows.push(["状態", `うまく作れていません（${status.failures || 1}回目）`], ["理由", status.error || "不明"]);
+  else if (status.state === "busy") rows.push(["状態", "作成中（いま処理していて、詳しい状態を返せません）"]);
   else rows.push(["状態", "まだ一度も作成していません"]);
+  if (status.publishedAt && status.state !== "ready") rows.push(["閲覧ページを最後に更新した時刻", timeText(status.publishedAt)]);
   if (status.pendingEdits != null) rows.push(["まだ反映していない変更", `${status.pendingEdits}件`]);
   if (status.scheduledAt && (waiting || status.state !== "ready")) rows.push(["次に試す時刻", timeText(status.scheduledAt)]);
   return rows.filter(([, value]) => value);

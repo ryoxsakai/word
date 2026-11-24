@@ -121,15 +121,21 @@ export async function serveEditorSnapshot(request, env) {
 // 件数だけはD1の公開待ちの記録（viewer_snapshot_dirty）を数える。
 export async function viewerPublicationRoute(request, env) {
   if (!editorSnapshotsEnabled(env)) return json({ enabled: false });
+  const withTimeout = (promise, ms) => Promise.race([promise, new Promise(resolve => setTimeout(() => resolve(null), ms))]);
   if (request.method === 'POST') {
-    await publisher(env).fetch('https://publisher/wake', { method: 'POST' });
+    await withTimeout(publisher(env).fetch('https://publisher/wake', { method: 'POST' }).catch(() => null), 5000);
   } else if (request.method !== 'GET') {
     return json({ error: 'method not allowed' }, 405);
   }
-  const [statusResponse, pendingRow] = await Promise.all([
-    publisher(env).fetch('https://publisher/status'),
+  // 公開処理が重い作業の途中だと状態の問い合わせに答えられないため、時間を区切る。
+  // 未反映の件数と、閲覧ページを最後に更新した時刻は、公開処理を通さずに読む。
+  const [statusResponse, pendingRow, current] = await Promise.all([
+    withTimeout(publisher(env).fetch('https://publisher/status').catch(() => null), 5000),
     env.DB.prepare('SELECT COUNT(*) AS count FROM viewer_snapshot_dirty').first().catch(() => null),
+    env.VIEWER_SNAPSHOTS.get('current.json').then(object => object?.json()).catch(() => null),
   ]);
-  const status = statusResponse.ok ? await statusResponse.json() : { state: 'unknown' };
+  const status = statusResponse?.ok ? await statusResponse.json() : { state: 'busy' };
+  if (!status.generatedAt && current?.generatedAt) status.generatedAt = current.generatedAt;
+  status.publishedAt = current?.generatedAt ?? null;
   return json({ enabled: true, ...status, pendingEdits: pendingRow?.count ?? null });
 }
